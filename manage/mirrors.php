@@ -426,18 +426,22 @@ echo <<<EOS
 <div id="resources">
  <table>
   <tr>
-   <td>(<img src="/images/mirror_ok.png" />) Fine:</td>
+   <td><img src="/images/mirror_ok.png" /></td>
+   <td>Fine:</td>
    <td>{$stats['ok']}</td>
   </tr>
   <tr>
-   <td>(<img src="/images/mirror_deactivated.png" />) Disabled:</td>
+   <td><img src="/images/mirror_deactivated.png" /></td>
+   <td>Disabled:</td>
    <td>{$stats['disabled']}</td>
   </tr>
   <tr>
-   <td>(<img src="/images/mirror_error.png" />) AutoDisabled:</td>
+   <td><img src="/images/mirror_error.png" /></td>
+   <td>AutoDisabled:</td>
    <td>{$stats['autodisabled']}</td>
   </tr>
   <tr>
+   <td>&nbsp;</td>
    <td><strong>Total:</strong></td>
    <td><strong>{$stats['mirrors']}</strong></td>
   </tr>
