@@ -1,0 +1,166 @@
+<?php
+
+require_once 'cvs-auth.inc';
+require_once 'email-validation.inc';
+
+if (!isset($action)) header("Location: http://www.php.net/");
+
+if($user && $pass) {
+  setcookie("MAGIC_COOKIE",base64_encode("$user:$pass"),time()+3600*24*12,'/','.php.net');
+}
+
+if (!$user && isset($MAGIC_COOKIE)) {
+  list($user, $pass) = explode(":", base64_decode($MAGIC_COOKIE));
+}
+
+if (!$user || !$pass || !verify_password($user,$pass)) {
+  head();?>
+<p>You have to log in first.</p>
+<form method="post" action="<?php echo $PHP_SELF;?>">
+<input type="hidden" name="action" value="<?php echo clean($action);?>" />
+<table>
+ <tr>
+  <th align="right">CVS username:</th>
+  <td><input type="text" name="user" value="<?php echo clean($user);?>" size="10" maxlength="32" /></td>
+ </tr>
+ <tr>
+  <th align="right">CVS password:</th>
+  <td><input type="password" name="pass" value="<?php echo clean($pass);?>" size="10" maxlength="32" /></td>
+ </tr>
+ <tr>
+  <td align="center" colspan="2">
+    <input type="submit" value="Log in" />
+  </td>
+ </tr>
+</table>
+</form>
+<?php
+  foot();
+  exit;
+}
+
+if (preg_match("/^(.+)\\s+(\\d+)\$/", $action, $m)) {
+  $action = $m[1]; $id = $m[2];
+}
+
+@mysql_connect("localhost","nobody","")
+  or die("unable to connect to database");
+@mysql_select_db("php3")
+  or die("unable to select database");
+
+switch($action) {
+case 'reject':
+case 'delete':
+  if ($id) {
+    if ($result = mysql_query("SELECT * FROM note WHERE id=$id")) {
+      $row = mysql_fetch_array($result);
+      if (mysql_query("UPDATE note SET removed=1 WHERE id=$id")) {
+        mail("php-notes@lists.php.net","note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user",$row['note'],"From: $user@php.net");
+        if ($action == 'reject') {
+          $email = clean_antispam($row['user']);
+          if (is_emailable_address($email)) {
+            mail($email,"note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."----- Copy of your note below -----\n\n".$row['note'],"From: $user@php.net");
+          }
+        }
+        echo '<script language="javascript">window.close();</script>';
+        exit;
+      }
+    }
+    head();
+    echo "<p>An unknown error occured. Try again later.</p>";
+    foot();
+    exit;
+  }
+  /* falls through, with id not set. */
+case 'preview':
+case 'edit':
+  if ($id) {
+    head();
+
+    if ($result = @mysql_query("SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id=$id")) {
+      $row = mysql_fetch_array($result);
+    }
+
+    $email = isset($email) ? $email : addslashes($row['user']);
+
+    if (isset($note) && $action == "edit") {
+      if (@mysql_query("UPDATE note SET note='$note',user='$email',updated=NOW() WHERE id=$id")) {
+        mail("php-notes@lists.php.net","note $row[id] modified in $row[sect] by $user",stripslashes($note)."\n\n--was--\n$row[note]\n\nhttp://www.php.net/manual/en/$row[sect].php","From: $user@php.net");
+        echo "<p>note $id edited.</p>";
+      }
+      else {
+        echo "\n<!--", mysql_error(), "-->\n";
+        echo "<p>An unknown error occured. Try again later.</p>";
+        foot();
+        exit;
+      }
+    }
+
+    $note = isset($note) ? $note : addslashes($row['note']);
+
+    if ($action == "preview") {
+      echo "<p class=\"notepreview\">",clean_note(stripslashes($note)),
+           "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
+           clean($email),"</span></p>";
+    }
+?>
+<form method="post" action="<?php echo $PHP_SELF;?>">
+<input type="hidden" name="id" value="<?php echo $id;?>" />
+<table>
+ <tr>
+  <th align="right">email:</th>
+  <td><input type="text" name="email" value="<?php echo clean($email);?>" size="30" maxlength="80" /></td>
+ </tr>
+ <tr>
+  <td colspan="2"><textarea name="note" cols="60" rows="10" wrap="virtual"><?php echo clean($note);?></textarea></td>
+ </tr>
+ <tr>
+  <td align="center" colspan="2">
+    <input type="submit" name="action" value="edit" />
+    <input type="submit" name="action" value="preview" />
+  </td>
+ </tr>
+</table>
+</form>
+<?php
+    foot();
+    exit;
+  }
+  /* falls through */
+default:
+  head();
+  echo "<p>'$action' is not a recognized action, or no id was specified.</p>";
+  foot();
+}
+
+function head($title="") {?>
+<html>
+<head>
+ <title><?php echo $title;?></title>
+ <link rel="stylesheet" type="text/css" href="http://www.php.net/style.css" />
+</head>
+<body class="popup">
+<?php
+}
+
+function foot() {?>
+</body>
+</html>
+<?php
+}
+
+function clean($var) {
+  return htmlspecialchars(get_magic_quotes_gpc() ? stripslashes($var) : $var);
+}
+
+function clean_note($text) {
+    $text = htmlspecialchars($text);
+    $fixes = array('<br>','<p>','</p>');
+    reset($fixes);
+    while (list(,$f)=each($fixes)) {
+        $text=str_replace(htmlspecialchars($f), $f, $text);
+        $text=str_replace(htmlspecialchars(strtoupper($f)), $f, $text);
+    }
+    $text = "<tt>".nl2br($text)."</tt>";
+    return $text;
+}
