@@ -95,7 +95,20 @@ case 'delete':
           }
         }
       }
-      echo '<script language="javascript">window.close();</script>';
+      
+      //if we came from an email, report _something_
+      if (isset ($_GET['report'])) {
+      	print "Note #$id has been ";
+	if ($action == 'reject') {
+		print 'rejected';
+	} else if ($action == 'delete') {
+		print 'deleted';
+	}
+	print ' and removed from the manual';
+      } else {
+        //if not, just close the window
+        echo '<script language="javascript">window.close();</script>';
+      }
       exit;
     }
     head();

@@ -25,9 +25,9 @@ if (@mysql_query($query)) {
   $msg = stripslashes($note);
   $msg .= "\n-- \n";
   $msg .= "http://www.php.net/manual/en/$sect.php\n";
-  $msg .= "http://master.php.net/manage/user-notes.php?action=edit+$new_id\n";
-  $msg .= "http://master.php.net/manage/user-notes.php?action=delete+$new_id\n";
-  $msg .= "http://master.php.net/manage/user-notes.php?action=reject+$new_id\n";
+  $msg .= "Edit Note\t\thttp://master.php.net/manage/user-notes.php?action=edit+$new_id&report=yes\n";
+  $msg .= "Delete Note\t\thttp://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes\n";
+  $msg .= "Reject Note\t\thttp://master.php.net/manage/user-notes.php?action=reject+$new_id&report=yes\n";
   # make sure we have a return address.
   if (!$user) $user = "php-general@lists.php.net";
   // see who requested an alert
