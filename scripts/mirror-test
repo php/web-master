@@ -2,22 +2,23 @@
 <?php # vim: ft=php
 
 /*
- Ping each mirror, get what state they are in, and
- store in the local database. This data is used to
- automatically deactivate mirrors if needed. The
- gathered information is also mailed to the php-mirrors
- mailing list periodically by the mirror-summary
- script.
+ Check the state of each mirror site, and store the
+ current data in the database. This data is then used
+ to generate the official mirror listing with deactived
+ mirrors delisted. The gathered information is also
+ mailed to the php-mirrors mailing list periodically
+ by the mirror-summary script, and the maintainers also
+ get notices of deactivations weekly.
  
  TODO: notify a maintainer 24 hours before his mirror
        gets delisted
 */
 
 // This script will run for a long time
-set_time_limit (30 * 60);
+set_time_limit(30 * 60);
 
 // Connect to local MySQL database
-mysql_connect("localhost","nobody","")
+mysql_connect("localhost", "nobody", "")
     or die("unable to connect to database");
 mysql_select_db("php3");
 
@@ -50,8 +51,9 @@ foreach ($hosts as $index => $host) {
     }
     
     // Request the exact file on www.php.net as it redirects
-    // the request to a mirror site, and we would not handle
-    // that properly...
+    // shortcut requests to a mirror site, and we would not handle
+    // that properly. Otherwise on a mirror site we need to check
+    // the shortcut functionality too.
     if ($host['hostname'] == 'www.php.net') {
         $filename = '/mirror-info.php';
     } else {
@@ -72,15 +74,15 @@ foreach ($hosts as $index => $host) {
     // Set timeout to 5 seconds
     socket_set_timeout($fp, 5, 0);
 
-    // Get lines from the socket, while we get past the HTTP headers
+    // Get lines from the socket, until we get past the HTTP headers
     // (HTTP headers and data have one empty line between them)
     do {
         $line = fgets($fp);
     } while ($line !== FALSE && $line != "" && $line != "\r\n" && $line != "\n");
 
-    // If we were unable to pass the HTTP header, skip mirror site
+    // If we were unable to pass the HTTP headers, skip mirror site
     if ($line === FALSE || $line == "") {
-        $hosts[$index]['problem'] = "didn't get past headers";
+        $hosts[$index]['problem'] = "unable get past HTTP response headers (probably timeout)";
         continue;
     }
         
@@ -89,16 +91,16 @@ foreach ($hosts as $index => $host) {
 
     // If unable to read that row, skip mirror site
     if ($rv === FALSE) {
-        $hosts[$index]['problem'] = "didn't get data";
+        $hosts[$index]['problem'] = "unable to get data (probably timeout)";
         continue;
     }
     
-    // Exlode information row by delimiter
+    // Explode information row by delimiter
     $info = explode("|", $rv);
 
     // Invalid data received, skip mirror site
     if (count($info) < 7) {
-        $hosts[$index]['problem'] = "invalid data received (maybe improper ErrorHandler)";
+        $hosts[$index]['problem'] = "invalid data received (probably improper ErrorHandler)";
         continue;
     }
     
@@ -135,7 +137,7 @@ foreach ($hosts as $index => $host) {
     // alias is in effect
     if ($info[6] == "manual-alias") {
         $hosts[$index]['lastupdated'] = '0';
-        $hosts[$index]['problem'] = "manual alias in effect";
+        $hosts[$index]['problem'] = "Apache manual alias in effect";
     }
 }
 
@@ -144,9 +146,11 @@ $mirrorsupdated = 0; $problems = "";
 foreach ($hosts as $host) {
     
     // If a "problem" is not specified, then we were able to check
-    // the mirror, so the mirror data can be updated. Otherwise
-    // the previous data need to be kept (except maybe "active")!
+    // the mirror, so the mirror data can be updated, and the old
+    // error message need to be removed. Otherwise the previous data
+    // need to be kept.
     if (!isset($host['problem'])) {
+        
         $query = "UPDATE mirrors SET " .
                  "lastchecked = NOW(), " .
                  "lastupdated = FROM_UNIXTIME(" . $host['mirrorupdated'] . "), " .
@@ -155,7 +159,8 @@ foreach ($hosts as $host) {
                  "phpversion = '" . addslashes($host['phpversion']) . "', " .
                  "lang = '"       . $host['lang']                   . "', " .
                  "ocmt = '' " .
-                 "WHERE hostname = '" . $host['hostname'] . "'"; 
+                 "WHERE hostname = '" . $host['hostname'] . "'";
+                  
         $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
         if ($result) { $mirrorsupdated++; }
         else { $problems .= $host['hostname'] . " : cannot be updated in database\n"; }
