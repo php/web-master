@@ -180,10 +180,10 @@ foreach ($hosts as $host) {
 }
 
 // Send a debug mail at midnight with current details
-//if (intval(date("H")) == 0) {
+if (intval(date("H")) == 0) {
     @mail(
         "goba@php.net",
         "Mirror site updates done",
         "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
     );
-//}
+}
