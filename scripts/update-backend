@@ -40,6 +40,11 @@ else {
     fclose($dest);
 }
 
+// Compress mirrorkit dir in backend to mirrorkit.tgz
+chdir("$root/backend/mirrorkit");
+$output = `tar -czf mirrorkit.tgz *`;
+if (strlen($output)) { die("Mirrorkit compression error: $output"); }
+
 // Fetch data into a temporary file first, and then
 // overwrite the real file with the new data
 function fetch_into_file($url, $file)
