@@ -303,7 +303,7 @@ $prevcc = "000";
 while ($row = mysql_fetch_array($res)) {
     
     // Print separator row
-    echo '<tr><td colspan="6"></td></tr>' . "\n" .
+    echo '<tr><td colspan="6"></td></tr>' . "\n";
 
     // Print out a country header, if a new country is found
     if ($prevcc != $row['cc']) {
