@@ -1,16 +1,27 @@
 <?php
 
-// Info on the $MIRRORS array structure
+// Info on the $MIRRORS array structure and some constants
 $structinfo = "
 /* Structure of an element of the $MIRRORS array:
   0  Country code
   1  Provider name
-  2  Local stats flag (1/0)
+  2  Local stats flag (TRUE / FALSE)
   3  Provider URL
-  4  Mirror type (1 - standard, 2 - special, 0 - download)
-  5  Local search engine flag (1/0)
+  4  Mirror type [see type constants]
+  5  Local search engine flag (TRUE / FALSE)
   6  Default language code
+  7  Status [see status constants]
 */
+
+// Mirror type constants
+define('MIRROR_STANDARD', 1);
+define('MIRROR_SPECIAL',  2);
+
+// Mirror status constants
+define('MIRROR_OK',          0);
+define('MIRROR_NOTACTIVE',   1);
+define('MIRROR_OUTDATED',    2);
+define('MIRROR_DOESNOTWORK', 3);
 
 ";
 
@@ -48,28 +59,35 @@ if (@mysql_pconnect("localhost","nobody","")) {
                     $row["hostname"] = "http://$row[hostname]/";
                 }
                 
-                // We don't have any comment for general mirrors
-                $comment = '';
+                // Rewrite the mirrortype to use defined constants
+                $row["mirrortype"] = (($row["mirrortype"] == 1) ? 'MIRROR_STANDARD' : 'MIRROR_SPECIAL');
                 
-                // Set inactive mirrors to type 2 so they won't show up in the drop-down,
-                // and provide information in comment for diagnostical purposes
+                // Rewrirte has_search and has_stats to be booleans
+                $row["has_search"] = ($row["has_search"] ? 'TRUE' : 'FALSE');
+                $row["has_stats"]  = ($row["has_stats"]  ? 'TRUE' : 'FALSE');
+                
+                // Presumably the mirror is all right
+                $status = 'MIRROR_OK';
+                
+                // Set inactive mirrors to special (for backward compatibilty),
+                // and provide status information computed from current information
                 if (!$row["active"]) {
-                    $row["mirrortype"] = 2;
-                    $comment = '// not active';
+                    $row["mirrortype"] = 'MIRROR_SPECIAL';
+                    $status = 'MIRROR_NOTACTIVE';
                 } elseif (!$row["current"]) {
-                    $row["mirrortype"] = 2;
-                    $comment = '// not up to date';
+                    $row["mirrortype"] = 'MIRROR_SPECIAL';
+                    $status = 'MIRROR_OUTDATED';
                 } elseif (!$row["up"]) {
-                    $row["mirrortype"] = 2;
-                    $comment = '// does not seem to work';
+                    $row["mirrortype"] = 'MIRROR_SPECIAL';
+                    $status = 'MIRROR_DOESNOTWORK';
                 }
                 
                 // Print out the array element for this mirror
                 echo "    \"$row[hostname]\" => array(\"$row[cc]\"," .
                      "\"$row[providername]\",$row[has_stats],\"$row[providerurl]\"" .
-                     ",$row[mirrortype],$row[has_search],\"$row[lang]\"),$comment\n";
+                     ",$row[mirrortype],$row[has_search],\"$row[lang]\",$status)\n";
             }
-            echo '    0 => array("xx", "Unknown", 0, "/", 2, 0, "en")', "\n";
+            echo '    0 => array("xx", "Unknown", FALSE, "/", MIRROR_SPECIAL, FALSE, "en", MIRROR_OK)', "\n";
             echo ");\n";
             echo "?>\n";
         }
