@@ -222,7 +222,7 @@ if (isset($id)) {
 <table width="100%">
  <tr>
   <td>
-   <a href="<?php echo "$PHP_SELF";?>">see all events</a>
+   <a href="<?php echo "$PHP_SELF";?>">see upcoming events</a>
    | <a href="<?php echo "$PHP_SELF?unapproved=1";?>">see unapproved events</a>
   </td>
   <td align="right">
@@ -241,12 +241,12 @@ $max = $max ? (int)$max : 20;
 $limit = "LIMIT $begin,$max";
 $orderby = $order ? "ORDER BY $order" : "";
 
-$searchby = $search ? "WHERE (MATCH(sdesc,ldesc,email) AGAINST ('$search')" : "";
+$searchby = $search ? " WHERE MATCH(sdesc,ldesc,email) AGAINST ('$search')" : "";
 if (!$searchby && $unapproved) {
-  $searchby = 'WHERE NOT approved';
+  $searchby = ' WHERE NOT approved';
 }
-elseif ($unapproved) {
-  $searchby .= ' AND NOT approved';
+if (!$searchby) {
+  $searchby = ' WHERE NOT (tipo = 1 AND sdato < NOW()) AND NOT (tipo = 2 AND edato < NOW())';
 }
 
 $query = "SELECT COUNT(id) FROM phpcal";

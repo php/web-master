@@ -7,7 +7,7 @@ CREATE TABLE phpcal (
   sdato DATE DEFAULT NULL,
   edato DATE DEFAULT NULL,
   recur VARCHAR(12) DEFAULT NULL,
-  sdesc VARCHAR(16) NOT NULL DEFAULT '',
+  sdesc VARCHAR(32) NOT NULL DEFAULT '',
   url VARCHAR(128) DEFAULT NULL,
   email VARCHAR(128) DEFAULT NULL,
   ldesc TEXT,
@@ -20,5 +20,6 @@ CREATE TABLE phpcal (
   KEY sdato (sdato),
   KEY edato (edato),
   KEY country (country),
-  KEY category (category)
+  KEY category (category),
+  FULLTEXT KEY sdesc (sdesc,ldesc,email)
 ) TYPE=MyISAM;
