@@ -13,7 +13,6 @@ mysql_select_db("php3");
 
 // Get boolean values from form
 $active     = isset($active)     ? 1 : 0;
-$has_search = isset($has_search) ? 1 : 0;
 $has_stats  = isset($has_stats)  ? 1 : 0;
 
 // We have something to update in the database
@@ -31,7 +30,7 @@ if (isset($id) && isset($hostname)) {
                      "mirrortype=$mirrortype, cname='$cname', maintainer='$maintainer', " .
                      "providername='$providername', providerurl='$providerurl', " .
                      "cc='$cc', lang='$lang', has_stats=$has_stats, " .
-                     "has_search=$has_search, lastedited=NOW() WHERE id = $id";
+                     "lastedited=NOW() WHERE id = $id";
             $msg = "$hostname updated";
         break;
 
@@ -45,10 +44,10 @@ if (isset($id) && isset($hostname)) {
         case "insert":
             $query = "INSERT INTO mirrors (hostname, active, mirrortype, " .
                      "cname, maintainer, providername, providerurl, cc, " .
-                     "lang, has_stats, has_search, created, lastedited) " .
+                     "lang, has_stats, created, lastedited) " .
                      "VALUES ('$hostname', $active, $mirrortype, '$cname', " .
                      "'$maintainer', '$providername', '$providerurl', '$cc', " .
-                     "'$lang', $has_stats, $has_search, NOW(), NOW())";
+                     "'$lang', $has_stats, NOW(), NOW())";
             $msg = "$hostname added";
         break;
     }
@@ -68,8 +67,8 @@ if (isset($id) && isset($hostname)) {
         
         // In case a of a mirror is deleted, mail a notice to the
         // php-mirrors list, so any malicios deletions can be tracked
-        if ($mode == "delete") {
-            $body = "The mirrors list was updated, and $hostname was deleted.";
+        if ($mode == "delete" || $mode == "insert") {
+            $body = "The mirrors list was updated, and $hostname was " . ($mode == "delete" ? "deleted." : "added.");
             @mail(
                 "php-mirrors@lists.php.net",
                 "PHP Mirrors Updated by $user.",
@@ -103,6 +102,13 @@ elseif (isset($id)) {
           'lang'        => 'en'
       );
   }
+
+  // Local search type displays
+  $searchtypes = array(
+      '0' => 'Not supported',
+      '1' => 'Supported',
+      '2' => 'Supported (old method)'
+  );
 
   // Print out mirror data table with or without values
 ?>
@@ -150,10 +156,6 @@ elseif (isset($id)) {
    <th align="right">Local Stats</th>
    <td><input type="checkbox" name="has_stats"<?php echo $row['has_stats'] ? " checked" : ""; ?> /></td>
   <tr>
-   <th align="right">Local Search</th>
-   <td><input type="checkbox" name="has_search"<?php echo $row['has_search'] ? " checked" : ""; ?> /></td>
-  </tr>
-  <tr>
    <td colspan="2" align="center"><input type="submit" value="<?php echo $id ? "Change" : "Add"; ?>" />
   </tr>
  </table>
@@ -182,6 +184,10 @@ elseif (isset($id)) {
   <tr>
    <th>PHP version used:</th>
    <td><?php print_version($row['phpversion']); ?></td>
+  </tr>
+  <tr>
+   <th>Local Search</th>
+   <td><?php echo $searchtypes[$row['has_search']]; ?></td>
   </tr>
  </table>
 <?php } else { echo "&nbsp;"; } ?>
