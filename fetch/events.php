@@ -18,14 +18,14 @@ if(!isset($a)) {
 if (!isset($cm)) $cm = (int)strftime('%m');
 if (!isset($cy)) $cy = (int)strftime('%Y');
 if (!isset($cd)) $cd = (int)strftime('%d');
-if (!isset($nm)) $nm = 1;
+if (!isset($nm)) $nm = 3;
 
 while ($nm) {
   $entries = load_month($cy,$cm);
   $last = last_day($cy,$cm);
   for ($i=$cd; $i<=$last; $i++) {
     if (is_array($entries[$i])) foreach($entries[$i] as $row) {
-      echo "$i,$cm,$cy,".'"/events.php#'.$i.'_'.$cm.'","'.addslashes($row['sdesc']).'",'.$row['id'].',"'.addslashes($row['ldesc']).'","'.$row['url'].'",'.$row['recur'].','.$row['tipo'].','.$row['sdato'].','.$row['edato']."\n";
+      echo "$i,$cm,$cy,".'"/events.php#'.$i.'_'.$cm.'","'.addslashes($row['sdesc']).'",'.$row['id'].',"'.base64_encode($row['ldesc']).'","'.$row['url'].'",'.$row['recur'].','.$row['tipo'].','.$row['sdato'].','.$row['edato']."\n";
     }
   }  
   $nm--;
