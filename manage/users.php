@@ -54,19 +54,38 @@ with your CVS account, feel free to send us a note at group@php.net.";
         echo '<script language="javascript">window.close();</script>';
         exit;
       }
+      warn("record $id ($userinfo[username]) approved");
     }
     else {
       warn("wasn't able to grant cvs access to id $id.");
     }
     break;
   case 'remove':
+    $userinfo = fetch_user($id);
     if (mysql_query("DELETE FROM users WHERE userid=$id")
      && mysql_affected_rows()) {
+      $message = $userinfo[cvsaccess] ? 
+"Your CVS account ($userinfo[username]) was deleted.
+
+Feel free to send us a note at group@php.net to find out why this
+was done."
+:
+"Your CVS account request ($userinfo[username]) was denied.
+
+The most likely reason is that you did not read the reasons for
+which CVS accounts are granted, and your request failed to meet
+the list of acceptable criteria.
+
+If you'd like to make another appeal for a CVS account, feel free
+to send us a note at group@php.net.";
+      mail($userinfo[email],"CVS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>");
+      mail($mailto,$userinfo[cvsaccess] ? "CVS Account Deleted: $userinfo[username] deleted by $user" : "CVS Account Rejected: $userinfo[username] rejected by $user","","From: PHP Group <group@php.net>");
       mysql_query("DELETE FROM users_note WHERE userid=$id");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
         exit;
       }
+      warn("record $id ($userinfo[username]) removed");
     }
     else {
       warn("wasn't able to delete id $id.");
@@ -206,7 +225,7 @@ $max = $max ? (int)$max : 20;
 $limit = "LIMIT $begin,$max";
 $orderby = $order ? "ORDER BY $order" : "";
 
-$searchby = $search ? "WHERE (MATCH(name,email,username) AGAINST ('$search') OR MATCH(note) AGAINST ('$search'))" : "";
+$searchby = $search ? "WHERE (MATCH(name,email,username) AGAINST ('$search') OR MATCH(note) AGAINST ('$search') OR username = '$search')" : "";
 if (!$searchby && $unapproved) {
   $searchby = 'WHERE (username IS NOT NULL AND NOT cvsaccess)';
 }
@@ -253,7 +272,7 @@ while ($row = mysql_fetch_array($res)) {
  <td align="center"><a href="<?php echo "$PHP_SELF?id=$row[userid]";?>">edit</a></td>
  <td><?php echo htmlspecialchars($row[name]);?></td>
  <td><?php echo htmlspecialchars($row[email]);?></td>
- <td<?php if ($row[username] && !$row[cvsaccess]) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row[username]);?><?php if ($row[username] && !$row[cvsaccess]) echo " <a href=\"$PHP_SELF?action=approve&amp;noclose=1&amp;id=$row[userid]\" title=\"approve\">+</a>";?></td>
+ <td<?php if ($row[username] && !$row[cvsaccess]) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row[username]);?><?php if ($row[username] && is_admin($user)) { if (!$row[cvsaccess]) echo " <a href=\"$PHP_SELF?action=approve&amp;noclose=1&amp;id=$row[userid]\" title=\"approve\">+</a>"; echo " <a href=\"$PHP_SELF?action=remove&amp;noclose=1&amp;id=$row[userid]\" title=\"remove\">&times;</a>"; }?></td>
 </tr>
 <?php
   if ($full && $row[note]) {?>

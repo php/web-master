@@ -44,6 +44,7 @@ if (@mysql_query($query)) {
 
   $msg .= "\n-- \n";
   $msg .= "approve: http://master.php.net/manage/users.php?action=approve&id=$new_id\n";
+  $msg .= "reject:  http://master.php.net/manage/users.php?action=remove&id=$new_id\n";
 
   mail($failto,"CVS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id-admin@php.net>");
 } else {
