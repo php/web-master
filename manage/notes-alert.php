@@ -1,51 +1,13 @@
 <?php
-require_once "cvs-auth.inc";
+require_once "login.inc";
+require_once "functions.inc";
 require_once "alert_lib.inc";
-
-if($user && $pass) {
-  setcookie("MAGIC_COOKIE",base64_encode("$user:$pass"),time()+3600*24*12,'/','.php.net');
-}
-
-if (!$user && isset($MAGIC_COOKIE)) {
-  list($user, $pass) = explode(":", base64_decode($MAGIC_COOKIE));
-}
-
-if (!$user || !$pass || !verify_password($user,$pass)) {
-	head(); ?>
-<p>
-<b>You need to login first</b>
-</p>
-<form method="post" action="<?php echo $PHP_SELF;?>">
-<input type="hidden" name="sect" value="<?php echo clean($sect);?>" />
-<input type="hidden" name="alert_action" value="<?php echo clean($alert_action);?>" />
-<table>
- <tr>
-  <th align="right">CVS username:</th>
-  <td><input type="text" name="user" value="<?php echo clean($user);?>" size="10" maxlength="32" /></td>
- </tr>
- <tr>
-  <th align="right">CVS password:</th>
-  <td><input type="password" name="pass" value="<?php echo clean($pass);?>" size="10" maxlength="32" /></td>
- </tr>
- <tr>
-  <td align="center" colspan="2">
-    <input type="submit" value="Log in" />
-  </td>
- </tr>
-</table>
-</form>
-
-</p>
-<?php
-	foot();
-	exit;
-}
 
 head();
 	
 switch ($alert_action) {
 	case "add_alert" :
-		$sql = "insert into alerts values ('$user', '$sect', now())";
+		$sql = "INSERT INTO alerts VALUES ('$user', '$sect', NOW())";
 		if (has_alert($user, $sect))
 			echo "<b>You already have an alert for this page</b><br />\n";
 		else
@@ -72,29 +34,3 @@ echo "<hr>";
 print_alerts($user);
 
 foot();
-
-// functions "borrowed" from user-notes.php
-
-function head() {?>
-<html>
-<head>
- <title>Notes Alert system</title>
- <link rel="stylesheet" type="text/css" href="http://www.php.net/style.css" />
-</head>
-<body class="popup">
-<?php
-}
-
-function foot() {?>
-<hr>
-<a href="javascript:self.close();">Close Window</a>
-</body>
-</html>
-<?php
-}
-
-function clean($var) {
-  return htmlspecialchars(get_magic_quotes_gpc() ? stripslashes($var) : $var);
-}
-
-?>
