@@ -121,9 +121,11 @@ foreach ($hosts as $host) {
 
 }
 
-// DEBUG
-@mail(
-    "goba@php.net",
-    "Mirror site updates done",
-    "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
-);
+// Send a debug mail at midnight with current details
+if (intval(date("H")) == 24) {
+    @mail(
+        "goba@php.net",
+        "Mirror site updates done",
+        "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
+    );
+}
