@@ -13,8 +13,7 @@ div#header div#links {
   font-size: smaller;
   font-family: sans-serif;
 }
-
-p.warning {
+p.warning, .error {
   background: #ffeeee;
   border: 1px solid #ff0000;
   padding: 2px 4px;
