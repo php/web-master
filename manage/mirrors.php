@@ -243,7 +243,7 @@ $res = mysql_query("SELECT mirrors.*, " .
 </p>
 <p>
  Last mirror check time: <?php echo gmdate("Y/m/d H:i:s", $checktime); ?> GMT
- <a href="$PHP_SELF?checkmirrors=1" target="_blank">Run a mirror check now</a>.
+ <a href="<?php echo $PHP_SELF; ?>?checkmirrors=1" target="_blank">Run a mirror check now</a>.
 </p>
 <table border="0" cellspacing="1" width="100%">
  <tr bgcolor="#aaaaaa">
