@@ -26,10 +26,16 @@ div#resources {
   background-color: #f5f5f5;
   font-family: sans-serif;
   font-size: small;
+  padding: 3px 3px 3px 15px;
+  margin: 3px;
 }
 div#resources h1 {
   font-size: medium;
-  margin: 0px 0px 3px 0px;
+  margin: 0px 0px 3px -10px;
+  padding: 0px;
+}
+div#resources ul {
+  margin: 3px;
   padding: 0px;
 }
 
