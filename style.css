@@ -2,7 +2,6 @@ div#header {
   background: #dde;
   border: 2px solid #669;
   padding: 2px 4px;
-  width: 100%;
 }
 div#header div#logo {
   display: inline;
