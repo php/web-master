@@ -1,0 +1,74 @@
+#!/usr/local/bin/php -q
+<?php
+set_time_limit (0);
+/* alert the php-mirrors team about dead mirrors. */
+
+/* now prepare a mailer for php-mirrors */
+
+  $body =   "Following is data gathered from the various mirrors. It is ordered by those\n"
+	  . "that are suspected to be dead, mirrors which are alive but have errors, sites\n"
+	  . "which need to be prompted to update their PHP version, and finally the rest,\n"
+	  . "sorted by last update.\n"
+	  . "Edit mirror listings here: http://master.php.net/manage/mirrors.php\n\n";
+
+  $body .=  "No response was returned from these following hosts, and they were removed from the active list:\n\n";
+
+/* firstly, get some data */
+
+mysql_connect("localhost","nobody","")
+  or die("unable to connect to database");
+mysql_select_db("php3");
+
+$query = "SELECT maintainer,hostname,id,UNIX_TIMESTAMP(lastupdated) AS lastupdate,phpversion,(DATE_SUB(NOW(), INTERVAL 3 DAY) < lastupdated) AS active FROM mirrors WHERE mirrortype = 1 ORDER BY hostname";
+
+$result = mysql_query($query)
+  or die("unable to get from the database");
+
+while ($hosts[] = mysql_fetch_assoc($result)) {
+  /* do nothing */
+}
+$total = count($hosts);
+
+  for($i=0; $i < $total; $i++) {
+	if (!$hosts[$i]['active']) {
+		$body .= sprintf("%s -- %s\n", $hosts[$i]['hostname'], $hosts[$i]['maintainer']);
+		
+	}
+  }
+  
+  $body .=  "\nAnd now for the rest of the mirrors:\n"
+        . "----------------------------------------------------------------------------------------\n"
+   	. " Host \t\t PHP Version \t\t Last Updated\t\t Maintainer\n"
+        . "----------------------------------------------------------------------------------------\n";
+
+/* a note about the padding - given that email readers produce interesting results for spacing,
+i've gone for tabs here to help seperate the text columns. to make sure i don't over tab, i do 
+a quick strlen check, and depending on how different it is from the string length i give as avg
+(first argument), will determine how many tabs i use, or alternatively a space. */
+
+   function pad($deflen, $item) {
+	global $i, $hosts;
+	$str = strlen($hosts[$i][$item]);
+	if ($str >= $deflen*2) {
+		$sp =" ";
+	}
+	else if ($str <= $deflen){
+		$sp ="\t\t";
+	} else {
+		$sp = "\t";
+	}
+	return $sp;	
+  }
+
+  for($i=0; $i < $total; $i++) {
+    if($hosts[$i]['active'] == true){
+	$body .= sprintf(" %s%s%s%s%s\t\t%s\n", $hosts[$i]['hostname'], pad(11, "hostname"), $hosts[$i]['phpversion'], pad(5, "phpversion"), date("F j, Y, g:i a", $hosts[$i]['lastupdate']), $hosts[$i]['maintainer']);
+    }
+  }
+
+  $body . "---------------------------------------------------------------------------------------\n";
+
+/* please edit this when testing to send mail to yourself, not to the list every time */
+
+mail("php-mirrors@lists.php.net", "PHP Mirror Status Info.", $body, "From: php-mirrors@lists.php.net");
+?> 
