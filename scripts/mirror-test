@@ -1,61 +1,95 @@
 #!/usr/local/bin/php -q
 <?php # vim: ft=php
+
+/*
+ Ping each mirror, get what state they are in, and
+ store in the local database. This data is used to
+ automatically deactivate mirrors if needed. The
+ gathered information is also mailed to the php-mirrors
+ mailing list periodically by the mirror-summary
+ script.
+*/
+
+// This script will run for a long time
 set_time_limit (0);
-/* simple testing system to ping each mirror, and see what state they are in.*/
 
-/* firstly, get some data */
-
+// Connect to local MySQL database
 mysql_connect("localhost","nobody","")
-  or die("unable to connect to database");
+    or die("unable to connect to database");
 mysql_select_db("php3");
 
-$query = "SELECT maintainer,hostname,id FROM mirrors WHERE mirrortype = 1 AND active";
-
+// Get mirror information for all active mirrors (regardless of their type!)
+$query = "SELECT maintainer, hostname, id FROM mirrors WHERE active = 1";
 $result = mysql_query($query)
-  or die("unable to get from the database: ".mysql_error());
+    or die("unable to get from the database: " . mysql_error());
 
+// Get the number of mirrors in the resultset
 $total = mysql_num_rows($result);
 
+// Get all mirror sites, and count the index of them
 for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
-	$hosts[$i]['hostname'] = $row['hostname'];
-	$hosts[$i]['id'] = $row['id'];
-	$hosts[$i]['maintainer'] = $row['maintainer'];
 
-	$fp = fsockopen($row['hostname'], 80, $errno, $errstr, 15);
-        if (!$fp) {
-          #echo "unable to connect to $row[hostname]\n";
-          continue;
-        }
+    // Add information gathered from database table
+    $hosts[$i]['id']         = $row['id'];
+    $hosts[$i]['hostname']   = $row['hostname'];
+    $hosts[$i]['maintainer'] = $row['maintainer'];
 
-        $rc = fputs($fp, "GET /mirror-info.php HTTP/1.0\r\nHost: $row[hostname]\r\n\r\n");
-        if ($rc < 0) continue;
-        socket_set_timeout($fp, 5, 0);
+    // Open port 80 on the mirror site
+    $fp = fsockopen($row['hostname'], 80, $errno, $errstr, 15);
+    
+    // If we were unable to open the port, continue with the next mirror
+    if (!$fp) {
+        // echo "unable to connect to $row[hostname]\n";
+        continue;
+    }
 
-        do {
-          $line = fgets($fp);
-        } while ($line !== false && $line != "" && $line != "\r\n" && $line != "\n");
+    // GET mirror-info.php from the registered hostname
+    $rc = fputs($fp, "GET /mirror-info.php HTTP/1.0\r\nHost: $row[hostname]\r\n\r\n");
+    
+    // If we were unable to write to socket, skip mirror site
+    if ($rc < 0) { continue; }
+    
+    // Set timeout to 5 seconds
+    socket_set_timeout($fp, 5, 0);
 
-        if ($line === false || $line == "") {
-          #echo "didn't get past headers for $row[hostname]\n";
-          continue;
-        }
+    // Get lines from the socket, while we get past the HTTP headers
+    // (HTTP headers and data have one empty line between them)
+    do {
+        $line = fgets($fp);
+    } while ($line !== FALSE && $line != "" && $line != "\r\n" && $line != "\n");
+
+    // If we were unable to pass the HTTP header, skip mirror site
+    if ($line === FALSE || $line == "") {
+        // echo "didn't get past headers for $row[hostname]\n";
+        continue;
+    }
         
-	$rv = fgets($fp);
+    // Get data row from socket
+    $rv = fgets($fp);
 
-        if ($rv === false) {
-          #echo "didn't get data for $row[hostname]\n";
-          continue;
-        }
-	
-	$info = explode("|", $rv);
-	$hosts[$i]['phpversion'] = $info[1];
-	$hosts[$i]['lastupdate'] = $info[2];
-	$hosts[$i]['xtra'] = $info[3];
+    // If unable to read that row, skip mirror site
+    if ($rv === FALSE) {
+        // echo "didn't get data for $row[hostname]\n";
+        continue;
+    }
+    
+    // Exlode information row by delimiter
+    $info = explode("|", $rv);
+    
+    // Put pieces into the $hosts array
+    $hosts[$i]['phpversion'] = $info[1];
+    $hosts[$i]['lastupdate'] = $info[2];
+    $hosts[$i]['xtra']       = $info[3];
 }
 
+// Go through all mirror sites checked
 for($i=0; $i < $total; $i++) {
-	if ($hosts[$i]['lastupdate']) {
-		$query = "UPDATE mirrors SET lastchecked=NOW(),lastupdated=FROM_UNIXTIME(".$hosts[$i]['lastupdate']."),phpversion='".addslashes($hosts[$i]['phpversion'])."' WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
-		$result = mysql_query($query) or die("unable to update the database: $query: ".mysql_error());
-	}
+    
+    // If lastupdated date specified, then we were able to check
+    // the mirror, so the mirror data can be updated. Otherwise
+    // the previous data need to be kept!
+    if ($hosts[$i]['lastupdate']) {
+        $query = "UPDATE mirrors SET lastchecked=NOW(),lastupdated=FROM_UNIXTIME(".$hosts[$i]['lastupdate']."),phpversion='".addslashes($hosts[$i]['phpversion'])."' WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
+        $result = mysql_query($query) or die("unable to update the database: $query: ".mysql_error());
+    }
 }
