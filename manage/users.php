@@ -146,7 +146,8 @@ if (isset($id)) {
 <?php
 
 $begin = $begin ? (int)$begin : 0;
-$max = $max ? (int)$max : ($search ? 15 : 30);
+$full = $full ? 1 : (!isset($full) && $search ? 1 : 0);
+$max = $max ? (int)$max : 20;
 
 $limit = "LIMIT $begin,$max";
 $orderby = $order ? "ORDER BY $order" : "";
@@ -170,13 +171,15 @@ $extra = array(
   "search" => stripslashes($search),
   "order" => $order,
   "begin" => $begin,
+  "max" => $max,
+  "full" => $full,
 );
 
 show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
 ?>
 <table border="0" cellspacing="1" width="100%">
 <tr bgcolor="#aaaaaa">
- <td></td>
+ <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("full" => $full ? 0 : 1));?>"><?php echo $full ? "&otimes;" : "&oplus;";?></a></th>
  <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"name"));?>">name</a></th>
  <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"email"));?>">email</a></th>
  <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"cvsuser"));?>">username</a></th>
@@ -192,7 +195,7 @@ while ($row = mysql_fetch_array($res)) {
  <td<?php if ($row[cvsuser] && !$row[approved]) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row[cvsuser]);?></td>
 </tr>
 <?php
-  if ($search && $row[note]) {?>
+  if ($full && $row[note]) {?>
 <tr bgcolor="<?php echo $color;?>">
  <td></td><td colspan="3"><?php echo htmlspecialchars($row[note]);?></td>
 </tr>
