@@ -121,45 +121,52 @@ switch($action) {
 case 'mass':
   if (!allow_mass_change($user)) { die("You are not allowed to take this action!"); }
   head();
+  $step = (isset($_REQUEST["step"]) ? $_REQUEST["step"] : 0);
   $where = array();
-  if ($old_sect)
-    $where[] = "sect = '$old_sect'";
-  if ($ids)
-    $where[] = "id IN ($ids)";
+  if (!empty($_REQUEST["old_sect"])) {
+    $where[] = "sect = '". escape($_REQUEST["old_sect"]) ."'";
+  }
+  if (!empty($_REQUEST["ids"])) {
+    if (preg_match('~^([0-9]+, *)*[0-9]+$~i', $_REQUEST["ids"])) {
+      $where[] = "id IN ($_REQUEST[ids])";
+    } else {
+      echo "<p><b>Incorrect format of notes IDs.</b></p>\n";
+      $step = 0;
+    }
+  }
   
   if ($step == 2) {
-    if (!mysql_query("UPDATE note SET sect = '$new_sect' WHERE " . implode(" AND ", $where)))
-      echo "<p>Mass change failed: " . mysql_error() . "</p>\n";
-    else
-      echo "<p>Mass change succeeded.</p>\n";
+    db_query("UPDATE note SET sect = '". escape($_REQUEST["new_sect"]) ."' WHERE " . implode(" AND ", $where));
+    echo "<p>Mass change succeeded.</p>\n";
   } elseif ($step == 1) {
-    if ($new_sect && ($ids || $old_sect)) {
-      if (!($result = mysql_query("SELECT COUNT(*) FROM note WHERE " . implode(" AND ", $where))))
-        echo "<p>SQL error: " . mysql_error() . "</p>\n";
-      elseif (!($count = mysql_result($result, 0, 0)))
+    if (!empty($_REQUEST["new_sect"]) && $where) {
+      db_query("SELECT COUNT(*) FROM note WHERE " . implode(" AND ", $where));
+      if (!($count = mysql_result($result, 0, 0))) {
         echo "<p>There are no such notes.</p>\n";
-      else {
+      } else {
         $step = 2;
         $msg = "Are you sure to change section of <b>$count note(s)</b>";
-        $msg .= ($ids ? " with IDs <b>$ids</b>" : "");
-        $msg .= ($old_sect ? " from section <b>$old_sect</b>" : "");
-        $msg .= " to section <b>$new_sect</b>?";
+        $msg .= (!empty($_REQUEST["ids"]) ? " with IDs <b>$_REQUEST[ids]</b>" : "");
+        $msg .= (!empty($_REQUEST["old_sect"]) ? " from section <b>$_REQUEST[old_sect]</b>" : "");
+        $msg .= " to section <b>$_REQUEST[new_sect]</b>?";
         echo "<p>$msg</p>\n";
 ?>
 <form action="<?php echo $_SERVER['PHP_SELF']; ?>?action=mass" method="post">
 <input type="hidden" name="step" value="2">
-<input type="hidden" name="old_sect" value="<?php echo $old_sect; ?>">
-<input type="hidden" name="ids" value="<?php echo $ids; ?>">
-<input type="hidden" name="new_sect" value="<?php echo $new_sect; ?>">
+<input type="hidden" name="old_sect" value="<?php echo $_REQUEST["old_sect"]; ?>">
+<input type="hidden" name="ids" value="<?php echo $_REQUEST["ids"]; ?>">
+<input type="hidden" name="new_sect" value="<?php echo $_REQUEST["new_sect"]; ?>">
 <input type="submit" value="Change">
 </form>
 <?php
       }
     } else {
-      if (!$new_sect)
+      if (empty($_REQUEST["new_sect"])) {
         echo "<p><b>You have to fill-in new section.</b></p>\n";
-      if (!$ids && !$old_sect)
+      }
+      if (!$where) {
         echo "<p><b>You have to fill-in curent section or notes IDs (or both).</b></p>\n";
+      }
     }
   }
   if ($step < 2) {
@@ -170,15 +177,15 @@ case 'mass':
 <table>
  <tr>
   <th align="right">Current section:</th>
-  <td><input type="text" name="old_sect" value="<?php echo $old_sect; ?>" size="30" maxlength="80" /> (filename without extension)</td>
+  <td><input type="text" name="old_sect" value="<?php echo $_REQUEST["old_sect"]; ?>" size="30" maxlength="80" /> (filename without extension)</td>
  </tr>
  <tr>
   <th align="right">Notes IDs:</th>
-  <td><input type="text" name="ids" value="<?php echo $ids; ?>" size="30" maxlength="80" /> (comma separated list)</td>
+  <td><input type="text" name="ids" value="<?php echo $_REQUEST["ids"]; ?>" size="30" maxlength="80" /> (comma separated list)</td>
  </tr>
  <tr>
   <th align="right">Move to section:</th>
-  <td><input type="text" name="new_sect" value="<?php echo $new_sect; ?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="new_sect" value="<?php echo $_REQUEST["new_sect"]; ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr> 
   <td align="center" colspan="2">
