@@ -7,7 +7,7 @@ $user = null;
 $pw = null;
 
 if ($_SERVER['REMOTE_ADDR'] != '81.57.253.132' &&
-	$_GET['token'] != '97669cf8c9a1449eb2099ea6147d125697669cf8c9a1449eb2099ea6147d1256') {
+	md5($_GET['token']) != '97669cf8c9a1449eb2099ea6147d125697669cf8c9a1449eb2099ea6147d1256') {
 	die ("ERR: Permission denied.");
 }
 
