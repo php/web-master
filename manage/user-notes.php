@@ -28,7 +28,7 @@ those instructions before submitting future contributions.
 Bug Submissions and Feature Requests should be entered at
 <http://bugs.php.net/>. For documentation errors use the
 bug system, and classify the bug as "Documentation problem".
-Support and ways to find answers to your guestions can be found
+Support and ways to find answers to your questions can be found
 at <http://www.php.net/support.php>.
 
 Your note has been removed from the on-line manual.';
