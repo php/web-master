@@ -29,6 +29,8 @@ div#resources {
 }
 div#resources h1 {
   font-size: medium;
+  margin: 0px 0px 3px 0px;
+  padding: 0px;
 }
 
 /* Mirrors table */
