@@ -21,6 +21,15 @@ fetch_into_file("http://master.php.net/fetch/countries.php?token=$token",
 fetch_into_file("http://master.php.net/fetch/events.php?nm=3&token=$token",
                 "$root/backend/events.csv");
 
+/* create RSS news feed file */
+$dest = fopen("$root/news.rss", "w");
+if (!$dest) { echo "failed to open $root/news.rss for writing"; }
+else {
+    include "rss_parser";
+    fwrite($dest, $RSS);
+    fclose($dest);
+}
+
 function fetch_into_file($url,$file) {
   $source = @fopen($url,"r");
   if (!$source) {
