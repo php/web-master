@@ -13,6 +13,9 @@
 // This script will run for a long time
 set_time_limit (0);
 
+// Debug mail
+@mail("goba@php.net", "Mirror site check started", "Mirror site check started");
+
 // Connect to local MySQL database
 mysql_connect("localhost","nobody","")
     or die("unable to connect to database");
@@ -27,7 +30,7 @@ $result = mysql_query($query)
 $total = mysql_num_rows($result);
 
 // Get all mirror sites, and count the index of them
-for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
+for($i = 0; $row = mysql_fetch_array($result, MYSQL_ASSOC); $i++) {
 
     // Add information gathered from database table
     $hosts[$i] = $row;
@@ -45,7 +48,7 @@ for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
     $rc = fputs($fp, "GET /mirror-info.php HTTP/1.0\r\nHost: $row[hostname]\r\n\r\n");
     
     // If we were unable to write to socket, skip mirror site
-    if ($rc < 0) { continue; }
+    if ($rc === FALSE) { continue; }
     
     // Set timeout to 5 seconds
     socket_set_timeout($fp, 5, 0);
@@ -89,13 +92,21 @@ for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
 }
 
 // Go through all mirror sites checked
+$mirrorsupdated = 0;
 for($i=0; $i < $total; $i++) {
     
     // If "mirrorupdated" date specified, then we were able to check
     // the mirror, so the mirror data can be updated. Otherwise
     // the previous data need to be kept!
     if (isset($hosts[$i]['mirrorupdated'])) {
-        $query = "UPDATE mirrors SET lastchecked=NOW(),has_search=".$hosts[$i]['has_search'].",lastupdated=FROM_UNIXTIME(".$hosts[$i]['mirrorupdated']."),phpversion='".addslashes($hosts[$i]['phpversion'])."' WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
-        $result = mysql_query($query) or die("unable to update the database: $query: ".mysql_error());
+        $query = "UPDATE mirrors SET lastchecked = NOW(), has_search = " . $hosts[$i]['has_search'] . ", " .
+                 "lastupdated = FROM_UNIXTIME(" . $hosts[$i]['mirrorupdated'] . "), " .
+                 "phpversion = '" . addslashes($hosts[$i]['phpversion']) . "' " .
+                 "WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
+        $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
+        if ($results) { $mirrorsupdated++; }
     }
 }
+
+// Debug mail
+@mail("goba@php.net", "Mirror sites checked", "$mirrorsupdated number of mirror sites properly updated");
