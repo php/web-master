@@ -24,7 +24,7 @@ fetch_into_file("http://master.php.net/fetch/countries.php?token=$token",
                 "$root/include/countries.inc");
 
 // Get list of upcoming events
-fetch_into_file("http://master.php.net/fetch/events.php?nm=3&token=$token",
+fetch_into_file("http://master.php.net/fetch/events.php?nm=2&token=$token",
                 "$root/backend/events.csv");
 
 // Run ip-to-country fetch code
