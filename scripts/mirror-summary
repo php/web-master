@@ -105,7 +105,7 @@ mail(
 // Mail text for those mirror maintainers with inactive mirror sites
 $inactives_text = "Hi!\n\nOur automatic mirror site check was unable to reach\n"
                  ."the PHP.net mirror site maintained by you for three or more days\n"
-                 ."now, or have found a critical error in your mirror setup.\n"
+                 ."now, *or* have found a critical error in your mirror setup.\n"
                  ."Therefore our bot automatically disabled your listing as an\n"
                  ."official PHP.net mirror site.\n\n"
                  ."{{lasterror}}"
