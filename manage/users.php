@@ -31,6 +31,7 @@ if (isset($username) && !isset($id)) {
 if (isset($id) && isset($action)) {
   if (!is_admin($user)) {
     warn("you're not allowed to take actions on users.");
+    exit;
   }
   $id = (int)$id;
   switch ($action) {
