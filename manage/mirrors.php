@@ -256,6 +256,8 @@ if (intval($id) !== 0) {
 // status data to show colors and need to order by country too to make
 // still non-officially named mirrors show in the right place
 $res = mysql_query("SELECT mirrors.*, " .
+                   "UNIX_TIMESTAMP(lastupdated) AS ulastupdated, " .
+                   "UNIX_TIMESTAMP(lastchecked) AS ulastchecked, " .
                    "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < mirrors.lastchecked) AS up, " .
                    "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < mirrors.lastupdated) AS current, " .
                    "country.name as countryname " .
@@ -325,9 +327,11 @@ while ($row = mysql_fetch_array($res)) {
                 $siteimage = "error";
                 $row['ocmt'] = trim($row['ocmt']);
                 if (!empty($row['ocmt'])) {
-                    $errorinfo = $row['ocmt'];
+                    $errorinfo = $row['ocmt'] . " (last accessed: " .
+                                 print_date($row['ulastchecked']) . ")";
                 } elseif (!$row['current']) {
-                    $errorinfo = "content on site is out of date";
+                    $errorinfo = "content out of date (last updated: " .
+                                 print_date($row['ulastupdated']) . ")";
                 }
             }
             // Up to date and current
@@ -374,8 +378,7 @@ while ($row = mysql_fetch_array($res)) {
     // Mirror edit link
     echo "<tr bgcolor=\"#e0e0e0\">\n" .
          "<td bgcolor=\"#ffffff\" align=\"right\">\n" .
-         "<a href=\"mirrors.php?id=" . $row['id'] .
-         "\"><img src=\"/images/mirror_edit.png\"></a></td>\n";
+         "<img src=\"/images/mirror_{$siteimage}.png\" /></td>\n";
 
     // Print out mirror site link
     echo '<td><a href="http://' . $row['hostname'] . '/" target="_blank">' .
@@ -395,7 +398,8 @@ while ($row = mysql_fetch_array($res)) {
     echo '<td align="right">' . $statscell . '</td>' . "\n";
 
     // Print out mirror status information
-    echo '<td align="right"><img src="/images/mirror_' . $siteimage . '.png" /></td>' . "\n";
+    echo '<td align="right"><a href="mirrors.php?id=' . $row['id'] .
+         '"><img src="/images/mirror_edit.png"></a></td>' . "\n";
 
     // End of row
     echo '</tr>';
