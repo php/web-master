@@ -91,7 +91,12 @@ function fetch_ip_to_country($root)
     fclose($ipdbf);
     fclose($ipdbcf);
     
-    mail("goba@php.net", "ip-to-country: proper format", "");
+    if ($fileok) {
+      mail("goba@php.net", "ip-to-country: proper format", "");
+    }
+    else {
+      mail("goba@php.net", "ip-to-country: improper format", "");
+    }
                             
     // Remove the temp file. If the data is ok, move
     // it to the destination, or else delete that too
