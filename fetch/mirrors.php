@@ -17,6 +17,7 @@ $structinfo = "
 define('MIRROR_DOWNLOAD', 0);
 define('MIRROR_STANDARD', 1);
 define('MIRROR_SPECIAL',  2);
+define('MIRROR_VIRTUAL',  3);
 
 // Mirror status constants
 define('MIRROR_OK',          0);
@@ -95,7 +96,6 @@ if (@mysql_pconnect("localhost","nobody","")) {
                      "\"$row[providername]\",$row[has_stats],\"$row[providerurl]\"" .
                      ",$row[mirrortype],$row[has_search],\"$row[lang]\",$status),\n";
             }
-            echo '    0 => array("xx", "Unknown", FALSE, "/", MIRROR_SPECIAL, FALSE, "en", MIRROR_DOESNOTWORK)', "\n";
             echo ");\n";
             echo "?>\n";
         }
