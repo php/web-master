@@ -376,7 +376,7 @@ function is_admin($user) {
     if (in_array($user,
         array(
             "jimw","rasmus","andrei","zeev","andi","sas","thies","rubys",
-            "ssb","imajes","goba","derick")
+            "ssb","imajes","goba","derick","cortesi")
         )
     ) {
         return true;
