@@ -1,16 +1,16 @@
 <?php
 
 #TODO:
-# /TODO
 # acls
 # trigger passwd file update on cvs.php.net
 # trigger mail alias update on php.net mx
-# some sort of search
 # handle flipping of the sort views
 
 require_once 'login.inc';
 require_once 'functions.inc';
 require_once 'email-validation.inc';
+
+$mailto = "group@php.net";
 
 head("user administration");
 
@@ -25,6 +25,51 @@ if (isset($username) && !isset($id)) {
   $res = query($query);
   if (!($id = @mysql_result($res,0))) {
     warn("wasn't able to find user matching '".clean($username)."'");
+  }
+}
+
+if (isset($id) && isset($action)) {
+  if (!is_admin($user)) {
+    warn("you're not allowed to take actions on users.");
+  }
+  $id = (int)$id;
+  switch ($action) {
+  case 'approve':
+    if (mysql_query("UPDATE users SET cvsaccess=1 WHERE userid=$id")
+     && mysql_affected_rows()) {
+      $userinfo = fetch_user($id);
+      $message =
+"Your CVS account ($userinfo[username]) was created.
+
+You should be able to log into the CVS server within the hour, and
+your $userinfo[username]@php.net forward to $userinfo[email] should
+be active within the next 24 hours.
+
+Welcome to the PHP development team! If you encounter any problems
+with your CVS account, feel free to send us a note at group@php.net.";
+      mail($userinfo[email],"CVS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>");
+
+      mail($mailto,"CVS Account Request: $userinfo[username] approved by $user","","From: PHP Group <group@php.net>");
+      echo '<script language="javascript">window.close();</script>';
+      exit;
+    }
+    else {
+      warn("wasn't able to grant cvs access to id $id.");
+    }
+    break;
+  case 'remove':
+    if (mysql_query("DELETE FROM users WHERE userid=$id")
+     && mysql_affected_rows()) {
+      mysql_query("DELETE FROM users_note WHERE userid=$id");
+      echo '<script language="javascript">window.close();</script>';
+      exit;
+    }
+    else {
+      warn("wasn't able to delete id $id.");
+    }
+    break;
+  default:
+    warn("that action ('$action') is not understood.");
   }
 }
 
@@ -48,7 +93,7 @@ if (isset($id) && isset($in)) {
           $query = "UPDATE users SET name='$in[name]',email='$in[email]'"
                  . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
                  . ($in[username] ? ",username='$in[username]'" : "")
-                 . ",cvsaccess=$cvsaccess"
+                 . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                  . " WHERE userid=$id";
           query($query);
         }
@@ -60,7 +105,7 @@ if (isset($id) && isset($in)) {
         $query = "INSERT users SET name='$in[name]',email='$in[email]'"
                . ($in[username] ? ",username='$in[username]'" : "")
                . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
-               . ",cvsaccess=$cvsaccess";
+               . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "");
         query($query);
 
         $nid = mysql_insert_id();
@@ -76,6 +121,7 @@ if ($id) {
          . " WHERE users.userid=$id";
   $res = query($query);
   $row = mysql_fetch_array($res);
+  if (!$row) unset($id);
 }
 
 if (isset($id)) {
@@ -110,10 +156,12 @@ if (isset($id)) {
  <th align="right">CVS username:</th>
  <td><input type="text" name="in[username]" value="<?php echo htmlspecialchars($row[username]);?>" size="16" maxlength="16" /></td>
 </tr>
+<?php if (is_admin($user)) {?>
 <tr>
  <th align="right">CVS access?</th>
  <td><input type="checkbox" name="in[cvsaccess]"<?php echo $row[cvsaccess] ? " checked" : "";?> /></td>
 </tr>
+<?php }?>
 <tr>
  <td><input type="submit" value="<?php echo $id ? "Change" : "Add";?>" />
 </tr>
@@ -213,10 +261,14 @@ function invalid_input($in) {
   return false;
 }
 
-# returns false if $user is not allowed to modify $userid
-function can_modify($user,$userid) {
+function is_admin($user) {
   #TODO: use acls, once implemented.
   if (in_array($user,array("jimw","rasmus","andrei","zeev","andi","sas","thies","rubys","ssb"))) return true;
+}
+
+# returns false if $user is not allowed to modify $userid
+function can_modify($user,$userid) {
+  if (is_admin($user)) return true;
 
   $userid = (int)$userid;
 
@@ -227,4 +279,21 @@ function can_modify($user,$userid) {
 
   $res = mysql_query($query);
   return $res ? mysql_num_rows($res) : false;
+}
+
+function fetch_user($user) {
+  $query = "SELECT * FROM users LEFT JOIN users_note USING (userid)";
+  if ((int)$user) {
+    $query .= " WHERE users.userid=$user";
+  }
+  else {
+    $quser = addslashes($user);
+    $query .= " WHERE username='$quser' OR email='$quser'";
+  }
+
+  if ($res = query($query)) {
+    return mysql_fetch_array($res);
+  }
+
+  return false;
 }
