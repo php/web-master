@@ -203,9 +203,17 @@ if (isset($id)) {
 </tr>
 <?php }?>
 <tr>
- <th align="right">Use spam protection?</th>
- <td><input type="checkbox" name="in[spamprotect]"<?php echo $row[spamprotect] ? " checked" : "";?> /><br/>
- Spam Assassin threshold: <input type="text" name="in[use_sa]" value="<?php echo $row[use_sa] ?>" size="4" maxlength="4"/></td>
+ <th align="right">Use Challenge/Response spam protection?</th>
+ <td><input type="checkbox" name="in[spamprotect]"<?php echo $row[spamprotect] ? " checked" : "";?> />
+ <?php if ($username == $user) { ?>
+ <br/>
+ <a href="challenge-response.php">Show people on my quarantine list</a>
+ <?php } ?>
+ </td>
+</tr>
+<tr>
+ <th align="right">SpamAssassin threshold</th>
+ <td>Block mail scoring <input type="text" name="in[use_sa]" value="<?php echo $row[use_sa] ?>" size="4" maxlength="4"/> or higher in SpamAssassin tests.  Set to 0 to disable.</td>
 </tr>
 <tr>
  <th align="right">Verified?</th>
