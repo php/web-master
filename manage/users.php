@@ -163,13 +163,12 @@ show_prev_next($begin,mysql_num_rows($res),$max,$total);
 <?php
 $color = '#dddddd';
 while ($row = mysql_fetch_array($res)) {
-  if (!$row[approved]) $color = "#ff".substr($color,2);
 ?>
 <tr bgcolor="<?php echo $color;?>">
  <td align="center"><a href="<?php echo "$PHP_SELF?id=$row[userid]";?>">edit</a></td>
  <td><?php echo htmlspecialchars($row[name]);?></td>
  <td><?php echo htmlspecialchars($row[email]);?></td>
- <td><?php echo htmlspecialchars($row[cvsuser]);?></td>
+ <td<?php if ($row[cvsuser] && !$row[approved]) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row[cvsuser]);?></td>
 </tr>
 <?php
   $color = substr($color,2,2) == 'dd' ? '#eeeeee' : '#dddddd';
