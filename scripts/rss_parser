@@ -148,7 +148,7 @@ function ParseNews ($index_page = "") {
 
 // Generate RSS header text and inject it into $RSS
 function GenerateRSSHeader($headlines, &$RSS) {
-    $RSS .= "<" . "?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" .
+    $RSS .= "<" . "?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n" .
             "<rdf:RDF\n" .
             "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" .
             "\txmlns=\"http://purl.org/rss/1.0/\"\n" .
