@@ -2,7 +2,7 @@
 
 require 'email-validation.inc';
 
-$mailto = 'php-dev@lists.php.net';
+$mailto = 'internals@lists.php.net';
 $failto = 'group@php.net';
 
 if (empty($name) || empty($email) || empty($username) || empty($passwd) || empty($note))
