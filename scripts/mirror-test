@@ -163,7 +163,7 @@ foreach ($hosts as $host) {
                   
         $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
         if ($result) { $mirrorsupdated++; }
-        else { $problems .= $host['hostname'] . "\t: cannot be updated in database\n"; }
+        else { $problems .= $host['hostname'] . "\t- cannot be updated in database\n"; }
     }
 
     // Store the problem encountered in the database, and collect
@@ -173,7 +173,7 @@ foreach ($hosts as $host) {
                  "lastupdated = FROM_UNIXTIME(" . $host['lastupdated'] . ") " .
                  "WHERE hostname = '" . $host['hostname'] . "'";
         $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
-        $problems .= $host['hostname'] . "\t: " . $host['problem'] . "\n";
+        $problems .= $host['hostname'] . "\t- " . $host['problem'] . "\n";
     }
 
 }
