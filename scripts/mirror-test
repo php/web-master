@@ -120,8 +120,8 @@ foreach ($hosts as $index => $host) {
         $hosts[$index]['has_search'] = $info[3];
     }
 
-    // If stats is sure to be supported, update db
-    if ($info[4] == '1') {
+    // Update stats availability info 
+    if (in_array($info[4], array('0', '1', '2'))) {
         $hosts[$index]['has_stats'] = $info[4];
     }
 

@@ -363,12 +363,15 @@ while ($row = mysql_fetch_array($res)) {
     if (!$searchcell) { $searchcell = "&nbsp;"; }
 
     // Stats information cell
-    $statscell = '&nbsp;';
-    if ($row['has_stats'] == "1") {
-        $statscell = "<a href=\"http://$row[hostname]/stats/\" target=\"_blank\">" .
-                     "<img src=\"/images/mirror_stats.png\" /></a>";
+    $statscell = '';
+    if ($row['has_stats'] == "2") { $statscell = '('; }
+    if (in_array($row['has_stats'], array("1", "2"))) {
+        $statscell .= "<a href=\"http://$row[hostname]/stats/\" target=\"_blank\">" .
+                      "<img src=\"/images/mirror_stats.png\" /></a>";
         $stats['has_stats']++;
     }
+    if ($row['has_stats'] == "2") { $statscell .= ')'; }
+    if (!$statscell) { $statscell = "&nbsp;"; }
 
     // Maintainer contact information cell
     $emailcell = '&nbsp;';
