@@ -1,7 +1,7 @@
 #!/usr/local/bin/php -q
 <?php
 /*
- This script alerts the php-mirrors team about dead mirror,
+ This script alerts the php-mirrors team about dead mirrors,
  as well as tries to mail notifications of deactivations
  to the individual mirror maintainers (using the provided
  contact details).
@@ -24,7 +24,7 @@ list($checktime) = mysql_fetch_row($lct);
 // Select all mirrors ordered by hostname
 $query = "SELECT maintainer, hostname, id, UNIX_TIMESTAMP(lastupdated) AS lastupdate, " .
          "phpversion, (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < lastchecked) AS active, " .
-         "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < lastupdated) AS current " .
+         "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < lastupdated) AS current, ocmt " .
          "FROM mirrors ORDER BY hostname";
 
 // Execute SQL query
@@ -48,7 +48,7 @@ $body .=  "No response was returned from these following hosts within the last t
 for ($i=0; $i < $total; $i++) {
     if (!$hosts[$i]['active']) {
         $body .= sprintf("%s -- %s\n", $hosts[$i]['hostname'], $hosts[$i]['maintainer']);
-        $inactives[$hosts[$i]['hostname']] = $hosts[$i]['maintainer'];
+        $inactives[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $hosts[$i]['ocmt']);
     }
 }
 
@@ -57,7 +57,7 @@ $body .=  "\nThese mirrors have not been updated in at least 7 days:\n\n";
 for ($i=0; $i < $total; $i++) {
     if ($hosts[$i]['active'] && !$hosts[$i]['current']) {
         $body .= sprintf("%s -- %s\n", $hosts[$i]['hostname'], $hosts[$i]['maintainer']);
-        $outdated[$hosts[$i]['hostname']] = $hosts[$i]['maintainer'];
+        $outdated[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $hosts[$i]['ocmt']);
     }
 }
 
@@ -95,20 +95,36 @@ for ($i=0; $i < $total; $i++) {
 $body . "---------------------------------------------------------------------------------------\n";
 
 // Please edit this when testing to send mail to yourself, not to the list every time
-mail("php-mirrors@lists.php.net", "PHP Mirror Status Info.", $body, "From: php-mirrors@lists.php.net");
+mail(
+    "php-mirrors@lists.php.net",
+    "[mirrors] Status information",
+    $body,
+    "From: php-mirrors@lists.php.net"
+);
 
 // Mail text for those mirror maintainers with inactive mirror sites
 $inactives_text = "Hi!\n\nOur automatic mirror site check was unable to reach\n"
                  ."the PHP.net mirror site maintained by you for three or more days\n"
-                 ."now, and therefore automatically disabled your listing as a\n"
-                 ."PHP.net mirror site.\n\n"
+                 ."now, or have found a critical error in your mirror setup.\n"
+                 ."Therefore our bot automatically disabled your listing as an\n"
+                 ."official PHP.net mirror site.\n\n"
+                 ."{{lasterror}}"
                  ."Please correct the problem or reply to this mail with your\n"
                  ."questions, if you think that the problem is not on your side.\n\n"
                  ."Mail sent out by the PHP.net automatic mirror site monitoring system";
 
 // Send mail to all inactive mirror maintainers
-foreach ($inactives as $hostname => $maintainer) {
-    mail($maintainer, "$hostname mirror site deactivated", $inactives_text, "From: php-mirrors@lists.php.net");
+foreach ($inactives as $hostname => $hostinfo) {
+    if (!empty($hostinfo[1])) {
+        $last_errror = "The last error message stored for your mirror is:\n  {$hostinfo[1]}\n\n";
+    }
+    else { $last_error = ""; }
+    mail(
+        $hostinfo[0],
+        "$hostname mirror site deactivated",
+        str_replace("{{lasterror}}", $last_error, $inactives_text),
+        "From: php-mirrors@lists.php.net\r\nBcc: goba@php.net"
+    );
 }
 
 // Mail text for those mirror maintainers with outdated mirror sites
@@ -121,8 +137,11 @@ $outdated_text = "Hi!\n\nOur automatic mirror site check found out, that\n"
                  ."Mail sent out by the PHP.net automatic mirror site monitoring system";
 
 // Send mail to all outdated mirror maintainers
-foreach ($outdated as $hostname => $maintainer) {
-    mail($maintainer, "$hostname mirror site deactivated", $outdated_text, "From: php-mirrors@lists.php.net");
+foreach ($outdated as $hostname => $hostinfo) {
+    mail(
+        $hostinfo[0],
+        "$hostname mirror site deactivated",
+        $outdated_text,
+        "From: php-mirrors@lists.php.net"
+    );
 }
-
-?>
