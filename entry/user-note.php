@@ -3,10 +3,7 @@
 //require_once 'alert_lib.inc';
 
 $mailto = 'php-notes@lists.php.net';
-$failto = 'jimw@php.net';
-
-//lang doesn't seem to be used
-$lang = '';
+$failto = 'jimw@php.net, alindeman@php.net';
 
 if (!isset($user) || empty($note) || empty($sect))
   die("missing some parameters.");
@@ -26,37 +23,41 @@ is very reasonable considering the current
 flow of notes usually submitted.  This prevents
 a large flood of notes from coming in.
 */
-$result = @mysql_query ("SELECT COUNT(*) FROM note WHERE ts >= (NOW() - INTERVAL 1 MINUTE)");
+$query = 'SELECT COUNT(*) FROM note WHERE ts >= (NOW() - 60)';
+$result = @mysql_query ($query);
 
 if (!$result) {
-  mail ('alindeman@php.net', "failed manual note query", 'Note quota query failed -- '.mysql_error());
+  mail ($failto,
+       'failed manual note query',
+       "Query Failed: $query\nError: ".mysql_error(),
+       'From: webmaster@php.net');
   die("failed to query note db");
 }
 
 list ($count) = mysql_fetch_row ($result);
 
-if ($count > 3) {
+if ($count >= 3) {
   //Send error to myself.  If this happens too many times, I'll increase
   //the amount of allowed notes
   mail ('alindeman@php.net',
 	'Note quota exceeded',
 	'Too many notes submitted in one minute.  Consider increasing quota',
-	'From: alindeman@php.net'
+	'From: webmaster@php.net'
        );
   die ('[TOO MANY NOTES]');
 }
 
 $sect = ereg_replace("\.php$","",$sect);
 
-$query = "INSERT INTO note (user, note, sect, ts, lang) VALUES ";
+$query = "INSERT INTO note (user, note, sect, ts) VALUES ";
 # no need to call htmlspecialchars() -- we handle it on output
-$query .= "('$user','$note','$sect',NOW(),'$lang')";
+$query .= "('$user','$note','$sect',NOW())";
 
 //echo "<!--$query-->\n";
 if (@mysql_query($query)) {
   $new_id = mysql_insert_id();	
   $msg = stripslashes($note);
-  $msg .= "\n-- \n";
+  $msg .= "\n----\n";
   $msg .= "Manual Page -- http://www.php.net/manual/en/$sect.php\n";
   $msg .= "Edit Note   -- http://master.php.net/manage/user-notes.php?action=edit+$new_id\n";
   $msg .= "Delete Note -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes\n";
@@ -69,6 +70,9 @@ if (@mysql_query($query)) {
   mail($mailto,"note $new_id added to $sect",$msg,"From: $user\r\nMessage-ID: <note-$new_id@php.net>");
 } else {
   // mail it.
-  mail($failto, "failed manual note query", $query);
+  mail($failto,
+      'failed manual note query',
+      "Query Failed: $query\nError: ".mysql_error(),
+      'From: webmaster@php.net');
   die("failed to insert record");
 }
