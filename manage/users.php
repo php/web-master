@@ -197,8 +197,13 @@ $max = $max ? (int)$max : 20;
 $limit = "LIMIT $begin,$max";
 $orderby = $order ? "ORDER BY $order" : "";
 
-$searchby = $search ? "WHERE MATCH(name,email,username) AGAINST ('$search') OR MATCH(note) AGAINST ('$search')" : "";
-if (!$searchby && $unapproved) $searchby = 'WHERE username IS NOT NULL AND NOT cvsaccess';
+$searchby = $search ? "WHERE (MATCH(name,email,username) AGAINST ('$search') OR MATCH(note) AGAINST ('$search'))" : "";
+if (!$searchby && $unapproved) {
+  $searchby = 'WHERE (username IS NOT NULL AND NOT cvsaccess)';
+}
+elseif ($unapproved) {
+  $searchby .= ' AND (username IS NOT NULL AND NOT cvsaccess)';
+}
 
 $query = "SELECT DISTINCT COUNT(users.userid) FROM users";
 if ($searchby)
@@ -219,6 +224,7 @@ $extra = array(
   "begin" => $begin,
   "max" => $max,
   "full" => $full,
+  "unapproved" => $unapproved,
 );
 
 show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
