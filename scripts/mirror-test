@@ -36,14 +36,14 @@ for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
         } while ($line !== false && $line != "\r\n" && $line != "\n");
 
         if ($line === false) {
-          echo "didn't get past headers for $row[hostname]\n";
+          #echo "didn't get past headers for $row[hostname]\n";
           continue;
         }
         
 	$rv = fgets($fp);
 
         if ($rv === false) {
-          echo "didn't get data for $row[hostname]\n";
+          #echo "didn't get data for $row[hostname]\n";
           continue;
         }
 	
