@@ -29,7 +29,7 @@ a large flood of notes from coming in.
 $result = @mysql_query ('SELECT COUNT(*) FROM note WHERE ts >= '.time() - 60);
 
 if (!$result) {
-  mail ($failto, "failed manual note query", 'Note quota query failed -- '.mysql_error());
+  mail ('alindeman@php.net', "failed manual note query", 'Note quota query failed -- '.mysql_error());
   die("failed to insert record");
 }
 
