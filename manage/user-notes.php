@@ -150,7 +150,7 @@ case 'delete':
         note_mail_on_action(
             $user,
             $id,
-            "note {$row['id'}] $action_taken from {$row['sect']} by $user",
+            "note {$row['id']} $action_taken from {$row['sect']} by $user",
             "Note Submitter: {$row['user']}\n\n----\n\n{$row['note']}"
         );
         if ($action == 'reject') {
