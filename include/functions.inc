@@ -42,6 +42,7 @@ function head($title="") {?>
 &bull; <a href="/inventory.php">inventory</a>
 &bull; <a href="/manage/mirrors.php">mirrors</a>
 &bull; <a href="/manage/users.php">users</a>
+&bull; <a href="/manage/user-notes.php">notes</a>
 </div>
 </div>
 <?php
