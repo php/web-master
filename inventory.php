@@ -1,8 +1,7 @@
-<html>
-<head>
- <title>php.net machine inventory</title>
-</head>
-<body>
+<?php
+require_once 'functions.inc';
+head("machine inventory");
+?>
 <p>php.net is supported by a number of machines provided by a number
 of generous sponsors. this is a basic inventory of those machines and
 what services they provide.</p>
@@ -42,6 +41,5 @@ what services they provide.</p>
 <p><b>aliases:</b> rsync.php.net, snaps.php.net</p>
 
 <p>originally compiled by jim winstead, september 2001</p>
-
-</body>
-</html>
+<?php
+foot();
