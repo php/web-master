@@ -91,7 +91,7 @@ $body . "-----------------------------------------------------------------------
 mail("php-mirrors@lists.php.net", "PHP Mirror Status Info.", $body, "From: php-mirrors@lists.php.net");
 
 // Mail text for those mirror maintainers with inactive mirror sites
-$inactives_text = "Hi!\n\nOur automatical mirror site check was unable to reach\n"
+$inactives_text = "Hi!\n\nOur automatic mirror site check was unable to reach\n"
                  ."the PHP.net mirror site maintained by you for three or more days\n"
                  ."now, and therefore automatically disabled your listing as a\n"
                  ."PHP.net mirror site.\n\n"
@@ -108,7 +108,7 @@ foreach ($inactives as $hostname => $maintainer) {
 }
 
 // Mail text for those mirror maintainers with outdated mirror sites
-$outdated_text = "Hi!\n\nOur automatical mirror site check found out, that\n"
+$outdated_text = "Hi!\n\nOur automatic mirror site check found out, that\n"
                  ."the PHP.net mirror site maintained by you was not updated in\n"
                  ."the last seven or more days, and therefore automatically disabled\n"
                  ."your listing as a PHP.net mirror site.\n\n"
