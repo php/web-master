@@ -104,7 +104,7 @@ for($i=0; $i < $total; $i++) {
     // the mirror, so the mirror data can be updated. Otherwise
     // the previous data need to be kept!
     if (isset($hosts[$i]['mirrorupdated'])) {
-        $query = "UPDATE mirrors SET lastchecked = NOW(), has_search = " . $hosts[$i]['has_search'] . ", " .
+        $query = "UPDATE mirrors SET lastchecked = NOW(), has_search = '" . ((int) $hosts[$i]['has_search']) . "', " .
                  "lastupdated = FROM_UNIXTIME(" . $hosts[$i]['mirrorupdated'] . "), " .
                  "phpversion = '" . addslashes($hosts[$i]['phpversion']) . "' " .
                  "WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
