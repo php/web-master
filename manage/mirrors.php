@@ -99,7 +99,7 @@ elseif (isset($id)) {
           "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < lastupdated) AS current " .
           "FROM mirrors WHERE id = $id"
       );
-      $row = mysql_fetch_array($res);
+      $row = mysql_fetch_assoc($res);
   }
 
   // The $id is not valid, so provide common defaults for new mirror
@@ -232,9 +232,8 @@ if (intval($id) !== 0) {
  <textarea name="reason" wrap="virtual" cols="40" rows="12"></textarea>
  <input type="submit" name="mode" value="delete">
 </form>
-<?php } ?>
-
-<?
+<?php }
+    
     // Form printed, exit script
     foot();
     exit();

@@ -214,7 +214,7 @@ if (isset($id)) {
 <?php }?>
 </tr>
 </table>
-<?
+<?php
   foot();
   exit;
 }
@@ -303,8 +303,8 @@ while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
 }
 ?>
 </table>
-<?php show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra); ?>
 <?php
+show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
 foot();
 
 function invalid_input($in) {
