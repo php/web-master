@@ -33,9 +33,9 @@ for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
 
         do {
           $line = fgets($fp);
-        } while ($line !== false && $line != "\r\n" && $line != "\n");
+        } while ($line !== false && $line != "" && $line != "\r\n" && $line != "\n");
 
-        if ($line === false) {
+        if ($line === false || $line == "") {
           #echo "didn't get past headers for $row[hostname]\n";
           continue;
         }
