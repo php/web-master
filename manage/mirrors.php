@@ -165,23 +165,23 @@ elseif (isset($id)) {
   </tr>
   <tr>
    <th>Mirror added:</th>
-   <td><?php echo $row['created']; ?></td>
+   <td><?php print_date($row['created']); ?></td>
   </tr>
   <tr>
    <th>Last edit time:</th>
-   <td><?php echo $row['lastedited']; ?></td>
+   <td><?php print_date($row['lastedited']); ?></td>
   </tr>
   <tr>
    <th>Last mirror check time:</th>
-   <td><?php echo $row['lastchecked']; if (!$row['up']) { echo '<br /><i>does not seem to be up!</i>'; } ?></td>
+   <td><?php print_date($row['lastchecked']); if (!$row['up']) { echo '<br /><i>does not seem to be up!</i>'; } ?></td>
   </tr>
   <tr>
    <th>Last update time:</th>
-   <td><?php echo $row['lastupdated']; if (!$row['current']) { echo '<i><br />does not seem to be current!</i>'; } ?></td>
+   <td><?php print_date($row['lastupdated']); if (!$row['current']) { echo '<i><br />does not seem to be current!</i>'; } ?></td>
   </tr>
   <tr>
    <th>PHP version used on mirror site:</th>
-   <td><?php echo $row['phpversion']; ?></td>
+   <td><?php print_version($row['phpversion']); ?></td>
   </tr>
  </table>
 <?php } else { echo "&nbsp;"; } ?>
@@ -344,6 +344,20 @@ function show_mirrortype_options($type = 1)
              $type == $code ? " selected" : "",
              ">$name</option>";
     }
+}
+
+// Print out MySQL date, with a zero default
+function print_date($date)
+{
+    if ($date == '0000-00-00 00:00:00') { echo 'n/a'; }
+    else { echo $date; }
+}
+
+// Print out PHP version number
+function print_version($version)
+{
+    if ($version = "") { echo 'n/a'; }
+    else { echo $version; }
 }
 
 ?>
