@@ -102,7 +102,7 @@ foreach ($hosts as $index => $host) {
     }
 
     // If language value is SQL safe, update it
-    if (preg_match("!^[a-z_]+$!", $info[5])) {
+    if (preg_match("!^[a-zA-Z_]+$!", $info[5])) {
         $hosts[$index]['lang'] = $info[5];
     }
 
