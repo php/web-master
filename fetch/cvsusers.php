@@ -7,10 +7,10 @@ if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e")
 // Connect and generate the list from the DB
 if (@mysql_connect("localhost","nobody","")) {
   if (@mysql_select_db("php3")) {
-    $res = @mysql_query("SELECT cvsuser,name,email FROM users LEFT JOIN users_cvs USING (userid) WHERE approved");
+    $res = @mysql_query("SELECT username,name,email FROM users WHERE cvsaccess");
     if ($res) {
       while ($row = @mysql_fetch_array($res)) {
-        echo "$row[cvsuser]:$row[name]:$row[email]\n";
+        echo "$row[username]:$row[name]:$row[email]\n";
       }
     }
   }

@@ -10,31 +10,26 @@
 /* the users table is the main one. it contains the name, email, and
    crypted password for each user. the password is crypted using the
    standard unix DES-based crypt (for interop with cvs) */
-/* we have a full-text index on name and email for searching, and we
-   require unique email addresses for each account. */
+/* we have a full-text index on name, username and email for searching, and we
+   require unique email addresses for each account. the username must also
+   be unique (when present). */
 /* a user will be able to change the email address associated with
    their account if they know the password. */
+/* the cvsaccess field requires more thought. we might want to expand
+   it to a more general flags field or something. it already implies
+   an email alias in addition to cvs access. */
 CREATE TABLE IF NOT EXISTS users (
   userid INT NOT NULL AUTO_INCREMENT,
   name VARCHAR(255) NOT NULL DEFAULT '',
   email VARCHAR(255) NOT NULL DEFAULT '',
   passwd VARCHAR(16) NOT NULL DEFAULT '',
+  username VARCHAR(16) DEFAULT NULL,
+  cvsaccess INT(1) NOT NULL DEFAULT 0,
   PRIMARY KEY(userid),
   UNIQUE (email),
-  FULLTEXT (name,email)
-);
-
-/* the users_cvs table contains the cvs username and whether or not
-   the user has been approved for cvs access. not all users will have
-   cvs usernames. the cvs usernames have to be unique. */
-/* this probably could be merged back into the main users table. */
-CREATE TABLE IF NOT EXISTS users_cvs (
-  userid INT NOT NULL,
-  cvsuser CHAR(16) NOT NULL,
-  approved INT(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY(userid),
-  UNIQUE (cvsuser)
-);
+  UNIQUE (username),
+  FULLTEXT (name,email,username)
+) TYPE=MyISAM;
 
 /* the user_note table just contains notes about each user. */
 CREATE TABLE IF NOT EXISTS users_note (
@@ -44,4 +39,4 @@ CREATE TABLE IF NOT EXISTS users_note (
   note TEXT,
   PRIMARY KEY (noteid),
   FULLTEXT (note)
-);
+) TYPE=MyISAM;

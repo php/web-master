@@ -20,8 +20,8 @@ head("user administration");
 
 # ?username=whatever will look up 'whatever' by email or cvs username
 if (isset($username) && !isset($id)) {
-  $query = "SELECT users.userid FROM users LEFT JOIN users_cvs USING (userid)"
-         . " WHERE cvsuser='$username' OR email='$username'";
+  $query = "SELECT userid FROM users"
+         . " WHERE username='$username' OR email='$username'";
   $res = query($query);
   if (!($id = @mysql_result($res,0))) {
     warn("wasn't able to find user matching '".clean($username)."'");
@@ -40,40 +40,30 @@ if (isset($id) && isset($in)) {
       if ($in[rawpasswd]) {
         $in[passwd] = crypt($in[rawpasswd],substr(md5(time()),0,2));
       }
-      $approved = $in[approved] ? 1 : 0;
+      $cvsaccess = $in[cvsaccess] ? 1 : 0;
 
       if ($id) {
         # update main table data
         if (isset($in[email]) && isset($in[name])) {
           $query = "UPDATE users SET name='$in[name]',email='$in[email]'"
                  . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
+                 . ($in[username] ? ",username='$in[username]'" : "")
+                 . ",cvsaccess=$cvsaccess"
                  . " WHERE userid=$id";
           query($query);
         }
-        # update cvsusers stuff
-        # TODO: create users_cvs record for user that didn't already have one
-        #       (can't just use REPLACE because of the unique index on cvsuser)
-        $query = "UPDATE users_cvs"
-               . " SET cvsuser='$in[cvsuser]',approved=$approved"
-               . " WHERE userid=$id";
-        query($query);
 
         warn("record $id updated");
         unset($id);
       }
       else {
         $query = "INSERT users SET name='$in[name]',email='$in[email]'"
-               . ($in[passwd] ? ",passwd='$in[passwd]'" : "");
+               . ($in[username] ? ",username='$in[username]'" : "")
+               . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
+               . ",cvsaccess=$cvsaccess";
         query($query);
 
         $nid = mysql_insert_id();
-
-        # TODO: handle failure better
-        if ($in[cvsuser]) {
-          $query = "INSERT users_cvs"
-                 . " SET userid=$nid,cvsuser='$in[cvsuser]',approved=$approved";
-          query($query);
-        }
 
         warn("record $nid added");
       }
@@ -82,7 +72,7 @@ if (isset($id) && isset($in)) {
 }
 
 if ($id) {
-  $query = "SELECT * FROM users LEFT JOIN users_cvs USING (userid)"
+  $query = "SELECT * FROM users"
          . " WHERE users.userid=$id";
   $res = query($query);
   $row = mysql_fetch_array($res);
@@ -118,11 +108,11 @@ if (isset($id)) {
 </tr>
 <tr>
  <th align="right">CVS username:</th>
- <td><input type="text" name="in[cvsuser]" value="<?php echo htmlspecialchars($row[cvsuser]);?>" size="16" maxlength="16" /></td>
+ <td><input type="text" name="in[username]" value="<?php echo htmlspecialchars($row[username]);?>" size="16" maxlength="16" /></td>
 </tr>
 <tr>
  <th align="right">CVS access?</th>
- <td><input type="checkbox" name="in[approved]"<?php echo $row[approved] ? " checked" : "";?> /></td>
+ <td><input type="checkbox" name="in[cvsaccess]"<?php echo $row[cvsaccess] ? " checked" : "";?> /></td>
 </tr>
 <tr>
  <td><input type="submit" value="<?php echo $id ? "Change" : "Add";?>" />
@@ -152,16 +142,16 @@ $max = $max ? (int)$max : 20;
 $limit = "LIMIT $begin,$max";
 $orderby = $order ? "ORDER BY $order" : "";
 
-$searchby = $search ? "WHERE MATCH(name,email) AGAINST ('$search') OR MATCH(note) AGAINST ('$search') OR users_cvs.cvsuser = '$search'" : "";
+$searchby = $search ? "WHERE MATCH(name,email,username) AGAINST ('$search') OR MATCH(note) AGAINST ('$search')" : "";
 
 $query = "SELECT DISTINCT COUNT(users.userid) FROM users";
 if ($searchby)
-  $query .= " LEFT JOIN users_cvs USING (userid) LEFT JOIN users_note USING(userid) $searchby";
+  $query .= " LEFT JOIN users_note USING(userid) $searchby";
 $res = mysql_query($query)
   or die("query '$query' failed: ".mysql_error());
 $total = mysql_result($res,0);
 
-$query = "SELECT DISTINCT users.userid,approved,cvsuser,name,email,note FROM users LEFT JOIN users_cvs USING (userid) LEFT JOIN users_note USING (userid) $searchby $orderby $limit";
+$query = "SELECT DISTINCT users.userid,cvsaccess,username,name,email,note FROM users LEFT JOIN users_note USING (userid) $searchby $orderby $limit";
 
 #echo "<pre>$query</pre>";
 $res = mysql_query($query)
@@ -182,7 +172,7 @@ show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
  <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("full" => $full ? 0 : 1));?>"><?php echo $full ? "&otimes;" : "&oplus;";?></a></th>
  <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"name"));?>">name</a></th>
  <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"email"));?>">email</a></th>
- <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"cvsuser"));?>">username</a></th>
+ <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"username"));?>">username</a></th>
 </tr>
 <?php
 $color = '#dddddd';
@@ -192,7 +182,7 @@ while ($row = mysql_fetch_array($res)) {
  <td align="center"><a href="<?php echo "$PHP_SELF?id=$row[userid]";?>">edit</a></td>
  <td><?php echo htmlspecialchars($row[name]);?></td>
  <td><?php echo htmlspecialchars($row[email]);?></td>
- <td<?php if ($row[cvsuser] && !$row[approved]) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row[cvsuser]);?></td>
+ <td<?php if ($row[username] && !$row[cvsaccess]) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row[username]);?></td>
 </tr>
 <?php
   if ($full && $row[note]) {?>
@@ -214,8 +204,8 @@ function invalid_input($in) {
   if (isset($in[email]) && !is_emailable_address($in[email])) {
     return "'".clean($in[email])."' does not look like a valid email address";
   }
-  if ($in[cvsuser] && !preg_match("/^[-\w]+\$/",$in[cvsuser])) {
-    return "'".clean($in[cvsuser])."' is not a valid username";
+  if ($in[username] && !preg_match("/^[-\w]+\$/",$in[username])) {
+    return "'".clean($in[username])."' is not a valid username";
   }
   if ($in[rawpasswd] && $in[rawpasswd] != $in[rawpasswd2]) {
     return "the passwords you specified did not match!";
@@ -231,9 +221,9 @@ function can_modify($user,$userid) {
   $userid = (int)$userid;
 
   $quser = addslashes($user);
-  $query = "SELECT users.userid FROM users LEFT JOIN users_cvs USING (userid)"
-         . " WHERE users.userid=$userid"
-         . "   AND (email='$quser' OR cvsuser='$quser')";
+  $query = "SELECT userid FROM users"
+         . " WHERE userid=$userid"
+         . "   AND (email='$quser' OR username='$quser')";
 
   $res = mysql_query($query);
   return $res ? mysql_num_rows($res) : false;
