@@ -191,7 +191,7 @@ if (isset($id)) {
 <?php
 
 $begin = $begin ? (int)$begin : 0;
-$full = $full ? 1 : (!isset($full) && $search ? 1 : 0);
+$full = $full ? 1 : (!isset($full) && ($search || $unapproved) ? 1 : 0);
 $max = $max ? (int)$max : 20;
 
 $limit = "LIMIT $begin,$max";
