@@ -70,6 +70,8 @@ if (@mysql_query($query)) {
   $msg .= "Search      -- http://master.php.net/manage/user-notes.php\n";
   # make sure we have a return address.
   if (!$user) $user = "php-general@lists.php.net";
+  # strip spaces in email address, or will get a bad To: field
+  $user = str_replace(' ','',$user);
   // see who requested an alert
   // ** alerts **
   //$mailto .=  get_emails_for_sect($sect);
