@@ -1,8 +1,13 @@
 <?php
 
+// Current date in GMT
+$date = gmdate("Y/m/d H:i:s");
+
 // Info on the $MIRRORS array structure and some constants
 $structinfo = "
-/* Structure of an element of the $MIRRORS array:
+/*
+ Structure of an element of the $MIRRORS array:
+
   0  Country code
   1  Provider name
   2  Local stats flag (TRUE / FALSE)
@@ -11,6 +16,8 @@ $structinfo = "
   5  Local search engine flag (TRUE / FALSE)
   6  Default language code
   7  Status [see status constants]
+
+ List generated: $date GMT
 */
 
 // Mirror type constants
