@@ -1,11 +1,11 @@
 <?php
 // $Id$
 
+// Force login before action can be taken
+include_once 'login.inc';
 include_once 'functions.inc';
-include_once 'cvs-auth.inc';
 include_once 'email-validation.inc';
-// ** alerts ** remove comment when alerts are on-line
-//require_once 'alert_lib.inc';
+//require_once 'alert_lib.inc'; // remove comment if alerts are needed
 
 $mailto = $mailfrom = "php-notes@lists.php.net";
 
@@ -33,43 +33,6 @@ Support and ways to find answers to your questions can be found
 at <http://php.net/support>.
 
 Your note has been removed from the online manual.';
-
-if($user && $pass) {
-  setcookie("MAGIC_COOKIE",base64_encode("$user:$pass"),time()+3600*24*12,'/','.php.net');
-}
-
-if (!$user && isset($MAGIC_COOKIE)) {
-  list($user, $pass) = explode(":", base64_decode($MAGIC_COOKIE));
-}
-
-if (!$user || !$pass || !verify_password($user,$pass)) {
-  head();?>
-<p>You have to log in first.</p>
-<form method="post" action="<?php echo $PHP_SELF;?>">
-<?php
-if (isset($action))
-  echo '<input type="hidden" name="action" value="' . clean($action) . '" />';
-?>
-<table>
- <tr>
-  <th align="right">CVS username:</th>
-  <td><input type="text" name="user" value="<?php echo clean($user);?>" size="10" maxlength="32" /></td>
- </tr>
- <tr>
-  <th align="right">CVS password:</th>
-  <td><input type="password" name="pass" value="<?php echo clean($pass);?>" size="10" maxlength="32" /></td>
- </tr>
- <tr>
-  <td align="center" colspan="2">
-    <input type="submit" value="Log in" />
-  </td>
- </tr>
-</table>
-</form>
-<?php
-  foot();
-  exit;
-}
 
 if (!isset($action)) {
   // search !

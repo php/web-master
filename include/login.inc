@@ -23,21 +23,6 @@ if (isset($_COOKIE['MAGIC_COOKIE']) && !isset($_POST['user']) && !isset($_POST['
     list($user, $pw) = explode(":", base64_decode($_COOKIE['MAGIC_COOKIE']));
 }
 
-function query_string() {
-    if ($_SERVER['QUERY_STRING']) {
-        return htmlspecialchars("?{$_SERVER['QUERY_STRING']}");
-    }
-}
-
-function preserve_form_fields() {
-    if ($_SERVER['REQUEST_METHOD'] == "POST" && @is_array($_POST['in'])) {
-        while (list($k, $v) = each($_POST['in'])) {
-            echo "<input type=\"hidden\" name=\"in[", htmlspecialchars($k),
-                 "]\" value=\"", htmlspecialchars($v), "\" />\n";
-        }
-    }
-}
-
 // Login form, if the user is not yet logged in
 if (!$user || !$pw || !verify_password($user,$pw)) { ?>
 <html>
@@ -66,4 +51,23 @@ if (!$user || !$pw || !verify_password($user,$pw)) { ?>
 </html>
 <?php
   exit;
+}
+
+// ----------------------------------------------------------------------------------
+
+function query_string()
+{
+    if ($_SERVER['QUERY_STRING']) {
+        return htmlspecialchars("?{$_SERVER['QUERY_STRING']}");
+    }
+}
+
+function preserve_form_fields()
+{
+    if ($_SERVER['REQUEST_METHOD'] == "POST" && @is_array($_POST['in'])) {
+        while (list($k, $v) = each($_POST['in'])) {
+            echo "<input type=\"hidden\" name=\"in[", htmlspecialchars($k),
+                 "]\" value=\"", htmlspecialchars($v), "\" />\n";
+        }
+    }
 }
