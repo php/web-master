@@ -234,7 +234,7 @@ $res = mysql_query("SELECT mirrors.*, " .
  get notices of the deactivation.
 </p>
 <p>
- Last mirror check time: <?php echo gmdate("Y/m/d H:i:s GMT", $checktime); ?>
+ Last mirror check time: <?php echo gmdate("Y/m/d H:i:s", $checktime); ?> GMT
 </p>
 <table border="0" cellspacing="1" width="100%">
  <tr bgcolor="#aaaaaa">
