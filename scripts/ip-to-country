@@ -48,7 +48,7 @@ function fetch_ip_to_country($root)
     // the file is expected to be ok
     $state = 'firstline'; $fileok = TRUE;
     
-    $DEBUG = '';
+    $DEBUG = "$lastmod";
     
     // While we can read a line from the file 
     while (!feof($ipdbf) && ($line = fgets($ipdbf))) {
