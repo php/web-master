@@ -42,7 +42,7 @@ else {
 
 // Compress mirrorkit dir in backend to mirrorkit.tgz
 chdir("$root/backend/mirrorkit");
-$output = `tar -czf mirrorkit.tgz *`;
+$output = `tar --exclude=CVS --exclude=mirrorkit.tgz -czf mirrorkit.tgz *`;
 if (strlen($output)) { die("Mirrorkit compression error: $output"); }
 
 // Fetch data into a temporary file first, and then
