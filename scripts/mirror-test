@@ -61,7 +61,7 @@ foreach ($hosts as $index => $host) {
     // GET mirror-info.php from the registered hostname
     $rc = fputs($fp, "GET $filename HTTP/1.0\r\n" .
                      "Host: {$host['hostname']}\r\n" .
-                     "User-Agent: PHP.net Mirror Site Check\r\n");
+                     "User-Agent: PHP.net Mirror Site Check\r\n\r\n");
     
     // If we were unable to write to socket, skip mirror site
     if ($rc === FALSE) {
