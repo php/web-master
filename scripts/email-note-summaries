@@ -1,0 +1,36 @@
+#!/usr/local/bin/php -q
+<?
+
+mysql_connect("localhost","nobody","")
+  or die("unable to connect to server");
+mysql_select_db("php3")
+  or die("unable to select database");
+
+$query = "SELECT COUNT(*) AS count,sect FROM note"
+       . " GROUP BY sect ORDER BY count DESC LIMIT 20";
+
+$res = mysql_query($query)
+  or die("query to get top 20 pages failed");
+
+$body = "Notes  |  Page\n"
+      . "-------+---------------------------------------------------------\n";
+
+$top20 = 0;
+while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
+  $body .= sprintf("%5d  | http://php.net/manual/en/%s.php\n", $row['count'], $row['sect']);
+  $top20 += $row['count'];
+}
+
+$query = "SELECT COUNT(*) FROM note";
+
+$res = mysql_query($query)
+  or die("query to get total count of notes failed");
+
+$total = mysql_result($res,0);
+
+$body = "Following are the top 20 pages of the manual, sorted by the number\n"
+      . "of user notes contributed. These sections could use a polish, those\n"
+      . sprintf("notes represent %.1f%% of the %d total user notes.\n\n", ($top20 / $total)*100, $total)
+      . $body;
+
+mail("phpdoc@lists.php.net","Notes Status, $total total",$body,"From: phpdoc@lists.php.net");
