@@ -294,7 +294,6 @@ $res = mysql_query("SELECT mirrors.*, " .
   <th>Provider</th>
   <th>Stats</th>
   <th>Search</th>
-  <th></th>
  </tr>
 <?php
 
