@@ -10,9 +10,6 @@
  script.
 */
 
-// No debug mode
-$test_debug = FALSE;
-
 // This script will run for a long time
 set_time_limit (30 * 60);
 
@@ -40,7 +37,7 @@ foreach ($hosts as $index => $host) {
     
     // If we were unable to open the port, continue with the next mirror
     if (!$fp) {
-        if ($test_debug) { echo "unable to connect to $host[hostname]\n"; flush(); }
+        $hosts[$index]['problem'] = "unable to connect";
         continue;
     }
 
@@ -49,7 +46,7 @@ foreach ($hosts as $index => $host) {
     
     // If we were unable to write to socket, skip mirror site
     if ($rc === FALSE) {
-        if ($test_debug) { echo "unable to send request to $host[hostname]\n"; flush(); }
+        $hosts[$index]['problem'] = "unable to send request";
         continue;
     }
     
@@ -64,7 +61,7 @@ foreach ($hosts as $index => $host) {
 
     // If we were unable to pass the HTTP header, skip mirror site
     if ($line === FALSE || $line == "") {
-        if ($test_debug) { echo "didn't get past headers for $host[hostname]\n"; flush(); }
+        $hosts[$index]['problem'] = "didn't get past headers";
         continue;
     }
         
@@ -73,14 +70,18 @@ foreach ($hosts as $index => $host) {
 
     // If unable to read that row, skip mirror site
     if ($rv === FALSE) {
-        if ($test_debug) { echo "didn't get data for $host[hostname]\n"; flush(); }
+        $hosts[$index]['problem'] = "didn't get data";
         continue;
-    } else {
-        if ($test_debug) { echo "received data from $host[hostname]\n"; flush(); }
     }
     
     // Exlode information row by delimiter
     $info = explode("|", $rv);
+
+    // Invalid data received, skip mirror site
+    if (count($info) < 4) {
+        $hosts[$index]['problem'] = "invalid data received";
+        continue;
+    }
     
     // Put pieces into the $hosts array
     $hosts[$index]['phpversion'] = $info[1];
@@ -97,7 +98,7 @@ foreach ($hosts as $index => $host) {
 }
 
 // Go through all mirror sites checked
-$mirrorsupdated = 0;
+$mirrorsupdated = 0; $problems = "";
 foreach ($hosts as $host) {
     
     // If "mirrorupdated" date specified, then we were able to check
@@ -110,12 +111,19 @@ foreach ($hosts as $host) {
                  "WHERE hostname = '" . $host['hostname'] . "'"; 
         $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
         if ($result) { $mirrorsupdated++; }
+        else { $problems .= $host['hostname'] . " : cannot be updated in database\n"; }
     }
+
+    // Collect problems with hosts into one string
+    else {
+        $problems .= $host['hostname'] . " : " . $host['problem'] . "\n";
+    }
+
 }
 
 // DEBUG
 @mail(
     "goba@php.net",
     "Mirror site updates done",
-    "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")"
+    "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
 );
