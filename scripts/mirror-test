@@ -1,5 +1,5 @@
 #!/usr/local/bin/php -q
-<?php
+<?php # vim: ft=php
 set_time_limit (0);
 /* simple testing system to ping each mirror, and see what state they are in.*/
 
@@ -14,65 +14,38 @@ $query = "SELECT maintainer,hostname,id FROM mirrors WHERE mirrortype = 1 AND ac
 $result = mysql_query($query)
   or die("unable to get from the database: ".mysql_error());
 
+$total = mysql_num_rows($result);
+
 for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
 	$hosts[$i]['hostname'] = $row['hostname'];
 	$hosts[$i]['id'] = $row['id'];
 	$hosts[$i]['maintainer'] = $row['maintainer'];
-}
 
-/* now this stage takes a long time, and we need to go out of PHP to execute it,
-   so we are going to write that info to a file */
+	$fp = fsockopen($row['hostname'], 80, $errno, $errstr, 15);
+        if (!$fp) {
+          echo "unable to connect to $row[hostname]\n";
+          continue;
+        }
 
-$rv = "";
-$total = sizeof($hosts);
+        $rc = fputs($fp, "GET /mirror-info.php HTTP/1.0\r\nHost: $row[hostname]\r\n\r\n");
+        if ($rc < 0) continue;
+        socket_set_timeout($fp, 5, 0);
 
-for($i=0; $i < $total; $i++) {
-	
-	$rv .= $hosts[$i]['hostname'] . " ";
-}
+        do {
+          $line = fgets($fp);
+        } while ($line !== false && $line != "\r\n" && $line != "\n");
 
-$d = date("U");
-$mf = <<< EOF
-CCS = $rv
-DAT = $d
-TMP = /tmp/mirrors/data/
-DIR = /tmp/mirrors/
-LOG = /tmp/mirrors/log
-SAV = /tmp/mold/
+        if ($line === false) {
+          echo "didn't get past headers for $row[hostname]\n";
+          continue;
+        }
+        
+	$rv = fgets($fp);
 
-all: \${CCS}
-
-\${CCS}: start
-\t/home/imajes/bin/wget --verbose --debug --tries=1 --timeout=15 -a $(LOG) http://$@/mirror-info.php -O $(TMP)$@
-
-start: 
-\tmkdir -p $(TMP)
-
-clean:
-\ttar zcf $(SAV)$(DAT).tar.gz $(DIR)
-\trm -rf $(DIR)
-#\tkillall wget #isn't currently needed, but some versions of wget suck (use latest cvs). 
-
-EOF;
-
-/* now put this into a makefile, so we can batch process it */
- 
-@mkdir("/tmp/mirrors", 0777);
-
-$fp = @fopen("/tmp/mirrors/Makefile", "w");
-$fw = @fwrite($fp, $mf);
-@fclose($fp);
-
-/* execute it, gather data...  */
-
-exec("make -C /tmp/mirrors/ -i -j -k all 2> /dev/null");
-
-/* now get the info from the files and populate our arrays of data */
-
-for ($i=0; $i < $total; $i++) {
-	$file = "/tmp/mirrors/data/" . $hosts[$i]['hostname'];
-	$fp = @fopen($file, "r");
-	$rv = @fread($fp, 1000);
+        if ($rv === false) {
+          echo "didn't get data for $row[hostname]\n";
+          continue;
+        }
 	
 	$info = explode("|", $rv);
 	$hosts[$i]['phpversion'] = $info[1];
@@ -80,18 +53,9 @@ for ($i=0; $i < $total; $i++) {
 	$hosts[$i]['xtra'] = $info[3];
 }
 
-/* reconnect to the database */
-mysql_connect("localhost","nobody","") or die("unable to connect to database");
-mysql_select_db("php3");
-
 for($i=0; $i < $total; $i++) {
 	if ($hosts[$i]['lastupdate']) {
 		$query = "UPDATE mirrors SET lastchecked=NOW(),lastupdated=FROM_UNIXTIME(".$hosts[$i]['lastupdate']."),phpversion='".addslashes($hosts[$i]['phpversion'])."' WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
 		$result = mysql_query($query) or die("unable to update the database: $query: ".mysql_error());
 	}
 }
-  
-/* this cleans what we did. it also kills all the wget sessions that didn't end - however, the make session
-goes defunct and loses reporting over the child processes. This should die within a short period of time. */  
-
-exec("make -C /tmp/mirrors/ -k -i clean 2> /dev/null");
