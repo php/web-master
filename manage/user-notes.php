@@ -90,7 +90,7 @@ case 'delete':
         echo '<script language="javascript">window.close();</script>';
         exit;
       }
-      else ($row['removed']) {
+      elseif ($row['removed']) {
         echo '<script language="javascript">window.close();</script>';
         exit;
       }
