@@ -6,21 +6,17 @@ head("machine inventory");
 of generous sponsors. this is a basic inventory of those machines and
 what services they provide.</p>
 
-<h2>chek1.php.net (208.247.106.167)</h2>
+<h2>chek1.php.net (208.210.50.160)</h2>
 
 <p><b>machine:</b> p2/350, 256MB RAM, 8.1GB HD, redhat 5.1</p>
 
-<p><b>aliases:</b> php.net mx</p>
+<p><b>notes:</b> this machine is being phased out.</p>
 
-<p><b>notes:</b> an upgrade for this machine is imminent. sometime after that
-is done, this machine will take over all of the non-www.php.net sites from
-chek2.</p>
-
-<h2>chek2.php.net (208.247.106.187)</h2>
+<h2>chek2.php.net (208.210.50.161)</h2>
 
 <p><b>machine:</b> dual p3/650, 512MB RAM, 40.9GB HD, redhat 6.1</p>
 
-<p><b>aliases:</b> www.php.net, bugs.php.net, conf.php.net, gtk.php.net, qa.php.net</p>
+<p><b>aliases:</b> www.php.net, conf.php.net</p>
 
 <h2>pair1.php.net (216.92.131.4)</h2>
 
@@ -45,6 +41,12 @@ take over the mailing lists if pair1 ever fails.</p>
 <p><b>notes:</b> this machine has been (temporarily?) sidelined. there are
 bandwidth limitations, and we need to make sure monitoring is in place before
 resuming use of the machine to make sure we don't exceed those limits.</p>
+
+<h2>synacor1.php.net (208.210.50.162)</h2>
+
+<p><b>machine:</b> dual p3/450, 256MB RAM, 10GB HD (8GB RAID), redhat 7.2</p>
+
+<p><b>aliases:</b> php.net mx, bugs.php.net, gtk.php.net, hosts.php.net, master.php.net, qa.php.net</p>
 
 <h2>va1.php.net (198.186.203.51)</h2>
 
