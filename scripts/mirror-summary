@@ -10,6 +10,9 @@
 // This script will run for a long time
 set_time_limit (0);
 
+// Empty arrays by default
+$inactives = $outdated = array();
+ 
 // Try to connect to the database and select php3 database
 mysql_connect("localhost","nobody","") or die("unable to connect to database");
 mysql_select_db("php3");
