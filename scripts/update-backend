@@ -29,7 +29,7 @@ fetch_into_file("http://master.php.net/fetch/events.php?nm=3&token=$token",
 
 // Run ip-to-country fetch code
 include "ip-to-country";
-fetch_ip_to_country();
+fetch_ip_to_country($root);
                 
 // Create RSS news feed file
 $dest = fopen("$root/news.rss", "w");

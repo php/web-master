@@ -3,7 +3,7 @@
 // This script will only work if included from "update-backend"!
 
 // Fetch ip-to-country.com data and index database
-function fetch_ip_to_country()
+function fetch_ip_to_country($root)
 {
     // Files used / affected
     $ipdbt   = "ip-to-country.db~";
