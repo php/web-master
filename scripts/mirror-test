@@ -23,7 +23,7 @@ mysql_connect("localhost", "nobody", "")
 mysql_select_db("php3");
 
 // Get mirror information for all active mirrors (regardless of their type!)
-$query = "SELECT maintainer, hostname, id, has_search, has_stats, lang, 
+$query = "SELECT maintainer, hostname, id, has_search, has_stats, lang, lastchecked,
           UNIX_TIMESTAMP(lastupdated) AS lastupdated
           FROM mirrors WHERE active = 1";
 $result = mysql_query($query)
@@ -55,6 +55,13 @@ else {
 // Get all mirror sites, and count the index of them
 foreach ($hosts as $index => $host) {
 
+    // Diagnostical info
+    $doublecheck .= $host['hostname'] . ' : ' .
+                    date("r", $host['lastupdate']) . "/" .
+                    date("r", $mirrmon[$host['hostname']][0]) . " .. " .
+                    date("r", $host['lastchecked']) . "/" .
+                    date("r", $mirrmon[$host['hostname']][1]) . "\n";
+    
     // Open port 80 on the mirror site
     $fp = @fsockopen($host['hostname'], 80, $errno, $errstr, 15);
     
@@ -197,7 +204,7 @@ foreach ($hosts as $host) {
     @mail(
         "goba@php.net",
         "Mirror site updates done",
-        "$doublecheck" .
+        "$doublecheck\n" .
         "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
     );
 //}
