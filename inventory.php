@@ -11,7 +11,7 @@ what services they provide.</p>
 
 <p><b>machine:</b> p2/350, 256MB RAM, 8.1GB HD, redhat 5.1</p>
 
-<p><b>aliases:</b> rsync.php.net</p>
+<p><b>aliases:</b> php.net mx</p>
 
 <h2>chek2.php.net (208.247.106.187)</h2>
 
@@ -38,6 +38,8 @@ what services they provide.</p>
 <h2>va1.php.net (198.186.203.51)</h2>
 
 <p><b>machine:</b> dual p3/650, 1 GB RAM, 130GB HD, debian-stable</p>
+
+<p><b>aliases:</b> rsync.php.net</p>
 
 <p>originally compiled by jim winstead, september 2001</p>
 
