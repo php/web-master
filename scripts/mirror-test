@@ -104,7 +104,7 @@ for($i=0; $i < $total; $i++) {
                  "phpversion = '" . addslashes($hosts[$i]['phpversion']) . "' " .
                  "WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
         $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
-        if ($results) { $mirrorsupdated++; }
+        if ($result) { $mirrorsupdated++; }
     }
 }
 
