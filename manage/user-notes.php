@@ -93,13 +93,9 @@ case 'delete':
             mail($email,"note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note'],"From: $user@php.net");
           }
         }
-        echo '<script language="javascript">window.close();</script>';
-        exit;
       }
-      elseif ($row['removed']) {
-        echo '<script language="javascript">window.close();</script>';
-        exit;
-      }
+      echo '<script language="javascript">window.close();</script>';
+      exit;
     }
     head();
     echo "<p>An unknown error occured. Try again later.</p><pre>",mysql_error(),"</pre>";
