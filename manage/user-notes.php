@@ -20,10 +20,11 @@ for those purposes. This was clearly stated in the page
 you used to submit your note, please carefully re-read
 those instructions before submitting future contributions.
 
-Bug Submissions should be entered at <http://bugs.php.net/>
-Feature Requests should also be entered at <http://bugs.php.net/>
+Bug Submissions and Feature Requests should be entered at
+<http://bugs.php.net/>. For documentation errors use the
+bug system, and classify the bug as "Documentation problem".
 Support and ways to find answers to your guestions can be found
-at <http://www.php.net/support.php>
+at <http://www.php.net/support.php>.
 
 Your note has been removed from the on-line manual.';
 
