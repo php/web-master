@@ -96,6 +96,9 @@ for($i = 0; $row = mysql_fetch_array($result, MYSQL_ASSOC); $i++) {
     }
 }
 
+// Debug mail
+@mail("goba@php.net", "All mirrors checked", "All mirrors checked");
+
 // Go through all mirror sites checked
 $mirrorsupdated = 0;
 for($i=0; $i < $total; $i++) {
@@ -108,8 +111,13 @@ for($i=0; $i < $total; $i++) {
                  "lastupdated = FROM_UNIXTIME(" . $hosts[$i]['mirrorupdated'] . "), " .
                  "phpversion = '" . addslashes($hosts[$i]['phpversion']) . "' " .
                  "WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
-        $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
+        $result = mysql_query($query);
         if ($result) { $mirrorsupdated++; }
+        else {
+            $errorstr = "unable to update the database: $query: " . mysql_error();
+            @mail("goba@php.net", "Mirror sites update failed", "$errorstr");
+            die($errorstr);
+        }
     }
 }
 
