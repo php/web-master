@@ -81,6 +81,10 @@ case 'reject':
 case 'delete':
   if ($id) {
     if ($result = mysql_query("SELECT * FROM note WHERE id=$id")) {
+      if (!mysql_num_rows ($result)) {
+      	die ("Note #$id doesn't exist.  It has probably been deleted/rejected already");
+      }
+      
       $row = mysql_fetch_array($result);
       if ($row['id'] && mysql_query("DELETE FROM note WHERE id=$id")) {
         $mailto = "php-notes@lists.php.net";
@@ -123,6 +127,9 @@ case 'edit':
     head();
 
     if ($result = @mysql_query("SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id=$id")) {
+      if (!mysql_num_rows ($result)) {
+      	die ("Note #$id doesn't exist.  It has probably been deleted/rejected already");
+      }
       $row = mysql_fetch_array($result);
     }
 
