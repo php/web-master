@@ -51,6 +51,40 @@ resolution.
 </p>
 
 <?php
+  case 'XBL':
+?>
+<p>
+We use the <a href="http://www.spamhaus.org/xbl/index.lasso">Spamhaus Exploits
+Block List</a>, a realtime database of exploited or trojanned machines, to
+block mail that is quite likely to contain either spam or virus infected
+messages.
+</p>
+
+<p>
+Your message was blocked either because your computer, or one of the mail servers that your message was routed through is on the XBL.
+</p>
+
+<b>How do I get my message through?</b>
+
+<p>
+You need to get your computer(s) off the XBL.  Make sure that you are virus/trojan free, and make sure that if you're running your own mail servers that you are not running an open relay.  Then <a href="#remove">check if you are on a block list</a>.
+</p>
+
+<p>
+If you are virus free but have picked up a dynamic IP address that was previous
+used by someone with an infected computer, you're probably out of luck; if you
+can, try disconnecting from the internet and dialling up again to get issued a
+new IP.  If you find that you are consistently blocked in this way, contact
+your ISP.
+</p>
+
+<p>
+If it is your ISP's mail server that is blocked, contact your ISP.  If their
+mail server is consistently blocked, you should consider moving to a different
+provider.
+</p>
+
+<?php
     /* TODO: more reasons to go here */
     break;
 }
@@ -60,6 +94,9 @@ resolution.
 
 <p>
 You may check your IP's using <a href="http://www.spamhaus.org/sbl/index.lasso">this form, provided by Spamhaus</a>, or check a wider range of block lists (only some of which are employed by our servers) using the <a href="http://www.rulesemporium.com/cgi-bin/uribl.cgi">Rules Emporium URI Block list checker</a>
+</p>
+<p>
+The Spamhaus query page provides you with instructions on how to request removal.
 </p>
 
 <?php
