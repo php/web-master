@@ -11,7 +11,7 @@ set_time_limit (0);
 	  . "sorted by last update.\n"
 	  . "Edit mirror listings here: http://master.php.net/manage/mirrors.php\n\n";
 
-  $body .=  "No response was returned from these following hosts, and they were removed from the active list:\n\n";
+  $body .=  "No response was returned from these following hosts within the last three days:\n\n";
 
 /* firstly, get some data */
 
@@ -19,13 +19,13 @@ mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
 mysql_select_db("php3");
 
-$query = "SELECT maintainer,hostname,id,UNIX_TIMESTAMP(lastupdated) AS lastupdate,phpversion,(DATE_SUB(NOW(), INTERVAL 3 DAY) < lastupdated) AS active FROM mirrors WHERE mirrortype = 1 ORDER BY hostname";
+$query = "SELECT maintainer,hostname,id,UNIX_TIMESTAMP(lastupdated) AS lastupdate,phpversion,(DATE_SUB(NOW(), INTERVAL 3 DAY) < lastchecked) AS active,(DATE_SUB(NOW(), INTERVAL 7 DAY) < lastupdated) AS current FROM mirrors WHERE mirrortype = 1 ORDER BY hostname";
 
 $result = mysql_query($query)
   or die("unable to get from the database");
 
-while ($hosts[] = mysql_fetch_assoc($result)) {
-  /* do nothing */
+while ($host = mysql_fetch_assoc($result)) {
+  $hosts[] = $host;
 }
 $total = count($hosts);
 
@@ -36,6 +36,16 @@ $total = count($hosts);
 	}
   }
   
+
+  $body .=  "\nThese mirrors have not been updated in at least 7 days:\n\n";
+  for($i=0; $i < $total; $i++) {
+	if ($hosts[$i]['active'] && !$hosts[$i]['current']) {
+		$body .= sprintf("%s -- %s\n", $hosts[$i]['hostname'], $hosts[$i]['maintainer']);
+		
+	}
+  }
+  
+
   $body .=  "\nAnd now for the rest of the mirrors:\n"
         . "----------------------------------------------------------------------------------------\n"
    	. " Host \t\t PHP Version \t\t Last Updated\t\t Maintainer\n"

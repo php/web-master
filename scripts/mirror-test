@@ -89,11 +89,15 @@ for ($i=0; $i < $total; $i++) {
 	}
 }
 
+/* reconnect to the database */
+mysql_connect("localhost","nobody","") or die("unable to connect to database");
+mysql_select_db("php3");
+
 for($i=0; $i < $total; $i++) {
-	mysql_connect("localhost","nobody","") or die("unable to connect to database");
-	mysql_select_db("php3");
-	$query = "UPDATE mirrors SET lastchecked=NOW()" . ($hosts[$i]['active'] ? ",lastupdated=FROM_UNIXTIME(".$hosts[$i]['lastupdate']."),phpversion='".addslashes($hosts[$i]['phpversion'])."'" : "") . " WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
-	$result = mysql_query($query) or die("unable to get from the database");
+	if ($hosts[$i]['active']) {
+		$query = "UPDATE mirrors SET lastchecked=NOW(),lastupdated=FROM_UNIXTIME(".$hosts[$i]['lastupdate']."),phpversion='".addslashes($hosts[$i]['phpversion'])."' WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
+		$result = mysql_query($query) or die("unable to get from the database");
+	}
 }
   
 /* this cleans what we did. it also kills all the wget sessions that didn't end - however, the make session
