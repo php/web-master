@@ -86,6 +86,8 @@ elseif (isset($id)) {
   if (intval($id) !== 0) {
       $res = mysql_query(
           "SELECT *, " .
+          "UNIX_TIMESTAMP(created) AS ucreated, UNIX_TIMESTAMP(lastedited) AS ulastedited" .
+          "UNIX_TIMESTAMP(lastupdated) AS ulastupdated, UNIX_TIMESTAMP(lastchecked) AS ulastchecked" .
           "(DATE_SUB(NOW(), INTERVAL 3 DAY) < lastchecked) AS up, " .
           "(DATE_SUB(NOW(), INTERVAL 7 DAY) < lastupdated) AS current " .
           "FROM mirrors WHERE id = $id"
@@ -167,19 +169,19 @@ elseif (isset($id)) {
   </tr>
   <tr>
    <th align="right">Mirror added:</th>
-   <td><?php print_date($row['created']); ?></td>
+   <td><?php print_date($row['ucreated']); ?></td>
   </tr>
   <tr>
    <th align="right">Last edit time:</th>
-   <td><?php print_date($row['lastedited']); ?></td>
+   <td><?php print_date($row['ulastedited']); ?></td>
   </tr>
   <tr>
    <th align="right">Last mirror check time:</th>
-   <td><?php print_date($row['lastchecked']); if (!$row['up']) { echo '<br /><i>does not seem to be up!</i>'; } ?></td>
+   <td><?php print_date($row['ulastchecked']); if (!$row['up']) { echo '<br /><i>does not seem to be up!</i>'; } ?></td>
   </tr>
   <tr>
    <th align="right">Last update time:</th>
-   <td><?php print_date($row['lastupdated']); if (!$row['current']) { echo '<i><br />does not seem to be current!</i>'; } ?></td>
+   <td><?php print_date($row['ulastupdated']); if (!$row['current']) { echo '<i><br />does not seem to be current!</i>'; } ?></td>
   </tr>
   <tr>
    <th align="right">PHP version used:</th>
@@ -345,8 +347,8 @@ function show_mirrortype_options($type = 1)
 // Print out MySQL date, with a zero default
 function print_date($date)
 {
-    if ($date == '0000-00-00 00:00:00') { echo 'n/a'; }
-    else { echo $date; }
+    if (intval($date) == 0) { echo 'n/a'; }
+    else { echo gmdate("Y/m/d H:i:s", $date) . " GMT"; }
 }
 
 // Print out PHP version number
