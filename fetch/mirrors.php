@@ -7,7 +7,7 @@ $structinfo = "
   1  Provider name
   2  Local stats flag (1/0)
   3  Provider URL
-  4  Mirror type (1 - standard, 2 - special, 3 - download)
+  4  Mirror type (1 - standard, 2 - special, 0 - download)
   5  Local search engine flag (1/0)
   6  Default language code
 */
