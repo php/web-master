@@ -42,8 +42,8 @@ fetch_into_file("http://www.directi.com/iptocountry/?site=php.net&dbformat=1&las
 // move the file to the right place
 if (@filesize($ipdbt) > strlen("no updates")) {
     rename($ipdbt, $ipdb);
-}
-unlink($ipdbt);
+    @mail("goba@php.net", "ip-to-country updated", "yep");
+} else { unlink($ipdbt); @mail("goba@php.net", "ip-to-country no update needed", "yep"); }
                                 
 // Create RSS news feed file
 $dest = fopen("$root/news.rss", "w");
