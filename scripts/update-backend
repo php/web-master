@@ -27,23 +27,10 @@ fetch_into_file("http://master.php.net/fetch/countries.php?token=$token",
 fetch_into_file("http://master.php.net/fetch/events.php?nm=3&token=$token",
                 "$root/backend/events.csv");
 
-// Get last modified date of ip-to-country data
-$ipdbt = "ip-to-country.db~";
-$ipdb  = "$root/backend/ip-to-country.db";
-if (file_exists($ipdb)) { $lastmod = filemtime($ipdb); }
-else { $lastmod = 0; }
-
-// Fetch data from server to local temporary file
-fetch_into_file("http://www.directi.com/iptocountry/?site=php.net&dbformat=1&lastupdate=" . $lastmod,
-                $ipdbt);
-
-// If the file contains more then a 'no updates' message,
-// then we expect it to be real ip-to-country data, and
-// move the file to the right place
-if (@filesize($ipdbt) > strlen("no updates")) {
-    rename($ipdbt, $ipdb);
-} else { unlink($ipdbt); }
-                                
+// Run ip-to-country fetch code
+include "ip-to-country";
+fetch_ip_to_country();
+                
 // Create RSS news feed file
 $dest = fopen("$root/news.rss", "w");
 if (!$dest) { echo "failed to open $root/news.rss for writing"; }

@@ -1,0 +1,84 @@
+<?php
+
+// This script will only work if included from "update-backend"!
+
+// Fetch ip-to-country.com data and index database
+function fetch_ip_to_country()
+{
+    // Files used / affected
+    $ipdbt   = "ip-to-country.db~";
+    $ipdb    = "$root/backend/ip-to-country.db";
+    $ipidx   = "$root/backend/ip-to-country.idx";
+
+    // Create one index entry for at least
+    // every '$indexby'th record in the db
+    $indexby = 10000000;
+
+    // Get last modified date of ip-to-country data
+    if (file_exists($ipdb)) { $lastmod = filemtime($ipdb); }
+    else { $lastmod = 0; }
+
+    // Fetch data from server to local temporary file
+    fetch_into_file("http://www.directi.com/iptocountry/" .
+                    "?site=php.net&dbformat=1&lastupdate=" .
+                    $lastmod, $ipdbt);
+
+    // If the file contains more then a 'no updates' message,
+    // then we expect it to be real ip-to-country data, and
+    // move the file to the right place
+    if (@filesize($ipdbt) > strlen("no updates")) {
+        rename($ipdbt, $ipdb);
+    } else { unlink($ipdbt); }
+    
+    create_ip_to_country_index($ipdb, $ipidx, $indexby);
+}
+
+// Create local index for ip-to-country.com data
+function create_ip_to_country_index($ipdb, $ipidx, $indexby)
+{
+    // Last indexed number and last record number
+    $lastidx = $recnum = 0;
+
+    // We store the index in a PHP array temporarily
+    $idx_list = array($indexby, "0,0");
+
+    // Open database for reading
+    $ipdbf = fopen($ipdb, "r");
+
+    // Return with error in case of we cannot open the db
+    if (!$ipdbf) { die("Unable to open '$ipdb' for reading"); }
+
+    // While we can read the file
+    while (!feof($ipdbf)) {
+
+        // Get one record
+        $record = fread($ipdbf, 24);
+
+        // Unable to read a record and not at end => error
+        if (strlen($record) != 24 && !feof($ipdbf)) {
+            die("Incorrect ip-to-country database format");
+        }
+
+        // This is a new record
+        $recnum++;
+
+        // Get the start of the range for this record
+        $range_start = (float) substr($record, 0, 10);
+
+        // If this range starts a new step with our granularity,
+        // add a new element to the index array
+        if (intval($range_start / $indexby) > $lastidx) {
+            $lastidx = intval($range_start / $indexby);
+            $idx_list[] = "$lastidx,$recnum";
+        }
+    }
+
+    // Close the database file
+    fclose($ipdbf);
+
+    // Write out index to file
+    $ipidxf = fopen($ipidx, "w");
+    if (!$ipidxf) { die("Unable to open '$ipidx' for writing"); }
+    fwrite($ipidxf, join("\n", $idx_list));
+    fclose($ipidxf);
+}
