@@ -44,9 +44,18 @@ foreach ($hosts as $index => $host) {
         $hosts[$index]['problem'] = "unable to connect";
         continue;
     }
+    
+    // Request the exact file on www.php.net as it redirects
+    // the request to a mirror site, and we would not handle
+    // that properly...
+    if ($row['hostname'] == 'www.php.net') {
+        $filename = '/mirror-info.php';
+    } else {
+        $filename = '/mirror-info';
+    }
 
     // GET mirror-info.php from the registered hostname
-    $rc = fputs($fp, "GET /mirror-info HTTP/1.0\r\nHost: $host[hostname]\r\n\r\n");
+    $rc = fputs($fp, "GET $filename HTTP/1.0\r\nHost: $host[hostname]\r\n\r\n");
     
     // If we were unable to write to socket, skip mirror site
     if ($rc === FALSE) {
