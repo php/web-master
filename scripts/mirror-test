@@ -133,7 +133,8 @@ foreach ($hosts as $host) {
                  "has_search = '" . ((int) $host['has_search'])     . "', " .
                  "has_stats = '"  . ((int) $host['has_stats'])      . "', " .
                  "phpversion = '" . addslashes($host['phpversion']) . "', " .
-                 "lang = '"       . $host['lang']                   . "' " .
+                 "lang = '"       . $host['lang']                   . "', " .
+                 "ocmt = '' " .
                  "WHERE hostname = '" . $host['hostname'] . "'"; 
         $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
         if ($result) { $mirrorsupdated++; }
