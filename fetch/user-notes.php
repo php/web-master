@@ -20,7 +20,17 @@ $query .= " ORDER BY sect,rate DESC,ts DESC";
 
 $res = @mysql_query($query) or exit;
 
-while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
-  echo "$row[id]|$row[sect]|$row[rate]|$row[ts]|$row[user]|",
-       base64_encode(gzcompress($row[note],3)),"\n";
+// Print out a row for all notes, obfuscating the
+// email addresses as needed
+while ($row = mysql_fetch_array($res, MYSQL_ASSOC)) {
+    $user = $row['user'];
+    if ($user != "php-general@lists.php.net" && $user != "user@example.com") {
+        if (preg_match("!(.+)@(.+)\.(.+)!", $user)) {
+            $user = str_replace(array('@', '.'), array(' at ', ' dot '), $user);
+        }
+    } else {
+        $user = '';
+    }
+    echo "$row[id]|$row[sect]|$row[rate]|$row[ts]|$user|",
+         base64_encode(gzcompress($row[note],3)),"\n";
 }
