@@ -95,7 +95,11 @@ if (!isset($action)) {
   }
 
   if (isset($keyword)) {
-    $sql = 'SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE note LIKE "%' . addslashes($keyword) . '%" LIMIT 20';
+    $sql = 'SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE note LIKE "%' . addslashes($keyword) . '%"';
+    if (is_numeric($keyword)) {
+      $sql .= ' OR id = ' . (int)$keyword;
+    }
+    $sql .= ' LIMIT 20';
     @mysql_connect("localhost","nobody","")
       or die("unable to connect to database");
     @mysql_select_db("php3")
@@ -132,7 +136,7 @@ if (!isset($action)) {
 <form method="post" action="<?php echo $PHP_SELF;?>">
 <table>
  <tr>   
-  <th align="right">Keyword :</th>
+  <th align="right">Keyword or ID:</th>
   <td><input type="text" name="keyword" value="<?php echo $searched; ?>" size="10" maxlength="32" /></td>
  </tr>
  <tr> 
