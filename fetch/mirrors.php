@@ -64,25 +64,30 @@ if (@mysql_pconnect("localhost","nobody","")) {
                     case MIRROR_STANDARD : $row['mirrortype'] = 'MIRROR_STANDARD'; break;
                     case MIRROR_SPECIAL  : $row['mirrortype'] = 'MIRROR_SPECIAL'; break;
                 }
-                
+
                 // Rewrirte has_search and has_stats to be booleans
                 $row["has_search"] = ($row["has_search"] ? 'TRUE' : 'FALSE');
                 $row["has_stats"]  = ($row["has_stats"]  ? 'TRUE' : 'FALSE');
-                
+
                 // Presumably the mirror is all right
                 $status = 'MIRROR_OK';
-                
-                // Set inactive mirrors to special (for backward compatibilty),
-                // and provide status information computed from current information
-                if (!$row["active"]) {
-                    $row["mirrortype"] = 'MIRROR_SPECIAL';
-                    $status = 'MIRROR_NOTACTIVE';
-                } elseif (!$row["current"]) {
-                    $row["mirrortype"] = 'MIRROR_SPECIAL';
-                    $status = 'MIRROR_OUTDATED';
-                } elseif (!$row["up"]) {
-                    $row["mirrortype"] = 'MIRROR_SPECIAL';
-                    $status = 'MIRROR_DOESNOTWORK';
+
+                // Non-special mirrors have an uptodate check
+                if ($row['mirrortype'] != 'MIRROR_SPECIAL') {
+
+                    // Set inactive mirrors to special (for backward compatibilty),
+                    // and provide status information computed from current information
+                    if (!$row["active"]) {
+                        $row["mirrortype"] = 'MIRROR_SPECIAL';
+                        $status = 'MIRROR_NOTACTIVE';
+                    } elseif (!$row["current"]) {
+                        $row["mirrortype"] = 'MIRROR_SPECIAL';
+                        $status = 'MIRROR_OUTDATED';
+                    } elseif (!$row["up"]) {
+                        $row["mirrortype"] = 'MIRROR_SPECIAL';
+                        $status = 'MIRROR_DOESNOTWORK';
+                    }
+
                 }
                 
                 // Print out the array element for this mirror
