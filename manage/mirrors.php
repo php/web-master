@@ -257,7 +257,8 @@ if (intval($id) !== 0) {
 // still non-officially named mirrors show in the right place
 $res = mysql_query("SELECT mirrors.*, " .
                    "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < mirrors.lastchecked) AS up, " .
-                   "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < mirrors.lastupdated) AS current " .
+                   "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < mirrors.lastupdated) AS current, " .
+                   "country.name as countryname " .
                    "FROM mirrors LEFT JOIN country ON mirrors.cc = country.id " .
                    "ORDER BY country.name, hostname"
        ) or die("query failed");
@@ -291,47 +292,49 @@ $res = mysql_query("SELECT mirrors.*, " .
  automatically every hour, there is no direct manual way to start a check.
 </p>
 
-<table border="0" cellspacing="1" width="100%" id="mirrors">
- <tr bgcolor="#aaaaaa">
-  <td></td>
-  <th>Name</th>
-  <th>Maintainer</th>
-  <th>Provider</th>
-  <th>Stats</th>
-  <th>Search</th>
- </tr>
+<table border="0" cellspacing="1" cellpadding="3" width="100%" id="mirrors">
 <?php
 
-// Start with this color (#dddddd)
-$c = 'd';
+// Previous country code
+$prevcc = "000";
 
 // Go through all mirror sites
 while ($row = mysql_fetch_array($res)) {
     
+    // Print out a country header, if a new country is found
+    if ($prevcc != $row['cc']) {
+        echo '<tr><td colspan="4"></td></tr>' . "\n" .
+             '<tr bgcolor="#cccccc"><td width="40" align="center">' .
+             '<img src="http://static.php.net/www.php.net/images/flags/' .
+             strtolower($row['cc']) . '.png" /><br /></td>' .
+             '<td colspan="3"><b>' . $row['countryname'] .
+             '</b><br /></td></tr>' . "\n";
+    }
+
     // Active mirror site
     if ($row['active']) {
         
         // Special active mirror site (green)
-        if ($row['mirrortype'] != 1) { $sitecolor = "#{$c}{$c}ff{$c}{$c}"; }
+        if ($row['mirrortype'] != 1) { $siteimage = "special"; }
         
         // Not special, but active
         else {
-            // Not up to date or not current (blue)
+            // Not up to date or not current
             if (!$row['up'] || !$row['current']) {
-                $sitecolor = "#{$c}{$c}{$c}{$c}ff";
+                $siteimage = "error";
             }
-            // Up to date and current (gray)
+            // Up to date and current
             else {
-                $sitecolor = "#{$c}{$c}{$c}{$c}{$c}{$c}";
+                $siteimage = "ok";
             }
         }
     }
-    // Not active mirror site (red)
+    // Not active mirror site
     else {
-        $sitecolor = "#ff{$c}{$c}{$c}{$c}";
+        $siteimage = "deactivated";
     }
 
-    // See what needs to be put into the search display cell
+    // See what needs to print out as search info
     $srccell = '&nbsp;';
     if ($row['has_search'] == "1") { $srccell = 'new'; }
     elseif ($row['has_search'] == "2") { $srccell = 'old'; }
@@ -339,30 +342,25 @@ while ($row = mysql_fetch_array($res)) {
         $srccell = "<a href=\"http://$row[hostname]/search.php\">$srccell</a>";
     }
 
-?>
- <tr bgcolor="<?php echo $sitecolor; ?>">
-  <td align="center">
-   <a href="<?php echo "$PHP_SELF?id=$row[id]";?>">edit</a>
-  </td>
-  <td>
-   <a href="<?php echo "http://", hsc($row['hostname']); ?>"><?php echo hsc(preg_replace("!\\.php\\.net$!", "", $row['hostname'])); ?></a>
-  </td>
-  <td>
-   <?php echo hsc($row['maintainer']); ?>
-  </td>
-  <td>
-   <a href="<?php echo hsc($row['providerurl']); ?>"><?php echo hsc($row['providername']); ?></a>
-  </td>
-  <td align="center">
-   <?php echo $row['has_stats'] ? "<a href=\"http://$row[hostname]/stats/\">go</a>" : "&nbsp;"; ?>
-  </td>
-  <td align="center">
-   <?php echo $srccell; ?>
-  </td>
- </tr>
-<?php
-  // Switch color to the alternate one
-  $c = ($c == 'd' ? 'e' : 'd');
+    // Mirror edit link
+    echo "<tr bgcolor=\"#e0e0e0\">\n" .
+         "<td bgcolor=\"#ffffff\" align=\"right\">\n" .
+         "<a href=\"mirrors.php?id=" . $row['id'] .
+         "\"><img src=\"/images/mirror_edit.png\"></a></td>\n";
+
+    // Print out mirror site link
+    echo '<td><small><a href="http://' . $row['hostname'] . '/">' .
+         $row['hostname'] . '</a></small><br /></td>' . "\n";
+
+    // Print out mirror provider information
+    echo '<td><small><a href="' . $row['providerurl'] . '">' .
+         $row['providername'] . '</a></small><br /></td>' . "\n";
+
+    // Print out mirror provider information
+    echo '<td align="right"><img src="/images/mirror_' . $siteimage . '.png" /></td>' . "\n";
+
+    // End of row
+    echo '</tr>';
 }
 ?>
 </table>
