@@ -199,7 +199,7 @@ if (isset($id)) {
  <td><input type="submit" value="<?php echo $id ? "Change" : "Add";?>" />
 </tr>
 </form>
-<?php if (is_admin() && !$row[cvsaccess]) {?>
+<?php if (is_admin($user) && !$row[cvsaccess]) {?>
 <tr>
  <form method="get" action="<?php echo $PHP_SELF;?>">
   <input type="hidden" name="action" value="remove" />
