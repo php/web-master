@@ -14,6 +14,7 @@ $structinfo = "
 */
 
 // Mirror type constants
+define('MIRROR_DOWNLOAD', 0);
 define('MIRROR_STANDARD', 1);
 define('MIRROR_SPECIAL',  2);
 
@@ -60,7 +61,11 @@ if (@mysql_pconnect("localhost","nobody","")) {
                 }
                 
                 // Rewrite the mirrortype to use defined constants
-                $row["mirrortype"] = (($row["mirrortype"] == 1) ? 'MIRROR_STANDARD' : 'MIRROR_SPECIAL');
+                switch ($row['mirrortype']) {
+                    case MIRROR_DOWNLOAD : $row['mirrortype'] = 'MIRROR_DOWNLOAD'; break;
+                    case MIRROR_STANDARD : $row['mirrortype'] = 'MIRROR_STANDARD'; break;
+                    case MIRROR_SPECIAL  : $row['mirrortype'] = 'MIRROR_SPECIAL'; break;
+                }
                 
                 // Rewrirte has_search and has_stats to be booleans
                 $row["has_search"] = ($row["has_search"] ? 'TRUE' : 'FALSE');
