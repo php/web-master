@@ -73,23 +73,11 @@ if (@mysql_pconnect("localhost","nobody","")) {
                 // Presumably the mirror is all right
                 $status = 'MIRROR_OK';
 
-                // Non-special mirrors have an uptodate check
-                if ($row['mirrortype'] != 'MIRROR_SPECIAL') {
-
-                    // Set inactive mirrors to special (for backward compatibilty),
-                    // and provide status information computed from current information
-                    if (!$row["active"]) {
-                        $row["mirrortype"] = 'MIRROR_SPECIAL';
-                        $status = 'MIRROR_NOTACTIVE';
-                    } elseif (!$row["current"]) {
-                        $row["mirrortype"] = 'MIRROR_SPECIAL';
-                        $status = 'MIRROR_OUTDATED';
-                    } elseif (!$row["up"]) {
-                        $row["mirrortype"] = 'MIRROR_SPECIAL';
-                        $status = 'MIRROR_DOESNOTWORK';
-                    }
-
-                }
+                // Provide status information for mirrors
+                // computed from current mirror details
+                if (!$row["active"]) {      $status = 'MIRROR_NOTACTIVE'; }
+                elseif (!$row["up"]) {      $status = 'MIRROR_DOESNOTWORK'; }
+                elseif (!$row["current"]) { $status = 'MIRROR_OUTDATED'; }
                 
                 // Print out the array element for this mirror
                 echo "    \"$row[hostname]\" => array(\"$row[cc]\"," .
