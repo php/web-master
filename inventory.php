@@ -73,6 +73,18 @@ this box. This allows for absolute failover redundancy, and the possibilty of in
 the cvs repository and the rsync modules are done. cricket also runs on this
 machine to track the usage of all of the machines.</p> -->
 
+<h2>ez1.php.net (128.39.198.38)</h2>
+
+<p><b>machine:</b>Dell PE 650, 1GB RAM, 120GB disk</p>
+<p><b>aliases:</b></p>
+<p><b>technical contact:</b> Ole Sigurd Nyvold Hansen (Ole.S.Hansen AT hit.no)</p>
+
+<h2>sp1.php.net (69.28.246.234)</h2>
+
+<p><b>machine:</b> Celeron 2.5GHz, 1GB RAM, 120GB HD</p>
+<p><b>aliases:</b></p>
+<p><b>technical contact:</b> Cameron Jones (cameron.jones AT spry.com)</p>
+
 <p>originally compiled by jim winstead, september 2001</p>
 <p>last update: $Id$</p>
 <?php
