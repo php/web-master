@@ -23,7 +23,7 @@ is very reasonable considering the current
 flow of notes usually submitted.  This prevents
 a large flood of notes from coming in.
 */
-$query = 'SELECT COUNT(*) FROM note WHERE ts >= (NOW() - 60)';
+$query = 'SELECT COUNT(*) FROM note WHERE ts >= (NOW() - INTERVAL 1 MINUTE)';
 $result = @mysql_query ($query);
 
 if (!$result) {
@@ -41,7 +41,8 @@ if ($count >= 3) {
   //the amount of allowed notes
   mail ('alindeman@php.net',
 	'Note quota exceeded',
-	'Too many notes submitted in one minute.  Consider increasing quota',
+	'Too many notes submitted in one minute.  Consider increasing quota
+        Occured at '.date ('M d, Y g:i:s A'),
 	'From: webmaster@php.net'
        );
   die ('[TOO MANY NOTES]');
