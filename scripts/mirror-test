@@ -83,7 +83,7 @@ for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
     }
     
     // If new search information is available, override previous one
-    if (in_array($info[3], array('0','1'))) {
+    if (in_array($info[3], array('0', '1', '2'))) {
         $hosts[$i]['has_search'] = $info[3];
     }
 }
