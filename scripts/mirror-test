@@ -19,7 +19,7 @@ mysql_connect("localhost","nobody","")
 mysql_select_db("php3");
 
 // Get mirror information for all active mirrors (regardless of their type!)
-$query = "SELECT maintainer, hostname, id FROM mirrors WHERE active = 1";
+$query = "SELECT maintainer, hostname, id, has_search, lastupdated FROM mirrors WHERE active = 1";
 $result = mysql_query($query)
     or die("unable to get from the database: " . mysql_error());
 
@@ -30,9 +30,7 @@ $total = mysql_num_rows($result);
 for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
 
     // Add information gathered from database table
-    $hosts[$i]['id']         = $row['id'];
-    $hosts[$i]['hostname']   = $row['hostname'];
-    $hosts[$i]['maintainer'] = $row['maintainer'];
+    $hosts[$i] = $row;
 
     // Open port 80 on the mirror site
     $fp = fsockopen($row['hostname'], 80, $errno, $errstr, 15);
@@ -78,8 +76,16 @@ for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
     
     // Put pieces into the $hosts array
     $hosts[$i]['phpversion'] = $info[1];
-    $hosts[$i]['lastupdate'] = $info[2];
-    $hosts[$i]['xtra']       = $info[3];
+    
+    // The last updated date is a number [db security]
+    if (is_numeric($info[2])) {
+        $hosts[$i]['lastupdated'] = $info[2];
+    }
+    
+    // If new search information is available, override previous one
+    if (in_array($info[3], array('0','1')) {
+        $hosts[$i]['has_search'] = $info[3];
+    }
 }
 
 // Go through all mirror sites checked
@@ -89,7 +95,7 @@ for($i=0; $i < $total; $i++) {
     // the mirror, so the mirror data can be updated. Otherwise
     // the previous data need to be kept!
     if ($hosts[$i]['lastupdate']) {
-        $query = "UPDATE mirrors SET lastchecked=NOW(),lastupdated=FROM_UNIXTIME(".$hosts[$i]['lastupdate']."),phpversion='".addslashes($hosts[$i]['phpversion'])."' WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
+        $query = "UPDATE mirrors SET lastchecked=NOW(),has_search=".$hosts[$i]['has_search'].",lastupdated=FROM_UNIXTIME(".$hosts[$i]['lastupdated']."),phpversion='".addslashes($hosts[$i]['phpversion'])."' WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
         $result = mysql_query($query) or die("unable to update the database: $query: ".mysql_error());
     }
 }
