@@ -32,7 +32,7 @@ take over the mailing lists if pair1 ever fails.</p>
 
 <h2>pair12.php.net (216.92.131.66)</h2>
 
-<p><b>machine:</b> dual p3/1000 xeon, 512MB RAM, 70GB HD, freebsd 4.8</p>
+<p><b>machine:</b> dual p3/1000 xeon, 512MB RAM, 70GB HD, freebsd 4.9</p>
 
 <p><b>aliases:</b> pear, pecl</p>
 
