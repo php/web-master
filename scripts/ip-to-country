@@ -5,8 +5,6 @@
 // Fetch ip-to-country.com data and index database
 function fetch_ip_to_country($root)
 {
-    mail("goba@php.net", "ip-to-country: starting update", "");
-    
     // Files used / affected
     $ipdbt   = "ip-to-country.db~";
     $ipdbc   = "ip-to-country.dbr~";
@@ -29,8 +27,6 @@ function fetch_ip_to_country($root)
     // No success in getting the DB
     if (!$succ) { return FALSE; }
     
-    mail("goba@php.net", "ip-to-country: succesful download", "");
-                            
     /*
      The following code checks the structure of the file
      received. If this is an updated data file, then it
@@ -95,6 +91,8 @@ function fetch_ip_to_country($root)
     fclose($ipdbf);
     fclose($ipdbcf);
     
+    mail("goba@php.net", "ip-to-country: proper format", "");
+                            
     // Remove the temp file. If the data is ok, move
     // it to the destination, or else delete that too
     unlink($ipdbt);
