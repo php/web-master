@@ -10,32 +10,27 @@
  script.
 */
 
-set_error_handler("myhandler");
+// No debug mode
+$test_debug = FALSE;
 
 // This script will run for a long time
 set_time_limit (30 * 60);
 
-// DEBUG
-sendmessage("Mirror site check started");
-
 // Connect to local MySQL database
 mysql_connect("localhost","nobody","")
-    or sendmessage("unable to connect to database", TRUE);
+    or die("unable to connect to database");
 mysql_select_db("php3");
 
 // Get mirror information for all active mirrors (regardless of their type!)
 $query = "SELECT maintainer, hostname, id, has_search FROM mirrors WHERE active = 1";
 $result = mysql_query($query)
-    or sendmessage("unable to get from the database: " . mysql_error(), TRUE);
+    or die("unable to get from the database: " . mysql_error());
 
 // Get all mirror site data to the $hosts array
 $hosts = array();
 while ($row = mysql_fetch_array($result)) {
     $hosts[] = $row;
 }
-
-// DEBUG
-sendmessage("Database data now in a PHP array");
 
 // Get all mirror sites, and count the index of them
 foreach ($hosts as $index => $host) {
@@ -101,9 +96,6 @@ foreach ($hosts as $index => $host) {
     }
 }
 
-// DEBUG
-sendmessage("All mirrors checked");
-
 // Go through all mirror sites checked
 $mirrorsupdated = 0;
 foreach ($hosts as $host) {
@@ -116,32 +108,14 @@ foreach ($hosts as $host) {
                  "lastupdated = FROM_UNIXTIME(" . $host['mirrorupdated'] . "), " .
                  "phpversion = '" . addslashes($host['phpversion']) . "' " .
                  "WHERE hostname = '" . $host['hostname'] . "'"; 
-        $result = mysql_query($query) or sendmessage("unable to update the database: $query: " . mysql_error(), TRUE);
+        $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
         if ($result) { $mirrorsupdated++; }
     }
 }
 
 // DEBUG
-sendmessage("$mirrorsupdated number of mirror sites properly updated");
-
-// Debug message sender and die function
-function sendmessage($string, $die = FALSE)
-{
-    @mail("goba@php.net", "Mirror site check status report", $string);
-    if ($die) {
-        die($string);
-    }
-}
-
-// Custom error handler
-function myhandler($errno, $errstr, $errfile, $errline)
-{
-    global $host;
-
-    // See if the error is under the error reporting level
-    if ($errno & error_reporting()) {
-        if (isset($host)) { $hostname = $host['hostname']; }
-        else { $hostname = ""; }
-        sendmessage("$errno : $errstr : $errfile : $errline : $hostname", TRUE);
-    }
-}
+@mail(
+    "goba@php.net",
+    "Mirror site updates done",
+    "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")"
+);
