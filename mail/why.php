@@ -51,6 +51,7 @@ resolution.
 </p>
 
 <?php
+    break;
   case 'XBL':
 ?>
 <p>
@@ -82,6 +83,23 @@ your ISP.
 If it is your ISP's mail server that is blocked, contact your ISP.  If their
 mail server is consistently blocked, you should consider moving to a different
 provider.
+</p>
+
+<?php
+    break;
+  case 'blacklist':
+?>
+<p>
+You're on our black list.  It is very rare for us to list someone on our own black list, so it must have been for a very very very good reason.
+</p>
+
+<b>How do I get off the blacklist?</b>
+
+<p>
+You need to be resourceful enough to contact someone on our systems team.  You
+won't be able to mail us directly (because you are blacklisted).  You will need
+to use an alternative email address or ask someone to contact us on your
+behalf.
 </p>
 
 <?php
