@@ -303,11 +303,8 @@ while ($row = mysql_fetch_array($res)) {
     // Print out a country header, if a new country is found
     if ($prevcc != $row['cc']) {
         echo '<tr><td colspan="6"></td></tr>' . "\n" .
-             '<tr bgcolor="#cccccc"><td width="40" align="center">' .
-             '<img src="http://static.php.net/www.php.net/images/flags/' .
-             strtolower($row['cc']) . '.png" /><br /></td>' .
-             '<td colspan="5"><b>' . $row['countryname'] .
-             '</b><br /></td></tr>' . "\n";
+             '<tr bgcolor="#cccccc"><td colspan="6"><b>' .
+             $row['countryname'] . "</b><br /></td></tr>\n";
     }
     $prevcc = $row['cc'];
 
