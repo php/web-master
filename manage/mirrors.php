@@ -165,7 +165,7 @@ while ($row = mysql_fetch_array($res)) {?>
  <td align="center"><a href="<?php echo "$PHP_SELF?id=$row[id]";?>">edit</a></td>
  <td><a href="<?php echo ereg("^(f|ht)tp:",$row['hostname']) ? "" : "http://", htmlspecialchars($row['hostname']);?>"><?php echo htmlspecialchars($row['hostname']);?></a></td>
  <td><?php echo htmlspecialchars($row['maintainer']);?>&nbsp;</td>
- <td><a href="<?php echo htmlspecialchars($row['providerur'l]);?>"><?php echo htmlspecialchars($row['providername']);?></a></td>
+ <td><a href="<?php echo htmlspecialchars($row['providerurl']);?>"><?php echo htmlspecialchars($row['providername']);?></a></td>
  <td align="center"><?php echo $row['has_stats'] ? "<a href=\"http://$row[hostname]/stats/\">go</a>" : "&nbsp;";?></td>
  <td align="center"><?php echo $row['has_search'] ? "<a href=\"http://$row[hostname]/search.php\">go</a>" : "&nbsp;";?></td>
  <td align="center"><?php echo ($row['mirrortype'] == 1) ? "<a href=\"$PHP_SELF?mode=delete&hostname=$row[hostname]&id=$row[id]\">delete</a>" : "&nbsp;";?></td>
