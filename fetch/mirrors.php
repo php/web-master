@@ -1,5 +1,19 @@
 <?php
 
+// Info on the $MIRRORS array structure
+$structinfo = "
+/* Structure of an element of the $MIRRORS array:
+  0  Country code,
+  1  Provider name,
+  2  Local stats flag (1/0)
+  3  Provider URL,
+  4  Mirror type (1 - standard, 2 - special, 3 - download)
+  5  Local search engine flag (1/0)
+  6  Default language code
+*/
+
+";
+
 // A token is required, since this should only get accessed from rsync.php.net
 if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e") {
     die("token not correct.");
@@ -24,7 +38,7 @@ if (@mysql_pconnect("localhost","nobody","")) {
         if ($res) {
           
             // Start PHP script output
-            echo "<?php\n\$MIRRORS = array(\n";
+            echo "<?php$structinfo\$MIRRORS = array(\n";
             
             // Go through all result rows
             while ($row = @mysql_fetch_array($res)) {
