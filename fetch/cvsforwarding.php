@@ -13,6 +13,9 @@ if (@mysql_pconnect("localhost","nobody","")) {
         echo "$row[username]@php.net: ",
              ($row['spamprotect'] ? "|/local/bin/automoderate," : ""),
              "$row[email];\n";
+        echo "$row[username]@pair2.php.net: ",
+             ($row['spamprotect'] ? "|/local/bin/automoderate," : ""),
+             "$row[email];\n";
       }
     }
   }
