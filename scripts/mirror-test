@@ -122,7 +122,7 @@ foreach ($hosts as $host) {
 }
 
 // Send a debug mail at midnight with current details
-if (intval(date("H")) == 24) {
+if (intval(date("H")) == 0) {
     @mail(
         "goba@php.net",
         "Mirror site updates done",
