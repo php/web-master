@@ -76,7 +76,7 @@ if (!$action) {
             "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
             hsc($row['user']),"</span><br />",
 	    "Note id: $id<br />\n",
-	    "<a href=\"http://www.php.net/manual/en/{$row['sect']}.php\">Manual page</a><br />\n",
+	    "<a href=\"http://www.php.net/manual/en/{$row['sect']}.php\">http://www.php.net/manual/en/{$row['sect']}.php</a><br />\n",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=edit+$id\" target=\"_blank\">Edit Note</a><br />",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id\" target=\"_blank\">Delete Note</a><br />",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=reject+$id\" target=\"_blank\">Reject Note</a>",
