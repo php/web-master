@@ -12,7 +12,7 @@ mysql_select_db("php3");
 $query = "SELECT maintainer,hostname,id FROM mirrors WHERE mirrortype = 1 AND active";
 
 $result = mysql_query($query)
-  or die("unable to get from the database");
+  or die("unable to get from the database: ".mysql_error());
 
 for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
 	$hosts[$i]['hostname'] = $row['hostname'];
@@ -74,19 +74,10 @@ for ($i=0; $i < $total; $i++) {
 	$fp = @fopen($file, "r");
 	$rv = @fread($fp, 1000);
 	
-	if(!$fp || strlen($rv) == "0") {
-                $hosts[$i]['active'] = false;
-        } else {
-                $hosts[$i]['active'] = true;
-        }
 	$info = explode("|", $rv);
-	$hosts[$i]['phpversion'] = $info['1'];
-	$hosts[$i]['lastupdate'] = $info['2'];
-	$hosts[$i]['xtra'] = $info['3'];
-	
-	if (strlen($info['3']) > 0) {
-		$moreinfo = true;
-	}
+	$hosts[$i]['phpversion'] = $info[1];
+	$hosts[$i]['lastupdate'] = $info[2];
+	$hosts[$i]['xtra'] = $info[3];
 }
 
 /* reconnect to the database */
@@ -94,9 +85,9 @@ mysql_connect("localhost","nobody","") or die("unable to connect to database");
 mysql_select_db("php3");
 
 for($i=0; $i < $total; $i++) {
-	if ($hosts[$i]['active']) {
+	if ($hosts[$i]['lastupdate']) {
 		$query = "UPDATE mirrors SET lastchecked=NOW(),lastupdated=FROM_UNIXTIME(".$hosts[$i]['lastupdate']."),phpversion='".addslashes($hosts[$i]['phpversion'])."' WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
-		$result = mysql_query($query) or die("unable to get from the database");
+		$result = mysql_query($query) or die("unable to update the database: $query: ".mysql_error());
 	}
 }
   
