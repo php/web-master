@@ -140,6 +140,12 @@ foreach ($hosts as $index => $host) {
         $hosts[$index]['lastupdated'] = '0';
         $hosts[$index]['problem'] = "Apache manual alias in effect";
     }
+    
+    // Check that the mirror has all the mirror settings updated
+    if ((count($info) == 8) && ($info[7] == '0')) {
+      $hosts[$index]['problem'] = "Mirror settings are not up to date (see mirroring page)";
+    }
+    
 }
 
 // Go through all mirror sites checked
