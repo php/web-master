@@ -308,7 +308,7 @@ $stats = array(
 while ($row = mysql_fetch_array($res)) {
     
     // Collect statistical information
-    $stats['phpversion'][$row['phpversion']++;
+    $stats['phpversion'][$row['phpversion']]++;
     
     // Print separator row
     $summary .= '<tr><td colspan="7"></td></tr>' . "\n";
