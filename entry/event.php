@@ -80,7 +80,7 @@ switch($type) {
            . "country='$country',"
            . "category='$category'";
 
-    $msg = "Recurs Every: $re[$recur] ".day($recur_day);
+    $msg = "Recurs Every: $re[$recur] ".day($recur_day)."\n";
 
     break;
   default:
