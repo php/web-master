@@ -6,7 +6,9 @@ include_once 'functions.inc';
 // A mirror check is needed now, try to do it
 if (isset($checkmirrors)) {
     ignore_user_abort(TRUE);
+    $test_debug = TRUE;
     include_once "../scripts/mirror-test";
+    exit;
 }
 
 // This page is for mirror administration

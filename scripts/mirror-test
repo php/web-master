@@ -40,7 +40,7 @@ for($i = 0; $row = mysql_fetch_array($result, MYSQL_ASSOC); $i++) {
     
     // If we were unable to open the port, continue with the next mirror
     if (!$fp) {
-        // echo "unable to connect to $row[hostname]\n";
+        if ($test_debug) { echo "unable to connect to $row[hostname]\n"; flush(); }
         continue;
     }
 
@@ -48,7 +48,10 @@ for($i = 0; $row = mysql_fetch_array($result, MYSQL_ASSOC); $i++) {
     $rc = fputs($fp, "GET /mirror-info.php HTTP/1.0\r\nHost: $row[hostname]\r\n\r\n");
     
     // If we were unable to write to socket, skip mirror site
-    if ($rc === FALSE) { continue; }
+    if ($rc === FALSE) {
+        if ($test_debug) { echo "unable to send request to $row[hostname]\n"; flush(); }
+        continue;
+    }
     
     // Set timeout to 5 seconds
     socket_set_timeout($fp, 5, 0);
@@ -61,7 +64,7 @@ for($i = 0; $row = mysql_fetch_array($result, MYSQL_ASSOC); $i++) {
 
     // If we were unable to pass the HTTP header, skip mirror site
     if ($line === FALSE || $line == "") {
-        // echo "didn't get past headers for $row[hostname]\n";
+        if ($test_debug) { echo "didn't get past headers for $row[hostname]\n"; flush(); }
         continue;
     }
         
@@ -70,8 +73,10 @@ for($i = 0; $row = mysql_fetch_array($result, MYSQL_ASSOC); $i++) {
 
     // If unable to read that row, skip mirror site
     if ($rv === FALSE) {
-        // echo "didn't get data for $row[hostname]\n";
+        if ($test_debug) { echo "didn't get data for $row[hostname]\n"; flush(); }
         continue;
+    } else {
+        if ($test_debug) { echo "received data from $row[hostname]\n"; flush(); }
     }
     
     // Exlode information row by delimiter
