@@ -109,6 +109,7 @@ if (isset($id) && isset($in)) {
         $in[passwd] = crypt($in[rawpasswd],substr(md5(time()),0,2));
       }
       $cvsaccess = $in[cvsaccess] ? 1 : 0;
+      $spamprotect = $in[spamprotect] ? 1 : 0;
 
       if ($id) {
         # update main table data
@@ -117,6 +118,7 @@ if (isset($id) && isset($in)) {
                  . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
                  . ($in[username] ? ",username='$in[username]'" : "")
                  . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
+                 . ",spamprotect=$spamprotect"
                  . " WHERE userid=$id";
           query($query);
         }
@@ -128,7 +130,8 @@ if (isset($id) && isset($in)) {
         $query = "INSERT users SET name='$in[name]',email='$in[email]'"
                . ($in[username] ? ",username='$in[username]'" : "")
                . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
-               . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "");
+               . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
+               . ",spamprotect=$spamprotect";
         query($query);
 
         $nid = mysql_insert_id();
@@ -187,6 +190,10 @@ if (isset($id)) {
  <td><input type="checkbox" name="in[cvsaccess]"<?php echo $row[cvsaccess] ? " checked" : "";?> /></td>
 </tr>
 <?php }?>
+<tr>
+ <th align="right">Use spam protection?</th>
+ <td><input type="checkbox" name="in[spamprotect]"<?php echo $row[spamprotect] ? " checked" : "";?> /></td>
+</tr>
 <tr>
  <td><input type="submit" value="<?php echo $id ? "Change" : "Add";?>" />
 </tr>
