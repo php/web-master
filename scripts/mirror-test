@@ -22,7 +22,8 @@ mysql_connect("localhost","nobody","")
 mysql_select_db("php3");
 
 // Get mirror information for all active mirrors (regardless of their type!)
-$query = "SELECT maintainer, hostname, id, has_search, has_stats, lang FROM mirrors WHERE active = 1";
+$query = "SELECT active, maintainer, hostname, id, has_search, has_stats, lang
+          FROM mirrors WHERE active = 1";
 $result = mysql_query($query)
     or die("unable to get from the database: " . mysql_error());
 
@@ -45,7 +46,7 @@ foreach ($hosts as $index => $host) {
     }
 
     // GET mirror-info.php from the registered hostname
-    $rc = fputs($fp, "GET /mirror-info.php HTTP/1.0\r\nHost: $host[hostname]\r\n\r\n");
+    $rc = fputs($fp, "GET /mirror-info HTTP/1.0\r\nHost: $host[hostname]\r\n\r\n");
     
     // If we were unable to write to socket, skip mirror site
     if ($rc === FALSE) {
@@ -81,8 +82,8 @@ foreach ($hosts as $index => $host) {
     $info = explode("|", $rv);
 
     // Invalid data received, skip mirror site
-    if (count($info) < 4) {
-        $hosts[$index]['problem'] = "invalid data received";
+    if (count($info) < 7) {
+        $hosts[$index]['problem'] = "invalid data received (maybe improper ErrorHandler)";
         continue;
     }
     
@@ -113,20 +114,23 @@ foreach ($hosts as $index => $host) {
     if (preg_match("!^[a-zA-Z_]+$!", $info[5])) {
         $hosts[$index]['lang'] = $info[5];
     }
-    
-    // Need to add manual-noalias check here,
-    // when the mirror sites get updated
-    
+	
+	// Deactivate mirror immediately in case of a
+	// manual alias is in effect
+	if ($info[6] == "manual-alias") {
+	    $hosts[$index]['active'] = '0';
+        $hosts[$index]['problem'] = "manual alias in effect";
+	}
 }
 
 // Go through all mirror sites checked
 $mirrorsupdated = 0; $problems = "";
 foreach ($hosts as $host) {
     
-    // If "mirrorupdated" date specified, then we were able to check
+    // If a "problem" is not specified, then we were able to check
     // the mirror, so the mirror data can be updated. Otherwise
-    // the previous data need to be kept!
-    if (isset($host['mirrorupdated'])) {
+    // the previous data need to be kept (except maybe "active")!
+    if (!isset($host['problema'])) {
         $query = "UPDATE mirrors SET " .
                  "lastchecked = NOW(), " .
                  "lastupdated = FROM_UNIXTIME(" . $host['mirrorupdated'] . "), " .
@@ -144,7 +148,8 @@ foreach ($hosts as $host) {
     // Store the problem encountered in the database, and collect
     // all the problems into one string in case it will be mailed
     else {
-        $query = "UPDATE mirrors SET ocmt = '" . addslashes($host['problem']) . "' " .
+        $query = "UPDATE mirrors SET ocmt = '" . addslashes($host['problem']) . "', " .
+                 "active = '" . ((int) $host['active']) . "' " .
                  "WHERE hostname = '" . $host['hostname'] . "'";
         $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
         $problems .= $host['hostname'] . " : " . $host['problem'] . "\n";
