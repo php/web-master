@@ -97,10 +97,10 @@ foreach ($hosts as $index => $host) {
     }
     
     // Explode information row by delimiter
-    $info = explode("|", $rv);
+    $info = explode("|", trim($rv));
 
     // Invalid data received, skip mirror site
-    if (count($info) < 7) {
+    if (count($info) < 8) {
         $hosts[$index]['problem'] = "invalid data received (probably improper ErrorHandler)";
         continue;
     }
@@ -142,7 +142,7 @@ foreach ($hosts as $index => $host) {
     }
     
     // Check that the mirror has all the mirror settings updated
-    if ((count($info) == 8) && ($info[7] == '0')) {
+    if ($info[7] != '1') {
       $hosts[$index]['problem'] = "Mirror settings are not up to date (see mirroring page)";
     }
     
