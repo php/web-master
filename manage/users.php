@@ -39,11 +39,18 @@ if (!$user || !$pw || !verify_password($user,$pw)) {?>
   exit;
 }
 
-mysql_connect("localhost","nobody","")
+@mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
-mysql_select_db("php3");
+@mysql_select_db("php3");
+
+if (isset($username) && !isset($id)) {
+  $res = @mysql_query("SELECT userid FROM users WHERE cvsuser='$username' OR email='$username'");
+  if ($res) $id = mysql_result($res,0);
+}
 
 if (isset($id) && isset($in)) {
+  $approved = $in[approved] ? 1 : 0;
+
   if ($error = invalid_input($in)) {
     echo "<p class=\"error\">$error</p>";
   }
@@ -58,14 +65,16 @@ if (isset($id) && isset($in)) {
       }
 
       $pass = crypt($in[passwd],substr(md5(time()),0,2));
-      $query = "UPDATE users SET name='$in[name]',email='$in[email]',"
+      $query = "UPDATE users SET"
+             . ($in[name] ? " name='$in[name]'" : "")
+             . ($in[email] ? ",email='$in[email]'," : "")
              . ($in[cvsuser] ? "cvsuser='$in[cvsuser]'" : "")
              . ($in[passwd] ? ",passwd='$pass]'" : "")
-             . " WHERE userid=$id";
+             . ",approved=$approved WHERE userid=$id";
     }
     else {
       if ($in[passwd]) $in[passwd] = crypt($in[passwd],substr(md5(time()),0,2));
-      $query = "INSERT INTO users (name,email,cvsuser,passwd) VALUES ('$in[name]','$in[email]','$in[cvsuser]','$in[passwd]')";
+      $query = "INSERT INTO users (name,email,cvsuser,passwd,approved) VALUES ('$in[name]','$in[email]','$in[cvsuser]','$in[passwd]',$approved)";
     }
 
     if (!mysql_query($query)) {
@@ -113,6 +122,10 @@ if (isset($id)) {
 <tr>
  <th align="right">Password (again):</th>
  <td><input type="password" name="in[passwd2]" value="" size="20" maxlength="20" /></td>
+</tr>
+<tr>
+ <th align="right">Approved?</th>
+ <td><input type="checkbox" name="approved"<?php echo $row[approved] ? " checked" : "";?> /></td>
 </tr>
 <tr>
  <td><input type="submit" value="<?php echo $id ? "Change" : "Add";?>" />
