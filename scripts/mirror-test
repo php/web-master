@@ -38,6 +38,17 @@ while ($row = mysql_fetch_array($result)) {
 // Free up the result to get more memory
 mysql_free_result($result);
 
+// Get mirrmon output to double check our results
+$doublecheck = ''; $mirrmon = array();
+$dcheck = explode("\n", @file_get_contents("http://iso.ego.fi/php_mirrors/state.txt"));
+if (is_array($dcheck) && count($dcheck) == count($hosts)) {
+    $doublecheck = "Double checking " . count($dcheck) . " mirrors\n";
+    foreach ($dcheck as $mirrinfo) {
+      $details = explode(" ", $mirrorinfo);
+      $mirrmon[$details[0]] = array($details[1], $details[3]);
+    }
+}
+
 // Get all mirror sites, and count the index of them
 foreach ($hosts as $index => $host) {
 
@@ -179,10 +190,11 @@ foreach ($hosts as $host) {
 }
 
 // Send a debug mail at midnight with current details
-if (intval(date("H")) == 0) {
+//if (intval(date("H")) == 0) {
     @mail(
         "goba@php.net",
         "Mirror site updates done",
+        "$doublecheck" .
         "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
     );
-}
+//}
