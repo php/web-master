@@ -283,7 +283,7 @@ $res = mysql_query($query)
   or die("query '$query' failed: ".mysql_error());
 $total = mysql_result($res,0);
 
-$query = "SELECT DISTINCT users.userid,cvsaccess,username,name,email,note FROM users LEFT JOIN users_note USING (userid) $searchby $orderby $limit";
+$query = "SELECT DISTINCT users.userid,cvsaccess,username,name,email,note FROM users LEFT JOIN users_note USING (userid) $searchby group by userid $orderby $limit";
 
 #echo "<pre>$query</pre>";
 $res = mysql_query($query)
