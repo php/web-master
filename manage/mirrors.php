@@ -433,12 +433,12 @@ $versions = substr($versions, 0, -1);
 
 echo <<<EOS
 <p>
- Total number of mirrors: {$stat['mirrors']} of which {$stat['disabled']} is manually
- disabled (<img src="/images/mirror_deactivated.png" />) and {$stat['autodisabled']}
+ Total number of mirrors: {$stats['mirrors']} of which {$stats['disabled']} is manually
+ disabled (<img src="/images/mirror_deactivated.png" />) and {$stats['autodisabled']}
  is automatically disabled (<img src="/images/mirror_error.png" />). Other sites are
  properly working (<img src="/images/mirror_ok.png" />) Of all the sites,
- {$stat['has_search']} has onsite search support (<img src="/images/mirror_search.png" />)
- and {$stat['has_stats']} has stats support (<img src="/images/mirror_stats.png" />).
+ {$stats['has_search']} has onsite search support (<img src="/images/mirror_search.png" />)
+ and {$stats['has_stats']} has stats support (<img src="/images/mirror_stats.png" />).
  The PHP versions used on the sites are {$versions}.
 </p>
 
