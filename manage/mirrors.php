@@ -310,6 +310,7 @@ while ($row = mysql_fetch_array($res)) {
              '<td colspan="3"><b>' . $row['countryname'] .
              '</b><br /></td></tr>' . "\n";
     }
+    $prevcc = $row['cc'];
 
     // Active mirror site
     if ($row['active']) {
