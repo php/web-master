@@ -43,14 +43,17 @@ div#resources ul {
 table#mirrors {
   clear: both;
 }
-table#mirrors td {
+table#mirrors td, table#mirrors th {
   vertical-align: middle;
   font-family: sans-serif;
-  font-size: x-small;
+  font-size: medium;
 }
 table#mirrors a {
-  font-weight: bold;
   text-decoration: none;
+}
+table#mirrors th {
+  text-align: left;
+  font-weight: bold;
 } 
 
 /* General image style */
