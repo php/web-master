@@ -48,15 +48,20 @@ function fetch_ip_to_country($root)
     // the file is expected to be ok
     $state = 'firstline'; $fileok = TRUE;
     
+    $DEBUG = '';
+    
     // While we can read a line from the file 
     while (!feof($ipdbf) && ($line = fgets($ipdbf))) {
         
+        $DEBUG .= 'file read|';
+
         // Check the input depending on the state
         switch ($state) {
             
             // First line is defined, and after it we
             // switch to the 'data' state
             case 'firstline' : 
+                $DEBUG .= 'first line|';
                 if (trim($line) != "#Directi IP-to-Country Db: Start") {
                     $fileok = FALSE;
                     break 2;
@@ -68,6 +73,7 @@ function fetch_ip_to_country($root)
             // which case we write it out to the local rewritten
             // database
             case 'data' :
+                $DEBUG .= 'data line|';
                 if (trim($line) == "#Directi IP-to-Country Db: End") {
                     $state = 'lastline';
                 } elseif (!preg_match("!\\d{20}\\w{3}\n!", $line)) {
@@ -81,6 +87,7 @@ function fetch_ip_to_country($root)
             // We should not receive any data after the last
             // line, only whitespace is allowed
             case 'lastline' :
+                $DEBUG .= 'last line|';
                 if (strlen(trim($line)) > 0) {
                     $fileok = FALSE;
                     break 2;
@@ -92,10 +99,10 @@ function fetch_ip_to_country($root)
     fclose($ipdbcf);
     
     if ($fileok) {
-      mail("goba@php.net", "ip-to-country: proper format", "");
+      mail("goba@php.net", "ip-to-country: proper format", $DEBUG);
     }
     else {
-      mail("goba@php.net", "ip-to-country: improper format", "");
+      mail("goba@php.net", "ip-to-country: improper format", $DEBUG);
     }
                             
     // Remove the temp file. If the data is ok, move
