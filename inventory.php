@@ -19,7 +19,7 @@ performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 
 <p><b>machine:</b> dual p3/650, 512MB RAM, 40.9GB HD, redhat 6.1</p>
 
-<p><b>aliases:</b> www.php.net, conf.php.net</p>
+<p><b>aliases:</b>none</p>
 
 <h2>pair1.php.net (216.92.131.4)</h2>
 
@@ -70,10 +70,14 @@ machine to track the usage of all of the machines.</p>
 
 <p><b>machine:</b> p3/1GHz, 1GB RAM 40GB HD, redhat 7.2</p>
 
-<p><b>aliases:</b> </p>
+<p><b>aliases:</b> www.php.net, conf.php.net</p>
 
 <p><b>notes:</b> This machine is on a dedicated 10mbps switch. whilst it can maintain 10mbps, it cannot burst above that.</p> 
 
+<p><b>stats:</b> MRTG stats (traffic, load avg, cpu usage, etc) are 
+available <a href="http://www.php.net/~imajes/mrtg/">here</a>.</p>
+
 <p>originally compiled by jim winstead, september 2001</p>
+<p>last update: $Date$</p>
 <?php
 foot();
