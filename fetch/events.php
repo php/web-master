@@ -5,7 +5,7 @@
 #  die("token not correct.");
 
 @mysql_connect('localhost','nobody','') or exit;
-@mysql_select_db('php3') or exit;
+@mysql_select_db('phpmasterdb') or exit;
 
 // Set default values
 if (!isset($cm)) $cm = (int)strftime('%m');

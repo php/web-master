@@ -6,7 +6,7 @@ if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e")
 
 @mysql_connect("localhost","nobody","")
   or exit;
-@mysql_select_db("php3")
+@mysql_select_db("phpmasterdb")
   or exit;
 
 $query  = "SELECT DISTINCT id,note.sect,user,note,UNIX_TIMESTAMP(ts) AS ts,";

@@ -16,7 +16,7 @@ head("user administration");
 
 @mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
-@mysql_select_db("php3");
+@mysql_select_db("phpmasterdb");
 
 # ?username=whatever will look up 'whatever' by email or cvs username
 if (isset($username) && !isset($id)) {

@@ -17,8 +17,8 @@ if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e") {
 // Connect to local mysql database
 if (@mysql_connect("localhost","nobody","")) {
   
-    // Select php3 database
-    if (@mysql_select_db("php3")) {
+    // Select phpmasterdb database
+    if (@mysql_select_db("phpmasterdb")) {
       
         // Select mirrors list ordered by hostname
         $res = @mysql_query("SELECT * FROM mirrors ORDER BY hostname");

@@ -15,7 +15,7 @@ head("forgotten password");
 
 mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
-mysql_select_db("php3")
+mysql_select_db("phpmasterdb")
   or die("unable to select database");
 
 if ($id && $key) {

@@ -20,7 +20,7 @@ set_time_limit(30 * 60);
 // Connect to local MySQL database
 mysql_connect("localhost", "nobody", "")
     or die("unable to connect to database");
-mysql_select_db("php3");
+mysql_select_db("phpmasterdb");
 
 // Get mirror information for all active mirrors (regardless of their type!)
 $query = "SELECT maintainer, hostname, id, has_search, has_stats, lang,

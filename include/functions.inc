@@ -60,7 +60,7 @@ function db_connect($dieonerror = TRUE)
         }
         return FALSE;
     }
-    elseif (!@mysql_select_db("php3")) {
+    elseif (!@mysql_select_db("phpmasterdb")) {
         if ($dieonerror) {
             die(format_warn("Unable to select database!"));
         }

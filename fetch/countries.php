@@ -6,7 +6,7 @@ if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e")
 
 // Connect and generate the list from the DB
 if (@mysql_connect("localhost","nobody","")) {
-  if (@mysql_select_db("php3")) {
+  if (@mysql_select_db("phpmasterdb")) {
     $res = @mysql_query("SELECT * FROM country ORDER BY name");
     if ($res) {
       echo "<?php\n\$COUNTRIES = array(\n";

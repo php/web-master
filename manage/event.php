@@ -24,7 +24,7 @@ head("event administration");
 
 @mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
-@mysql_select_db("php3");
+@mysql_select_db("phpmasterdb");
 
 if (isset($id) && isset($action)) {
   $id = (int)$id;

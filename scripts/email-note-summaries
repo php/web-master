@@ -3,7 +3,7 @@
 
 mysql_connect("localhost","nobody","")
   or die("unable to connect to server");
-mysql_select_db("php3")
+mysql_select_db("phpmasterdb")
   or die("unable to select database");
 
 $query = "SELECT COUNT(*) AS count,sect FROM note"

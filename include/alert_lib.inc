@@ -1,7 +1,7 @@
 <?php
 
 $alink = mysql_connect("localhost","nobody","") or die("failed to connect to database");
-@mysql_select_db("php3", $alink) or die("failed to select database");
+@mysql_select_db("phpmasterdb", $alink) or die("failed to select database");
 
 /*{{{ show_alert_form */
 function show_alert_form($user, $sect) {

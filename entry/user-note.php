@@ -10,7 +10,7 @@ if (!isset($user) || empty($note) || empty($sect))
 
 @mysql_connect("localhost","nobody", "")
   or die("failed to connect to database");
-@mysql_select_db("php3")
+@mysql_select_db("phpmasterdb")
   or die("failed to select database");
 
 /*
