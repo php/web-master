@@ -83,7 +83,11 @@ this box. This allows for absolute failover redundancy, and the possibilty of in
 <p><b>machine:</b> (same as rn1) P3-1133, 1.2GB RAM, 165GB HD</p>
 
 <p><b>aliases:</b> bonsai</p>
- 
+
+<h2>sc1.php.net (66.225.196.49)</h2>
+
+<p><b>machine:</b> 4xP4-2400, 2GB RAM, 155GB HD</p>
+
 <!-- this machine generates the online manuals. daily backups of
 the cvs repository and the rsync modules are done. cricket also runs on this
 machine to track the usage of all of the machines.</p> -->
