@@ -167,7 +167,7 @@ while ($row = mysql_fetch_array($res)) {?>
 echo '</body></html>';
 
 function show_prev_next($begin,$rows,$skip,$total) {
-  global $order;?>
+  global $order, $PHP_SELF;?>
 <table border="0" cellspacing="1" width="100%">
  <tr bgcolor="#eeeeee">
   <td align="left" width="33%">
