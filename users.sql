@@ -18,25 +18,35 @@
 /* the cvsaccess field requires more thought. we might want to expand
    it to a more general flags field or something. it already implies
    an email alias in addition to cvs access. */
-CREATE TABLE IF NOT EXISTS users (
-  userid INT NOT NULL AUTO_INCREMENT,
-  name VARCHAR(255) NOT NULL DEFAULT '',
-  email VARCHAR(255) NOT NULL DEFAULT '',
-  passwd VARCHAR(16) NOT NULL DEFAULT '',
-  username VARCHAR(16) DEFAULT NULL,
-  cvsaccess INT(1) NOT NULL DEFAULT 0,
-  PRIMARY KEY(userid),
-  UNIQUE (email),
-  UNIQUE (username),
-  FULLTEXT (name,email,username)
+/* dns_allow states whether or not a user gets a <username>.people.php.net hostname.
+   Abusive users can have their dns privilidges revoked using this field.
+   dns_type is (currently) one of 'A','NS','CNAME' or 'NONE'.
+   dns_target is dependent on dns_type and should be self explanatory */
+CREATE TABLE users (
+  userid int(11) NOT NULL auto_increment,
+  passwd varchar(16) NOT NULL default '',
+  name varchar(255) NOT NULL default '',
+  email varchar(255) NOT NULL default '',
+  username varchar(16) default NULL,
+  cvsaccess int(1) NOT NULL default '0',
+  spamprotect int(1) NOT NULL default '1',
+  forgot varchar(16) default NULL,
+  dns_allow int(1) NOT NULL default '1',
+  dns_type varchar(5) NOT NULL default 'NONE',
+  dns_target varchar(255) NOT NULL default '',
+  PRIMARY KEY  (userid),
+  UNIQUE KEY email (email),
+  UNIQUE KEY username (username),
+  FULLTEXT KEY name (name,email,username)
 ) TYPE=MyISAM;
 
 /* the user_note table just contains notes about each user. */
-CREATE TABLE IF NOT EXISTS users_note (
-  noteid INT NOT NULL AUTO_INCREMENT,
-  userid INT NOT NULL,
-  entered DATETIME NOT NULL,
-  note TEXT,
-  PRIMARY KEY (noteid),
-  FULLTEXT (note)
+CREATE TABLE users_note (
+  noteid int(11) NOT NULL auto_increment,
+  userid int(11) NOT NULL default '0',
+  entered datetime NOT NULL default '0000-00-00 00:00:00',
+  note text,
+  PRIMARY KEY  (noteid),
+  FULLTEXT KEY note (note)
 ) TYPE=MyISAM;
+
