@@ -17,7 +17,7 @@ function day($in) {
   return strftime('%A',mktime(12,0,0,4,$in,2001));
 }
 
-if (empty($sdesc) || empty($email) || empty($country) || empty($category) || empty($type))
+if (empty($sdesc) || empty($email) || empty($country) || empty($category) || empty($type) || empty($url))
   die("missing some parameters.");
 
 @mysql_pconnect("localhost","nobody", "")
