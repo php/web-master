@@ -35,6 +35,14 @@ take over the mailing lists if pair1 ever fails.</p>
 bandwidth limitations, and we need to make sure monitoring is in place before
 resuming use of the machine to make sure we don't exceed those limits.</p>
 
+<p>Rackspace.com, the supplier of this machine, is also known as a
+"black hat" in spam-combatting circles.  If we do not want to be
+associated with their negative image, we should not use this machine
+in any prominent or visible way. Update: The machine's network seems
+to be blacklisted by a number of RBLs already. As such, running
+any kind of SMTP service has become unfeasible.</p>
+
+
 <p><b>aliases:</b> qa.php.net, bugs.php.net, gtk.php.net, master.php.net</p>
 
 <p>limited to 500GB traffic monthly.</p>
