@@ -57,6 +57,9 @@ function pregenerate_events($csvfile, $outfile)
 
             // We have not seen any events in this month
             $seen = array();
+            
+            // New category header needed
+            $ccat = 0;
         }
 
         // Start new category with a category header
