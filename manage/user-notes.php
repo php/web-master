@@ -90,7 +90,8 @@ case 'delete':
         if ($action == 'reject') {
           $email = clean_antispam($row['user']);
           if (is_emailable_address($email)) {
-            mail($email,"note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note'],"From: $user@php.net");
+            # use an envelope sender that lets us ignore bounces
+            mail($email,"note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note'],"From: webmaster@php.net", '-fbounces-ignored@php.net');
           }
         }
       }
