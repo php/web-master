@@ -5,6 +5,9 @@
 $mailto = 'php-notes@lists.php.net';
 $failto = 'jimw@php.net';
 
+//lang doesn't seem to be used
+$lang = '';
+
 if (!isset($user) || empty($note) || empty($sect))
   die("missing some parameters.");
 
