@@ -25,7 +25,7 @@ function fetch_into_file($url,$file) {
 
   $dest = @fopen("$file~","w");
   if (!$dest) {
-    echo "failed to open '$dest~' for writing\n";
+    echo "failed to open '$file~' for writing\n";
     return;
   }
 
@@ -34,15 +34,16 @@ function fetch_into_file($url,$file) {
     if (fwrite($dest,$chunk) < 0) {
       fclose($source); fclose($dest);
       unlink("$file~");
-      echo "failed writing to '$dest~'\n";
+      echo "failed writing to '$file~'\n";
       return;
     }
   }
   fclose($source); fclose($dest);
 
   if (!@filesize("$file~")) {
-    echo "'$dest~' was empty, skipping\n";
+    echo "'$file~' was empty, skipping\n";
     unlink("$file~");
+    return;
   }
   
   return rename("$file~",$file);
