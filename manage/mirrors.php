@@ -168,7 +168,13 @@ elseif (isset($id)) {
   </tr>
  </table>
  </td><td valign="top">
-<?php if (intval($id) !== 0) { ?>
+<?php
+
+if (intval($id) !== 0) {
+
+    // We need the actual languages include file
+    include_once "http://php.net/include/languages.inc";
+?>
  <table>
   <tr>
    <th colspan="2"><?php if (!$row['up'] || !$row['current']) { echo '<p class="error">This mirror is automatically disabled</p>'; } else { echo "&nbsp;"; } ?></th>
@@ -206,9 +212,9 @@ elseif (isset($id)) {
  </td></tr></table>
 </form>
 <?
-  // Form printed, exit script
-  foot();
-  exit();
+    // Form printed, exit script
+    foot();
+    exit();
 }
 
 // Query whole mirror list and display all of them. The query is
@@ -329,21 +335,6 @@ while ($row = mysql_fetch_array($res)) {
 
 // Print out footer (end of script run)
 foot();
-
-// Show language options for mirror site
-function show_language_options($lang = "en")
-{
-
-    // We need the actual languages include file
-    include_once "http://php.net/include/languages.inc";
-  
-    // Write out an <option> for all languages
-    foreach ($LANGUAGES as $code => $name) {
-        echo "<option value=\"$code\"" ,
-             $lang == $code ? " selected" : "" ,
-             ">$name</option>";
-    }
-}
 
 // Show mirror type options defaulting to current type
 function show_mirrortype_options($type = 1)
