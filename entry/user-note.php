@@ -16,6 +16,36 @@ if (!isset($user) || empty($note) || empty($sect))
 @mysql_select_db("php3")
   or die("failed to select database");
 
+/*
+After a discussion in #php about the
+vulnerability of the user notes system,
+I decided to implement a bit of hack
+prevention.  This makes sure that only
+3 notes can be submitted per minute, which
+is very reasonable considering the current
+flow of notes usually submitted.  This prevents
+a large flood of notes from coming in.
+*/
+$result = @mysql_query ('SELECT COUNT(*) FROM note WHERE ts >= '.time() - 60);
+
+if (!$result) {
+  mail ($failto, "failed manual note query", 'Note quota query failed -- '.mysql_error());
+  die("failed to insert record");
+}
+
+list ($count) = mysql_fetch_row ($result);
+
+if ($count > 3) {
+  //Send error to myself.  If this happens too many times, I'll increase
+  //the amount of allowed notes
+  mail ('alindeman@php.net',
+	'Note quota exceeded',
+	'Too many notes submitted in one minute.  Consider increasing quota',
+	'From: alindeman@php.net'
+       );
+  die ('[TOO MANY NOTES]');
+}
+
 $sect = ereg_replace("\.php$","",$sect);
 
 $query = "INSERT INTO note (user, note, sect, ts, lang) VALUES ";
