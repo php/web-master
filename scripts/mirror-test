@@ -48,6 +48,9 @@ if (is_array($dcheck)) {
       $mirrmon[$details[0]] = array($details[1], $details[3]);
     }
 }
+else {
+  $doublecheck = "Double check request failed\n";
+}
 
 // Get all mirror sites, and count the index of them
 foreach ($hosts as $index => $host) {
