@@ -102,7 +102,7 @@ case 'delete':
       }
     }
     head();
-    echo "<p>An unknown error occured. Try again later.</p>";
+    echo "<p>An unknown error occured. Try again later.</p><pre>",mysql_error(),"</pre>";
     foot();
     exit;
   }
@@ -127,8 +127,7 @@ case 'edit':
         echo "<p>note $id edited.</p>";
       }
       else {
-        echo "\n<!--", mysql_error(), "-->\n";
-        echo "<p>An unknown error occured. Try again later.</p>";
+        echo "<p>An unknown error occured. Try again later.</p><pre>",mysql_error(),"</pre>";
         foot();
         exit;
       }
