@@ -114,13 +114,13 @@ foreach ($hosts as $index => $host) {
     if (preg_match("!^[a-zA-Z_]+$!", $info[5])) {
         $hosts[$index]['lang'] = $info[5];
     }
-	
-	// Deactivate mirror immediately in case of a
-	// manual alias is in effect
-	if ($info[6] == "manual-alias") {
-	    $hosts[$index]['active'] = '0';
+    
+    // Deactivate mirror immediately in case of a
+    // manual alias is in effect
+    if ($info[6] == "manual-alias") {
+        $hosts[$index]['active'] = '0';
         $hosts[$index]['problem'] = "manual alias in effect";
-	}
+    }
 }
 
 // Go through all mirror sites checked
