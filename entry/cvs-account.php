@@ -8,6 +8,8 @@ $failto = 'group@php.net';
 if (empty($name) || empty($email) || empty($username) || empty($passwd) || empty($note))
   die("missing some parameters");
 
+$username = strtolower($username);
+
 @mysql_connect("localhost","nobody", "")
   or die("failed to connect to database");
 @mysql_select_db("php3")
