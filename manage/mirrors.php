@@ -284,6 +284,14 @@ while ($row = mysql_fetch_array($res)) {
         $sitecolor = "#ff{$c}{$c}{$c}{$c}";
     }
 
+    // See what needs to be put into the search display cell
+    $srccell = '&nbsp;';
+    if ($row['has_search'] == "1") { $srccell = 'new'; }
+    elseif ($row['has_search'] == "2") { $srccell = 'old'; }
+    if ($srccell != '&nbsp;') {
+        $srccell = "<a href=\"http://$row[hostname]/search.php\">$srccell</a>";
+    }
+
 ?>
  <tr bgcolor="<?php echo $sitecolor; ?>">
   <td align="center">
@@ -302,7 +310,7 @@ while ($row = mysql_fetch_array($res)) {
    <?php echo $row['has_stats'] ? "<a href=\"http://$row[hostname]/stats/\">go</a>" : "&nbsp;"; ?>
   </td>
   <td align="center">
-   <?php echo $row['has_search'] ? "<a href=\"http://$row[hostname]/search.php\">go</a>" : "&nbsp;"; ?>
+   <?php echo $srccell; ?>
   </td>
   <td align="center">
    <?php echo ($row['mirrortype'] == 1) ? "<a href=\"$PHP_SELF?mode=delete&hostname=$row[hostname]&id=$row[id]\">delete</a>" : "&nbsp;"; ?>
