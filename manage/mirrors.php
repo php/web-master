@@ -79,7 +79,7 @@ switch($mode) {
  if($mode == "delete") {
 	// quick security mail..
 	$body = "The mirrors list was updated, and $hostname was deleted.";
-	mail("php-mirrors@lists.php.net", "PHP Mirrors Updated.", $body, "From: php-mirrors@lists.php.net");
+	mail("php-mirrors@lists.php.net", "PHP Mirrors Updated by $user.", $body, "From: php-mirrors@lists.php.net");
  }
 }
 elseif (isset($id)) {
