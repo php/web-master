@@ -222,7 +222,7 @@ if (intval($id) !== 0) {
   </tr>
   <tr>
    <th align="right">Local Stats:</th>
-   <td><?php echo ($row['has_search'] ? "" : "<strong>not</strong> "); ?>supported</td>
+   <td><?php echo ($row['has_stats'] ? "" : "<strong>not</strong> "); ?>supported</td>
   </tr>
   <tr>
    <th align="right">Default Language:</th>
