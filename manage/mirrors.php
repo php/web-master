@@ -15,6 +15,10 @@ mysql_select_db("php3");
 $active     = isset($active)     ? 1 : 0;
 $has_stats  = isset($has_stats)  ? 1 : 0;
 
+// Select last mirror check time from table
+$lct = mysql_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY lastchecked DESC LIMIT 1");
+list($checktime) = mysql_fetch_row($lct);
+
 // We have something to update in the database
 if (isset($id) && isset($hostname)) {
 
@@ -88,8 +92,8 @@ elseif (isset($id)) {
           "SELECT *, " .
           "UNIX_TIMESTAMP(created) AS ucreated, UNIX_TIMESTAMP(lastedited) AS ulastedited, " .
           "UNIX_TIMESTAMP(lastupdated) AS ulastupdated, UNIX_TIMESTAMP(lastchecked) AS ulastchecked, " .
-          "(DATE_SUB(NOW(), INTERVAL 3 DAY) < lastchecked) AS up, " .
-          "(DATE_SUB(NOW(), INTERVAL 7 DAY) < lastupdated) AS current " .
+          "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < lastchecked) AS up, " .
+          "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < lastupdated) AS current " .
           "FROM mirrors WHERE id = $id"
       );
       $row = mysql_fetch_array($res);
@@ -201,17 +205,13 @@ elseif (isset($id)) {
   exit();
 }
 
-// Select last mirror check time from table
-$lct = mysql_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY lastchecked DESC LIMIT 1");
-list($checktime) = mysql_fetch_row($lct);
-
 // Query whole mirror list and display all of them. The query is
 // similar to one in the mirror fetch script. We need to get mirror
 // status data to show colors and need to order by country too to make
 // still non-officially named mirrors show in the right place
 $res = mysql_query("SELECT mirrors.*, " .
-                   "(DATE_SUB(NOW(), INTERVAL 3 DAY) < mirrors.lastchecked) AS up, " .
-                   "(DATE_SUB(NOW(), INTERVAL 7 DAY) < mirrors.lastupdated) AS current " .
+                   "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < mirrors.lastchecked) AS up, " .
+                   "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < mirrors.lastupdated) AS current " .
                    "FROM mirrors LEFT JOIN country ON mirrors.cc = country.id " .
                    "ORDER BY country.name, hostname"
        ) or die("query failed");
