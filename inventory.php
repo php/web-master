@@ -19,7 +19,7 @@ performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 
 <p><b>machine:</b> p3/566, 128MB RAM, 27GB HD, freebsd 4.8</p>
 
-<p><b>aliases:</b> php.net mx</p>
+<p><b>aliases:</b></p>
 
 <p><b>notes:</b> this machine maintains a copy of ~ezmlm from pair1, so it can
 take over the mailing lists if pair1 ever fails.</p>
@@ -83,8 +83,8 @@ machine to track the usage of all of the machines.</p> -->
 
 <h2>sp1.php.net (69.28.246.234)</h2>
 
-<p><b>machine:</b> Celeron 2.5GHz, 1GB RAM, 120GB HD</p>
-<p><b>aliases:</b></p>
+<p><b>machine:</b> Celeron 2.5GHz, 1GB RAM, 120GB HD, Debian GNU/Linux</p>
+<p><b>aliases: php.net mx</b></p>
 <p><b>technical contact:</b> Cameron Jones (cameron.jones AT spry.com)</p>
 
 <p>originally compiled by jim winstead, september 2001</p>
