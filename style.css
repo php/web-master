@@ -47,6 +47,10 @@ table#mirrors td {
   vertical-align: middle;
   font-family: sans-serif;
   font-size: x-small;
+}
+table#mirrors a {
+  font-weight: bold;
+  text-decoration: none;
 } 
 
 /* General image style */
