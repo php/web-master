@@ -1,33 +1,48 @@
 <?php
+/* $Id$ */
 
-require 'cvs-auth.inc';
+include_once 'cvs-auth.inc';
 
-if (isset($save) && isset($user) && isset($pw)) {
-  setcookie("MAGIC_COOKIE",base64_encode("$user:$pw"),time()+3600*24*12,'/','.php.net');
+// User not logged in
+$user = $pw = FALSE;
+
+// Set magic cookie if login information is available
+if (isset($_POST['save']) && isset($_POST['user']) && isset($_POST['pw'])) {
+    setcookie(
+        "MAGIC_COOKIE",
+        base64_encode("{$_POST['user']}:{$_POST['pw']}"),
+        time()+3600*24*12,
+        '/',
+        '.php.net'
+    );
+    list($user, $pw) = array($_POST['user'], $_POST['pw']);
 }
-if (isset($MAGIC_COOKIE) && !isset($user) && !isset($pw)) {
-  list($user,$pw) = explode(":", base64_decode($MAGIC_COOKIE));
+
+// Preserve information previously set in magic cookie if available
+if (isset($_COOKIE['MAGIC_COOKIE']) && !isset($_POST['user']) && !isset($_POST['pw'])) {
+    list($user, $pw) = explode(":", base64_decode($_COOKIE['MAGIC_COOKIE']));
 }
 
 function query_string() {
-  if ($GLOBALS['QUERY_STRING']) {
-    return htmlspecialchars("?$GLOBALS[QUERY_STRING]");
-  }
+    if ($_SERVER['QUERY_STRING']) {
+        return htmlspecialchars("?{$_SERVER['QUERY_STRING']}");
+    }
 }
 
 function preserve_form_fields() {
-  if ($GLOBALS['REQUEST_METHOD'] == "POST" && @is_array($GLOBALS['in'])) {
-    while (list($k,$v) = each($GLOBALS['in'])) {
-      echo "<input type=\"hidden\" name=\"in[", htmlspecialchars($k),
-           "]\" value=\"", htmlspecialchars($v), "\" />\n";
+    if ($_SERVER['REQUEST_METHOD'] == "POST" && @is_array($_POST['in'])) {
+        while (list($k, $v) = each($_POST['in'])) {
+            echo "<input type=\"hidden\" name=\"in[", htmlspecialchars($k),
+                 "]\" value=\"", htmlspecialchars($v), "\" />\n";
+        }
     }
-  }
 }
 
-if (!$user || !$pw || !verify_password($user,$pw)) {?>
+// Login form, if the user is not yet logged in
+if (!$user || !$pw || !verify_password($user,$pw)) { ?>
 <html>
 <head>
- <title>you must log in</title>
+ <title>You must log in!</title>
 </head>
 <body>
 <form method="post" action="<?php echo $PHP_SELF, query_string();?>">

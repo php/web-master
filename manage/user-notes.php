@@ -1,16 +1,17 @@
 <?php
+// $Id$
 
-require_once 'functions.inc';
-require_once 'cvs-auth.inc';
-require_once 'email-validation.inc';
+include_once 'functions.inc';
+include_once 'cvs-auth.inc';
+include_once 'email-validation.inc';
 // ** alerts ** remove comment when alerts are on-line
 //require_once 'alert_lib.inc';
 
-$mailto = "php-notes@lists.php.net";
+$mailto = $mailfrom = "php-notes@lists.php.net";
 
 $reject_text =
 'You are receiving this email because your note posted
-to the on-line PHP manual has been removed by one of the editors.
+to the online PHP manual has been removed by one of the editors.
 
 Read the following paragraphs carefully, because they contain
 pointers to resources better suited for requesting support or
@@ -20,25 +21,18 @@ those issues.
 
 The user contributed notes are not an appropriate place to
 ask questions, report bugs or suggest new features; please
-use the resources listed in <http://www.php.net/support.php>
+use the resources listed on <http://php.net/support>
 for those purposes. This was clearly stated in the page
 you used to submit your note, please carefully re-read
 those instructions before submitting future contributions.
 
-Bug Submissions and Feature Requests should be entered at
+Bug submissions and feature requests should be entered at
 <http://bugs.php.net/>. For documentation errors use the
 bug system, and classify the bug as "Documentation problem".
 Support and ways to find answers to your questions can be found
-at <http://www.php.net/support.php>.
+at <http://php.net/support>.
 
-Your note has been removed from the on-line manual.';
-
-// Use class names instead of colors
-ini_set('highlight.comment', 'comment');
-ini_set('highlight.default', 'default');
-ini_set('highlight.keyword', 'keyword');
-ini_set('highlight.string',  'string');
-ini_set('highlight.html',    'html');
+Your note has been removed from the online manual.';
 
 if($user && $pass) {
   setcookie("MAGIC_COOKIE",base64_encode("$user:$pass"),time()+3600*24*12,'/','.php.net');
@@ -211,7 +205,7 @@ case 'delete':
         //$mailto .= get_emails_for_sect($row["sect"]);
         mail($mailto,"note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user","Note Submitter: $row[user]\n\n----\n\n".$row['note'],"From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
         if ($action == 'reject') {
-          mail_user($row['user'], "note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
+          mail_user($row['user'], $mailfrom, "note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
         }
       }
       
@@ -255,7 +249,7 @@ case 'edit':
         //$mailto .= get_emails_for_sect($row["sect"]);
         mail($mailto,"note $row[id] modified in $row[sect] by $user",stripslashes($note)."\n\n--was--\n$row[note]\n\nhttp://www.php.net/manual/en/$row[sect].php","From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
         if (addslashes($row["sect"]) != $sect) {
-          mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $user", "----- Copy of your note below -----\n\n".stripslashes($note));
+          mail_user($email, $mailfrom, "note $id moved from $row[sect] to $sect by notes editor $user", "----- Copy of your note below -----\n\n".stripslashes($note));
         }
         header('Location: user-notes.php?id=' . $id . '&was=' . $action);
         exit;
@@ -308,6 +302,15 @@ default:
   foot();
 }
 
+// ----------------------------------------------------------------------------------
+
+// Use class names instead of colors
+ini_set('highlight.comment', 'comment');
+ini_set('highlight.default', 'default');
+ini_set('highlight.keyword', 'keyword');
+ini_set('highlight.string',  'string');
+ini_set('highlight.html',    'html');
+
 // Copied over from phpweb (should be syncronised if changed)
 function clean_note($text)
 {
@@ -359,11 +362,17 @@ function highlight_php($code, $return = FALSE)
     else { echo $highlighted; }
 }
 
-function mail_user($email, $subject, $message)
+// Send out a mail to the note submitter, with an envelope sender ignoring bounces
+function mail_user($mailto, $mailfrom, $subject, $message)
 {
-  $email = clean_antispam($email);
-  if (is_emailable_address($email)) {
-    # use an envelope sender that lets us ignore bounces
-    mail($email,$subject,$message,"From: webmaster@php.net", '-fbounces-ignored@php.net');
-  }
+    $email = clean_antispam($email);
+    if (is_emailable_address($email)) {
+        mail(
+            $mailto,
+            $subject,
+            $message,
+            "From: $mailfrom",
+            "-fbounces-ignored@php.net"
+        );
+    }
 }
