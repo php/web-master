@@ -21,6 +21,12 @@ for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
 	$hosts[$i]['maintainer'] = $row['maintainer'];
 }
 
+/* make all hosts active again -- cop out / cheat to get around the deactivation later */
+
+$query = "UPDATE mirrors SET active = 1";
+
+$result = mysql_query($query) or die("unable to update the database");
+
 /* now this stage takes a long time, and we need to go out of PHP to execute it,
    so we are going to write that info to a file */
 
