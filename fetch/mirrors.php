@@ -48,7 +48,7 @@ if (@mysql_pconnect("localhost","nobody","")) {
         // Select mirrors list with some on-the-fly counted columns
         $res = @mysql_query(
             "SELECT mirrors.*, country.name AS cname, " .
-            "(DATE_SUB(NOW(),INTERVAL 3 DAY) < mirrors.lastchecked) AS up, " .
+            "(DATE_SUB(NOW(),INTERVAL 7 DAY) < mirrors.lastchecked) AS up, " .
             "(DATE_SUB(NOW(),INTERVAL 7 DAY) < mirrors.lastupdated) AS current " .
             "FROM mirrors LEFT JOIN country ON mirrors.cc = country.id " .
             "ORDER BY country.name,hostname"
