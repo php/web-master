@@ -9,7 +9,14 @@ if (empty($name) || empty($email) || empty($username) || empty($passwd) || empty
   die("missing some parameters");
 
 $username = strtolower($username);
-if (in_array($username,array('nse','roys','php','foo','group','core','webmaster','mysql','web','aardvark','zygote','jag','sites')))
+
+# these are reserved account names. some of them (like webmaster and group)
+# are pre-existing mail aliases. others are addresses that get a ton of spam
+# that are used as honeypots for blocking spam. (mail to them gets the sender
+# placed in qmail-smtpd's badmailfrom to block future emails.) some of these
+# latter addresses were used as examples in the documentation at one point,
+# which means they appear on all sorts of spam lists.
+if (in_array($username,array('nse','roys','php','foo','group','core','webmaster','mysql','web','aardvark','zygote','jag','sites','er')))
   die("that username is not available");
 
 @mysql_pconnect("localhost","nobody", "")
