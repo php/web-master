@@ -10,7 +10,7 @@ if (@mysql_connect("localhost","nobody","")) {
     $res = @mysql_query("SELECT username,email FROM users WHERE email != '' AND cvsaccess");
     if ($res) {
       while ($row = @mysql_fetch_array($res)) {
-        echo "$row[username]: $row[email];\n";
+        echo "$row[username]@: $row[email];\n";
       }
     }
   }
