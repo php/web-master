@@ -32,7 +32,8 @@ $total = count($hosts);
 // This is the common text for the php-mirrors mail
 $body = "Following is data gathered from the various mirrors. It is ordered by those\n"
       . "that are suspected to be dead, mirrors which are alive but have errors, and\n"
-      . "finally the rest, sorted by last update time.\n"
+      . "finally the rest, sorted by hostname. The maintainers of inactive and outdated\n"
+      . "mirror sites are automatically notified the same time, as this mail goes out.\n\n"
       . "Edit mirror listings here: http://master.php.net/manage/mirrors.php\n\n";
 
 // List mirrors which seem to be down
@@ -91,11 +92,12 @@ mail("php-mirrors@lists.php.net", "PHP Mirror Status Info.", $body, "From: php-m
 
 // Mail text for those mirror maintainers with inactive mirror sites
 $inactives_text = "Hi!\n\nOur automatical mirror site check was unable to reach\n"
-                 ."the PHP.net mirror site maintained by you for three days now,\n"
-                 ."and therefore automatically disabled your listing as a PHP.net\n"
-                 ."mirror site.\n\n"
+                 ."the PHP.net mirror site maintained by you for three or more days\n"
+                 ."now, and therefore automatically disabled your listing as a\n"
+                 ."PHP.net mirror site.\n\n"
                  ."Please correct the problem or reply to this mail with your\n"
-                 ."questions, if you think that the problem is not on your side.";
+                 ."questions, if you think that the problem is not on your side.\n\n"
+                 ."Mail sent out by the PHP.net automatic mirror site monitoring system";
 
 // This is just to test...
 $inactives['goba'] = 'Goba <goba@php.net>';
@@ -108,10 +110,11 @@ foreach ($inactives as $hostname => $maintainer) {
 // Mail text for those mirror maintainers with outdated mirror sites
 $outdated_text = "Hi!\n\nOur automatical mirror site check found out, that\n"
                  ."the PHP.net mirror site maintained by you was not updated in\n"
-                 ."the last seven days, and therefore automatically disabled your\n"
-                 ."listing as a PHP.net mirror site.\n\n"
+                 ."the last seven or more days, and therefore automatically disabled\n"
+                 ."your listing as a PHP.net mirror site.\n\n"
                  ."Please correct the problem or reply to this mail with your\n"
-                 ."questions, if you think that the problem is not on your side.";
+                 ."questions, if you think that the problem is not on your side.\n\n"
+                 ."Mail sent out by the PHP.net automatic mirror site monitoring system";
 
 // Send mail to all outdated mirror maintainers
 foreach ($outdated as $hostname => $maintainer) {
