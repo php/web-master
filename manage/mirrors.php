@@ -183,9 +183,7 @@ elseif (isset($id)) {
 <?php
 
 if (intval($id) !== 0) {
-
-    // We need the actual languages include file
-    include_once "http://php.net/include/languages.inc";
+    include_once "languages.inc";
 ?>
  <table>
   <tr>
