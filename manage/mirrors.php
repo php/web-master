@@ -1,5 +1,5 @@
 <?php
-require 'cvs-auth.inc';
+require 'login.inc';
 
 # these are just here temporarily. they'll be in a database table eventually.
 $COUNTRIES = array(
@@ -88,37 +88,7 @@ $LANGUAGES = array(
     'uk' => 'Ukranian',
 );
 
-
-if (isset($save) && isset($user) && isset($pw)) {
-  setcookie("MAGIC_COOKIE",base64_encode("$user:$pw"),time()+3600*24*12,'/','.php.net');
-}
-if (isset($MAGIC_COOKIE) && !isset($user) && !isset($pw)) {
-  list($user,$pw) = explode(":", base64_decode($MAGIC_COOKIE));
-}
-
 echo '<html><head><title>mirror administration</title></head><body>';
-
-if (!$user || !$pw || !verify_password($user,$pw)) {?>
-<form method="POST" action="<?php echo $PHP_SELF?>">
-<input type="hidden" name="save" value="1" />
-<table>
- <tr>
-  <th align="right">Username:</th>
-  <td><input type="text" name="user" value="<?php echo htmlspecialchars(stripslashes($user));?>" />
- </tr>
- <tr>
-  <th align="right">Password:</th>
-  <td><input type="password" name="pw" value="<?php echo htmlspecialchars(stripslashes($pw));?>" />
- </tr>
- <tr>
-  <td align="center" colspan="2"><input type="submit" value="Login" /></td>
- </tr>
-</table>
-</form>
-<?php
-  echo '</body></html>';
-  exit;
-}
 
 mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
