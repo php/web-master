@@ -236,7 +236,8 @@ $res = mysql_query("SELECT mirrors.*, " .
  get notices of the deactivation.
 </p>
 <p>
- Last mirror check time: <?php echo gmdate("Y/m/d H:i:s", $checktime); ?> GMT
+ Last mirror check time: <?php echo gmdate("Y/m/d H:i:s", $checktime); ?> GMT. Mirror checks are done
+ automatically every hour, there is no direct manual way to start a check.
 </p>
 <table border="0" cellspacing="1" width="100%">
  <tr bgcolor="#aaaaaa">
