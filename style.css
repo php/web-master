@@ -6,6 +6,9 @@ div#header {
 div#header div#logo {
   display: inline;
 }
+div#header div#logo a {
+  text-decoration: none;
+}
 div#header div#links {
   display: inline;
   text-align: right;
