@@ -19,7 +19,7 @@ mysql_connect("localhost","nobody","")
 mysql_select_db("php3");
 
 // Get mirror information for all active mirrors (regardless of their type!)
-$query = "SELECT maintainer, hostname, id, has_search, lastupdated FROM mirrors WHERE active = 1";
+$query = "SELECT maintainer, hostname, id, has_search FROM mirrors WHERE active = 1";
 $result = mysql_query($query)
     or die("unable to get from the database: " . mysql_error());
 
@@ -79,7 +79,7 @@ for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
     
     // The last updated date is a number [db security]
     if (is_numeric($info[2])) {
-        $hosts[$i]['lastupdated'] = $info[2];
+        $hosts[$i]['mirrorupdated'] = $info[2];
     }
     
     // If new search information is available, override previous one
@@ -91,11 +91,11 @@ for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
 // Go through all mirror sites checked
 for($i=0; $i < $total; $i++) {
     
-    // If lastupdated date specified, then we were able to check
+    // If "mirrorupdated" date specified, then we were able to check
     // the mirror, so the mirror data can be updated. Otherwise
     // the previous data need to be kept!
-    if ($hosts[$i]['lastupdate']) {
-        $query = "UPDATE mirrors SET lastchecked=NOW(),has_search=".$hosts[$i]['has_search'].",lastupdated=FROM_UNIXTIME(".$hosts[$i]['lastupdated']."),phpversion='".addslashes($hosts[$i]['phpversion'])."' WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
+    if (isset($hosts[$i]['mirrorupdated'])) {
+        $query = "UPDATE mirrors SET lastchecked=NOW(),has_search=".$hosts[$i]['has_search'].",lastupdated=FROM_UNIXTIME(".$hosts[$i]['mirrorupdated']."),phpversion='".addslashes($hosts[$i]['phpversion'])."' WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
         $result = mysql_query($query) or die("unable to update the database: $query: ".mysql_error());
     }
 }
