@@ -1,53 +1,42 @@
-    1. Ensure that hw.ata.wc is set to 1.  This was disabled by
-    default in FreeBSD 4.3.  It was reenabled shortly after the
-    release, because of substantial performance loss.
-
-    Add a line to /etc/loader.conf (hw.ata.wc=1) and reboot.
-
-    2. Track -STABLE: cd /usr/src && cvsup stable-supfile
+     1. Track -STABLE: cd /usr/src && cvsup stable-supfile
     
-    2.1. Read /usr/src/UPDATING.
+     2. Read and understand /usr/src/UPDATING.
 
-    3. Run mergemaster; this should be done by experienced
-    personel only. 
+     3. Run mergemaster; this should be done by experienced
+        personnel only. 
 
-    4. If mergemaster did not update /dev, run cd /dev && sh MAKDEV all
+     4. If mergemaster did not update /dev, run 
+     
+        cd /dev && sh MAKDEV all
     
-    5. Extend PATH in /etc/rc to include 
-    /usr/local/sbin:/usr/local/bin:/var/qmail/bin
+     5. Ensure that /etc/make.conf does not build unnecessary stuff
+        (such as Fortran, Objective C, sendmail, profiling libraries)
 
-    6. Make sure that /etc/make.conf does not build unnecessary stuff
-    (such as Fortran, Objective C, sendmail, profiling libraries)
+     6. Verify that fsck_y_enable="YES" is defined in /etc/rc.conf.
+        Otherwise, fsck might wait for console input and halt the
+        boot process.
 
-    7. Check that fsck_y_enable="YES" exists in /etc/rc.conf.
-    We do not want fsck to dump into a shell and wait for console
-    input.
+     7. Verify that the kernel config file is up to date and that 
+        no new requirements were added which have not been met
+        yet (refer to UPDATING).
 
-    8. Check that the config file which you will be using for 
-    rebuilding the kernel is up to date and that no new requirements
-    were introduced which you have not yet met.
+        Constraints:
+        
+        pair1, 11, 12: SMP/APIC_IO can be set; firewall optional.
+        pair2: SMP/APIC_IO MUST NOT be set; firewall MUST be set.
 
-    pair1: SMP/APIC_IO can be set; firewall optional.
-    pair2: SMP/APIC_IO MUST NOT be set; firewall MUST be set.
-
-    Ensure that SMP and APIC_IO are only set, if the machine has
-    multiple processors.  A SMP kernel will not boot on an UP
-    machine. "sysctl hw.ncpu" will tell you the number of CPUs.
+        Ensure that SMP and APIC_IO are only set, if the machine has
+        multiple processors.  A SMP kernel will not boot on an UP
+        machine. "sysctl hw.ncpu" will tell you the number of CPUs.
 	
-    9. make buildworld
+     8. make buildworld
 
-    10. make buildkernel KERNCONF=NEWPB1
+     9. make buildkernel installkernel KERNCONF=NEWPB1 
 
-    or NEWPB2 on pair2.
-    
-    11. make installkernel KERNCONF=NEWPB1
+        Adapt kernel config name as necessary.
 
-    ditto
-    
+    10. Reboot.
+
+    11. make installworld
+
     12. Reboot.
-
-    13. make installworld
-
-    14. Reboot.
-
-    [1] http://www.freebsd.org/doc/en_US.ISO8859-1/books/handbook/configtuning-disk.html
