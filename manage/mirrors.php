@@ -290,7 +290,8 @@ $res = mysql_query("SELECT mirrors.*, " .
  bot, so they need some time after reactivated to get listed again. Mirror checks are done
  automatically every hour, there is no direct manual way to start a check.
 </p>
-<table border="0" cellspacing="1" width="100%">
+
+<table border="0" cellspacing="1" width="100%" id="mirrors">
  <tr bgcolor="#aaaaaa">
   <td></td>
   <th>Name</th>
