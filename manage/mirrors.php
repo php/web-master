@@ -204,7 +204,25 @@ $res = mysql_query("SELECT mirrors.*, " .
                    "ORDER BY country.name, hostname"
        ) or die("query failed");
 ?>
-<p>Colors: green = special, red = not active, blue = outdated or not working</p>
+<p>
+ Be sure to read <a href="http://php.net/mirroring">http://php.net/mirroring</a>
+ before adding any new mirror. New mirrors should follow the rules stated there.
+ Also consult <a href="mailto:mirrors@php.net">mirrors@php.net</a> if you are not
+ sure that a mirror should be added / deleted.
+</p>
+<p>
+ If you are unsure what is the TLD for a country, look at
+ <a href="http://www.iana.org/cctld/cctld-whois.htm">http://www.iana.org/cctld/cctld-whois.htm</a>.
+ Note, that the DNS table for mirror sites is updated directly from this list, without
+ human intervention, so if you add/delete/modify a mirror, it will be reflected in the
+ DNS table automatically in a short time.
+</p>
+<p>
+ Colors used in the table below: green = special, red = not active, blue = outdated or not working.
+ An automatically deactivated mirror cannot be activated manually. It will be activated after
+ the next run of the automatic check (if the mirror is all right). Deactivated mirror maintainers
+ get notices of the deactivation.
+</p>
 <table border="0" cellspacing="1" width="100%">
  <tr bgcolor="#aaaaaa">
   <td></td>
