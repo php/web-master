@@ -13,6 +13,10 @@ $root = $argv[1];
 fetch_into_file("http://master.php.net/fetch/mirrors.php?token=$token",
                 "$root/include/mirrors.inc");
 
+/* get countries list */
+fetch_into_file("http://master.php.net/fetch/countries.php?token=$token",
+                "$root/include/countries.inc");
+
 /* get upcoming events */
 fetch_into_file("http://master.php.net/fetch/events.php?nm=3&token=$token",
                 "$root/backend/events.csv");
