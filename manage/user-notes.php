@@ -140,7 +140,7 @@ case 'mass':
     echo "<p>Mass change succeeded.</p>\n";
   } elseif ($step == 1) {
     if (!empty($_REQUEST["new_sect"]) && $where) {
-      db_query("SELECT COUNT(*) FROM note WHERE " . implode(" AND ", $where));
+      $result = db_query("SELECT COUNT(*) FROM note WHERE " . implode(" AND ", $where));
       if (!($count = mysql_result($result, 0, 0))) {
         echo "<p>There are no such notes.</p>\n";
       } else {
