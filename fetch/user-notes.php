@@ -16,7 +16,7 @@ $query .= " FROM note";
 //Only select notes that have been approved
 $query .= " WHERE status is NULL";
 
-$query .= " ORDER BY sect,rate DESC,ts";
+$query .= " ORDER BY sect,rate DESC,ts DESC";
 
 $res = @mysql_query($query) or exit;
 
