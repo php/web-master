@@ -63,6 +63,7 @@ function fetch_ip_to_country($root)
             case 'firstline' : 
                 $DEBUG .= 'first line|';
                 if (trim($line) != "#Directi IP-to-Country Db: Start") {
+                    $DEBUG .= 'bogus first line: $line|';
                     $fileok = FALSE;
                     break 2;
                 } else { $state = 'data'; }
