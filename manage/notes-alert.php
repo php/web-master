@@ -1,6 +1,6 @@
 <?php
 require_once "cvs-auth.inc";
-require_once "alerts_lib.inc";
+require_once "alert_lib.inc";
 
 if($user && $pass) {
   setcookie("MAGIC_COOKIE",base64_encode("$user:$pass"),time()+3600*24*12,'/','.php.net');
