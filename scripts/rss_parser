@@ -93,7 +93,7 @@ function ParseNews ($index_page = "") {
         } elseif ($news_started) {
             
             // Headline separator reached
-            if (preg_match('/hdelim\(\);/', $line)) {
+            if (preg_match('!<hr />!', $line)) {
                 
                 $headlineid++;
                 #DEBUG# print "<p>Info: New Headline: $headlineid<br />";
