@@ -77,7 +77,7 @@ if (!isset($action)) {
   head();
 
   if (isset($keyword)) {
-    $sql = 'SELECT * FROM note WHERE note LIKE "%' . addslashes($keyword) . '%" LIMIT 20';
+    $sql = 'SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE note LIKE "%' . addslashes($keyword) . '%" LIMIT 20';
     @mysql_connect("localhost","nobody","")
       or die("unable to connect to database");
     @mysql_select_db("php3")
@@ -90,10 +90,11 @@ if (!isset($action)) {
           echo "<p class=\"notepreview\">",clean_note(stripslashes($row['note'])),
             "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
             clean($row['user']),"</span>",
-            "<a href=\"http://master.php.net/manage/user-notes.php?action=edit+$id\" target=\"_blank\">Edit Note</a><br />",
+            "<br /><a href=\"http://master.php.net/manage/user-notes.php?action=edit+$id\" target=\"_blank\">Edit Note</a><br />",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id\" target=\"_blank\">Delete Note</a><br />",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=reject+$id\" target=\"_blank\">Reject Note</a>",
-            "</p>";
+            "</p>",
+	    "<hr />";
         }
       } else {
         echo "no results<br />";
