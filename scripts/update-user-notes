@@ -42,7 +42,7 @@ while (!feof($fp)) {
   if(strlen($note) == 0){
 	echo "note id $note is broken";
   } else { 	
-	  $note = gzuncompress(base64_decode($note));
+	  $note = gzuncompress(base64_decode($note)) or die ("$id failed\n");
 	  fputs($nf,"$id|$sect|$rate|$ts|$user|".base64_encode($note)."\n");
 	  fputs($bz,"$id|$sect|$rate|$ts|$user|".base64_encode($note)."\n");
 	  fclose($nf);
