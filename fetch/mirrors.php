@@ -71,7 +71,7 @@ if (@mysql_pconnect("localhost","nobody","")) {
                 $row["hostname"] = "http://$row[hostname]/";
                 
                 // Rewrite the mirrortype to use defined constants
-                switch ($row['mirrortype']) {
+                switch (intval($row['mirrortype'])) {
                     case MIRROR_DOWNLOAD : $row['mirrortype'] = 'MIRROR_DOWNLOAD'; break;
                     case MIRROR_STANDARD : $row['mirrortype'] = 'MIRROR_STANDARD'; break;
                     case MIRROR_SPECIAL  : $row['mirrortype'] = 'MIRROR_SPECIAL'; break;
@@ -91,12 +91,12 @@ if (@mysql_pconnect("localhost","nobody","")) {
                 elseif (!$row["current"]) { $status = 'MIRROR_OUTDATED'; }
                 
                 // Print out the array element for this mirror
-                echo "    \"$row[hostname]\" => array(\"$row[cc]\"," .
-                     "\"$row[providername]\",$row[has_stats],\"$row[providerurl]\"" .
-                     ",$row[mirrortype],$row[has_search],\"$row[lang]\",$status),\n";
+                echo "    \"$row[hostname]\" => array(\n" .
+                     "        \"$row[cc]\", \"$row[providername]\", $row[has_stats],\n" .
+                     "        \"$row[providerurl]\", $row[mirrortype], $row[has_search],\n" .
+                     "        \"$row[lang]\", $status),\n";
             }
             echo ");\n";
-            echo "?>\n";
         }
     }
 }
