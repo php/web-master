@@ -25,7 +25,7 @@ while ($nm) {
                      $row['id'] . ',"' . base64_encode($row['ldesc']) . '","' .
                      $row['url'] . '",' . $row['recur'] . ',' .
                      $row['tipo'] . ',' . $row['sdato'] . ',' .
-                     $row['edato'] . "\n";
+                     $row['edato'] . ',' . $row['category'] . "\n";
             }
         }
     }
