@@ -65,7 +65,7 @@ function ParseNews ($index_page = "") {
 
     // Split the file by newlines
     $lines = preg_split("/\n/", $index_page);
-    print "<pre>"; print_r($lines); print "</pre>";
+    #DEBUG# print "<pre>"; print_r($lines); print "</pre>";
     
     // Define month conversion hash
     $mos = array(
@@ -200,6 +200,6 @@ $RSS .= "<!-- / RSS-Items PHP/RSS -->\n";
 // Dump the last XML tag
 GenerateRSSFooter($RSS);
 
-echo $RSS;
+#DEBUG# echo $RSS;
 
 ?>
