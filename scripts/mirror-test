@@ -58,7 +58,7 @@ foreach ($hosts as $index => $host) {
     // Diagnostical info
     $doublecheck .= $host['hostname'] . ' : ' .
                     $host['lastupdated'] . "/" .
-                    $host['lastchecked'] . " --- " . serialize($mirrmon["http:/{$host['hostname']}/"]) . "\n";
+                    $host['lastchecked'] . " --- " . serialize($mirrmon["http://{$host['hostname']}/"]) . "\n";
     
     // Open port 80 on the mirror site
     $fp = @fsockopen($host['hostname'], 80, $errno, $errstr, 15);
