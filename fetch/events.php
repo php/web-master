@@ -1,8 +1,8 @@
 <?php
 
 # token required, since this should only get accessed from rsync.php.net
-if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e")
-  die("token not correct.");
+#if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e")
+#  die("token not correct.");
 
 @mysql_connect('localhost','nobody','') or exit;
 @mysql_select_db('php3') or exit;
@@ -25,7 +25,7 @@ while ($nm) {
   $last = last_day($cy,$cm);
   for ($i=$cd; $i<=$last; $i++) {
     if (is_array($entries[$i])) foreach($entries[$i] as $row) {
-      echo "$i,$cm,$cy,\"http://www.php.net/cal.php?cm=$cm&cy=$cy&ev=", $row['id'], "\",\"", addslashes($row['sdesc']), "\"\n";
+      echo "$i,$cm,$cy,".'"/events.php#'.$i.'_'.$cm.'","'.addslashes($row['sdesc']).'",'.$row['id'].',"'.addslashes($row['ldesc']).'","'.$row['url'].'",'.$row['recur'].','.$row['tipo'].','.$row['sdato'].','.$row['edato']."\n";
     }
   }  
   $nm--;
@@ -89,7 +89,7 @@ function load_month($year, $month) {
   $result = mysql_query("select * from phpcal where (((MONTH(sdato)=$month or MONTH(edato)=$month) and (YEAR(sdato)=$year or YEAR(edato)=$year) and tipo<3) or tipo=3) and approved=1");
   if(!$result) echo mysql_error();
   else {
-    while($row = mysql_fetch_array($result)) {
+    while($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
       switch($row['tipo']) {
         case 1:
           list(,,$dd) = explode('-',$row['sdato']);
