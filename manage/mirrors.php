@@ -168,10 +168,6 @@ elseif (isset($id)) {
    <td><select name="cc"><?php show_country_options($row['cc']); ?></select></td>
   </tr>
   <tr>
-   <th align="right">Local Stats:</th>
-   <td><input type="checkbox" name="has_stats"<?php echo $row['has_stats'] ? " checked" : ""; ?> /></td>
-  </tr>
-  <tr>
    <th align="right">Administration comments:</th>
    <td><textarea wrap="virtual" cols="40" rows="12" name="acmt"><?php echo hsc($row['acmt']); ?></textarea></td>
   </tr>
@@ -223,6 +219,10 @@ if (intval($id) !== 0) {
   <tr>
    <th align="right">Local Search:</th>
    <td><?php echo $searchtypes[$row['has_search']]; ?></td>
+  </tr>
+  <tr>
+   <th align="right">Local Stats:</th>
+   <td><?php echo ($row['has_search'] ? "" : "<strong>not</strong> "); ?>supported</td>
   </tr>
   <tr>
    <th align="right">Default Language:</th>
