@@ -21,8 +21,12 @@ if (@mysql_pconnect("localhost","nobody","")) {
             // Go through all mirrors
             while ($row = @mysql_fetch_array($res)) {
               
-                // If the mirror is not a standard one, skip it
-                if ($row['mirrortype'] != 1) { continue; }
+                // If the mirror is not a standard one, or
+                // it's name is not a standard mirror name
+                // under php.net => skip it
+                if ($row['mirrortype'] != 1 || !preg_match("!^\\w{2}\\d?.php.net$!", $row['hostname']) {
+                    continue;
+                }
                 
                 // The CNAME is an IP
                 if (preg_match("!^\\d+\\.\\d+\\.\\d+\\.\\d+$!", $row['cname'])) {
