@@ -11,7 +11,7 @@ if (@mysql_connect("localhost","nobody","")) {
     if ($res) {
       echo "<?php\n\$COUNTRIES = array(\n";
       while ($row = @mysql_fetch_array($res)) {
-        echo "'$row[id]' => '$row[name]',\n";
+        echo "'$row[id]' => '", addslashes($row['name']), "',\n";
       }
       echo ");\n";
       echo "?>\n";
