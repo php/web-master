@@ -20,10 +20,13 @@ function fetch_ip_to_country($root)
     else { $lastmod = 0; }
 
     // Fetch data from server to local temporary file
-    fetch_into_file("http://www.directi.com/iptocountry/" .
-                    "?site=php.net&dbformat=1&lastupdate=" .
-                    $lastmod, $ipdbt);
+    $succ = fetch_into_file("http://www.directi.com/iptocountry/" .
+                            "?site=php.net&dbformat=1&lastupdate=" .
+                            $lastmod, $ipdbt); 
 
+    // No success in getting the DB
+    if (!$succ) { return FALSE; }
+                            
     /*
      The following code checks the structure of the file
      received. If this is an updated data file, then it
@@ -34,11 +37,11 @@ function fetch_ip_to_country($root)
     */
                     
     // Open temporary database for reading
-    $ipdbf = fopen($ipdbt, "r");
+    $ipdbf = @fopen($ipdbt, "r");
     if (!$ipdbf) { die("Unable to open '$ipdbt' for reading"); }
     
     // Open local rewritten database for writing
-    $ipdbcf = fopen($ipdbc, "w");
+    $ipdbcf = @fopen($ipdbc, "w");
     if (!$ipdbcf) { die("Unable to open '$ipdbc' for writing"); }
     
     // Initial state is the first line and
@@ -96,10 +99,9 @@ function fetch_ip_to_country($root)
             unlink($ipdbc);
         } else {
             rename($ipdbc, $ipdb);
+            create_ip_to_country_index($ipdb, $ipidx, $indexby);
         }
     }
-    
-    create_ip_to_country_index($ipdb, $ipidx, $indexby);
 }
 
 // Create local index for ip-to-country.com data
