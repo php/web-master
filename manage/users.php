@@ -125,7 +125,7 @@ if (isset($id)) {
 </tr>
 <tr>
  <th align="right">Approved?</th>
- <td><input type="checkbox" name="approved"<?php echo $row[approved] ? " checked" : "";?> /></td>
+ <td><input type="checkbox" name="in[approved]"<?php echo $row[approved] ? " checked" : "";?> /></td>
 </tr>
 <tr>
  <td><input type="submit" value="<?php echo $id ? "Change" : "Add";?>" />
