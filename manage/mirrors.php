@@ -47,12 +47,26 @@ $has_search = isset($has_search) ? 1 : 0;
 $has_stats = isset($has_stats) ? 1 : 0;
 
 if (isset($id) && isset($hostname)) {
-  if ($id) {
-    $query = "UPDATE mirrors SET hostname='$hostname',active=$active,mirrortype=$mirrortype,cname='$cname',maintainer='$maintainer',providername='$providername',providerurl='$providerurl',cc='$cc',lang='$lang',has_stats=$has_stats,has_search=$has_search,lastedited=NOW() WHERE id=$id";
-  }
-  else {
-    $query = "INSERT INTO mirrors (hostname,active,mirrortype,cname,maintainer,providername,providerurl,cc,lang,has_stats,has_search,created,lastedited) VALUES ('$hostname',$active,$mirrortype,'$cname','$maintainer','$providername','$providerurl','$cc','$lang',$has_stats,$has_search,NOW(),NOW())";
-  }
+
+switch($mode) { 
+	case "update":
+		
+		$query = "UPDATE mirrors SET hostname='$hostname',active=$active,mirrortype=$mirrortype,cname='$cname',maintainer='$maintainer',providername='$providername',providerurl='$providerurl',cc='$cc',lang='$lang',has_stats=$has_stats,has_search=$has_search,lastedited=NOW() WHERE id=$id";
+	break;
+
+	case "delete":	
+		
+		$query = "DELETE FROM mirrors WHERE id=$id";	
+	break;	
+
+	case "insert";
+		$query = "INSERT INTO mirrors (hostname,active,mirrortype,cname,maintainer,providername,providerurl,cc,lang,has_stats,has_search,created,lastedited) VALUES ('$hostname',$active,$mirrortype,'$cname','$maintainer','$providername','$providerurl','$cc','$lang',$has_stats,$has_search,NOW(),NOW())";
+	break;
+
+	default:
+		$query = "SELECT * FROM mirrors";
+
+ }
   if (!mysql_query($query)) {
     echo "<h2 class=\"error\">Query failed: ", mysql_error(), "</h2>";
   }
@@ -69,6 +83,7 @@ elseif (isset($id)) {
 <table>
 <form method="POST" action="<?php echo $PHP_SELF;?>">
 <input type="hidden" name="id" value="<?php echo $row[id];?>" />
+<?php echo $id ? '<input type="hidden" name="mode" value="update" />' : '<input type="hidden" name="mode" value="insert" />' ; ?>
 <tr>
  <th align="right">Hostname:</th>
  <td><input type="text" name="hostname" value="<?php echo htmlspecialchars($row[hostname]);?>" size="40" maxlength="40" /></td>
@@ -132,6 +147,7 @@ $res = mysql_query("SELECT * FROM mirrors ORDER BY hostname")
  <th>Maintainer</th>
  <th>Provider</th>
  <th>Stats</th>
+ <th>&nbsp;</th>
 </tr>
 <?php
 $color = '#dddddd';
@@ -142,6 +158,7 @@ while ($row = mysql_fetch_array($res)) {?>
  <td><?php echo htmlspecialchars($row[maintainer]);?>&nbsp;</td>
  <td><a href="<?php echo htmlspecialchars($row[providerurl]);?>"><?php echo htmlspecialchars($row[providername]);?></a></td>
  <td align="center"><?php echo $row[has_stats] ? "<a href=\"http://$row[hostname]/stats/\">go</a>" : "&nbsp;";?></td>
+ <td align="center"><?php echo ($row[mirrortype] == 1) ? "<a href=\"$PHP_SELF?mode=delete&id=$row[id]\">delete</a>" : "&nbsp;";?></td>
 </tr>
 <?php
   $color = $color == '#dddddd' ? '#eeeeee' : '#dddddd';
