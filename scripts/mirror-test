@@ -19,7 +19,7 @@ mysql_connect("localhost","nobody","")
 mysql_select_db("php3");
 
 // Get mirror information for all active mirrors (regardless of their type!)
-$query = "SELECT maintainer, hostname, id, has_search FROM mirrors WHERE active = 1";
+$query = "SELECT maintainer, hostname, id, has_search, has_stats, lang FROM mirrors WHERE active = 1";
 $result = mysql_query($query)
     or die("unable to get from the database: " . mysql_error());
 
@@ -95,6 +95,17 @@ foreach ($hosts as $index => $host) {
     if (in_array($info[3], array('0', '1', '2'))) {
         $hosts[$index]['has_search'] = $info[3];
     }
+
+    // If stats is sure to be supported, update db
+    if ($info[4] == '1') {
+        $hosts[$index]['has_stats'] = $info[4];
+    }
+
+    // If language value is SQL safe, update it
+    if (preg_match("!^[a-z_]+$!", $info[5])) {
+        $hosts[$index]['lang'] = $info[5];
+    }
+
 }
 
 // Go through all mirror sites checked
@@ -105,9 +116,13 @@ foreach ($hosts as $host) {
     // the mirror, so the mirror data can be updated. Otherwise
     // the previous data need to be kept!
     if (isset($host['mirrorupdated'])) {
-        $query = "UPDATE mirrors SET lastchecked = NOW(), has_search = '" . ((int) $host['has_search']) . "', " .
+        $query = "UPDATE mirrors SET " .
+                 "lastchecked = NOW(), " .
                  "lastupdated = FROM_UNIXTIME(" . $host['mirrorupdated'] . "), " .
-                 "phpversion = '" . addslashes($host['phpversion']) . "' " .
+                 "has_search = '" . ((int) $host['has_search'])     . "', " .
+                 "has_stats = '"  . ((int) $host['has_stats'])      . "', " .
+                 "phpversion = '" . addslashes($host['phpversion']) . "', " .
+                 "lang = '"       . $host['lang']                   . "' " .
                  "WHERE hostname = '" . $host['hostname'] . "'"; 
         $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
         if ($result) { $mirrorsupdated++; }
