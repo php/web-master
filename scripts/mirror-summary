@@ -71,7 +71,7 @@ a quick strlen check, and depending on how different it is from the string lengt
   }
 
   for($i=0; $i < $total; $i++) {
-    if($hosts[$i]['active'] == true){
+    if($hosts[$i]['active'] && $hosts[$i]['current']){
 	$body .= sprintf(" %s%s%s%s%s\t\t%s\n", $hosts[$i]['hostname'], pad(11, "hostname"), $hosts[$i]['phpversion'], pad(5, "phpversion"), date("F j, Y, g:i a", $hosts[$i]['lastupdate']), $hosts[$i]['maintainer']);
     }
   }
