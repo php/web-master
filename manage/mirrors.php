@@ -371,7 +371,7 @@ while ($row = mysql_fetch_array($res)) {
         if (preg_match("!<(.+)>!", $maintainer, $found)) {
             $addr = $found[1];
             $name = str_replace("<$addr>", "", $maintainer);
-            $emailcell = '<a href="mailto:' . $addr . '&amp;subject=' . $row['hostname'] .
+            $emailcell = '<a href="mailto:' . $addr . '?subject=' . $row['hostname'] .
             '&amp;cc=webmaster@php.net">' . $name . ' <img src="/images/mirror_mail.png" /></a>';
         }
     }
