@@ -199,6 +199,10 @@ elseif (isset($id)) {
   exit();
 }
 
+// Select last mirror check time from table
+$lct = mysql_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY lastchecked DESC LIMIT 1");
+list($checktime) = mysql_fetch_row($lct);
+
 // Query whole mirror list and display all of them. The query is
 // similar to one in the mirror fetch script. We need to get mirror
 // status data to show colors and need to order by country too to make
@@ -228,6 +232,9 @@ $res = mysql_query("SELECT mirrors.*, " .
  An automatically deactivated mirror cannot be activated manually. It will be activated after
  the next run of the automatic check (if the mirror is all right). Deactivated mirror maintainers
  get notices of the deactivation.
+</p>
+<p>
+ Last mirror check time: <?php echo gmdate("Y/m/d H:i:s GMT", $checktime); ?>
 </p>
 <table border="0" cellspacing="1" width="100%">
  <tr bgcolor="#aaaaaa">
