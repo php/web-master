@@ -56,8 +56,9 @@ function ProcessText($text) {
     $text = preg_replace('/<\?php\s+print_link\s*\(\'([^\']+)\',\s*\'([^\']+)\'\);\s*\?>/', "$2", $text);
     $text = preg_replace('/<\?php\s+print_link\s*\("([^"]+)",\s*make_image\s*\([^\)]*\)\s*\);\s*\?>/', "", $text);
     
-    // Return with the content HTML stripped
-    return strip_tags($text);
+    // Drop HTML, trim string and drop multiple spaces
+    $text = trim(strip_tags($text));
+    return preg_replace("!\\s+!", " ", $text);
 }
 
 // Parse the index file searching for news item information
@@ -99,7 +100,7 @@ function ParseNews ($index_page = "") {
                 #DEBUG# print "<p>Info: New Headline: $headlineid<br />";
                 
             // End of headlines reached
-            } elseif (preg_match('/<a href="\/news.php">Old News<\/a>/', $line)) {
+            } elseif (strpos($line, '<a href="/news-2003.php">News Archive</a>')) {
                 
                 array_pop($headlines);
                 break;
