@@ -121,7 +121,7 @@ foreach ($hosts as $index => $host) {
     }
 
     // Update stats availability info 
-    if (in_array($info[4], array('0', '1', '2'))) {
+    if (in_array($info[4], array('0', '1'))) {
         $hosts[$index]['has_stats'] = $info[4];
     }
 
