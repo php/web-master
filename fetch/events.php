@@ -25,7 +25,7 @@ while ($nm) {
   $last = last_day($cy,$cm);
   for ($i=$cd; $i<=$last; $i++) {
     if (is_array($entries[$i])) foreach($entries[$i] as $row) {
-      echo "$i,$cm,$cy,".'"/events.php#'.$i.'_'.$cm.'","'.addslashes($row['sdesc']).'",'.$row['id'].',"'.base64_encode($row['ldesc']).'","'.$row['url'].'",'.$row['recur'].','.$row['tipo'].','.$row['sdato'].','.$row['edato']."\n";
+      echo "$i,$cm,$cy,".'"'.$row['cname'].'","'.addslashes($row['sdesc']).'",'.$row['id'].',"'.base64_encode($row['ldesc']).'","'.$row['url'].'",'.$row['recur'].','.$row['tipo'].','.$row['sdato'].','.$row['edato']."\n";
     }
   }  
   $nm--;
@@ -61,32 +61,8 @@ function weekday($year, $month, $day, $which) {
   return $ts;
 }
 
-function load_unapproved_events() {
-  global $re;
-  $days = days();
-  $result = mysql_query("select * from phpcal where approved=0 order by sdato");
-  if(!$result) echo mysql_error();
-  else {
-    while($row = mysql_fetch_array($result)) {
-      switch($row['tipo']) {
-        case 1:
-          $events[] = array($row['id'],$row['sdato'],$row['sdesc'],$row['ldesc'],$row['url']);
-          break;
-        case 2:
-          $events[] = array($row['id'],$row['sdato'].' to '.$row['edato'],$row['sdesc'],$row['ldesc'],$row['url']);
-          break;
-        case 3:
-          list($which,$day) = explode(':',$row['recur']);
-          $events[] = array($row['id'],'Every '.$re[(int)$which].' '.$days[$day],$row['sdesc'],$row['ldesc'],$row['url']);
-          break;
-      }  
-    }
-  }
-  return $events;
-}
-
 function load_month($year, $month) {
-  $result = mysql_query("select * from phpcal where (((MONTH(sdato)=$month or MONTH(edato)=$month) and (YEAR(sdato)=$year or YEAR(edato)=$year) and tipo<3) or tipo=3) and approved=1");
+  $result = mysql_query("SELECT phpcal.*,country.name AS cname FROM phpcal LEFT JOIN country ON phpcal.country = country.id WHERE (((MONTH(sdato)=$month OR MONTH(edato)=$month) AND (YEAR(sdato)=$year OR YEAR(edato)=$year) AND tipo < 3) OR tipo=3) AND approved=1");
   if(!$result) echo mysql_error();
   else {
     while($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
