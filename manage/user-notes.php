@@ -211,11 +211,7 @@ case 'delete':
         //$mailto .= get_emails_for_sect($row["sect"]);
         mail($mailto,"note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user","Note Submitter: $row[user]\n\n----\n\n".$row['note'],"From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
         if ($action == 'reject') {
-          $email = clean_antispam($row['user']);
-          if (is_emailable_address($email)) {
-            # use an envelope sender that lets us ignore bounces
-            mail($email,"note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note'],"From: webmaster@php.net", '-fbounces-ignored@php.net');
-          }
+          mail_user($row['user'], "note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
         }
       }
       
@@ -250,13 +246,17 @@ case 'edit':
     }
 
     $email = isset($email) ? $email : addslashes($row['user']);
+    $sect = isset($sect) ? $sect : addslashes($row['sect']);
 
     if (isset($note) && $action == "edit") {
-      if (@mysql_query("UPDATE note SET note='$note',user='$email',updated=NOW() WHERE id=$id")) {
+      if (@mysql_query("UPDATE note SET note='$note',user='$email',sect='$sect',updated=NOW() WHERE id=$id")) {
 
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
         mail($mailto,"note $row[id] modified in $row[sect] by $user",stripslashes($note)."\n\n--was--\n$row[note]\n\nhttp://www.php.net/manual/en/$row[sect].php","From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
+        if (addslashes($row["sect"]) != $sect) {
+          mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $user", "----- Copy of your note below -----\n\n".stripslashes($note));
+        }
         header('Location: user-notes.php?id=' . $id . '&was=' . $action);
         exit;
       }
@@ -278,6 +278,10 @@ case 'edit':
 <form method="post" action="<?php echo $PHP_SELF;?>">
 <input type="hidden" name="id" value="<?php echo $id;?>" />
 <table>
+ <tr>
+  <th align="right">Section:</th>
+  <td><input type="text" name="sect" value="<?php echo clean($sect);?>" size="30" maxlength="80" /></td>
+ </tr>
  <tr>
   <th align="right">email:</th>
   <td><input type="text" name="email" value="<?php echo clean($email);?>" size="30" maxlength="80" /></td>
@@ -353,4 +357,13 @@ function highlight_php($code, $return = FALSE)
     
     if ($return) { return $highlighted; }
     else { echo $highlighted; }
+}
+
+function mail_user($email, $subject, $message)
+{
+  $email = clean_antispam($email);
+  if (is_emailable_address($email)) {
+    # use an envelope sender that lets us ignore bounces
+    mail($email,$subject,$message,"From: webmaster@php.net", '-fbounces-ignored@php.net');
+  }
 }
