@@ -49,7 +49,7 @@ Welcome to the PHP development team! If you encounter any problems
 with your CVS account, feel free to send us a note at group@php.net.";
       mail($userinfo[email],"CVS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>");
 
-      mail($mailto,"CVS Account Request: $userinfo[username] approved by $user","","From: PHP Group <group@php.net>");
+      mail($mailto,"CVS Account Request: $userinfo[username] approved by $user","","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
         exit;
@@ -79,7 +79,7 @@ the list of acceptable criteria.
 If you'd like to make another appeal for a CVS account, feel free
 to send us a note at group@php.net.";
       mail($userinfo[email],"CVS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>");
-      mail($mailto,$userinfo[cvsaccess] ? "CVS Account Deleted: $userinfo[username] deleted by $user" : "CVS Account Rejected: $userinfo[username] rejected by $user","","From: PHP Group <group@php.net>");
+      mail($mailto,$userinfo[cvsaccess] ? "CVS Account Deleted: $userinfo[username] deleted by $user" : "CVS Account Rejected: $userinfo[username] rejected by $user","","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>");
       mysql_query("DELETE FROM users_note WHERE userid=$id");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
