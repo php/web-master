@@ -7,8 +7,8 @@ if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e")
 
 // Connect and generate the list from the DB
 if (@mysql_pconnect("localhost","nobody","")) {
-   echo 'notes ', mysql_get_one("SELECT COUNT(*) FROM php3.note"), "\n";
-   echo 'hosts ', mysql_get_one("SELECT COUNT(*) FROM phphosts.hosts"), "\n";
-   echo 'bugs ', mysql_get_one("SELECT COUNT(*) FROM php3.bugdb"), "\n";
-   echo 'openbugs ', mysql_get_one("SELECT COUNT(*) FROM php3.bugdb WHERE status='Open' OR status='Assigned' OR status='Analyzed' OR status='Critical'"), "\n";
+   echo mysql_get_one("SELECT COUNT(*) FROM php3.note"), "\n";
+   echo mysql_get_one("SELECT COUNT(*) FROM phphosts.hosts"), "\n";
+   echo mysql_get_one("SELECT COUNT(*) FROM php3.bugdb"), "\n";
+   echo mysql_get_one("SELECT COUNT(*) FROM php3.bugdb WHERE status='Open' OR status='Assigned' OR status='Analyzed' OR status='Critical'"), "\n";
 }
