@@ -7,6 +7,7 @@ function fetch_ip_to_country($root)
 {
     // Files used / affected
     $ipdbt   = "ip-to-country.db~";
+    $ipdbc   = "ip-to-country.dbr~";
     $ipdb    = "$root/backend/ip-to-country.db";
     $ipidx   = "$root/backend/ip-to-country.idx";
 
@@ -23,12 +24,80 @@ function fetch_ip_to_country($root)
                     "?site=php.net&dbformat=1&lastupdate=" .
                     $lastmod, $ipdbt);
 
-    // If the file contains more then a 'no updates' message,
-    // then we expect it to be real ip-to-country data, and
-    // move the file to the right place
-    if (@filesize($ipdbt) > strlen("no updates")) {
-        rename($ipdbt, $ipdb);
-    } else { unlink($ipdbt); }
+    /*
+     The following code checks the structure of the file
+     received. If this is an updated data file, then it
+     should start with a given line and end with a given line,
+     and all lines inside should be 24 bytes long with a
+     specific format. If the data received is not in this
+     format, then we reject to replace the old file with this.
+    */
+                    
+    // Open temporary database for reading
+    $ipdbf = fopen($ipdbt, "r");
+    if (!$ipdbf) { die("Unable to open '$ipdbt' for reading"); }
+    
+    // Open local rewritten database for writing
+    $ipdbcf = fopen($ipdbc, "w");
+    if (!$ipdbcf) { die("Unable to open '$ipdbc' for writing"); }
+    
+    // Initial state is the first line and
+    // the file is expected to be ok
+    $state = 'firstline'; $fileok = TRUE;
+    
+    // While we can read a line from the file 
+    while (!feof($ipdbf) && ($line = fgets($ipdbf))) {
+        
+        // Check the input depending on the state
+        switch ($state) {
+            
+            // First line is defined, and after it we
+            // switch to the 'data' state
+            case 'firstline' : 
+                if (trim($line) != "#Directi IP-to-Country Db: Start") {
+                    $fileok = FALSE;
+                    break 2;
+                } else { $state = 'data'; }
+                break;
+            
+            // In the data state we either get the last line,
+            // or we get a data line containing 24 bytes, in
+            // which case we write it out to the local rewritten
+            // database
+            case 'data' :
+                if (trim($line) == "#Directi IP-to-Country Db: End") {
+                    $state = 'lastline';
+                } elseif (!preg_match("!\\d{20}\\w{3}\n!", $line)) {
+                    $fileok = FALSE;
+                    break 2;
+                } else {
+                    fwrite($ipdbcf, $line);
+                }
+                break;
+            
+            // We should not receive any data after the last
+            // line, only whitespace is allowed
+            case 'lastline' :
+                if (strlen(trim($line)) > 0) {
+                    $fileok = FALSE;
+                    break 2;
+                }
+                break;
+        }
+    }
+    fclose($ipdbf);
+    fclose($ipdbcf);
+    
+    // Remove the temp file. If the data is ok, move
+    // it to the destination, or else delete that too
+    unlink($ipdbt);
+    if (file_exists($ipdbc)) {
+        if (!$fileok) {
+            unlink($ipdbc);
+        } else {
+            rename($ipdbc, $ipdb);
+        }
+    }
     
     create_ip_to_country_index($ipdb, $ipidx, $indexby);
 }
