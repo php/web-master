@@ -22,65 +22,69 @@ list($checktime) = mysql_fetch_row($lct);
 // We have something to update in the database
 if (isset($id) && isset($hostname)) {
 
-    // No query need to be made
-    $query = FALSE;
-    
-    // What to update?
-    switch($mode) {
+	if (is_admin($user)) {
+		// No query need to be made
+		$query = FALSE;
+		
+		// What to update?
+		switch($mode) {
 
-        // Perform a full data update on a mirror
-        case "update":
-            $query = "UPDATE mirrors SET hostname='$hostname', active=$active, " .
-                     "mirrortype=$mirrortype, cname='$cname', maintainer='$maintainer', " .
-                     "providername='$providername', providerurl='$providerurl', " .
-                     "cc='$cc', lang='$lang', has_stats=$has_stats, " .
-                     "lastedited=NOW() WHERE id = $id";
-            $msg = "$hostname updated";
-        break;
+			// Perform a full data update on a mirror
+			case "update":
+				$query = "UPDATE mirrors SET hostname='$hostname', active=$active, " .
+						 "mirrortype=$mirrortype, cname='$cname', maintainer='$maintainer', " .
+						 "providername='$providername', providerurl='$providerurl', " .
+						 "cc='$cc', lang='$lang', has_stats=$has_stats, " .
+						 "lastedited=NOW() WHERE id = $id";
+				$msg = "$hostname updated";
+			break;
 
-        // Delete a mirror site (specified by the ID)
-        case "delete":
-            $query = "DELETE FROM mirrors WHERE id = $id";
-            $msg = "$hostname deleted";
-        break;
-    
-        // Insert a new mirror site into the database
-        case "insert":
-            $query = "INSERT INTO mirrors (hostname, active, mirrortype, " .
-                     "cname, maintainer, providername, providerurl, cc, " .
-                     "lang, has_stats, created, lastedited) " .
-                     "VALUES ('$hostname', $active, $mirrortype, '$cname', " .
-                     "'$maintainer', '$providername', '$providerurl', '$cc', " .
-                     "'$lang', $has_stats, NOW(), NOW())";
-            $msg = "$hostname added";
-        break;
-    }
-    
-    // If there is any query to execute
-    if ($query) {
-    
-        // Try to execute query, and provide failure information if unable to
-        if (!mysql_query($query)) {
-            echo "<h2 class=\"error\">Query failed: ", mysql_error(), "</h2>";
-        }
-        
-        // Else provide update message
-        else {
-            echo "<h2>$msg</h2>";
-        }
-        
-        // In case a of a mirror is deleted, mail a notice to the
-        // php-mirrors list, so any malicios deletions can be tracked
-        if ($mode == "delete" || $mode == "insert") {
-            $body = "The mirrors list was updated, and $hostname was " . ($mode == "delete" ? "deleted." : "added.");
-            @mail(
-                "php-mirrors@lists.php.net",
-                "PHP Mirrors Updated by $user.",
-                $body,
-                "From: php-mirrors@lists.php.net"
-            );
-        }
-    }
+			// Delete a mirror site (specified by the ID)
+			case "delete":
+				$query = "DELETE FROM mirrors WHERE id = $id";
+				$msg = "$hostname deleted";
+			break;
+		
+			// Insert a new mirror site into the database
+			case "insert":
+				$query = "INSERT INTO mirrors (hostname, active, mirrortype, " .
+						 "cname, maintainer, providername, providerurl, cc, " .
+						 "lang, has_stats, created, lastedited) " .
+						 "VALUES ('$hostname', $active, $mirrortype, '$cname', " .
+						 "'$maintainer', '$providername', '$providerurl', '$cc', " .
+						 "'$lang', $has_stats, NOW(), NOW())";
+				$msg = "$hostname added";
+			break;
+		}
+		
+		// If there is any query to execute
+		if ($query) {
+		
+			// Try to execute query, and provide failure information if unable to
+			if (!mysql_query($query)) {
+				echo "<h2 class=\"error\">Query failed: ", mysql_error(), "</h2>";
+			}
+			
+			// Else provide update message
+			else {
+				echo "<h2>$msg</h2>";
+			}
+			
+			// In case a of a mirror is deleted, mail a notice to the
+			// php-mirrors list, so any malicios deletions can be tracked
+			if ($mode == "delete" || $mode == "insert") {
+				$body = "The mirrors list was updated, and $hostname was " . ($mode == "delete" ? "deleted." : "added.");
+				@mail(
+					"php-mirrors@lists.php.net",
+					"PHP Mirrors Updated by $user.",
+					$body,
+					"From: php-mirrors@lists.php.net"
+				);
+			}
+		}
+    } else {
+		warn("you're not allowed to take actions on mirrors.");
+	}
 }
 
 // An $id is specified, but no $hostname, show editform
@@ -357,6 +361,18 @@ function print_version($version)
 {
     if ($version == "") { echo 'n/a'; }
     else { echo $version; }
+}
+
+function is_admin($user) {
+	#TODO: use acls, once implemented.
+	if (in_array($user,
+		array(
+			"jimw","rasmus","andrei","zeev","andi","sas","thies","rubys",
+			"ssb","imajes","goba","derick")
+		)
+	) {
+		return true;
+	}
 }
 
 ?>
