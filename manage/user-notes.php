@@ -3,6 +3,30 @@
 require_once 'cvs-auth.inc';
 require_once 'email-validation.inc';
 
+$reject_text =
+'If you are receiving this email is because your note posted
+to the on-line PHP manual has been removed by one of the editors.
+
+Read the following paragraphs carefully, because they contain
+pointers to resources better suited for requesting support or
+reporting bugs, none of which are to be included in manual notes
+because there are mechanisms and groups in place to deal with
+those issues.
+
+The user contributed notes are not an appropriate place to
+ask questions, report bugs or suggest new features; please
+use the resources listed in <http://www.php.net/support.php>
+for those purposes. This was clearly stated in the page
+you used to submit your note, please carefully re-read
+those instructions before submitting future contributions.
+
+Bug Submissions should be entered at <http://bugs.php.net/>
+Feature Requests should also be entered at <http://bugs.php.net/>
+Support and ways to find answers to your guestions can be found
+at <http://www.php.net/support.php>
+
+Your note has been removed from the on-line manual.';
+
 if (!isset($action)) header("Location: http://www.php.net/");
 
 if($user && $pass) {
