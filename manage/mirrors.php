@@ -292,7 +292,8 @@ $res = mysql_query("SELECT mirrors.*, " .
  automatically every hour, there is no direct manual way to start a check.
 </p>
 
-<table border="0" cellspacing="1" cellpadding="3" width="100%" id="mirrors">
+<div align="center">
+<table border="0" cellspacing="0" cellpadding="3" id="mirrors">
 <?php
 
 // Previous country code
@@ -340,7 +341,14 @@ while ($row = mysql_fetch_array($res)) {
     if ($row['has_search'] == "1") { $srccell = 'new'; }
     elseif ($row['has_search'] == "2") { $srccell = 'old'; }
     if ($srccell != '&nbsp;') {
-        $srccell = "<a href=\"http://$row[hostname]/search.php\">$srccell</a>";
+        $srccell = "<a href=\"http://$row[hostname]/search.php\">" .
+                   "<img src=\"/images/mirror_search.png\" /> [$srccell]</a>";
+    }
+
+    $statcell = '&nbsp;';
+    if ($row['has_stats'] == "1") {
+        $statscell = "<a href=\"http://$row[hostname]/stats\">" .
+                     "<img src=\"/images/mirror_stats.png\" /></a>";
     }
 
     // Mirror edit link
@@ -357,14 +365,20 @@ while ($row = mysql_fetch_array($res)) {
     echo '<td><small><a href="' . $row['providerurl'] . '">' .
          $row['providername'] . '</a></small><br /></td>' . "\n";
 
-    // Print out mirror provider information
+    // Print out mirror search table cell
+    echo '<td align="right">' . $srccell . '</td>' . "\n";
+
+    // Print out mirror stats table cell
+    echo '<td align="right">' . $statscell . '</td>' . "\n";
+
+    // Print out mirror status information
     echo '<td align="right"><img src="/images/mirror_' . $siteimage . '.png" /></td>' . "\n";
 
     // End of row
     echo '</tr>';
 }
 ?>
-</table>
+</table></div>
 <p><a href="<?php echo $PHP_SELF;?>?id=0">Add a new mirror</a></p>
 <?php
 
