@@ -23,7 +23,8 @@ mysql_connect("localhost", "nobody", "")
 mysql_select_db("php3");
 
 // Get mirror information for all active mirrors (regardless of their type!)
-$query = "SELECT maintainer, hostname, id, has_search, has_stats, lang, lastchecked,
+$query = "SELECT maintainer, hostname, id, has_search, has_stats, lang,
+          UNIX_TIMESTAMP(lastchecked) as lastchecked,
           UNIX_TIMESTAMP(lastupdated) AS lastupdated
           FROM mirrors WHERE active = 1";
 $result = mysql_query($query)
@@ -45,7 +46,7 @@ if (is_array($dcheck)) {
     $doublecheck = "Double checking " . count($dcheck) . "/" . count($hosts) . " mirrors\n";
     foreach ($dcheck as $mirrorinfo) {
       $details = explode(" ", $mirrorinfo);
-      $mirrmon[$details[0]] = array($details[1], $details[3]);
+      $mirrmon[$details[0]] = array($details[1], $details[3]); // age/undef and lastprobe/undef
     }
 }
 else {
@@ -55,10 +56,17 @@ else {
 // Get all mirror sites, and count the index of them
 foreach ($hosts as $index => $host) {
 
-    // Diagnostical info
-    $doublecheck .= $host['hostname'] . ' : ' .
-                    $host['lastupdated'] . "/" .
-                    $host['lastchecked'] . " --- " . serialize($mirrmon["http://{$host['hostname']}/"]) . "\n";
+    if ($mirrmon["http://{$host['hostname']}/"][1] != 'undef' &&
+        $host['lastchecked'] < $mirrmon["http://{$host['hostname']}/"][1]) {
+        $hosts[$index]['correction']['check'] = $mirrmon["http://{$host['hostname']}/"][1];
+    }
+    
+    if ($mirrmon["http://{$host['hostname']}/"][0] != 'undef' &&
+        $host['lastupdated'] < $mirrmon["http://{$host['hostname']}/"][0]) {
+        $hosts[$index]['correction']['update'] = $mirrmon["http://{$host['hostname']}/"][0];
+    }
+    
+    $doublecheck .= $host['hostname'] . " " . serialize($hosts[$index]['correction']);
     
     // Open port 80 on the mirror site
     $fp = @fsockopen($host['hostname'], 80, $errno, $errstr, 15);
