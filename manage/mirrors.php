@@ -265,11 +265,9 @@ $res = mysql_query("SELECT mirrors.*, " .
 ?>
 <div id="resources">
  <h1>Resources</h1>
- <ul>
-  <li><a href="http://php.net/mirroring.php" target="_blank">Guidelines</a></li>
-  <li><a href="mailto:mirrors@php.net">Mailing list</a></li>
-  <li><a href="http://www.iana.org/cctld/cctld-whois.htm" target="_blank">Country TLDs</a></li>
- </ul>
+ <a href="http://php.net/mirroring.php" target="_blank">Guidelines</a><br />
+ <a href="mailto:mirrors@php.net">Mailing list</a><br />
+ <a href="http://www.iana.org/cctld/cctld-whois.htm" target="_blank">Country TLDs</a><br />
  <h1>Legend</h1>
  <img src="/images/mirror_ok.png" /> Properly working<br />
  <img src="/images/mirror_special.png" /> Special site<br />
@@ -358,7 +356,7 @@ while ($row = mysql_fetch_array($res)) {
          "\"><img src=\"/images/mirror_edit.png\"></a></td>\n";
 
     // Print out mirror site link
-    echo '<td><small><a href="http://' . $row['hostname'] . '/">' .
+    echo '<td><small><a href="http://' . $row['hostname'] . '/" target="_blank">' .
          $row['hostname'] . '</a></small><br /></td>' . "\n";
 
     // Print out mirror provider information
