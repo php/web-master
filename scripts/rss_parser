@@ -119,7 +119,11 @@ function ParseNews ($index_page = "") {
             // Everything else is part of the headline text
             } else {
                 if (!preg_match('/^\s*\?>\s*$/', $line)) {
-                    $headlines[$headlineid]['text'] = $headlines[$headlineid]['text'] . " $line";
+                    if (isset($headlines[$headlineid]['text'])) {
+                        $headlines[$headlineid]['text'] .= " $line";
+                    } else {
+                        $headlines[$headlineid]['text'] = " $line";
+                    }
                 }
             }
         }
