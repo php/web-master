@@ -25,7 +25,7 @@ if (@mysql_pconnect("localhost","nobody","")) {
                 if ($row['mirrortype'] != 1) { continue; }
                 
                 // The CNAME is an IP
-                if (preg_match("!^\\d+\\.\\d+\\.\\d+\\.\\d+!$", $row['cname'])) {
+                if (preg_match("!^\\d+\\.\\d+\\.\\d+\\.\\d+$!", $row['cname'])) {
                     echo '+' . $row['hostname'] . ':' . $row['cname'] . "\n";
                     echo '+www.' . $row['hostname'] . ':' . $row['cname'] . "\n";
                 }
