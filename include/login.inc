@@ -21,7 +21,7 @@ if (isset($_POST['save']) && isset($_POST['user']) && isset($_POST['pw'])) {
 
 // Preserve information previously set in magic cookie if available
 if (isset($_COOKIE['MAGIC_COOKIE']) && !isset($_POST['user']) && !isset($_POST['pw'])) {
-    list($user, $pw) = explode(":", base64_decode($_COOKIE['MAGIC_COOKIE']));
+    list($user, $pw) = explode(":", base64_decode($_COOKIE['MAGIC_COOKIE']), 2);
 }
 
 // Login form, if the user is not yet logged in
