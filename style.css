@@ -54,6 +54,7 @@ table#mirrors a {
 table#mirrors th {
   text-align: left;
   font-weight: bold;
+  background-color: #cccccc;
 } 
 
 /* General image style */
