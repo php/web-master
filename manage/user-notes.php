@@ -79,7 +79,7 @@ if (!isset($action)) {
   // someting done before ?
   if (isset($id)) {
     $str = 'Note #' . $id . ' has been ';
-    switch ($action) {
+    switch ($was) {
       case 'delete' :
       case 'reject' :
         $str .= ($action == 'delete') ? 'deleted' : 'rejected';
