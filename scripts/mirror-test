@@ -104,4 +104,3 @@ for($i=0; $i < $total; $i++) {
 goes defunct and loses reporting over the child processes. This should die within a short period of time. */  
 
 exec("make -C /tmp/mirrors/ -k -i clean 2> /dev/null");
-?> 
