@@ -73,7 +73,13 @@ if (isset($id) && isset($hostname)) {
             // In case a of a mirror is deleted, mail a notice to the
             // php-mirrors list, so any malicios deletions can be tracked
             if ($mode == "delete" || $mode == "insert") {
-                $body = "The mirrors list was updated, and $hostname was " . ($mode == "delete" ? "deleted." : "added.");
+                $body = "The mirrors list was updated, and $hostname was " .
+                        ($mode == "delete" ? "deleted." : "added.");
+                
+                // Also include the reason if it is provided
+                if (!empty($reason)) {
+                    $body .= "\n\nReason:\n" . wordwrap($reason, 70);
+                }
                 @mail(
                     "php-mirrors@lists.php.net",
                     "PHP Mirrors Updated by $user.",
@@ -167,7 +173,7 @@ elseif (isset($id)) {
   </tr>
   <tr>
    <th align="right">Administration comments:</th>
-   <td><textarea wrap="virtual" cols="40" rows="12" name="acmt"><?php echo htmlspecialchars($row['acmt']); ?></textarea></td>
+   <td><textarea wrap="virtual" cols="40" rows="12" name="acmt"><?php echo hsc($row['acmt']); ?></textarea></td>
   </tr>
   <tr>
    <td colspan="2" align="center"><input type="submit" value="<?php echo $id ? "Change" : "Add"; ?>" />
@@ -217,6 +223,17 @@ if (intval($id) !== 0) {
 <?php } else { echo "&nbsp;"; } ?>
  </td></tr></table>
 </form>
+
+<?php if ($row['mirrortype'] == 1) { ?>
+<form method="POST" action="<?php echo $PHP_SELF; ?>">
+ <input type="hidden" name="id" value="<?php echo $row['id']; ?>" />
+ <input type="hidden" name="hostname" value="<?php echo $row['hostname']; ?>" />
+ Delete mirror for this reason:<br />
+ <textarea name="reason" wrap="virtual" cols="40" rows="12"></textarea>
+ <input type="submit" name="mode" value="delete">
+</form>
+<?php } ?>
+
 <?
     // Form printed, exit script
     foot();
@@ -325,9 +342,6 @@ while ($row = mysql_fetch_array($res)) {
   </td>
   <td align="center">
    <?php echo $srccell; ?>
-  </td>
-  <td align="center">
-   <?php echo ($row['mirrortype'] == 1) ? "<a href=\"$PHP_SELF?mode=delete&hostname=$row[hostname]&id=$row[id]\">delete</a>" : "&nbsp;"; ?>
   </td>
  </tr>
 <?php
