@@ -38,15 +38,15 @@ if (@mysql_pconnect("localhost","nobody","")) {
                 
                 // The CNAME is an IP
                 if (preg_match("!^\\d+\\.\\d+\\.\\d+\\.\\d+$!", $row['cname'])) {
-                    echo '+' . $row['hostname'] . ':' . $row['cname'] . "\n";
-                    echo '+www.' . $row['hostname'] . ':' . $row['cname'] . "\n";
+                    $firstChar = '+';
                 }
                 
                 // The CNAME is not an IP
-                else {
-                    echo 'C' . $row['hostname'] . ':' . $row['cname'] . "\n";
-                    echo 'Cwww.' . $row['hostname'] . ':' . $row['cname'] . "\n";
-                }
+                else { $firstChar = 'C'; }
+
+                // Print out DNS update code
+                echo $firstChar . $row['hostname'] . ':' . $row['cname'] . "\n";
+                echo $firstChar . 'www.' . $row['hostname'] . ':' . $row['cname'] . "\n";
             }
         }
     }
