@@ -133,7 +133,7 @@ elseif (isset($id)) {
 <form method="POST" action="<?php echo $PHP_SELF; ?>">
  <input type="hidden" name="id" value="<?php echo $row['id']; ?>" />
  <input type="hidden" name="mode" value="<?php echo $id ? 'update' : 'insert'; ?>" />
- <table><tr><td>
+
  <table>
   <tr>
    <th align="right">Hostname (without http://):</th>
@@ -179,7 +179,7 @@ elseif (isset($id)) {
    <td colspan="2" align="center"><input type="submit" value="<?php echo $id ? "Change" : "Add"; ?>" />
   </tr>
  </table>
- </td><td valign="top">
+ <hr />
 <?php
 
 if (intval($id) !== 0) {
@@ -232,8 +232,8 @@ if (intval($id) !== 0) {
   </tr>
  </table>
 <?php } else { echo "&nbsp;"; } ?>
- </td></tr></table>
 </form>
+<hr />
 
 <?php if ($row['mirrortype'] == 1) {  // only allow standard mirror deletions ?>
 <form method="POST" action="<?php echo $PHP_SELF; ?>">
