@@ -51,7 +51,7 @@ available <a href="http://www.php.net/~imajes/mrtg/">here</a>.</p>
 
 <p><b>machine:</b> Compaq DL380-G2 1.1GHz, 1GB RAM, 6x36GB SCSI HDs in RAID5 resulting in a 167GB cluster.</p>
 
-<p><b>aliases:</b> snaps, gtk, embed, smarty, qa, snapsmaster</p>
+<p><b>aliases:</b> gtk, embed, smarty, qa, snapsmaster</p>
 
 <p><b>notes:</b> this machine resides in Reno, Nevada. A second machine in Raleigh, NC will be online soon as a mirror of 
 this box. This allows for absolute failover redundancy, and the possibilty of internal linkage. This box is quite a monster,
@@ -76,7 +76,7 @@ machine to track the usage of all of the machines.</p> -->
 <h2>ez1.php.net (128.39.198.38)</h2>
 
 <p><b>machine:</b>Dell PE 650, 1GB RAM, 120GB disk</p>
-<p><b>aliases:</b></p>
+<p><b>aliases:</b> snaps, museum </p>
 <p><b>technical contact:</b> Ole Sigurd Nyvold Hansen (Ole.S.Hansen AT hit.no)</p>
 
 <h2>sp1.php.net (69.28.246.234)</h2>
