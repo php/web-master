@@ -21,7 +21,7 @@ $query .= "('$user','$note','$sect',NOW(),'$lang')";
 if (@mysql_query($query)) {
   $new_id = mysql_insert_id();	
   $msg = stripslashes($note);
-  $msg .= "\n-- \n".
+  $msg .= "\n-- \n";
   $msg .= "http://www.php.net/manual/en/$sect.php\n";
   $msg .= "http://master.php.net/manage/user-notes.php?action=edit+$new_id\n";
   $msg .= "http://master.php.net/manage/user-notes.php?action=delete+$new_id\n";
