@@ -228,7 +228,9 @@ case 'delete':
 case 'preview':
 case 'edit':
   if ($id) {
-    head();
+    if (!isset($note) || $action == 'preview') {
+      head();
+    }
 
     if ($result = @mysql_query("SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id=$id")) {
       if (!mysql_num_rows ($result)) {
