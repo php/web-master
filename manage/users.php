@@ -147,7 +147,7 @@ $res = mysql_query($query)
   or die("query '$query' failed: ".mysql_error());
 $total = mysql_result($res,0);
 
-$query = "SELECT userid,cvsuser,name,email FROM users $orderby $limit";
+$query = "SELECT userid,approved,cvsuser,name,email FROM users $orderby $limit";
 $res = mysql_query($query)
   or die("query '$query' failed: ".mysql_error());
 
@@ -162,7 +162,9 @@ show_prev_next($begin,mysql_num_rows($res),$max,$total);
 </tr>
 <?php
 $color = '#dddddd';
-while ($row = mysql_fetch_array($res)) {?>
+while ($row = mysql_fetch_array($res)) {
+  if (!$row[approved]) $color = "#ff".substr($color,2);
+?>
 <tr bgcolor="<?php echo $color;?>">
  <td align="center"><a href="<?php echo "$PHP_SELF?id=$row[userid]";?>">edit</a></td>
  <td><?php echo htmlspecialchars($row[name]);?></td>
@@ -170,7 +172,7 @@ while ($row = mysql_fetch_array($res)) {?>
  <td><?php echo htmlspecialchars($row[cvsuser]);?></td>
 </tr>
 <?php
-  $color = $color == '#dddddd' ? '#eeeeee' : '#dddddd';
+  $color = substr($color,2,2) == 'dd' ? '#eeeeee' : '#dddddd';
 }
 ?>
 </table>
