@@ -112,6 +112,7 @@ if (isset($id) && isset($in)) {
       $cvsaccess = $in[cvsaccess] ? 1 : 0;
       $spamprotect = $in[spamprotect] ? 1 : 0;
       $verified = $in[verified] ? 1 : 0;
+	  $use_sa = (int)$in[use_sa];
 
       if ($id) {
         # update main table data
@@ -122,6 +123,7 @@ if (isset($id) && isset($in)) {
                  . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
                  . ",verified=$verified"
+				 . ",use_sa=$use_sa"
                  . " WHERE userid=$id";
           db_query($query);
           if(strlen($in['purpose'])) {
@@ -140,6 +142,7 @@ if (isset($id) && isset($in)) {
                . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
                . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                . ",spamprotect=$spamprotect"
+			   . ",use_sa=$use_sa"
                . ",verified=$verified";
         db_query($query);
 
@@ -201,7 +204,8 @@ if (isset($id)) {
 <?php }?>
 <tr>
  <th align="right">Use spam protection?</th>
- <td><input type="checkbox" name="in[spamprotect]"<?php echo $row[spamprotect] ? " checked" : "";?> /></td>
+ <td><input type="checkbox" name="in[spamprotect]"<?php echo $row[spamprotect] ? " checked" : "";?> /><br/>
+ Spam Assassin threshold: <input type="text" name="in[use_sa]" value="<?php echo $row[use_sa] ?>" size="4" maxlength="4"/></td>
 </tr>
 <tr>
  <th align="right">Verified?</th>
