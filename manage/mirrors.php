@@ -1,5 +1,6 @@
 <?php
-require 'login.inc';
+require_once 'login.inc';
+require_once 'functions.inc';
 
 # these are just here temporarily. they'll be in a database table eventually.
 $COUNTRIES = array(
@@ -88,7 +89,7 @@ $LANGUAGES = array(
     'uk' => 'Ukranian',
 );
 
-echo '<html><head><title>mirror administration</title></head><body>';
+head("mirror administration");
 
 mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
@@ -168,7 +169,7 @@ elseif (isset($id)) {
 </tr>
 </table>
 <?
-  echo '</body></html>';
+  foot();
   exit;
 }
 
@@ -202,7 +203,7 @@ while ($row = mysql_fetch_array($res)) {?>
 </table>
 <p><a href="<?php echo $PHP_SELF;?>?id=0">add a new mirror</a></p>
 <?php
-echo '</body></html>';
+foot();
 
 function show_country_options($cc = "") {
   global $COUNTRIES;

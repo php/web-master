@@ -1,5 +1,6 @@
 <?php
 
+require_once 'functions.inc';
 require_once 'cvs-auth.inc';
 require_once 'email-validation.inc';
 // ** alerts ** remove comment when alerts are on-line
@@ -168,26 +169,6 @@ default:
   head();
   echo "<p>'$action' is not a recognized action, or no id was specified.</p>";
   foot();
-}
-
-function head($title="") {?>
-<html>
-<head>
- <title><?php echo $title;?></title>
- <link rel="stylesheet" type="text/css" href="http://www.php.net/style.css" />
-</head>
-<body class="popup">
-<?php
-}
-
-function foot() {?>
-</body>
-</html>
-<?php
-}
-
-function clean($var) {
-  return htmlspecialchars(get_magic_quotes_gpc() ? stripslashes($var) : $var);
 }
 
 function clean_note($text) {
