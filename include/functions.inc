@@ -1,5 +1,10 @@
 <?php
 
+// Shorthand function for htmlspecialchars
+function hsc($str) {
+  return htmlspecialchars($str);
+}
+
 function clean($var) {
   return htmlspecialchars(get_magic_quotes_gpc() ? stripslashes($var) : $var);
 }
