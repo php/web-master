@@ -15,17 +15,19 @@ if (!isset($nm)) $nm = 3;
 
 // Collect events for $nm number of months
 while ($nm) {
-    $entries = load_month($cy, $cm);
-    $last    = strftime('%e', mktime(12, 0, 0, $cm+1, 0, $cy));
-    for ($i = $cd; $i <= $last; $i++) {
-        if (is_array($entries[$i])) {
-            foreach($entries[$i] as $row) {
-                echo "$i,$cm,$cy," . '"' . $row['country'].'","' .
-                     addslashes($row['sdesc']) . '",' .
-                     $row['id'] . ',"' . base64_encode($row['ldesc']) . '","' .
-                     $row['url'] . '",' . $row['recur'] . ',' .
-                     $row['tipo'] . ',' . $row['sdato'] . ',' .
-                     $row['edato'] . ',' . $row['category'] . "\n";
+	for($cat=1; $cat<=3; $cat++) {
+        $entries = load_month($cy, $cm, $cat);
+        $last    = strftime('%e', mktime(12, 0, 0, $cm+1, 0, $cy));
+        for ($i = $cd; $i <= $last; $i++) {
+            if (is_array($entries[$i])) {
+                foreach($entries[$i] as $row) {
+                    echo "$i,$cm,$cy," . '"' . $row['country'].'","' .
+                        addslashes($row['sdesc']) . '",' .
+                        $row['id'] . ',"' . base64_encode($row['ldesc']) . '","' .
+                        $row['url'] . '",' . $row['recur'] . ',' .
+                        $row['tipo'] . ',' . $row['sdato'] . ',' .
+                        $row['edato'] . ',' . $row['category'] . "\n";
+                }
             }
         }
     }
@@ -66,7 +68,7 @@ function weekday($year, $month, $day, $which)
 }
 
 // Get events for one month in one year to be listed
-function load_month($year, $month)
+function load_month($year, $month, $cat)
 {
     // Empty events array
     $events = array();
@@ -80,7 +82,7 @@ function load_month($year, $month)
                 AND
                 (YEAR(sdato) = $year OR YEAR(edato) = $year)
                 AND tipo < 3
-            ) OR tipo = 3) AND approved = 1"
+            ) OR tipo = 3) AND category = $cat AND approved = 1"
     );
 
     // Cannot get results, return with event's not found
