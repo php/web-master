@@ -7,7 +7,7 @@ require_once 'email-validation.inc';
 //require_once 'alert_lib.inc';
 
 $reject_text =
-'If you are receiving this email is because your note posted
+'You are receiving this email because your note posted
 to the on-line PHP manual has been removed by one of the editors.
 
 Read the following paragraphs carefully, because they contain
