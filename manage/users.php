@@ -150,7 +150,7 @@ if ($id) {
 if (isset($id)) {
 ?>
 <table>
-<form method="POST" action="<?php echo $PHP_SELF;?>">
+<form method="post" action="<?php echo $PHP_SELF;?>">
 <input type="hidden" name="id" value="<?php echo $row[userid];?>" />
 <tr>
  <th align="right">Name:</th>
@@ -188,6 +188,23 @@ if (isset($id)) {
 <tr>
  <td><input type="submit" value="<?php echo $id ? "Change" : "Add";?>" />
 </tr>
+</form>
+<?php if (!$row[cvsaccess]) {?>
+<tr>
+ <form method="get" action="<?php echo $PHP_SELF;?>">
+  <input type="hidden" name="action" value="remove" />
+  <input type="hidden" name="noclose" value="1" />
+  <input type="hidden" name="id" value="<?php echo $id?>" />
+  <td><input type="submit" value="Reject" />
+ </form>
+ <form method="get" action="<?php echo $PHP_SELF;?>">
+  <input type="hidden" name="action" value="approve" />
+  <input type="hidden" name="noclose" value="1" />
+  <input type="hidden" name="id" value="<?php echo $id?>" />
+  <td><input type="submit" value="Approve" />
+ </form>
+</tr>
+<?php }?>
 </table>
 <?php
 if ($id) {
