@@ -12,6 +12,8 @@ if (@mysql_connect("localhost","nobody","")) {
       while ($row = @mysql_fetch_array($res)) {
         echo "$row[cvsuser]:$row[passwd]:cvs\n";
       }
+      # the read-only cvsread account
+      echo "cvsread::cvs\n";
     }
   }
 }
