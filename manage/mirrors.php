@@ -425,6 +425,7 @@ $summary .= '</table></div>';
 arsort($stats['phpversion']);
 $versions = "";
 foreach($stats['phpversion'] as $version => $amount) {
+    if (empty($version)) { $version = "n/a"; }
     $versions .= "<strong>$version</strong>: $amount, ";
 }
 $versions = substr($versions, 0, -2);
