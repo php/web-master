@@ -233,7 +233,7 @@ case 'delete':
             $user,
             $id,
             "note {$row['id']} $action_taken from {$row['sect']} by $user",
-            "Note Submitter: {$row['user']}\n\n----\n\n{$row['note']}"
+            "Note Submitter: " . safe_email($row['user']) . "\n\n----\n\n{$row['note']}"
         );
         if ($action == 'reject') {
           note_mail_user($row['user'], "note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
@@ -431,4 +431,16 @@ function allow_mass_change($user)
     ) {
         return TRUE;
     } else { return FALSE; }
+}
+
+// Return safe to print version of email address
+function safe_email($mail)
+{
+    if (in_array($mail, array("php-general@lists.php.net", "user@example.com"))) {
+        return '';
+    }
+    elseif (preg_match("!(.+)@(.+)\.(.+)!", $mail)) {
+        return str_replace(array('@', '.'), array(' at ', ' dot '), $mail);
+    }
+    return $mail;
 }
