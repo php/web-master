@@ -251,18 +251,17 @@ if (intval($id) !== 0) {
     exit();
 }
 
-// Query whole mirror list and display all of them. The query is
+// Query whole mirror list and display all mirrors. The query is
 // similar to one in the mirror fetch script. We need to get mirror
-// status data to show colors and need to order by country too to make
-// still non-officially named mirrors show in the right place
-$res = mysql_query("SELECT mirrors.*, " .
-                   "UNIX_TIMESTAMP(lastupdated) AS ulastupdated, " .
-                   "UNIX_TIMESTAMP(lastchecked) AS ulastchecked, " .
-                   "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < mirrors.lastchecked) AS up, " .
-                   "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < mirrors.lastupdated) AS current, " .
-                   "country.name as countryname " .
-                   "FROM mirrors LEFT JOIN country ON mirrors.cc = country.id " .
-                   "ORDER BY country.name, hostname"
+// status data to show proper icons and need to order by country too
+$res = mysql_query("SELECT mirrors.*,
+                   UNIX_TIMESTAMP(lastupdated) AS ulastupdated,
+                   UNIX_TIMESTAMP(lastchecked) AS ulastchecked,
+                   (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < mirrors.lastchecked) AS up,
+                   (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < mirrors.lastupdated) AS current,
+                   country.name as countryname
+                   FROM mirrors LEFT JOIN country ON mirrors.cc = country.id
+                   ORDER BY country.name, hostname"
        ) or die("query failed");
 ?>
 <div id="resources">
@@ -297,7 +296,7 @@ $res = mysql_query("SELECT mirrors.*, " .
 <?php
 
 // Previous country code
-$prevcc = "000";
+$prevcc = "n/a";
 
 // Go through all mirror sites
 while ($row = mysql_fetch_array($res)) {
@@ -348,7 +347,7 @@ while ($row = mysql_fetch_array($res)) {
         elseif (!empty($row['acmt'])) { $errorinfo = $row['acmt']; }
     }
 
-    // See what needs to print out as search info
+    // See what needs to be printed out as search info
     $searchcell = '';
     if ($row['has_search'] == "2") { $searchcell = '('; }
     if (in_array($row['has_search'], array("1", "2"))) {
@@ -358,12 +357,14 @@ while ($row = mysql_fetch_array($res)) {
     if ($row['has_search'] == "2") { $searchcell .= ')'; }
     if (!$searchcell) { $searchcell = "&nbsp;"; }
 
+    // Stats information cell
     $statscell = '&nbsp;';
     if ($row['has_stats'] == "1") {
         $statscell = "<a href=\"http://$row[hostname]/stats\">" .
                      "<img src=\"/images/mirror_stats.png\" /></a>";
     }
 
+    // Maintainer contact information cell
     $emailcell = '&nbsp;';
     $maintainer = trim($row['maintainer']);
     if ($row['maintainer']) {
@@ -375,7 +376,7 @@ while ($row = mysql_fetch_array($res)) {
         }
     }
 
-    // Mirror edit link
+    // Mirror status information
     echo "<tr bgcolor=\"#e0e0e0\">\n" .
          "<td bgcolor=\"#ffffff\" align=\"right\">\n" .
          "<img src=\"/images/mirror_{$siteimage}.png\" /></td>\n";
@@ -397,7 +398,7 @@ while ($row = mysql_fetch_array($res)) {
     // Print out mirror stats table cell
     echo '<td align="right">' . $statscell . '</td>' . "\n";
 
-    // Print out mirror status information
+    // Print out mirror edit link
     echo '<td align="right"><a href="mirrors.php?id=' . $row['id'] .
          '"><img src="/images/mirror_edit.png"></a></td>' . "\n";
 
@@ -423,7 +424,7 @@ foot();
 function show_mirrortype_options($type = 1)
 {
     // There are two mirror types
-    $types = array(1 => "standard", 2 => "special", 0 => "download");
+    $types = array(1 => "standard", 2 => "special"); //, 0 => "download");
 
     // Write out an <option> for all types
     foreach ($types as $code => $name) {
