@@ -1,14 +1,13 @@
 <?php
-require 'functions.inc';
+// $Id$
 
-# token required, since this should only get accessed from rsync.php.net
-if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e")
-  die("token not correct.");
+include_once 'functions.inc';
 
-// Connect and generate the list from the DB
-if (@mysql_connect("localhost","nobody","")) {
-   echo mysql_get_one("SELECT COUNT(*) FROM php3.note"), "\n";
-   echo mysql_get_one("SELECT COUNT(*) FROM phphosts.hosts"), "\n";
-   echo mysql_get_one("SELECT COUNT(*) FROM php3.bugdb"), "\n";
-   echo mysql_get_one("SELECT COUNT(*) FROM php3.bugdb WHERE status='Open' OR status='Assigned' OR status='Analyzed' OR status='Critical'"), "\n";
+require_token();
+
+if (db_connect(FALSE)) {
+   echo db_get_one("SELECT COUNT(*) FROM php3.note"), "\n";
+   echo db_get_one("SELECT COUNT(*) FROM phphosts.hosts"), "\n";
+   echo db_get_one("SELECT COUNT(*) FROM php3.bugdb"), "\n";
+   echo db_get_one("SELECT COUNT(*) FROM php3.bugdb WHERE status IN ('Open', 'Assigned', 'Analyzed', 'Critical')"), "\n";
 }

@@ -3,6 +3,16 @@
 
 // -----------------------------------------------------------------------------------
 
+// used in scripts which should only be called from particular machines
+function require_token()
+{
+  if (!isset($_GET['token']) || md5($_GET['token']) != "19a3ec370affe2d899755f005e5cd90e") {
+    die("Token not correct.");
+  }
+}
+
+// -----------------------------------------------------------------------------------
+
 function head($title="") {?>
 <html>
 <head>
@@ -41,6 +51,23 @@ function warn($message)        { echo format_warn($message); }
 
 // -----------------------------------------------------------------------------------
 
+function db_connect($dieonerror = TRUE)
+{
+    if (!@mysql_connect("localhost", "nobody", "")) {
+        if ($dieonerror) {
+            die(format_warn("Unable to connect to database!"));
+        }
+        return FALSE;
+    }
+    elseif (!@mysql_select_db("php3")) {
+        if ($dieonerror) {
+            die(format_warn("Unable to select database!"));
+        }
+        return FALSE;
+    }
+    return TRUE;
+}
+
 function db_query($query)
 {
     $res = @mysql_query($query);
@@ -50,21 +77,17 @@ function db_query($query)
     return $res;
 }
 
-function db_connect()
+
+function db_get_one($query)
 {
-    @mysql_connect("localhost", "nobody", "")
-        or die(format_warn("Unable to connect to database!"));
-    @mysql_select_db("php3")
-        or die(format_warn("Unable to select database!"));
+    $res = @mysql_query($query);
+    if ($res && mysql_num_rows($res)) {
+        return mysql_result($res, 0);
+    }
+    return FALSE;
 }
 
-function mysql_get_one($query) {
-  $res = mysql_query($query);
-  if ($res && mysql_num_rows($res)) {
-    return mysql_result($res,0);
-  }
-  return false;
-}
+// -----------------------------------------------------------------------------------
 
 function array_to_url($array,$overlay=0) {
   if ($overlay) $array = array_merge($array,$overlay);

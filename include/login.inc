@@ -30,7 +30,7 @@ if (!$user || !$pw || !verify_password($user,$pw)) { ?>
  <title>You must log in!</title>
 </head>
 <body>
-<form method="post" action="<?php echo $PHP_SELF, query_string();?>">
+<form method="post" action="<?php echo $_SERVER['PHP_SELF'], query_string();?>">
 <?php echo preserve_form_fields();?>
 <input type="hidden" name="save" value="1" />
 <table>
