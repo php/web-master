@@ -171,10 +171,12 @@ if (isset($id)) {
  <th align="right">Password (again):</th>
  <td><input type="password" name="in[rawpasswd2]" value="" size="20" maxlength="20" /></td>
 </tr>
+<?php if (is_admin($user)) {?>
 <tr>
  <th align="right">Password (crypted):</th>
  <td><input type="text" name="in[passwd]" value="<?php echo htmlspecialchars($row[passwd]);?>" size="20" maxlength="20" /></td>
 </tr>
+<?php }?>
 <tr>
  <th align="right">CVS username:</th>
  <td><input type="text" name="in[username]" value="<?php echo htmlspecialchars($row[username]);?>" size="16" maxlength="16" /></td>
