@@ -2,6 +2,8 @@
 
 require_once 'cvs-auth.inc';
 require_once 'email-validation.inc';
+// ** alerts ** remove comment when alerts are on-line
+//require_once 'alert_lib.inc';
 
 $reject_text =
 'If you are receiving this email is because your note posted
@@ -80,7 +82,10 @@ case 'delete':
     if ($result = mysql_query("SELECT * FROM note WHERE id=$id")) {
       $row = mysql_fetch_array($result);
       if (!$row['removed'] && mysql_query("UPDATE note SET removed=1 WHERE id=$id")) {
-        mail("php-notes@lists.php.net","note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user",$row['note'],"From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
+		  $mailto = "php-notes@lists.php.net";
+		  // ** alerts **
+		  //$mailto .= get_emails_for_sect($row["sect"]);
+        mail($mailto,"note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user",$row['note'],"From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
         if ($action == 'reject') {
           $email = clean_antispam($row['user']);
           if (is_emailable_address($email)) {
@@ -114,7 +119,10 @@ case 'edit':
 
     if (isset($note) && $action == "edit") {
       if (@mysql_query("UPDATE note SET note='$note',user='$email',updated=NOW() WHERE id=$id")) {
-        mail("php-notes@lists.php.net","note $row[id] modified in $row[sect] by $user",stripslashes($note)."\n\n--was--\n$row[note]\n\nhttp://www.php.net/manual/en/$row[sect].php","From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
+		$mailto = "php-notes@lists.php.net";
+		// ** alerts **
+		//$mailto .= get_emails_for_sect($row["sect"]);
+        mail($mailto,"note $row[id] modified in $row[sect] by $user",stripslashes($note)."\n\n--was--\n$row[note]\n\nhttp://www.php.net/manual/en/$row[sect].php","From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
         echo "<p>note $id edited.</p>";
       }
       else {

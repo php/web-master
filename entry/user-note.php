@@ -1,4 +1,6 @@
 <?php
+// ** alerts ** remove comment when alerts are on-line
+//require_once 'alert_lib.inc';
 
 $mailto = 'php-notes@lists.php.net';
 $failto = 'jimw@php.net';
@@ -28,6 +30,9 @@ if (@mysql_query($query)) {
   $msg .= "http://master.php.net/manage/user-notes.php?action=reject+$new_id\n";
   # make sure we have a return address.
   if (!$user) $user = "php-general@lists.php.net";
+  // see who requested an alert
+  // ** alerts **
+  //$mailto .=  get_emails_for_sect($sect);
   mail($mailto,"note $new_id added to $sect",$msg,"From: $user\r\nMessage-ID: <note-$new_id@php.net>");
 } else {
   // mail it.
