@@ -6,6 +6,8 @@ require_once 'email-validation.inc';
 // ** alerts ** remove comment when alerts are on-line
 //require_once 'alert_lib.inc';
 
+$mailto = "php-notes@lists.php.net";
+
 $reject_text =
 'You are receiving this email because your note posted
 to the on-line PHP manual has been removed by one of the editors.
@@ -77,6 +79,32 @@ if (preg_match("/^(.+)\\s+(\\d+)\$/", $action, $m)) {
   or die("unable to select database");
 
 switch($action) {
+case 'approve':
+  if ($id) {
+    if ($result = mysql_query("SELECT * FROM note WHERE id=$id")) {
+      if (!mysql_num_rows ($result)) {
+      	die ("Note #$id doesn't exist.  It has probably been deleted/rejected already");
+      }
+      
+      $row = mysql_fetch_array ($result);
+      
+      if ($row['status'] != 'na') {
+      	die ("Note #$id has already been approved");
+      }
+      
+      if ($row['id'] && mysql_query ("UPDATE note SET status=NULL WHERE id=$id")) {
+        mail ($mailto, "note $row[id] approved from $row[sect] by $user", "This note has been approved and will appear in the manual\n\n----\n\n".$row['note'], "From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
+      }
+      
+      print "Note #$id has been approved and will appear in the manual";
+      exit;
+    } else {
+        head();
+        echo "<p>An unknown error occured. Try again later.</p><pre>",mysql_error(),"</pre>";
+        foot();
+        exit;
+    }
+  }
 case 'reject':
 case 'delete':
   if ($id) {
@@ -87,7 +115,6 @@ case 'delete':
       
       $row = mysql_fetch_array($result);
       if ($row['id'] && mysql_query("DELETE FROM note WHERE id=$id")) {
-        $mailto = "php-notes@lists.php.net";
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
         mail($mailto,"note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user","Note Submitter: $row[user]\n\n----\n\n".$row['note'],"From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
@@ -137,7 +164,7 @@ case 'edit':
 
     if (isset($note) && $action == "edit") {
       if (@mysql_query("UPDATE note SET note='$note',user='$email',updated=NOW() WHERE id=$id")) {
-		$mailto = "php-notes@lists.php.net";
+
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
         mail($mailto,"note $row[id] modified in $row[sect] by $user",stripslashes($note)."\n\n--was--\n$row[note]\n\nhttp://www.php.net/manual/en/$row[sect].php","From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");

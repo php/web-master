@@ -50,19 +50,22 @@ if ($count >= 3) {
 
 $sect = ereg_replace("\.php$","",$sect);
 
-$query = "INSERT INTO note (user, note, sect, ts) VALUES ";
+$query = "INSERT INTO note (user, note, sect, ts, status) VALUES ";
 # no need to call htmlspecialchars() -- we handle it on output
-$query .= "('$user','$note','$sect',NOW())";
+$query .= "('$user','$note','$sect',NOW(), 'na')";
+
+//na = not approved.  Don't display notes until they are approved by an editor
 
 //echo "<!--$query-->\n";
 if (@mysql_query($query)) {
   $new_id = mysql_insert_id();	
   $msg = stripslashes($note);
   $msg .= "\n----\n";
-  $msg .= "Manual Page -- http://www.php.net/manual/en/$sect.php\n";
-  $msg .= "Edit Note   -- http://master.php.net/manage/user-notes.php?action=edit+$new_id\n";
-  $msg .= "Delete Note -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes\n";
-  $msg .= "Reject Note -- http://master.php.net/manage/user-notes.php?action=reject+$new_id&report=yes\n";
+  $msg .= "Manual Page  -- http://www.php.net/manual/en/$sect.php\n";
+  $msg .= "Edit Note    -- http://master.php.net/manage/user-notes.php?action=edit+$new_id\n";
+  $msg .= "Approve Note -- http://master.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
+  $msg .= "Delete Note  -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes\n";
+  $msg .= "Reject Note  -- http://master.php.net/manage/user-notes.php?action=reject+$new_id&report=yes\n";
   # make sure we have a return address.
   if (!$user) $user = "php-general@lists.php.net";
   // see who requested an alert
