@@ -90,7 +90,8 @@ if (!isset($action)) {
           echo "<p class=\"notepreview\">",clean_note(stripslashes($row['note'])),
             "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
             clean($row['user']),"</span>",
-            "<br /><a href=\"http://master.php.net/manage/user-notes.php?action=edit+$id\" target=\"_blank\">Edit Note</a><br />",
+	    "<br /><a href=\"http://www.php.net/manual/en/" , $row['sect'], ".php\">Manual page</a>"<br />\n"
+            "<a href=\"http://master.php.net/manage/user-notes.php?action=edit+$id\" target=\"_blank\">Edit Note</a><br />",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id\" target=\"_blank\">Delete Note</a><br />",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=reject+$id\" target=\"_blank\">Reject Note</a>",
             "</p>",
@@ -105,13 +106,16 @@ if (!isset($action)) {
       exit;
     }
   }
+
+  $searched = isset($keyword) ? $keyword : '';
+  
 ?>
 <p>Search the notes table.</p>
 <form method="post" action="<?php echo $PHP_SELF;?>">
 <table>
  <tr>   
   <th align="right">Keyword :</th>
-  <td><input type="text" name="keyword" value="" size="10" maxlength="32" /></td>
+  <td><input type="text" name="keyword" value="<?php echo $searched; ?>" size="10" maxlength="32" /></td>
  </tr>
  <tr> 
   <td align="center" colspan="2">
