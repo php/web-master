@@ -1,7 +1,7 @@
 <?php
 
 # token required, since this should only get accessed from cvs.php.net
-if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e")
+if (!isset($token) || md5($token) != "585ae1060f9b881490d1a1e3c7353e89")
   die("token not correct.");
 
 // Connect and generate the list from the DB
