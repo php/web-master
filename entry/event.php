@@ -12,6 +12,7 @@ $re = array(
        -2 => 'Second to Last',
        -3 => 'Third to Last'
       );
+$cat = array("unknown", "User Group Event", "Conference", "Training");
 
 function day($in) {
   return strftime('%A',mktime(12,0,0,4,$in,2001));
@@ -92,7 +93,7 @@ mysql_query($query) or die("query failed: ".mysql_error()."<br />$query");
 $new_id = mysql_insert_id();	
 
 $msg .= "Country: ".stripslashes($country)."\n"
-      . "Category: ".stripslashes($category)."\n"
+      . "Category: ".$cat[$category]."\n"
       . ($url ? "URL: ".stripslashes($url)."\n" : "")
       . "\n".wordwrap(stripslashes($ldesc),72);
 
