@@ -40,6 +40,8 @@ if (!$user || !$pass || !verify_password($user,$pass)) {
 	foot();
 	exit;
 }
+
+head();
 	
 switch ($alert_action) {
 	case "add_alert" :
@@ -68,6 +70,8 @@ switch ($alert_action) {
 }
 echo "<hr>";
 print_alerts($user);
+
+foot();
 
 // functions "borrowed" from user-notes.php
 
