@@ -89,7 +89,7 @@ case 'delete':
         if ($action == 'reject') {
           $email = clean_antispam($row['user']);
           if (is_emailable_address($email)) {
-            mail($email,"note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."----- Copy of your note below -----\n\n".$row['note'],"From: $user@php.net");
+            mail($email,"note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note'],"From: $user@php.net");
           }
         }
         echo '<script language="javascript">window.close();</script>';
