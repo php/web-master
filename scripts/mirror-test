@@ -22,7 +22,8 @@ mysql_connect("localhost","nobody","")
 mysql_select_db("php3");
 
 // Get mirror information for all active mirrors (regardless of their type!)
-$query = "SELECT active, maintainer, hostname, id, has_search, has_stats, lang
+$query = "SELECT maintainer, hostname, id, has_search, has_stats, lang, 
+          UNIX_TIMESTAMP(lastupdated) AS lastupdated
           FROM mirrors WHERE active = 1";
 $result = mysql_query($query)
     or die("unable to get from the database: " . mysql_error());
@@ -32,6 +33,9 @@ $hosts = array();
 while ($row = mysql_fetch_array($result)) {
     $hosts[] = $row;
 }
+
+// Free up the result to get more memory
+mysql_free_result($result);
 
 // Get all mirror sites, and count the index of them
 foreach ($hosts as $index => $host) {
@@ -126,10 +130,11 @@ foreach ($hosts as $index => $host) {
         $hosts[$index]['lang'] = $info[5];
     }
     
-    // Deactivate mirror immediately in case of a
-    // manual alias is in effect
+    // Set mirror's lastupdated time to a default,
+    // thus deactivating it in case of a manual
+    // alias is in effect
     if ($info[6] == "manual-alias") {
-        $hosts[$index]['active'] = '0';
+        $hosts[$index]['lastupdated'] = '0';
         $hosts[$index]['problem'] = "manual alias in effect";
     }
 }
@@ -160,7 +165,7 @@ foreach ($hosts as $host) {
     // all the problems into one string in case it will be mailed
     else {
         $query = "UPDATE mirrors SET ocmt = '" . addslashes($host['problem']) . "', " .
-                 "active = '" . ((int) $host['active']) . "' " .
+                 "lastupdated = FROM_UNIXTIME(" . $host['lastupdated'] . ") " .
                  "WHERE hostname = '" . $host['hostname'] . "'";
         $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
         $problems .= $host['hostname'] . " : " . $host['problem'] . "\n";
@@ -169,10 +174,10 @@ foreach ($hosts as $host) {
 }
 
 // Send a debug mail at midnight with current details
-if (intval(date("H")) == 0) {
+//if (intval(date("H")) == 0) {
     @mail(
         "goba@php.net",
         "Mirror site updates done",
         "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
     );
-}
+//}
