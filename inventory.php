@@ -9,12 +9,6 @@ what services they provide.</p>
 <p>Note regarding FreeBSD machines: Upgrades should be 
 performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 
-<h2>chek1.php.net (208.210.50.160)</h2>
-
-<p><b>machine:</b> p2/350, 256MB RAM, 8.1GB HD, redhat 5.1</p>
-
-<p><b>notes:</b> this machine is being phased out.</p>
-
 <h2>chek2.php.net (208.210.50.161)</h2>
 
 <p><b>machine:</b> dual p3/650, 512MB RAM, 40.9GB HD, redhat 6.1</p>
@@ -39,22 +33,23 @@ take over the mailing lists if pair1 ever fails.</p>
 
 <h2>rack1.php.net (209.61.157.217)</h2>
 
-<p><b>machine:</b> dual p3/650, 1GB RAM, 33GB HD, redhat 7.1</p>
+<p><b>machine:</b> dual p3/650, 1GB RAM, 33GB HD, redhat 7.3</p>
 
 <p><b>notes:</b> this machine has been (temporarily?) sidelined. there are
 bandwidth limitations, and we need to make sure monitoring is in place before
 resuming use of the machine to make sure we don't exceed those limits.</p>
 
-<p>Rackspace.com, the supplier of this machine, is also known as a 
-"black hat" in spam-combatting circles.  If we do not want to be
-associated with their negative image, we should not use this machine
-in any prominent or visible way.</p>
+<p><b>aliases:</b> qa.php.net</p>
+
+<p><b>notes:</b> taking on the database-backed web functions from synacor1.</p>
+
+<p>limited to 500GB traffic monthly.</p>
 
 <h2>synacor1.php.net (208.210.50.162)</h2>
 
 <p><b>machine:</b> dual p3/450, 256MB RAM, 10GB HD (8GB RAID), redhat 7.2</p>
 
-<p><b>aliases:</b> php.net mx, bugs.php.net, gtk.php.net, hosts.php.net, master.php.net, qa.php.net</p>
+<p><b>aliases:</b> php.net mx, bugs.php.net, gtk.php.net, hosts.php.net, master.php.net</p>
 
 <h2>va1.php.net (198.186.203.51)</h2>
 
