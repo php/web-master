@@ -94,7 +94,7 @@ group@php.net for help.</p>
 <p>Forgot your cvs password, huh? Just fill in your cvs username, and
 instructions will be sent to you on how to change your password.</p>
 <form method="post" action="<?php echo $PHP_SELF?>">
- <label for="user">cvs username:</labe>
+ <label for="user">cvs username:</label>
  <input type="text" id="user" name="user" value="<?php echo htmlentities(stripslashes($user))?>" />
  <input type="submit" value="send help" />
 </form>
