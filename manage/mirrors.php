@@ -180,7 +180,7 @@ elseif (isset($id)) {
    <td><?php print_date($row['lastupdated']); if (!$row['current']) { echo '<i><br />does not seem to be current!</i>'; } ?></td>
   </tr>
   <tr>
-   <th>PHP version used on mirror site:</th>
+   <th>PHP version used:</th>
    <td><?php print_version($row['phpversion']); ?></td>
   </tr>
  </table>
