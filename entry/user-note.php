@@ -21,7 +21,11 @@ $query .= "('$user','$note','$sect',NOW(),'$lang')";
 if (@mysql_query($query)) {
   $new_id = mysql_insert_id();	
   $msg = stripslashes($note);
-  $msg .= "\n\n http://www.php.net/manual/en/$sect.php\n";
+  $msg .= "\n-- \n".
+  $mst .= "http://www.php.net/manual/en/$sect.php\n";
+  $msg .= "http://master.php.net/manage/user-notes.php?action=edit+$new_id\n";
+  $msg .= "http://master.php.net/manage/user-notes.php?action=delete+$new_id\n";
+  $msg .= "http://master.php.net/manage/user-notes.php?action=reject+$new_id\n";
   # make sure we have a return address.
   if (!$user) $user = "php-general@lists.php.net";
   mail($mailto,"note $new_id added to $sect",$msg,"From: $user");
