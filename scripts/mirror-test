@@ -23,7 +23,7 @@ for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
 
 	$fp = fsockopen($row['hostname'], 80, $errno, $errstr, 15);
         if (!$fp) {
-          echo "unable to connect to $row[hostname]\n";
+          #echo "unable to connect to $row[hostname]\n";
           continue;
         }
 
