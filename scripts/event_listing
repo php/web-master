@@ -80,7 +80,7 @@ function pregenerate_events($csvfile, $outfile)
     }
     
     // End heredoc string
-    fwrite($out, "END_SIDEBAR_DATA;\n");
+    fwrite($out, "END_RSIDEBAR_DATA;\n");
 
     // Close files (all events displayed)
     fclose($csv); fclose($out);
