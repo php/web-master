@@ -130,7 +130,7 @@ foreach ($hosts as $host) {
     // If a "problem" is not specified, then we were able to check
     // the mirror, so the mirror data can be updated. Otherwise
     // the previous data need to be kept (except maybe "active")!
-    if (!isset($host['problema'])) {
+    if (!isset($host['problem'])) {
         $query = "UPDATE mirrors SET " .
                  "lastchecked = NOW(), " .
                  "lastupdated = FROM_UNIXTIME(" . $host['mirrorupdated'] . "), " .
