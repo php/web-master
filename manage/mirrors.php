@@ -237,7 +237,7 @@ $res = mysql_query("SELECT mirrors.*, " .
  Colors used in the table below: green = special, red = not active, blue = outdated or not working.
  An automatically deactivated mirror cannot be activated manually. It will be activated after
  the next run of the automatic check (if the mirror is all right). Deactivated mirror maintainers
- get notices of the deactivation.
+ get notices of the deactivation weekly.
 </p>
 <p>
  Last mirror check time: <?php echo gmdate("Y/m/d H:i:s", $checktime); ?> GMT. Mirror checks are done
