@@ -55,10 +55,8 @@ if (@mysql_pconnect("localhost","nobody","")) {
             // Go through all result rows
             while ($row = @mysql_fetch_array($res)) {
               
-                // Prepend http:// to hostname, if it is not there
-                if (!strstr("http:", $row["hostname"])) {
-                    $row["hostname"] = "http://$row[hostname]/";
-                }
+                // Prepend http:// to hostname
+                $row["hostname"] = "http://$row[hostname]/";
                 
                 // Rewrite the mirrortype to use defined constants
                 switch ($row['mirrortype']) {
@@ -90,7 +88,7 @@ if (@mysql_pconnect("localhost","nobody","")) {
                 // Print out the array element for this mirror
                 echo "    \"$row[hostname]\" => array(\"$row[cc]\"," .
                      "\"$row[providername]\",$row[has_stats],\"$row[providerurl]\"" .
-                     ",$row[mirrortype],$row[has_search],\"$row[lang]\",$status)\n";
+                     ",$row[mirrortype],$row[has_search],\"$row[lang]\",$status),\n";
             }
             echo '    0 => array("xx", "Unknown", FALSE, "/", MIRROR_SPECIAL, FALSE, "en", MIRROR_OK)', "\n";
             echo ");\n";
