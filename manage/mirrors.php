@@ -204,19 +204,19 @@ if (intval($id) !== 0) {
   </tr>
   <tr>
    <th align="right">Mirror added:</th>
-   <td><?php print_date($row['ucreated']); ?></td>
+   <td><?php echo get_print_date($row['ucreated']); ?></td>
   </tr>
   <tr>
    <th align="right">Last edit time:</th>
-   <td><?php print_date($row['ulastedited']); ?></td>
+   <td><?php echo get_print_date($row['ulastedited']); ?></td>
   </tr>
   <tr>
    <th align="right">Last mirror check time:</th>
-   <td><?php print_date($row['ulastchecked']); if (!$row['up']) { echo '<br /><i>does not seem to be up!</i>'; } ?></td>
+   <td><?php echo get_print_date($row['ulastchecked']); if (!$row['up']) { echo '<br /><i>does not seem to be up!</i>'; } ?></td>
   </tr>
   <tr>
    <th align="right">Last update time:</th>
-   <td><?php print_date($row['ulastupdated']); if (!$row['current']) { echo '<i><br />does not seem to be current!</i>'; } ?></td>
+   <td><?php echo get_print_date($row['ulastupdated']); if (!$row['current']) { echo '<i><br />does not seem to be current!</i>'; } ?></td>
   </tr>
   <tr>
    <th align="right">PHP version used:</th>
@@ -303,11 +303,11 @@ $prevcc = "000";
 while ($row = mysql_fetch_array($res)) {
     
     // Print separator row
-    echo '<tr><td colspan="6"></td></tr>' . "\n";
+    echo '<tr><td colspan="7"></td></tr>' . "\n";
 
     // Print out a country header, if a new country is found
     if ($prevcc != $row['cc']) {
-        echo '<tr><th colspan="6">' . $row['countryname'] . "</th></tr>\n";
+        echo '<tr><th colspan="7">' . $row['countryname'] . "</th></tr>\n";
     }
     $prevcc = $row['cc'];
 
@@ -328,10 +328,10 @@ while ($row = mysql_fetch_array($res)) {
                 $row['ocmt'] = trim($row['ocmt']);
                 if (!empty($row['ocmt'])) {
                     $errorinfo = $row['ocmt'] . " (last accessed: " .
-                                 print_date($row['ulastchecked']) . ")";
+                                 get_print_date($row['ulastchecked']) . ")";
                 } elseif (!$row['current']) {
                     $errorinfo = "content out of date (last updated: " .
-                                 print_date($row['ulastupdated']) . ")";
+                                 get_print_date($row['ulastupdated']) . ")";
                 }
             }
             // Up to date and current
@@ -350,13 +350,14 @@ while ($row = mysql_fetch_array($res)) {
     }
 
     // See what needs to print out as search info
-    $searchcell = '&nbsp;';
-    if ($row['has_search'] == "1") { $searchcell = 'new'; }
-    elseif ($row['has_search'] == "2") { $searchcell = 'old'; }
-    if ($searchcell != '&nbsp;') {
-        $searchcell = "<a href=\"http://$row[hostname]/search.php\">" .
-                      "<img src=\"/images/mirror_search.png\" /> [$searchcell]</a>";
+    $searchcell = '';
+    if ($row['has_search'] == "2") { $searchcell = '('; }
+    if (in_array($row['has_search'], array("1", "2"))) {
+        $searchcell .= "<a href=\"http://$row[hostname]/search.php\">" .
+                       "<img src=\"/images/mirror_search.png\" /></a>";
     }
+    if ($row['has_search'] == "2") { $searchcell .= ')'; }
+    if (!$searchcell) { $searchcell = "&nbsp;"; }
 
     $statscell = '&nbsp;';
     if ($row['has_stats'] == "1") {
@@ -371,7 +372,7 @@ while ($row = mysql_fetch_array($res)) {
             $addr = $found[1];
             $name = str_replace("<$addr>", "", $maintainer);
             $emailcell = '<a href="mailto:' . $addr . '&amp;subject=' . $row['hostname'] .
-            '&amp;cc=webmaster@php.net">$name <img src="/images/mirror_mail.png" /></a>';
+            '&amp;cc=webmaster@php.net">' . $name . ' <img src="/images/mirror_mail.png" /></a>';
         }
     }
 
@@ -392,7 +393,7 @@ while ($row = mysql_fetch_array($res)) {
     echo '<td align="right">' . $emailcell . '</td>' . "\n";
 
     // Print out mirror search table cell
-    echo '<td align="right">' . $searchcell . '</td>' . "\n";
+    echo '<td align="center">' . $searchcell . '</td>' . "\n";
 
     // Print out mirror stats table cell
     echo '<td align="right">' . $statscell . '</td>' . "\n";
@@ -407,7 +408,7 @@ while ($row = mysql_fetch_array($res)) {
     // If any info on the error of this mirror is available, print it out
     if ($errorinfo) {
         echo "<tr><tr bgcolor=\"#e0e0e0\"><td bgcolor=\"#ffffff\"></td>" .
-             "<td colspan=\"5\"><img src=\"/images/mirror_info.png\" /> " .
+             "<td colspan=\"6\"><img src=\"/images/mirror_info.png\" /> " .
              "$errorinfo</td></tr>";
     }
 }
@@ -434,10 +435,10 @@ function show_mirrortype_options($type = 1)
 }
 
 // Print out MySQL date, with a zero default
-function print_date($date)
+function get_print_date($date)
 {
-    if (intval($date) == 0) { echo 'n/a'; }
-    else { echo gmdate("Y/m/d H:i:s", $date) . " GMT"; }
+    if (intval($date) == 0) { return 'n/a'; }
+    else { return gmdate("Y/m/d H:i:s", $date) . " GMT"; }
 }
 
 // Print out PHP version number
