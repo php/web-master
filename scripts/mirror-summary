@@ -14,10 +14,14 @@ set_time_limit (0);
 mysql_connect("localhost","nobody","") or die("unable to connect to database");
 mysql_select_db("php3");
 
+// Select last mirror check time from table
+$lct = mysql_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY lastchecked DESC LIMIT 1");
+list($checktime) = mysql_fetch_row($lct);
+
 // Select all mirrors ordered by hostname
 $query = "SELECT maintainer, hostname, id, UNIX_TIMESTAMP(lastupdated) AS lastupdate, " .
-         "phpversion, (DATE_SUB(NOW(), INTERVAL 3 DAY) < lastchecked) AS active, " .
-         "(DATE_SUB(NOW(), INTERVAL 7 DAY) < lastupdated) AS current " .
+         "phpversion, (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < lastchecked) AS active, " .
+         "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < lastupdated) AS current " .
          "FROM mirrors ORDER BY hostname";
 
 // Execute SQL query
