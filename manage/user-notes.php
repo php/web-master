@@ -86,7 +86,7 @@ case 'delete':
         $mailto = "php-notes@lists.php.net";
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
-        mail($mailto,"note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user","Note Submitter: $row[user]\n\n".$row['note'],"From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
+        mail($mailto,"note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user","Note Submitter: $row[user]\n\n----\n\n".$row['note'],"From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
         if ($action == 'reject') {
           $email = clean_antispam($row['user']);
           if (is_emailable_address($email)) {
