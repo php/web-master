@@ -7,12 +7,12 @@ require_once 'email-validation.inc';
 $mailto = "php-mirrors@lists.php.net";
 #$mailto = "jimw@apache.org";
 
-for ($i = 0; $i < 7; $i++) {
-  $days[$i+1] = strftime('%A',mktime(12,0,0,4,$i,2001));
+for ($i = 1; $i <= 7; $i++) {
+  $days[$i] = strftime('%A',mktime(12,0,0,4,$i,2001));
 }
 
-for ($i = 0; $i < 12; $i++) {
-  $months[$i+1] = strftime('%B',mktime(12,0,0,$i+1,1,2001));
+for ($i = 1; $i <= 12; $i++) {
+  $months[$i] = strftime('%B',mktime(12,0,0,$i,1,2001));
 }
 
 $re = array(1=>'First',2=>'Second',3=>'Third',4=>'Fourth',-1=>'Last',-2=>'2nd Last',-3=>'3rd Last');
