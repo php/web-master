@@ -325,6 +325,8 @@ while ($row = mysql_fetch_array($res)) {
                 $row['ocmt'] = trim($row['ocmt']);
                 if (!empty($row['ocmt'])) {
                     $errorinfo = $row['ocmt'];
+                } elseif (!$row['current']) {
+                    $errorinfo = "content on site is out of date";
                 }
             }
             // Up to date and current
@@ -364,12 +366,12 @@ while ($row = mysql_fetch_array($res)) {
          "\"><img src=\"/images/mirror_edit.png\"></a></td>\n";
 
     // Print out mirror site link
-    echo '<td><small><a href="http://' . $row['hostname'] . '/" target="_blank">' .
-         $row['hostname'] . '</a></small><br /></td>' . "\n";
+    echo '<td><a href="http://' . $row['hostname'] . '/" target="_blank">' .
+         $row['hostname'] . '</a><br /></td>' . "\n";
 
     // Print out mirror provider information
-    echo '<td><small><a href="' . $row['providerurl'] . '">' .
-         $row['providername'] . '</a></small><br /></td>' . "\n";
+    echo '<td><a href="' . $row['providerurl'] . '">' .
+         $row['providername'] . '</a><br /></td>' . "\n";
 
     // Print out mirror search table cell
     echo '<td align="right">' . $srccell . '</td>' . "\n";
@@ -386,8 +388,8 @@ while ($row = mysql_fetch_array($res)) {
     // If any info on the error of this mirror is available, print it out
     if ($errorinfo) {
         echo "<tr><tr bgcolor=\"#e0e0e0\"><td bgcolor=\"#ffffff\"></td>" .
-             "<td colspan=\"5\"><img src=\"/images/mirror_info.png\" />" .
-             "<small>$errorinfo</small></td></tr>";
+             "<td colspan=\"5\"><img src=\"/images/mirror_info.png\" /> " .
+             "$errorinfo</td></tr>";
     }
 }
 ?>
