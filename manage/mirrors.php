@@ -356,7 +356,7 @@ function print_date($date)
 // Print out PHP version number
 function print_version($version)
 {
-    if ($version = "") { echo 'n/a'; }
+    if ($version == "") { echo 'n/a'; }
     else { echo $version; }
 }
 
