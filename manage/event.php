@@ -16,7 +16,7 @@ for ($i = 1; $i <= 12; $i++) {
 }
 
 $re = array(1=>'First',2=>'Second',3=>'Third',4=>'Fourth',-1=>'Last',-2=>'2nd Last',-3=>'3rd Last');
-$cat = array("unknown", "regional", "national", "international");
+$cat = array("unknown", "User Group Event", "Conference", "Training");
 
 $type = array(1=>'single',2=>'multi',3=>'recur');
 
