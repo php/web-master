@@ -445,6 +445,19 @@ echo <<<EOS
    <td><strong>Total:</strong></td>
    <td><strong>{$stats['mirrors']}</strong></td>
   </tr>
+  <tr>
+   <td colspan="3"><hr /></td>
+  </tr>
+  <tr>
+   <td><img src="/images/mirror_search.png" /></td>
+   <td>Search:</td>
+   <td>{$stats['has_search']}</td>
+  </tr>
+  <tr>
+   <td><img src="/images/mirror_stats.png" /></td>
+   <td>Stats:</td>
+   <td>{$stats['has_stats']}</td>
+  </tr>
  </table>
  <h1>Resources</h1>
  <a href="http://php.net/mirroring.php" target="_blank">Guidelines</a><br />
@@ -469,8 +482,6 @@ echo <<<EOS
 </p>
 
 <p>
- Of all the sites, {$stats['has_search']} has onsite search support (<img src="/images/mirror_search.png" />)
- and {$stats['has_stats']} has stats support (<img src="/images/mirror_stats.png" />).
  The PHP versions used on the sites are {$versions}.
 </p>
 

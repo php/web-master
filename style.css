@@ -43,7 +43,7 @@ div#resources ul {
   padding: 0px;
 }
 div#resources table {
-  float: right;
+  float: left;
   border: 1px solid black;
   margin: 5px;
 }
