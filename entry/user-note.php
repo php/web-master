@@ -8,7 +8,7 @@ $failto = 'jimw@php.net';
 if (!isset($user) || empty($note) || empty($sect))
   die("missing some parameters.");
 
-@mysql_connect("localhost","nobody", "")
+@mysql_pconnect("localhost","nobody", "")
   or die("failed to connect to database");
 @mysql_select_db("php3")
   or die("failed to select database");

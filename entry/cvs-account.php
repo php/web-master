@@ -10,7 +10,7 @@ if (empty($name) || empty($email) || empty($username) || empty($passwd) || empty
 
 $username = strtolower($username);
 
-@mysql_connect("localhost","nobody", "")
+@mysql_pconnect("localhost","nobody", "")
   or die("failed to connect to database");
 @mysql_select_db("php3")
   or die("failed to select database");
