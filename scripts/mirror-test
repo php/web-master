@@ -35,12 +35,16 @@ while ($row = mysql_fetch_array($result)) {
 // Get all mirror sites, and count the index of them
 foreach ($hosts as $index => $host) {
 
+    // =======================================================================
+    // Check the mirror-info.php page on this mirror site
+    // =======================================================================
+    
     // Open port 80 on the mirror site
     $fp = @fsockopen($host['hostname'], 80, $errno, $errstr, 15);
     
     // If we were unable to open the port, continue with the next mirror
     if (!$fp) {
-        $hosts[$index]['problem'] = "unable to connect";
+        $hosts[$index]['problem'] = "mirror check: unable to connect";
         continue;
     }
 
@@ -49,7 +53,7 @@ foreach ($hosts as $index => $host) {
     
     // If we were unable to write to socket, skip mirror site
     if ($rc === FALSE) {
-        $hosts[$index]['problem'] = "unable to send request";
+        $hosts[$index]['problem'] = "mirror check: unable to send request";
         continue;
     }
     
@@ -64,7 +68,7 @@ foreach ($hosts as $index => $host) {
 
     // If we were unable to pass the HTTP header, skip mirror site
     if ($line === FALSE || $line == "") {
-        $hosts[$index]['problem'] = "didn't get past headers";
+        $hosts[$index]['problem'] = "mirror check: didn't get past headers";
         continue;
     }
         
@@ -73,7 +77,7 @@ foreach ($hosts as $index => $host) {
 
     // If unable to read that row, skip mirror site
     if ($rv === FALSE) {
-        $hosts[$index]['problem'] = "didn't get data";
+        $hosts[$index]['problem'] = "mirror check: didn't get data";
         continue;
     }
     
@@ -82,16 +86,63 @@ foreach ($hosts as $index => $host) {
 
     // Invalid data received, skip mirror site
     if (count($info) < 4) {
-        $hosts[$index]['problem'] = "invalid data received";
+        $hosts[$index]['problem'] = "mirror check: invalid data received";
         continue;
     }
     
+    // Close socket
+    fclose($fp);
+
+    // =======================================================================
+    // Check that the /manual dir is working on this mirror
+    // =======================================================================
+    
+    // Open port 80 on the mirror site
+    $fp = @fsockopen($host['hostname'], 80, $errno, $errstr, 15);
+    
+    // If we were unable to open the port, continue with the next mirror
+    if (!$fp) {
+        $hosts[$index]['problem'] = "manual check: unable to connect";
+        continue;
+    }
+
+    // GET mirror-info.php from the registered hostname
+    $rc = fputs($fp, "GET /manual/en/function.echo.php HTTP/1.0\r\nHost: $host[hostname]\r\n\r\n");
+    
+    // If we were unable to write to socket, skip mirror site
+    if ($rc === FALSE) {
+        $hosts[$index]['problem'] = "manual check: unable to send request";
+        continue;
+    }
+    
+    // Set timeout to 5 seconds
+    socket_set_timeout($fp, 5, 0);
+
+    // Get lines from the socket, while we get past the HTTP headers
+    // (HTTP headers and data have one empty line between them)
+    do {
+        $line = fgets($fp);
+        // Skip this mirror if a location header is returned for
+        // the manual page [Apache /manual alias in effect]
+        if (strpos($line, "Location:") === 0) {
+            continue 2;
+        }
+    } while ($line !== FALSE && $line != "" && $line != "\r\n" && $line != "\n");
+
+    // If we were unable to pass the HTTP header, skip mirror site
+    if ($line === FALSE || $line == "") {
+        $hosts[$index]['problem'] = "manual check: didn't get past headers";
+        continue;
+    }
+
     // Put pieces into the $hosts array
     $hosts[$index]['phpversion'] = $info[1];
     
     // The last updated date is a number [db security]
     if (is_numeric($info[2])) {
         $hosts[$index]['mirrorupdated'] = $info[2];
+    } else {
+        $hosts[$index]['problem'] = "mirror check: invalid last update time";
     }
     
     // If new search information is available, override previous one
@@ -108,7 +159,7 @@ foreach ($hosts as $index => $host) {
     if (preg_match("!^[a-zA-Z_]+$!", $info[5])) {
         $hosts[$index]['lang'] = $info[5];
     }
-
+    
 }
 
 // Go through all mirror sites checked
@@ -132,8 +183,12 @@ foreach ($hosts as $host) {
         else { $problems .= $host['hostname'] . " : cannot be updated in database\n"; }
     }
 
-    // Collect problems with hosts into one string
+    // Store the problem encountered in the database, and collect
+    // all the problems into one string in case it will be mailed
     else {
+        $query = "UPDATE mirrors SET ocmt = '" . addslashes($host['problem']) . "' " .
+                 "WHERE hostname = '" . $host['hostname'] . "'";
+        $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
         $problems .= $host['hostname'] . " : " . $host['problem'] . "\n";
     }
 
