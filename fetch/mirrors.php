@@ -7,7 +7,7 @@ if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e")
 // Connect and generate the list from the DB
 if (@mysql_connect("localhost","nobody","")) {
   if (@mysql_select_db("php3")) {
-    $res = @mysql_query("SELECT * FROM mirrors ORDER BY cc");
+    $res = @mysql_query("SELECT mirrors.*,country.name AS cname FROM mirrors LEFT JOIN country ON mirrors.cc = country.id ORDER BY country.name,hostname");
     if ($res) {
       echo "<?php\n\$MIRRORS = array(\n";
       while ($row = @mysql_fetch_array($res)) {
