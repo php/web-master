@@ -1,5 +1,13 @@
 <?php
 
+/*
+   The DNS table for mirror sites gets updated using the output of
+   this script. If there is no output, or there is any line on the
+   output which does not start with + or C (probably an error
+   occured), the DNS database is not updated. The DNS list is
+   fetched in approximately five minute intervals.
+*/
+
 // A token is required, since this should only get
 // accessed from an authorized requester
 if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e") {
