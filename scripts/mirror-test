@@ -133,8 +133,12 @@ function sendmessage($string, $die = FALSE)
 // Custom error handler
 function myhandler($errno, $errstr, $errfile, $errline)
 {
+    global $row;
+
     // See if the error is under the error reporting level
     if ($errno & error_reporting()) {
-        sendmessage("$errno : $errstr : $errfile : $errline", TRUE);
+        if (isset($row)) { $hostname = $row['hostname']; }
+        else { $hostname = ""; }
+        sendmessage("$errno : $errstr : $errfile : $errline : $hostname", TRUE);
     }
 }
