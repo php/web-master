@@ -7,22 +7,6 @@
 @mysql_pconnect('localhost','nobody','') or exit;
 @mysql_select_db('php3') or exit;
 
-// Recurring possibilities
-$re = array(
-     1 => 'First',
-     2 => 'Second',
-     3 => 'Third',
-     4 => 'Fourth',
-    -1 => 'Last',
-    -2 => '2nd Last',
-    -3 => '3rd Last'
-);
-
-if (!isset($a)) {
-    if (isset($HTTP_GET_VARS['a'])) { $a = $HTTP_GET_VARS['a']; }
-    else { $a = 0; }
-}
-
 // Set default values
 if (!isset($cm)) $cm = (int)strftime('%m');
 if (!isset($cy)) $cy = (int)strftime('%Y');
@@ -31,8 +15,8 @@ if (!isset($nm)) $nm = 3;
 
 // Collect events for $nm number of months
 while ($nm) {
-    $entries = load_month($cy,$cm);
-    $last    = last_day($cy,$cm);
+    $entries = load_month($cy, $cm);
+    $last    = strftime('%e', mktime(12, 0, 0, $cm+1, 0, $cy));
     for ($i = $cd; $i <= $last; $i++) {
         if (is_array($entries[$i])) {
             foreach($entries[$i] as $row) {
@@ -56,24 +40,26 @@ while ($nm) {
 /*
  * Find the first, second, third, last, second-last etc. weekday of a month
  *
- * args: day 1 = Monday
+ * args: day   1 = Monday
  *       which 1 = first
  *             2 = second
  *             3 = third
+ *             4 = fourth
  *            -1 = last
  *            -2 = second-last
+ *            -3 = third-last
  */
 function weekday($year, $month, $day, $which)
 {
     $ts = mktime(12, 0, 0, $month+(($which>0)?0:1), ($which>0)?1:0, $year);
-    $done = false;
+    $done = FALSE;
     $match = 0;
     $inc = 3600*24;
     while (!$done) {
         if (strftime('%w', $ts) == $day-1) {
             $match++;
         }
-        if ($match == abs($which)) { $done=true; }
+        if ($match == abs($which)) { $done = TRUE; }
         else { $ts += (($which>0)?1:-1)*$inc; }
     }
     return $ts;
@@ -132,52 +118,13 @@ function load_month($year, $month)
             
             // Recurring event
             case 3:
-                list($which,$dd) = explode(':',$row['recur']);
-                $ts = weekday($year,$month,$dd,$which);
-                $events[(int)strftime('%d',$ts)][] = $row;
+                list($which,$dd) = explode(':', $row['recur']);
+                $ts = weekday($year, $month, $dd, $which);
+                $events[(int)strftime('%d', $ts)][] = $row;
                 break;
         }
     }
     
     // Return events found
-    return($events);
-}
-
-// Return the first day of a month
-function start_month($year, $month)
-{
-    $ts = mktime(12, 0, 0, $month, 1, $year);
-    return strftime('%w', $ts);
-}
-
-// Return the last day of a month
-function last_day($year, $month)
-{
-    $ts = mktime(12, 0, 0, $month+1, 0, $year);
-    return strftime('%e', $ts);
-}
-
-// Return array of months
-function months()
-{
-    static $months = NULL;
-
-    if (!$months) {
-        for ($i = 1; $i <= 12; $i++) {
-          $months[$i] = strftime('%B', mktime(12, 0, 0, $i, 1));
-        }
-    }
-    return $months;
-}
-
-// Returns array of Days starting with 1 = Sunday
-function days()
-{
-    static $days = NULL;
-    if (!$days) {
-        for ($i = 1; $i <= 7; $i++) {
-            $days[$i] = strftime('%A', mktime(12, 0, 0, 4, $i, 2001));
-        }
-    }
-    return $days;
+    return $events;
 }
