@@ -10,6 +10,7 @@
 
 require_once 'login.inc';
 require_once 'functions.inc';
+require_once 'email-validation.inc';
 
 head("user administration");
 
@@ -39,6 +40,7 @@ if (isset($id) && isset($in)) {
       if ($in[rawpasswd]) {
         $in[passwd] = crypt($in[rawpasswd],substr(md5(time()),0,2));
       }
+      $approved = $in[approved] ? 1 : 0;
 
       if ($id) {
         # update main table data
@@ -51,7 +53,6 @@ if (isset($id) && isset($in)) {
         # update cvsusers stuff
         # TODO: create users_cvs record for user that didn't already have one
         #       (can't just use REPLACE because of the unique index on cvsuser)
-        $approved = $in[approved] ? 1 : 0;
         $query = "UPDATE users_cvs"
                . " SET cvsuser='$in[cvsuser]',approved=$approved"
                . " WHERE userid=$id";
@@ -61,8 +62,18 @@ if (isset($id) && isset($in)) {
         unset($id);
       }
       else {
-        # TODO: handle new users
-        warn("sorry, i don't know how to create new users yet.");
+        $query = "INSERT users SET name='$in[name]',email='$in[email]'"
+               . ($in[passwd] ? ",passwd='$in[passwd]'" : "");
+        query($query);
+
+        $newid = mysql_insert_id();
+
+        # TODO: handle failure better
+        $query = "INSERT users_cvs"
+               . " SET userid=$newid,cvsuser='$in[cvsuser]',approved=$approved";
+        query($query);
+
+        warn("record $newid added");
       }
     }
   }
@@ -73,7 +84,9 @@ if ($id) {
          . " WHERE users.userid=$id";
   $res = query($query);
   $row = mysql_fetch_array($res);
+}
 
+if (isset($id)) {
 ?>
 <table>
 <form method="POST" action="<?php echo $PHP_SELF;?>">
@@ -163,8 +176,11 @@ while ($row = mysql_fetch_array($res)) {
 foot();
 
 function invalid_input($in) {
+  if (isset($in[email]) && !is_emailable_address($in[email])) {
+    return "'".clean($in[email])."' does not look like a valid email address";
+  }
   if ($in[cvsuser] && !preg_match("/^[-\w]+\$/",$in[cvsuser])) {
-    return "'$in[cvsuser]' is not a valid username";
+    return "'".clean($in[cvsuser])."' is not a valid username";
   }
   if ($in[rawpasswd] && $in[rawpasswd] != $in[rawpasswd2]) {
     return "the passwords you specified did not match!";
