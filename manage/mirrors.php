@@ -419,9 +419,29 @@ function page_mirror_list()
     $versions = substr($versions, 0, -2);
     
     $last_check_time = get_print_date($checktime);
+    
+    $stats['ok'] = $stats['mirrors'] - $stats['autodisabled'] - $stats['disabled'];
 
 echo <<<EOS
 <div id="resources">
+ <table>
+  <tr>
+   <td>(<img src="/images/mirror_ok.png" />) Fine:</td>
+   <td>{$stats['ok']}</td>
+  </tr>
+  <tr>
+   <td>(<img src="/images/mirror_deactivated.png" />) Disabled:</td>
+   <td>{$stats['disabled']}</td>
+  </tr>
+  <tr>
+   <td>(<img src="/images/mirror_error.png" />) AutoDisabled:</td>
+   <td>{$stats['autodisabled']}</td>
+  </tr>
+  <tr>
+   <td><strong>Total:</strong></td>
+   <td><strong>{$stats['mirrors']}</strong></td>
+  </tr>
+ </table>
  <h1>Resources</h1>
  <a href="http://php.net/mirroring.php" target="_blank">Guidelines</a><br />
  <a href="mailto:mirrors@php.net">Mailing list</a><br />
@@ -445,11 +465,7 @@ echo <<<EOS
 </p>
 
 <p>
- Total number of mirrors: {$stats['mirrors']} of which {$stats['disabled']} is manually
- disabled (<img src="/images/mirror_deactivated.png" />) and {$stats['autodisabled']}
- is automatically disabled (<img src="/images/mirror_error.png" />). Other sites are
- properly working (<img src="/images/mirror_ok.png" />) Of all the sites,
- {$stats['has_search']} has onsite search support (<img src="/images/mirror_search.png" />)
+ Of all the sites, {$stats['has_search']} has onsite search support (<img src="/images/mirror_search.png" />)
  and {$stats['has_stats']} has stats support (<img src="/images/mirror_stats.png" />).
  The PHP versions used on the sites are {$versions}.
 </p>

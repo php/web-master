@@ -42,6 +42,9 @@ div#resources ul {
   margin: 3px;
   padding: 0px;
 }
+div#resources table {
+  float: left;
+}
 
 /* Mirrors table */
 table#mirrors {
