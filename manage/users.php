@@ -66,14 +66,16 @@ if (isset($id) && isset($in)) {
                . ($in[passwd] ? ",passwd='$in[passwd]'" : "");
         query($query);
 
-        $newid = mysql_insert_id();
+        $nid = mysql_insert_id();
 
         # TODO: handle failure better
-        $query = "INSERT users_cvs"
-               . " SET userid=$newid,cvsuser='$in[cvsuser]',approved=$approved";
-        query($query);
+        if ($in[cvsuser]) {
+          $query = "INSERT users_cvs"
+                 . " SET userid=$nid,cvsuser='$in[cvsuser]',approved=$approved";
+          query($query);
+        }
 
-        warn("record $newid added");
+        warn("record $nid added");
       }
     }
   }
@@ -130,30 +132,54 @@ if (isset($id)) {
   foot();
   exit;
 }
+?>
+<table width="100%">
+ <tr>
+  <td><a href="<?php echo "$PHP_SELF?username=$user";?>">edit your entry</a></td>
+  <td align="right">
+   <form method="GET" action="<?php echo $PHP_SELF;?>">
+    <input type="text" name="search" value="<?php echo clean($search);?>" />
+    <input type="submit" value="search">
+   </form>
+ </tr>
+</table>
+<?php
 
 $begin = $begin ? (int)$begin : 0;
-$max = $max ? (int)$max : 30;
+$max = $max ? (int)$max : ($search ? 15 : 30);
 
 $limit = "LIMIT $begin,$max";
 $orderby = $order ? "ORDER BY $order" : "";
 
-$query = "SELECT COUNT(*) FROM users";
+$searchby = $search ? "WHERE MATCH(name,email) AGAINST ('$search') OR MATCH(note) AGAINST ('$search') OR users_cvs.cvsuser = '$search'" : "";
+
+$query = "SELECT DISTINCT COUNT(users.userid) FROM users";
+if ($searchby)
+  $query .= " LEFT JOIN users_cvs USING (userid) LEFT JOIN users_note USING(userid) $searchby";
 $res = mysql_query($query)
   or die("query '$query' failed: ".mysql_error());
 $total = mysql_result($res,0);
 
-$query = "SELECT users.userid,approved,cvsuser,name,email FROM users LEFT JOIN users_cvs USING (userid) $orderby $limit";
+$query = "SELECT DISTINCT users.userid,approved,cvsuser,name,email,note FROM users LEFT JOIN users_cvs USING (userid) LEFT JOIN users_note USING (userid) $searchby $orderby $limit";
+
+#echo "<pre>$query</pre>";
 $res = mysql_query($query)
   or die("query '$query' failed: ".mysql_error());
 
-show_prev_next($begin,mysql_num_rows($res),$max,$total);
+$extra = array(
+  "search" => stripslashes($search),
+  "order" => $order,
+  "begin" => $begin,
+);
+
+show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
 ?>
 <table border="0" cellspacing="1" width="100%">
 <tr bgcolor="#aaaaaa">
  <td></td>
- <th><a href="<?php echo "$PHP_SELF?begin=$begin&order=name";?>">name</a></th>
- <th><a href="<?php echo "$PHP_SELF?begin=$begin&order=email";?>">email</a></th>
- <th><a href="<?php echo "$PHP_SELF?begin=$begin&order=cvsuser";?>">username</a></th>
+ <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"name"));?>">name</a></th>
+ <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"email"));?>">email</a></th>
+ <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"cvsuser"));?>">username</a></th>
 </tr>
 <?php
 $color = '#dddddd';
@@ -166,11 +192,17 @@ while ($row = mysql_fetch_array($res)) {
  <td<?php if ($row[cvsuser] && !$row[approved]) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row[cvsuser]);?></td>
 </tr>
 <?php
+  if ($search && $row[note]) {?>
+<tr bgcolor="<?php echo $color;?>">
+ <td></td><td colspan="3"><?php echo htmlspecialchars($row[note]);?></td>
+</tr>
+<?php
+  }
   $color = substr($color,2,2) == 'dd' ? '#eeeeee' : '#dddddd';
 }
 ?>
 </table>
-<?php show_prev_next($begin,mysql_num_rows($res),$max,$total); ?>
+<?php show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra); ?>
 <p><a href="<?php echo $PHP_SELF;?>?id=0">add a new user</a></p>
 <?php
 foot();

@@ -29,16 +29,25 @@ function foot() {
   echo "</body></html>";
 }
 
-#TODO: generalize passing in extra parameters (take an array?)
-function show_prev_next($begin,$rows,$skip,$total) {
-  global $order, $PHP_SELF;?>
+function array_to_url($array,$overlay=0) {
+  if ($overlay) $array = array_merge($array,$overlay);
+  $out = "";
+  while (list($k,$v) = each($array)) {
+    $out .= "&amp;" . rawurlencode($k) . "=" . rawurlencode($v);
+  }
+  return substr($out,5); # skip first &amp;
+}
+
+function show_prev_next($begin,$rows,$skip,$total,$extra=array()) {
+  global $PHP_SELF;?>
 <table border="0" cellspacing="1" width="100%">
  <tr bgcolor="#eeeeee">
   <td align="left" width="33%">
    <?php 
      if ($begin > 0) {
-       printf("<a href=\"%s\">&laquo; Previous %d",
-              "$PHP_SELF?order=$order&amp;begin=".max(0,$begin-$skip),
+       printf("<a href=\"%s?%s\">&laquo; Previous %d",
+              $PHP_SELF,
+              array_to_url($extra, array("begin" => max(0,$begin-$skip))),
               min($skip,$begin));
      }
    ?>
@@ -51,8 +60,9 @@ function show_prev_next($begin,$rows,$skip,$total) {
    &nbsp;
    <?php 
      if ($begin+$rows < $total) {
-       printf("<a href=\"%s\">Next %d &raquo;",
-              "$PHP_SELF?order=$order&amp;begin=".($begin+$skip),
+       printf("<a href=\"%s?%s\">Next %d &raquo;",
+              $PHP_SELF,
+              array_to_url($extra, array("begin" => $begin+$skip)),
               min($skip,$total-($begin+$skip)));
      }
    ?>
