@@ -33,7 +33,12 @@ at <http://www.php.net/support.php>.
 
 Your note has been removed from the on-line manual.';
 
-
+// Use class names instead of colors
+ini_set('highlight.comment', 'comment');
+ini_set('highlight.default', 'default');
+ini_set('highlight.keyword', 'keyword');
+ini_set('highlight.string',  'string');
+ini_set('highlight.html',    'html');
 
 if($user && $pass) {
   setcookie("MAGIC_COOKIE",base64_encode("$user:$pass"),time()+3600*24*12,'/','.php.net');
@@ -313,13 +318,6 @@ function clean_note($text)
     
     return $text;
 }
-
-// Use class names instead of colors
-ini_set('highlight.comment', 'comment');
-ini_set('highlight.default', 'default');
-ini_set('highlight.keyword', 'keyword');
-ini_set('highlight.string',  'string');
-ini_set('highlight.html',    'html');
 
 // Highlight PHP code
 function highlight_php($code, $return = FALSE)
