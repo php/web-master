@@ -24,7 +24,7 @@ if (@mysql_pconnect("localhost","nobody","")) {
                 // If the mirror is not a standard one, or
                 // it's name is not a standard mirror name
                 // under php.net => skip it
-                if ($row['mirrortype'] != 1 || !preg_match("!^\\w{2}\\d?.php.net$!", $row['hostname']) {
+                if ($row['mirrortype'] != 1 || !preg_match("!^\\w{2}\\d?.php.net$!", $row['hostname'])) {
                     continue;
                 }
                 
