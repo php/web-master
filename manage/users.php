@@ -170,6 +170,15 @@ if (isset($id)) {
  <td><input type="submit" value="<?php echo $id ? "Change" : "Add";?>" />
 </tr>
 </table>
+<?php
+if ($id) {
+  $res = mysql_query("SELECT note,UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=$id");
+  echo "<b>notes</b>";
+  while ($res && $row = mysql_fetch_array($res,MYSQL_ASSOC)) {
+    echo "<div>",date("r",$row['ts']),"<br />$row[note]</div>";
+  }
+}
+?>
 <?
   foot();
   exit;
