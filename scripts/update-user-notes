@@ -17,6 +17,8 @@ if (!$fp) exit(1);
 
 $count = 0;
 
+$bz = popen("bzip2 -9 -c > $root/all.bz2", "w");
+
 while (!feof($fp)) {
   $line = chop(fgets($fp,8096));
 
@@ -39,11 +41,14 @@ while (!feof($fp)) {
   }
   $note = gzuncompress(base64_decode($note));
   fputs($nf,"$id|$sect|$rate|$ts|$user|".base64_encode($note)."\n");
+  fputs($bz,"$id|$sect|$rate|$ts|$user|".base64_encode($note)."\n");
   fclose($nf);
 
   touch($file, $mtime < $ts ? $ts : $mtime);
 
   $count++;
 }
+
+pclose($bz);
 
 exit($count ? 0 : 1);
