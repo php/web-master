@@ -66,6 +66,14 @@ in any prominent or visible way.</p>
 the cvs repository and the rsync modules are done. cricket also runs on this
 machine to track the usage of all of the machines.</p>
 
+<h2>rs1.php.net (64.246.30.37)</h2>
+
+<p><b>machine:</b> p3/1GHz, 1GB RAM 40GB HD, redhat 7.2</p>
+
+<p><b>aliases:</b> </p>
+
+<p><b>notes:</b> This machine is on a dedicated 10mbps switch. whilst it can maintain 10mbps, it cannot burst above that.</p> 
+
 <p>originally compiled by jim winstead, september 2001</p>
 <?php
 foot();
