@@ -90,7 +90,7 @@ if (@mysql_pconnect("localhost","nobody","")) {
                      "\"$row[providername]\",$row[has_stats],\"$row[providerurl]\"" .
                      ",$row[mirrortype],$row[has_search],\"$row[lang]\",$status),\n";
             }
-            echo '    0 => array("xx", "Unknown", FALSE, "/", MIRROR_SPECIAL, FALSE, "en", MIRROR_OK)', "\n";
+            echo '    0 => array("xx", "Unknown", FALSE, "/", MIRROR_SPECIAL, FALSE, "en", MIRROR_DOESNOTWORK)', "\n";
             echo ");\n";
             echo "?>\n";
         }
