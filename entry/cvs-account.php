@@ -19,7 +19,7 @@ $username = strtolower($username);
 if (in_array($username,array('nse','roys','php','foo','group','core','webmaster','mysql','web','aardvark','zygote','jag','sites','er')))
   die("that username is not available");
 
-@mysql_pconnect("localhost","nobody", "")
+@mysql_connect("localhost","nobody", "")
   or die("failed to connect to database");
 @mysql_select_db("php3")
   or die("failed to select database");

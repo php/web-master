@@ -14,7 +14,7 @@ $mailto = "group@php.net";
 
 head("user administration");
 
-@mysql_pconnect("localhost","nobody","")
+@mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
 @mysql_select_db("php3");
 

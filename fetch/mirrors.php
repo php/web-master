@@ -40,7 +40,7 @@ if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e") {
 }
 
 // Connect to local mysql database
-if (@mysql_pconnect("localhost","nobody","")) {
+if (@mysql_connect("localhost","nobody","")) {
   
     // Select php3 database
     if (@mysql_select_db("php3")) {

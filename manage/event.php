@@ -22,7 +22,7 @@ $type = array(1=>'single',2=>'multi',3=>'recur');
 
 head("event administration");
 
-@mysql_pconnect("localhost","nobody","")
+@mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
 @mysql_select_db("php3");
 

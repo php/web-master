@@ -21,7 +21,7 @@ function day($in) {
 if (empty($sdesc) || empty($email) || empty($country) || empty($category) || empty($type) || empty($url))
   die("missing some parameters.");
 
-@mysql_pconnect("localhost","nobody", "")
+@mysql_connect("localhost","nobody", "")
   or die("failed to connect to database");
 @mysql_select_db("php3")
   or die("failed to select database");

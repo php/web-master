@@ -73,7 +73,7 @@ if (preg_match("/^(.+)\\s+(\\d+)\$/", $action, $m)) {
   $action = $m[1]; $id = $m[2];
 }
 
-@mysql_pconnect("localhost","nobody","")
+@mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
 @mysql_select_db("php3")
   or die("unable to select database");

@@ -7,7 +7,7 @@ include_once 'functions.inc';
 head("mirror administration");
 
 // Connect to database and select php3 db
-mysql_pconnect("localhost","nobody","")
+mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
 mysql_select_db("php3");
 
