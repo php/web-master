@@ -1,0 +1,157 @@
+#!/usr/local/bin/php -q
+<?php
+set_time_limit (0);
+/* simple testing system to ping each mirror, and see what state they are in,
+ and alert the php-mirrors team as to the results. */
+
+/* firstly, get some data */
+
+mysql_connect("localhost","nobody","")
+  or die("unable to connect to database");
+mysql_select_db("php3");
+
+$query = "SELECT maintainer,hostname,id FROM mirrors WHERE active = 1 AND mirrortype = 1";
+
+$result = mysql_query($query)
+  or die("unable to get from the database");
+
+for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
+	$hosts[$i]['hostname'] = $row['hostname'];
+	$hosts[$i]['id'] = $row['id'];
+	$hosts[$i]['maintainer'] = $row['maintainer'];
+}
+
+/* now this stage takes a long time, and we need to go out of PHP to execute it,
+   so we are going to write that info to a file */
+
+$rv = "";
+$total = sizeof($hosts);
+
+for($i=0; $i < $total; $i++) {
+	
+	$rv .= $hosts[$i]['hostname'] . " ";
+}
+
+$d = date("U");
+$mf = <<< EOF
+CCS = $rv
+DAT = $d
+TMP = /tmp/mirrors/data/
+DIR = /tmp/mirrors/
+LOG = /tmp/mirrors/log
+SAV = /tmp/mold/
+
+all: \${CCS}
+
+\${CCS}: start
+\t/home/imajes/bin/wget --verbose --debug --tries=1 --timeout=15 -a $(LOG) http://$@/mirror-info.php -O $(TMP)$@
+
+start: 
+\tmkdir -p $(TMP)
+
+clean:
+\ttar zcf $(SAV)$(DAT).tar.gz $(DIR)
+\trm -rf $(DIR)
+#\tkillall wget #isn't currently needed, but some versions of wget suck (use latest cvs). 
+
+EOF;
+
+/* now put this into a makefile, so we can batch process it */
+ 
+@mkdir("/tmp/mirrors", 0777);
+
+$fp = @fopen("/tmp/mirrors/Makefile", "w");
+$fw = @fwrite($fp, $mf);
+@fclose($fp);
+
+/* execute it, gather data...  */
+
+exec("make -C /tmp/mirrors/ -i -j -k all");
+
+/* now get the info from the files and populate our arrays of data */
+
+for ($i=0; $i < $total; $i++) {
+	$file = "/tmp/mirrors/data/" . $hosts[$i]['hostname'];
+	$fp = @fopen($file, "r");
+	$rv = @fread($fp, 1000);
+	
+	if(!$fp || strlen($rv) == "0") {
+                $hosts[$i]['active'] = false;
+        } else {
+                $hosts[$i]['active'] = true;
+        }
+	if(strlen($rv > 40)) {
+		$hosts[$i]['error'] = true;
+	}
+	$info = explode("|", $rv);
+	$hosts[$i]['phpversion'] = $info['1'];
+	$hosts[$i]['lastupdate'] = $info['2'];
+	$hosts[$i]['xtra'] = $info['4'];
+}
+
+/* now prepare a mailer for php-mirrors */
+
+  $body =   "Following is data gathered from the various mirrors. It is ordered by those\n"
+	  . "that are suspected to be dead, mirrors which are alive but have errors, sites\n"
+	  . "which need to be prompted to update their PHP version, and finally the rest,\n"
+	  . "sorted by last update.\n\n";
+
+  $body .=  "No response was returned from these following hosts:\n";
+
+  for($i=0; $i < $total; $i++) {
+	if ($hosts[$i]['active'] == false) {
+		$deadhosts .= sprintf("%s, ", $hosts[$i]['hostname']);
+	}
+  }
+  /* hack to make it neat, 'cause i can't think of any other way of doing it */
+  $deadhosts .= ".\n";
+  $deadhosts = str_replace(", .", ".", $deadhosts);
+  $body .= wordwrap($deadhosts, 72);
+
+  $body .=  "\nThese hosts returned extra information, so there may be errors:\n";
+
+  for($i=0; $i < $total; $i++) {
+        if ($hosts[$i]['error'] == true) {
+                $body .= sprintf("%s - %s - %s\n%s\n", $hosts[$i]['hostname'], $hosts[$i]['phpversion'], date("F j, Y, g:i a", $hosts[$i]['lastupdate']));
+        }
+  }
+
+  $body .=  "\nAnd now for the rest of the mirrors:\n"
+        . "----------------------------------------------------------------------------------------\n"
+   	. " Host \t\t PHP Version \t\t Last Updated\t\t Maintainer\n"
+        . "----------------------------------------------------------------------------------------\n";
+
+/* a note about the padding - given that email readers produce interesting results for spacing,
+i've gone for tabs here to help seperate the text columns. to make sure i don't over tab, i do 
+a quick strlen check, and depending on how different it is from the string length i give as avg
+(first argument), will determine how many tabs i use, or alternatively a space. */
+
+   function pad($deflen, $item) {
+	global $i, $hosts;
+	$str = strlen($hosts[$i][$item]);
+	if ($str >= $deflen*2) {
+		$sp =" ";
+	}
+	else if ($str <= $deflen){
+		$sp ="\t\t";
+	} else {
+		$sp = "\t";
+	}
+	return $sp;	
+  }
+
+  for($i=0; $i < $total; $i++) {
+    if($hosts[$i]['active'] == true){
+	$body .= sprintf(" %s%s%s%s%s\t\t%s\n", $hosts[$i]['hostname'], pad(11, "hostname"), $hosts[$i]['phpversion'], pad(5, "phpversion"), date("F j, Y, g:i a", $hosts[$i]['lastupdate']), $hosts[$i]['maintainer']);
+    }
+  }
+
+  $body . "---------------------------------------------------------------------------------------\n";
+
+mail("imajes@php.net", "PHP Mirror Status Info.", $body, "From: php-mirrors@lists.php.net");
+
+/* this cleans what we did. it also kills all the wget sessions that didn't end - however, the make session
+goes defunct and loses reporting over the child processes. This should die within a short period of time. */  
+
+exec("make -C /tmp/mirrors/ -k -i clean");
+?> 
