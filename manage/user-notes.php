@@ -302,6 +302,6 @@ function clean_note($text) {
         $text=str_replace(htmlspecialchars($f), $f, $text);
         $text=str_replace(htmlspecialchars(strtoupper($f)), $f, $text);
     }
-    $text = "<tt>".$text."</tt>";
+    $text = "<tt><pre>".$text."</pre></tt>";
     return $text;
 }
