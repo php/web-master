@@ -1,0 +1,98 @@
+<?php
+
+/*
+ This code is used to pregenerate the events listing displayed
+ on the PHP.net (and all mirror's) homepage. It gets the filename
+ of the CSV where the info is already fetched, and generates the
+ PHP code ready to be included to $outfile 
+*/
+
+function pregenerate_events($csvfile, $outfile)
+{
+    // Try to open output file for reading
+    $out = @fopen("$outfile~", "w");
+    if (!$out) { die("unable to pregenerate events list to '$outfile~'"); }
+
+    // Read in events CSV file
+    $csv = @fopen($cvsfile, "r");
+    if (!$csv) { die("unable to open $cvsfile for reading"); }
+
+    // Current month number, current category and categories list
+    $cm = $ccat = 0;
+    $cats = array('unknown', 'User Group Events', 'Conferences', 'Training');
+
+    // Event duplication check hash
+    $seen = array();
+
+    // Start output file with PHP code
+    fwrite(
+        $out,
+        "<?php\n$RSIDEBAR_DATA = <<<END_RSIDEBAR_DATA\n" .
+        "<h3>Upcoming Events <a href=\"submit-event.php\">[add]</a></h3>\n"
+    );
+    
+    // While we can read the events file
+    while (TRUE) {
+
+        // Get information event elements from file
+        $elems = fgetcsv($csv, 8192);
+        if ($elems === FALSE) { break; }
+        list($d, $m, $y, $ccode, $desc, $id, , , , , , , $cat) = $elems;
+
+        // Fgetcvs() returns an array with a single null element
+        // for a blank line, which we need to skip
+        if ($d === NULL) { continue; }
+
+        // If the month number changed
+        if ($cm != (int) $m) {
+
+            // Update current month information
+            $cm = (int) $m;
+
+            // Start month with a header
+            fwrite($out, '<h4 class="eventmonth">' .
+                         strftime('%B', mktime(12, 0, 0, $cm, $d, $y)) .
+                         "</h4>\n"
+            );
+
+            // We have not seen any events in this month
+            $seen = array();
+        }
+
+        // Start new category with a category header
+        if ($ccat != (int) $cat) {
+            fwrite($out, '<h4>' . $cats[$cat] . "</h4>\n");
+            $ccat = $cat;
+        }
+        
+        // There is no event with this description in this month already seen
+        if (!isset($seen[$desc])) {
+            
+            // Add event to sidebar
+            fwrite($out, "<span class=\"event_$ccode\">$d. <a href=\"cal.php?id=$id\">" .
+                         htmlspecialchars(stripslashes($desc)) .
+                         "</a></span><br />\n"
+            );
+            
+            // Set seen flag
+            $seen[$desc] = TRUE;
+        }
+    }
+    
+    // End heredoc string
+    fwrite($out, "END_SIDEBAR_DATA;\n");
+
+    // Close files (all events displayed)
+    fclose($csv); fclose($out);
+    
+    // If we don't have new data, delete file
+    if (!@filesize("$outfile~")) {
+        echo "'$outfile~' was empty, skipping\n";
+        unlink("$outfile~");
+        return;
+    }
+  
+    // Replace real file with temporary file
+    return rename("$outfile~", $outfile);    
+}
+?>

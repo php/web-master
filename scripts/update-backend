@@ -27,6 +27,10 @@ fetch_into_file("http://master.php.net/fetch/countries.php?token=$token",
 fetch_into_file("http://master.php.net/fetch/events.php?nm=2&token=$token",
                 "$root/backend/events.csv");
 
+// Pregenerate event listing sidebar for homepage
+include "event_listing";
+pregenerate_events("$root/backend/events.csv", "$root/include/pregen-events.inc");
+
 // Run ip-to-country fetch code
 include "ip-to-country";
 fetch_ip_to_country($root);
