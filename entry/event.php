@@ -100,6 +100,6 @@ $msg .= "Country: ".stripslashes($country)."\n"
 $msg .= "\n-- \n"
       . "http://master.php.net/manage/event.php?id=$new_id&action=approve\n"
       . "http://master.php.net/manage/event.php?id=$new_id&action=reject\n"
-      . "http://master.php.net/manage/event.php?id=$new_id&action=edit\n";
+      . "http://master.php.net/manage/event.php?id=$new_id\n";
 
 mail($mailto,"Event #$new_id: ".stripslashes($sdesc),$msg,"From: ".stripslashes($email)."\r\nMessage-ID: <event-$new_id@php.net>");
