@@ -5,10 +5,6 @@
    edit their own notes. */
 /* TODO: lang should probably be linked to a languages table of some sort.
    but we're not really using it yet, so maybe we don't want it at all. */
-/* TODO: the 'removed' thing is pretty lame. it would probably be okay to
-   simplify the database-to-flat-file code to not bother with incremental
-   updates (and perhaps just short-circuit when there are no updates at all),
-   especially once voting is fully implemented. */
 
 /* used by:
    master.php.net/entry/user-note.php
@@ -27,7 +23,6 @@ CREATE TABLE IF NOT EXISTS note (
   votes INT NOT NULL DEFAULT '0',
   rating INT NOT NULL DEFAULT '0',
   updated DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-  removed INT(1) NOT NULL DEFAULT '0',
   PRIMARY KEY  (id),
   KEY (sect)
 ) TYPE=MyISAM PACK_KEYS=1;
