@@ -9,6 +9,8 @@ if (empty($name) || empty($email) || empty($username) || empty($passwd) || empty
   die("missing some parameters");
 
 $username = strtolower($username);
+if (in_array($username,array('nse','roys','php','foo','group','core','webmaster','mysql','web','aardvark','zygote')))
+  die("that username is not available");
 
 @mysql_pconnect("localhost","nobody", "")
   or die("failed to connect to database");
