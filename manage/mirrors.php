@@ -3,14 +3,6 @@
 include_once 'login.inc';
 include_once 'functions.inc';
 
-// A mirror check is needed now, try to do it
-if (isset($checkmirrors)) {
-    ignore_user_abort(TRUE);
-    $test_debug = TRUE;
-    include_once "../scripts/mirror-test";
-    exit;
-}
-
 // This page is for mirror administration
 head("mirror administration");
 
@@ -245,7 +237,6 @@ $res = mysql_query("SELECT mirrors.*, " .
 </p>
 <p>
  Last mirror check time: <?php echo gmdate("Y/m/d H:i:s", $checktime); ?> GMT
- <a href="<?php echo $PHP_SELF; ?>?checkmirrors=1" target="_blank">Run a mirror check now</a>.
 </p>
 <table border="0" cellspacing="1" width="100%">
  <tr bgcolor="#aaaaaa">
