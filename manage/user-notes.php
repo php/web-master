@@ -238,9 +238,9 @@ case 'delete':
             $user,
             $id,
             "note {$row['id']} $action_taken from {$row['sect']} by $user",
-            "Note Submitter: " . safe_email($row['user']) . "\n\n----\n\n{$row['note']}"
-	    . (isset($reason) ? "\n\n----\n\nReason: $reason" : "")
-        );
+            "Note Submitter: " . safe_email($row['user']) . 
+	    (isset($reason) ? "\nReason: $reason" : " ") .
+	    "\n\n----\n\n{$row['note']}");
         if ($action == 'reject') {
           note_mail_user($row['user'], "note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
         }
