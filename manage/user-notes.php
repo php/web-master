@@ -36,17 +36,20 @@ Your note has been removed from the online manual.';
 
 db_connect();
 
-if (!isset($action)) {
+$action = (isset($_REQUEST['action']) ? $_REQUEST['action'] : '');
+$id = (isset($_REQUEST['id']) ? intval($_REQUEST['id']) : '');
+
+if (!$action) {
   // search !
   head();
 
   // someting done before ?
-  if (isset($id)) {
+  if ($id) {
     $str = 'Note #' . $id . ' has been ';
-    switch ($was) {
+    switch ($_GET['was']) {
       case 'delete' :
       case 'reject' :
-        $str .= ($was == 'delete') ? 'deleted' : 'rejected';
+        $str .= ($_GET['was'] == 'delete') ? 'deleted' : 'rejected';
         $str .= ' and removed from the manual';
         break;
 	
@@ -58,10 +61,10 @@ if (!isset($action)) {
     echo $str . '<br />';
   }
 
-  if (isset($keyword)) {
-    $sql = 'SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE note LIKE "%' . addslashes($keyword) . '%"';
-    if (is_numeric($keyword)) {
-      $sql .= ' OR id = ' . (int)$keyword;
+  if (isset($_REQUEST['keyword'])) {
+    $sql = 'SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE note LIKE "%' . escape($_REQUEST['keyword']) . '%"';
+    if (is_numeric($_REQUEST['keyword'])) {
+      $sql .= ' OR id = ' . $_REQUEST['keyword'];
     }
     $sql .= ' LIMIT 20';
 
@@ -69,9 +72,9 @@ if (!isset($action)) {
       if (mysql_num_rows($result) != 0) {
         while ($row = mysql_fetch_assoc($result)) {
           $id = $row['id'];
-          echo "<p class=\"notepreview\">",clean_note(stripslashes($row['note'])),
+          echo "<p class=\"notepreview\">",clean_note($row['note']),
             "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
-            clean($row['user']),"</span><br />",
+            hsc($row['user']),"</span><br />",
 	    "Note id: $id<br />\n",
 	    "<a href=\"http://www.php.net/manual/en/{$row['sect']}.php\">Manual page</a><br />\n",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=edit+$id\" target=\"_blank\">Edit Note</a><br />",
@@ -86,15 +89,13 @@ if (!isset($action)) {
     }
   }
 
-  $searched = isset($keyword) ? $keyword : '';
-  
 ?>
 <p>Search the notes table.</p>
-<form method="post" action="<?php echo $PHP_SELF;?>">
+<form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
 <table>
  <tr>   
   <th align="right">Keyword or ID:</th>
-  <td><input type="text" name="keyword" value="<?php echo $searched; ?>" size="10" maxlength="32" /></td>
+  <td><input type="text" name="keyword" value="<?php echo (isset($_REQUEST['keyword']) ? $_REQUEST['keyword'] : ''); ?>" size="10" maxlength="32" /></td>
  </tr>
  <tr> 
   <td align="center" colspan="2">
@@ -159,7 +160,7 @@ case 'delete':
       }
       
       //if we came from an email, report _something_
-      if (isset ($_GET['report'])) {
+      if (isset($_GET['report'])) {
         header('Location: user-notes.php?id=' . $id . '&was=' . $action);
         exit;
       } else {
@@ -173,14 +174,15 @@ case 'delete':
 case 'preview':
 case 'edit':
   if ($id) {
+    $note = (isset($_POST['note']) ? escape($_POST['note']) : null);
     if (!isset($note) || $action == 'preview') {
       head();
     }
 
     $row = note_get_by_id($id);
 
-    $email = isset($email) ? $email : addslashes($row['user']);
-    $sect = isset($sect) ? $sect : addslashes($row['sect']);
+    $email = (isset($_POST['email']) ? escape($_POST['email']) : addslashes($row['user']));
+    $sect = (isset($_POST['sect']) ? escape($_POST['sect']) : addslashes($row['sect']));
 
     if (isset($note) && $action == "edit") {
       if (db_query("UPDATE note SET note='$note',user='$email',sect='$sect',updated=NOW() WHERE id=$id")) {
@@ -206,22 +208,22 @@ case 'edit':
     if ($action == "preview") {
       echo "<p class=\"notepreview\">",clean_note(stripslashes($note)),
            "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
-           clean($email),"</span></p>";
+           stripslashes($email),"</span></p>";
     }
 ?>
-<form method="post" action="<?php echo $PHP_SELF;?>">
+<form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
 <input type="hidden" name="id" value="<?php echo $id;?>" />
 <table>
  <tr>
   <th align="right">Section:</th>
-  <td><input type="text" name="sect" value="<?php echo clean($sect);?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="sect" value="<?php echo stripslashes($sect);?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
   <th align="right">email:</th>
-  <td><input type="text" name="email" value="<?php echo clean($email);?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="email" value="<?php echo stripslashes($email);?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="note" cols="70" rows="15" wrap="virtual"><?php echo clean($note);?></textarea></td>
+  <td colspan="2"><textarea name="note" cols="70" rows="15"><?php echo stripslashes($note);?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
@@ -305,8 +307,8 @@ function highlight_php($code, $return = FALSE)
 // Send out a mail to the note submitter, with an envelope sender ignoring bounces
 function note_mail_user($mailto, $subject, $message)
 {
-    $email = clean_antispam($email);
-    if (is_emailable_address($email)) {
+    $mailto = clean_antispam($mailto);
+    if (is_emailable_address($mailto)) {
         mail(
             $mailto,
             $subject,
@@ -320,7 +322,6 @@ function note_mail_user($mailto, $subject, $message)
 // Return data about a note by its ID
 function note_get_by_id($id)
 {
-    $id = intval($id);
     if ($result = db_query("SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id='$id'")) {
         if (!mysql_num_rows($result)) {
             die("Note #$id doesn't exist. It has probably been deleted/rejected already.");

@@ -2,6 +2,7 @@
 /* $Id$ */
 
 include_once 'cvs-auth.inc';
+include_once 'functions.inc';
 
 // User not logged in
 $user = $pw = FALSE;
@@ -36,11 +37,11 @@ if (!$user || !$pw || !verify_password($user,$pw)) { ?>
 <table>
  <tr>
   <th align="right">Username:</th>
-  <td><input type="text" name="user" value="<?php echo htmlspecialchars(stripslashes($user));?>" />
+  <td><input type="text" name="user" value="<?php echo clean($user);?>" />
  </tr>
  <tr>
   <th align="right">Password:</th>
-  <td><input type="password" name="pw" value="<?php echo htmlspecialchars(stripslashes($pw));?>" />
+  <td><input type="password" name="pw" value="<?php echo clean($pw);?>" />
  </tr>
  <tr>
   <td align="center" colspan="2"><input type="submit" value="Login" /></td>
@@ -57,14 +58,14 @@ if (!$user || !$pw || !verify_password($user,$pw)) { ?>
 
 function query_string()
 {
-    if ($_SERVER['QUERY_STRING']) {
+    if (!empty($_SERVER['QUERY_STRING'])) {
         return htmlspecialchars("?{$_SERVER['QUERY_STRING']}");
     }
 }
 
 function preserve_form_fields()
 {
-    if ($_SERVER['REQUEST_METHOD'] == "POST" && @is_array($_POST['in'])) {
+    if (isset($_POST['in']) && is_array($_POST['in'])) {
         while (list($k, $v) = each($_POST['in'])) {
             echo "<input type=\"hidden\" name=\"in[", htmlspecialchars($k),
                  "]\" value=\"", htmlspecialchars($v), "\" />\n";

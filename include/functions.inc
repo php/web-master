@@ -45,6 +45,7 @@ function foot() {
 
 function hsc($str)             { return htmlspecialchars($str); }
 function strip($var)           { return (get_magic_quotes_gpc() ? stripslashes($var) : $var); }
+function escape($var)          { return (get_magic_quotes_gpc() ? $var : addslashes($var)); }
 function clean($var)           { return hsc(strip($var)); }
 function format_warn($message) { return "<p class=\"warning\">$message</p>"; }
 function warn($message)        { echo format_warn($message); }
