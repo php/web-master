@@ -104,6 +104,8 @@ if (!$action) {
  </tr>
 </table>
 </form>
+
+<p><a href="<?php echo $_SERVER['PHP_SELF'];?>?action=mass">Mass change of sections</a></p>
 <?php
 foot();
 exit;
@@ -111,13 +113,85 @@ exit;
 // end search
 
 
-
-
 if (preg_match("/^(.+)\\s+(\\d+)\$/", $action, $m)) {
   $action = $m[1]; $id = $m[2];
 }
 
 switch($action) {
+case 'mass':
+  if (!allow_mass_change($user)) { die("You are not allowed to take this action!"); }
+  head();
+  $where = array();
+  if ($old_sect)
+    $where[] = "sect = '$old_sect'";
+  if ($ids)
+    $where[] = "id IN ($ids)";
+  
+  if ($step == 2) {
+    if (!mysql_query("UPDATE note SET sect = '$new_sect' WHERE " . implode(" AND ", $where)))
+      echo "<p>Mass change failed: " . mysql_error() . "</p>\n";
+    else
+      echo "<p>Mass change succeeded.</p>\n";
+  } elseif ($step == 1) {
+    if ($new_sect && ($ids || $old_sect)) {
+      if (!($result = mysql_query("SELECT COUNT(*) FROM note WHERE " . implode(" AND ", $where))))
+        echo "<p>SQL error: " . mysql_error() . "</p>\n";
+      elseif (!($count = mysql_result($result, 0, 0)))
+        echo "<p>There are no such notes.</p>\n";
+      else {
+        $step = 2;
+        $msg = "Are you sure to change section of <b>$count note(s)</b>";
+        $msg .= ($ids ? " with IDs <b>$ids</b>" : "");
+        $msg .= ($old_sect ? " from section <b>$old_sect</b>" : "");
+        $msg .= " to section <b>$new_sect</b>?";
+        echo "<p>$msg</p>\n";
+?>
+<form action="<?php echo $_SERVER['PHP_SELF']; ?>?action=mass" method="post">
+<input type="hidden" name="step" value="2">
+<input type="hidden" name="old_sect" value="<?php echo $old_sect; ?>">
+<input type="hidden" name="ids" value="<?php echo $ids; ?>">
+<input type="hidden" name="new_sect" value="<?php echo $new_sect; ?>">
+<input type="submit" value="Change">
+</form>
+<?php
+      }
+    } else {
+      if (!$new_sect)
+        echo "<p><b>You have to fill-in new section.</b></p>\n";
+      if (!$ids && !$old_sect)
+        echo "<p><b>You have to fill-in curent section or notes IDs (or both).</b></p>\n";
+    }
+  }
+  if ($step < 2) {
+?>
+<form action="<?php echo $_SERVER['PHP_SELF']; ?>?action=mass" method="post">
+<input type="hidden" name="step" value="1">
+<p>Change section of notes which fit these criteria:</p>
+<table>
+ <tr>
+  <th align="right">Current section:</th>
+  <td><input type="text" name="old_sect" value="<?php echo $old_sect; ?>" size="30" maxlength="80" /> (filename without extension)</td>
+ </tr>
+ <tr>
+  <th align="right">Notes IDs:</th>
+  <td><input type="text" name="ids" value="<?php echo $ids; ?>" size="30" maxlength="80" /> (comma separated list)</td>
+ </tr>
+ <tr>
+  <th align="right">Move to section:</th>
+  <td><input type="text" name="new_sect" value="<?php echo $new_sect; ?>" size="30" maxlength="80" /></td>
+ </tr>
+ <tr> 
+  <td align="center" colspan="2">
+    <input type="submit" value="Change" />
+  </td>
+ </tr>
+</table>
+</form>
+<?php
+  }
+  echo "<p><a href='{$_SERVER['PHP_SELF']}'>Back to notes index</a></p>\n";
+  foot();
+  exit;
 case 'approve':
   if ($id) {
     if ($row = note_get_by_id($id)) {
@@ -333,6 +407,21 @@ function note_get_by_id($id)
 
 // Sends out a notification to the mailing list when
 // some action is performed on a user note.
-function note_mail_on_action($user, $id, $subject, $body) {
+function note_mail_on_action($user, $id, $subject, $body)
+{
     mail(NOTES_MAIL, $subject, $body, "From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
+}
+
+// Allow some users to mass change IDs in the manual
+function allow_mass_change($user)
+{
+    if (in_array(
+            $user,
+            array(
+                "vrana", "goba", "nlopess", "didou"
+            )
+        )
+    ) {
+        return TRUE;
+    } else { return FALSE; }
 }
