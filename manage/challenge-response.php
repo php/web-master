@@ -20,7 +20,26 @@ if (isset($_POST['confirm_them']) && is_array($_POST['confirm'])) {
 	}
 }
 
-$res = db_query("select distinct sender from phpmasterdb.users left join accounts.quarantine on users.email = rcpt where username='$user' order by sender");
+$res = db_query("select distinct sender from phpmasterdb.users left join accounts.quarantine on users.email = rcpt where username='$user'");
+
+$inmates = array();
+while ($row = mysql_fetch_array($res)) {
+	$inmates[] = $row[0];
+}
+
+function sort_by_domain($a, $b)
+{
+	list($al, $ad) = explode('@', $a, 2);
+	list($bl, $bd) = explode('@', $b, 2);
+
+	$x = strcmp($ad, $bd);
+	if ($x)
+		return $x;
+
+	return strcmp($al, $bl);
+}
+
+usort($inmates, 'sort_by_domain');
 
 ?>
 
@@ -32,14 +51,17 @@ $res = db_query("select distinct sender from phpmasterdb.users left join account
 	<tr>
 		<td>&nbsp;</td>
 		<td>Sender</td>
+		<td>Domain</td>
 	</tr>
 
 <?php
-while ($row = mysql_fetch_array($res)) {
+foreach ($inmates as $prisoner) {
+	list($localpart, $domain) = explode('@', $prisoner, 2);
 ?>
 <tr>
-	<td><input type="checkbox" name="confirm[]" value="<?= htmlentities($row[0]) ?>"/></td>
-	<td><?= htmlentities($row[0]) ?></td>
+	<td><input type="checkbox" name="confirm[]" value="<?= htmlentities($prisoner) ?>"/></td>
+	<td align="right"><?= htmlentities($localpart) ?></td>
+	<td align="left">@<?= htmlentities($domain) ?></td>
 </tr>
 <?php
 }
@@ -56,5 +78,10 @@ you may tick the appropriate box and confirm them.
 </form>
 
 <?php
+$res = db_query("select count(id) from phpmasterdb.users left join accounts.quarantine on users.email = rcpt where username='$user'");
+$n = @mysql_result($res, 0);
+
+echo "You have <b>$n</b> messages in quarantine<br>";
+
 foot();
 ?>
