@@ -8,6 +8,9 @@
  gathered information is also mailed to the php-mirrors
  mailing list periodically by the mirror-summary
  script.
+ 
+ TODO: notify a maintainer 24 hours before his mirror
+       gets delisted
 */
 
 // This script will run for a long time
