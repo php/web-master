@@ -18,6 +18,12 @@ p.warning, .error {
   padding: 2px 4px;
 }
 
+/* Notes management page */
+
+p.notepreview {
+  white-space: pre;
+}
+
 /* Resources box on mirror management page */
 div#resources {
   float: right;
