@@ -76,6 +76,24 @@ if (!isset($action)) {
   // search !
   head();
 
+  // someting done before ?
+  if (isset($id)) {
+    $str = 'Note #' . $id . ' has been ';
+    switch ($action) {
+      case 'delete' :
+      case 'reject' :
+        $str .= ($action == 'delete') ? 'deleted' : 'rejected';
+        $str .= ' and removed from the manual';
+        break;
+	
+      case 'edit' :
+        $str .= ' edited';
+        break;
+    }
+
+    echo $str . '<br />';
+  }
+
   if (isset($keyword)) {
     $sql = 'SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE note LIKE "%' . addslashes($keyword) . '%" LIMIT 20';
     @mysql_connect("localhost","nobody","")
@@ -193,13 +211,8 @@ case 'delete':
       
       //if we came from an email, report _something_
       if (isset ($_GET['report'])) {
-      	print "Note #$id has been ";
-	if ($action == 'reject') {
-		print 'rejected';
-	} else if ($action == 'delete') {
-		print 'deleted';
-	}
-	print ' and removed from the manual';
+        header('Location: user-notes.php?id=' . $id . '&was=' . $action);
+        exit;
       } else {
         //if not, just close the window
         echo '<script language="javascript">window.close();</script>';
@@ -232,7 +245,8 @@ case 'edit':
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
         mail($mailto,"note $row[id] modified in $row[sect] by $user",stripslashes($note)."\n\n--was--\n$row[note]\n\nhttp://www.php.net/manual/en/$row[sect].php","From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
-        echo "<p>note $id edited.</p>";
+        header('Location: user-notes.php?id=' . $id . '&was=' . $action);
+        exit;
       }
       else {
         echo "<p>An unknown error occured. Try again later.</p><pre>",mysql_error(),"</pre>";
@@ -257,7 +271,7 @@ case 'edit':
   <td><input type="text" name="email" value="<?php echo clean($email);?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="note" cols="60" rows="10" wrap="virtual"><?php echo clean($note);?></textarea></td>
+  <td colspan="2"><textarea name="note" cols="70" rows="15" wrap="virtual"><?php echo clean($note);?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
