@@ -118,7 +118,7 @@ elseif (isset($id)) {
 </tr>
 <tr>
  <th align="right">Provider URL (with http://):</th>
- <td><input type="text" name="providerurl" value="<?php echo htmlspecialchars($row['providerur'l]);?>" size="40" maxlength="255" /></td>
+ <td><input type="text" name="providerurl" value="<?php echo htmlspecialchars($row['providerurl']);?>" size="40" maxlength="255" /></td>
 </tr>
 <tr>
  <th align="right">Country:</th>
