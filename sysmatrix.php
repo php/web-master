@@ -115,11 +115,11 @@ distributed in an attempt to better improve them.</p>
     <td>???</td>
     <td>???</td>
     <td>n/a</td>
-    <td>backup?</td>
+    <td>fast file server (thttpd?)</td>
   </tr>
   <tr> 
-    <td>walter landman (james)</td>
-    <td>???</td>
+    <td>simplicato.com (james)</td>
+    <td>sim1.php.net (?)</td>
     <td>???</td>
     <td>???</td>
     <td>&nbsp;</td>
