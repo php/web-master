@@ -82,7 +82,7 @@ if (!isset($action)) {
     switch ($was) {
       case 'delete' :
       case 'reject' :
-        $str .= ($action == 'delete') ? 'deleted' : 'rejected';
+        $str .= ($was == 'delete') ? 'deleted' : 'rejected';
         $str .= ' and removed from the manual';
         break;
 	
