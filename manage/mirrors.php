@@ -189,7 +189,7 @@ if (intval($id) !== 0) {
 ?>
  <table>
   <tr>
-   <th colspan="2"><?php if (!$row['up'] || !$row['current']) { echo '<p class="error">This mirror is automatically disabled<br />Last error: ' . $row['ocmt']; . '</p>'; } else { echo "&nbsp;"; } ?></th>
+   <th colspan="2"><?php if (!$row['up'] || !$row['current']) { echo '<p class="error">This mirror is automatically disabled<br />Last error: ' . $row['ocmt'] . '</p>'; } else { echo "&nbsp;"; } ?></th>
   </tr>
   <tr>
    <th align="right">Mirror added:</th>
