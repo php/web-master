@@ -40,7 +40,7 @@ foreach ($hosts as $index => $host) {
     
     // If we were unable to open the port, continue with the next mirror
     if (!$fp) {
-        $hosts[$index]['problem'] = "mirror check: unable to connect";
+        $hosts[$index]['problem'] = "unable to connect";
         continue;
     }
 
@@ -49,7 +49,7 @@ foreach ($hosts as $index => $host) {
     
     // If we were unable to write to socket, skip mirror site
     if ($rc === FALSE) {
-        $hosts[$index]['problem'] = "mirror check: unable to send request";
+        $hosts[$index]['problem'] = "unable to send request";
         continue;
     }
     
@@ -64,7 +64,7 @@ foreach ($hosts as $index => $host) {
 
     // If we were unable to pass the HTTP header, skip mirror site
     if ($line === FALSE || $line == "") {
-        $hosts[$index]['problem'] = "mirror check: didn't get past headers";
+        $hosts[$index]['problem'] = "didn't get past headers";
         continue;
     }
         
@@ -73,7 +73,7 @@ foreach ($hosts as $index => $host) {
 
     // If unable to read that row, skip mirror site
     if ($rv === FALSE) {
-        $hosts[$index]['problem'] = "mirror check: didn't get data";
+        $hosts[$index]['problem'] = "didn't get data";
         continue;
     }
     
@@ -82,7 +82,7 @@ foreach ($hosts as $index => $host) {
 
     // Invalid data received, skip mirror site
     if (count($info) < 4) {
-        $hosts[$index]['problem'] = "mirror check: invalid data received";
+        $hosts[$index]['problem'] = "invalid data received";
         continue;
     }
     
@@ -96,7 +96,7 @@ foreach ($hosts as $index => $host) {
     if (is_numeric($info[2])) {
         $hosts[$index]['mirrorupdated'] = $info[2];
     } else {
-        $hosts[$index]['problem'] = "mirror check: invalid last update time";
+        $hosts[$index]['problem'] = "invalid last update time";
     }
     
     // If new search information is available, override previous one
