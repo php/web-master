@@ -69,6 +69,11 @@ if (@mysql_query($query)) {
   $msg .= "Edit        -- http://master.php.net/manage/user-notes.php?action=edit+$new_id\n";
   //$msg .= "Approve     -- http://master.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
   $msg .= "Delete      -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes\n";
+  $msg .= "  Reason: bad code                  -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=bad+code\n";
+  $msg .= "  Reason: spam                      -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=spam\n";
+  $msg .= "  Reason: useless example           -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=useless+example\n";
+  $msg .= "  Reason: contains commercial links -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=contains+commercial+links\n";
+  $msg .= "  Reason: useless note              -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=useless+note\n";
   $msg .= "Reject      -- http://master.php.net/manage/user-notes.php?action=reject+$new_id&report=yes\n";
   $msg .= "Search      -- http://master.php.net/manage/user-notes.php\n";
   # make sure we have a return address.

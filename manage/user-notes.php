@@ -79,6 +79,11 @@ if (!$action) {
 	    "<a href=\"http://www.php.net/manual/en/{$row['sect']}.php\">http://www.php.net/manual/en/{$row['sect']}.php</a><br />\n",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=edit+$id\" target=\"_blank\">Edit Note</a><br />",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id\" target=\"_blank\">Delete Note</a><br />",
+            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=bad+code\" target=\"_blank\">Delete Note: bad code</a><br />",
+            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=spam\" target=\"_blank\">Delete Note: spam</a><br />",
+            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=useless+example\" target=\"_blank\">Delete Note: useless example</a><br />",
+            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=contains+commercial+links\" target=\"_blank\">Delete Note: contains commercial links</a><br />",
+            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=useless+note\" target=\"_blank\">Delete Note: useless note</a><br />",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=reject+$id\" target=\"_blank\">Reject Note</a>",
             "</p>",
 	    "<hr />";
@@ -234,6 +239,7 @@ case 'delete':
             $id,
             "note {$row['id']} $action_taken from {$row['sect']} by $user",
             "Note Submitter: " . safe_email($row['user']) . "\n\n----\n\n{$row['note']}"
+	    . (isset($reason) ? "\n\n----\n\nReason: $reason")
         );
         if ($action == 'reject') {
           note_mail_user($row['user'], "note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
