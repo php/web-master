@@ -1,0 +1,46 @@
+#!/usr/local/bin/php -q
+<?php /* vim: set noet ts=2 sw=2 ft=php3: : */
+
+$token = getenv("TOKEN");
+if (!$token) die("you have to set the TOKEN environment variable");
+$token = rawurlencode($token);
+
+/* get mirrors list */
+fetch_into_file("http://master.php.net/fetch/mirrors.php?token=$token",
+                "include/mirrors.inc");
+
+/* get upcoming events */
+fetch_into_file("http://master.php.net/fetch/events.php?nm=3&token=$token",
+                "backend/events.csv");
+
+function fetch_into_file($url,$file) {
+  $source = fopen($url,"r");
+  if (!$source) {
+    echo "failed to open '$url' for reading\n";
+    return;
+  }
+
+  $dest = fopen("$file~","w");
+  if (!$dest) {
+    echo "failed to open '$dest~' for writing\n";
+    return;
+  }
+
+  while (!feof($source)) {
+    $chunk = fread($source,4096);
+    if (fwrite($dest,$chunk) < 0) {
+      fclose($source); fclose($dest);
+      unlink("$file~");
+      echo "failed writing to '$dest~'\n";
+      return;
+    }
+  }
+  fclose($source); fclose($dest);
+
+  if (!@filesize("$file~")) {
+    echo "'$dest~' was empty, skipping\n";
+    unlink("$file~");
+  }
+  
+  return rename("$file~",$file);
+}
