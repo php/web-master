@@ -325,7 +325,6 @@ while ($row = mysql_fetch_array($res)) {
             // Not up to date or not current
             if (!$row['up'] || !$row['current']) {
                 $siteimage = "error";
-                $row['ocmt'] = trim($row['ocmt']);
                 if (!empty($row['ocmt'])) {
                     $errorinfo = $row['ocmt'] . " (last accessed: " .
                                  get_print_date($row['ulastchecked']) . ")";
@@ -340,13 +339,13 @@ while ($row = mysql_fetch_array($res)) {
             }
         }
     }
-    // Not active mirror site
+    // Not active mirror site (maybe deactivated by the
+    // mirror check bot, because of a /manual alias,
+    // or deactivated by some admin)
     else {
         $siteimage = "deactivated";
-        $row['acmt'] = trim($row['acmt']);
-        if (!empty($row['acmt'])) {
-            $errorinfo = $row['acmt'];
-        }
+        if (!empty($row['ocmt']))     { $errorinfo = $row['ocmt']; }
+        elseif (!empty($row['acmt'])) { $errorinfo = $row['acmt']; }
     }
 
     // See what needs to print out as search info
