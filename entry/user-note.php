@@ -40,9 +40,12 @@ if ($count >= 3) {
   //Send error to myself.  If this happens too many times, I'll increase
   //the amount of allowed notes
   mail ('alindeman@php.net,didou@php.net',
-	'Note quota exceeded',
-	'Too many notes submitted in one minute.  Consider increasing quota
-        Occured at '.date ('M d, Y g:i:s A'),
+	'[php-notes] Quota exceeded',
+	'Too many notes submitted in one minute.  Consider increasing quota' . "\n" . 
+        'Occured at '.date ('M d, Y g:i:s A') . "\n" .
+	"User   : $user\n" .
+	"Section: $section\n" .
+	"Note   : $note",
 	'From: webmaster@php.net'
        );
   die ('[TOO MANY NOTES]');
