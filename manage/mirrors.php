@@ -35,7 +35,7 @@ if (isset($id) && isset($hostname)) {
                          "mirrortype=$mirrortype, cname='$cname', maintainer='$maintainer', " .
                          "providername='$providername', providerurl='$providerurl', " .
                          "cc='$cc', lang='$lang', has_stats=$has_stats, " .
-                         "lastedited=NOW() WHERE id = $id";
+                         "lastedited=NOW(), acmt='$acmt' WHERE id = $id";
                 $msg = "$hostname updated";
             break;
 
@@ -49,10 +49,10 @@ if (isset($id) && isset($hostname)) {
             case "insert":
                 $query = "INSERT INTO mirrors (hostname, active, mirrortype, " .
                          "cname, maintainer, providername, providerurl, cc, " .
-                         "lang, has_stats, created, lastedited) " .
+                         "lang, has_stats, created, lastedited, acmt) " .
                          "VALUES ('$hostname', $active, $mirrortype, '$cname', " .
                          "'$maintainer', '$providername', '$providerurl', '$cc', " .
-                         "'$lang', $has_stats, NOW(), NOW())";
+                         "'$lang', $has_stats, NOW(), NOW(), '$acmt')";
                 $msg = "$hostname added";
             break;
         }
@@ -83,7 +83,7 @@ if (isset($id) && isset($hostname)) {
             }
         }
     } else {
-        warn("you're not allowed to take actions on mirrors.");
+        warn("You're not allowed to take actions on mirrors.");
     }
 }
 
@@ -94,8 +94,10 @@ elseif (isset($id)) {
   if (intval($id) !== 0) {
       $res = mysql_query(
           "SELECT *, " .
-          "UNIX_TIMESTAMP(created) AS ucreated, UNIX_TIMESTAMP(lastedited) AS ulastedited, " .
-          "UNIX_TIMESTAMP(lastupdated) AS ulastupdated, UNIX_TIMESTAMP(lastchecked) AS ulastchecked, " .
+          "UNIX_TIMESTAMP(created) AS ucreated, " .
+          "UNIX_TIMESTAMP(lastedited) AS ulastedited, " .
+          "UNIX_TIMESTAMP(lastupdated) AS ulastupdated, " .
+          "UNIX_TIMESTAMP(lastchecked) AS ulastchecked, " .
           "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < lastchecked) AS up, " .
           "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < lastupdated) AS current " .
           "FROM mirrors WHERE id = $id"
@@ -162,6 +164,10 @@ elseif (isset($id)) {
   <tr>
    <th align="right">Local Stats:</th>
    <td><input type="checkbox" name="has_stats"<?php echo $row['has_stats'] ? " checked" : ""; ?> /></td>
+  </tr>
+  <tr>
+   <th align="right">Administration comments:</th>
+   <td><textarea wrap="virtual" cols="40" rows="12" name="acmt"><?php echo htmlspecialchars($row['acmt']); ?></textarea></td>
   </tr>
   <tr>
    <td colspan="2" align="center"><input type="submit" value="<?php echo $id ? "Change" : "Add"; ?>" />
