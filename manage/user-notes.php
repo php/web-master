@@ -298,14 +298,60 @@ default:
   foot();
 }
 
-function clean_note($text) {
-    $text = htmlspecialchars($text);
-    $fixes = array('<br>','<p>','</p>');
-    reset($fixes);
-    while (list(,$f)=each($fixes)) {
-        $text=str_replace(htmlspecialchars($f), $f, $text);
-        $text=str_replace(htmlspecialchars(strtoupper($f)), $f, $text);
-    }
-    $text = "<tt><pre>".$text."</pre></tt>";
+// Copied over from phpweb (should be syncronised if changed)
+function clean_note($text)
+{
+    // Highlight PHP source
+    $text = highlight_php(trim($text), TRUE);
+
+    // Turn urls into links
+    $text = preg_replace(
+        '!((mailto:|(http|ftp|nntp|news):\/\/).*?)(\s|<|\)|"|\\|\'|$)!',
+        '<a href="\1" target="_blank">\1</a>\4',
+        $text
+    );
+    
     return $text;
+}
+
+// Use class names instead of colors
+ini_set('highlight.comment', 'comment');
+ini_set('highlight.default', 'default');
+ini_set('highlight.keyword', 'keyword');
+ini_set('highlight.string',  'string');
+ini_set('highlight.html',    'html');
+
+// Highlight PHP code
+function highlight_php($code, $return = FALSE)
+{
+    // Using OB, as highlight_string() only supports
+    // returning the result from 4.2.0
+    ob_start();
+    highlight_string($code);
+    $highlighted = ob_get_contents();
+    ob_end_clean();
+    
+    // Fix output to use CSS classes and wrap well
+    $highlighted = '<div class="phpcode">' . str_replace(
+        array(
+            '&nbsp;',
+            '<br />',
+            '<font color="',
+            '</font>',
+            "\n ",
+            '  '
+        ),
+        array(
+            ' ',
+            "<br />\n",
+            '<span class="',
+            '</span>',
+            "\n&nbsp;",
+            '&nbsp; '
+        ),
+        $highlighted
+    ) . '</div>';
+    
+    if ($return) { return $highlighted; }
+    else { echo $highlighted; }
 }
