@@ -224,7 +224,7 @@ if (intval($id) !== 0) {
  </td></tr></table>
 </form>
 
-<?php if ($row['mirrortype'] == 1) { ?>
+<?php if ($row['mirrortype'] == 1) {  // only allow standard mirror deletions ?>
 <form method="POST" action="<?php echo $PHP_SELF; ?>">
  <input type="hidden" name="id" value="<?php echo $row['id']; ?>" />
  <input type="hidden" name="hostname" value="<?php echo $row['hostname']; ?>" />
