@@ -79,7 +79,7 @@ case 'delete':
   if ($id) {
     if ($result = mysql_query("SELECT * FROM note WHERE id=$id")) {
       $row = mysql_fetch_array($result);
-      if (mysql_query("UPDATE note SET removed=1 WHERE id=$id AND removed != 1")) {
+      if (!$row['removed'] && mysql_query("UPDATE note SET removed=1 WHERE id=$id")) {
         mail("php-notes@lists.php.net","note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user",$row['note'],"From: $user@php.net");
         if ($action == 'reject') {
           $email = clean_antispam($row['user']);
@@ -87,6 +87,10 @@ case 'delete':
             mail($email,"note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."----- Copy of your note below -----\n\n".$row['note'],"From: $user@php.net");
           }
         }
+        echo '<script language="javascript">window.close();</script>';
+        exit;
+      }
+      else ($row['removed']) {
         echo '<script language="javascript">window.close();</script>';
         exit;
       }
