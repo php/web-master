@@ -43,6 +43,7 @@ else {
     fwrite($dest, $RSS);
     fclose($dest);
 }
+touch("$root/news.rss", @filemtime("$root/index.php"));
 
 // Compress mirrorkit dir in backend to mirrorkit.tgz, and
 // then move it to the webspace in case it is properly done
