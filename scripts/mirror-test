@@ -47,7 +47,7 @@ if (is_array($dcheck)) {
       $details = explode(" ", $mirrorinfo);
       $mirrmon[$details[0]] = array($details[1], $details[3]);
     }
-    $doublecheck .= serialize($mirrmon) . "\n\n";
+    $doublecheck .= serialize($dcheck) . "\n\n";
 }
 else {
   $doublecheck = "Double check request failed\n";
