@@ -112,7 +112,8 @@ if (isset($id) && isset($in)) {
       $cvsaccess = $in[cvsaccess] ? 1 : 0;
       $spamprotect = $in[spamprotect] ? 1 : 0;
       $verified = $in[verified] ? 1 : 0;
-	  $use_sa = (int)$in[use_sa];
+      $use_sa = (int)$in[use_sa];
+      $greylist = $in[greylist] ? 1 : 0;
 
       if ($id) {
         # update main table data
@@ -123,7 +124,8 @@ if (isset($id) && isset($in)) {
                  . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
                  . ",verified=$verified"
-				 . ",use_sa=$use_sa"
+                 . ",use_sa=$use_sa"
+                 . ",greylist=$greylist"
                  . " WHERE userid=$id";
           db_query($query);
           if(strlen($in['purpose'])) {
@@ -142,7 +144,8 @@ if (isset($id) && isset($in)) {
                . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
                . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                . ",spamprotect=$spamprotect"
-			   . ",use_sa=$use_sa"
+               . ",use_sa=$use_sa"
+               . ",greylist=$greylist"
                . ",verified=$verified";
         db_query($query);
 
@@ -164,7 +167,12 @@ if ($id) {
 
 if (isset($id)) {
 ?>
-<table>
+<style>
+table.useredit tr {
+   vertical-align: top;
+}
+</style>
+<table class="useredit">
 <form method="post" action="<?php echo $PHP_SELF;?>">
 <input type="hidden" name="id" value="<?php echo $row[userid];?>" />
 <tr>
@@ -214,6 +222,14 @@ if (isset($id)) {
 <tr>
  <th align="right">SpamAssassin threshold</th>
  <td>Block mail scoring <input type="text" name="in[use_sa]" value="<?php echo $row[use_sa] ?>" size="4" maxlength="4"/> or higher in SpamAssassin tests.  Set to 0 to disable.</td>
+</tr>
+<tr>
+ <th align="right">Greylist</th>
+ <td>Delay reception of your incoming mail by a minimum of one hour using a 451 response.<br/>
+  Legitimate senders will continue to try to deliver the mail, whereas
+  spammers will typically give up and move on to spamming someone else.<br/>
+  See <a href="http://projects.puremagic.com/greylisting/whitepaper.html">this whitepaper</a> for more information on greylisting.<br/>
+  <input type="checkbox" name="in[greylist]"<?php echo $row[greylist] ? " checked" : "";?> /> Enable greylisting on my account</td>
 </tr>
 <tr>
  <th align="right">Verified?</th>

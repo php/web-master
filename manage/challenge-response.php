@@ -69,8 +69,10 @@ foreach ($inmates as $prisoner) {
 </table>
 
 <p>
-If you see an address listed here that you are 100% sure is a legitimate sender,
-you may tick the appropriate box and confirm them.
+If you see an address listed here that you are 100% sure is a legitimate
+sender, you may tick the appropriate box and confirm them.  Quarantine is
+processed every 15 minutes; once you have confirmed an address, be prepared to
+wait that long before the mail is delivered.
 </p>
 
 <input type="submit" name="confirm_them" value="Confirm Ticked Senders"/>
