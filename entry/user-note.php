@@ -67,6 +67,7 @@ if (@mysql_query($query)) {
   //$msg .= "Approve Note -- http://master.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
   $msg .= "Delete Note  -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes\n";
   $msg .= "Reject Note  -- http://master.php.net/manage/user-notes.php?action=reject+$new_id&report=yes\n";
+  $msg .= "Search Tool  -- http://master.php.net/manage/user-notes.php\n";
   # make sure we have a return address.
   if (!$user) $user = "php-general@lists.php.net";
   // see who requested an alert
