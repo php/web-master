@@ -152,13 +152,6 @@ while ($row = mysql_fetch_array($res)) {?>
 <?php
 foot();
 
-function show_country_options($cc = "") {
-  $res = @mysql_query("SELECT id,name FROM country ORDER BY name");
-  while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
-    echo "<option value=\"$row[id]\"", $cc == $row['id'] ? " selected" : "", ">$row[name]</option>";
-  }
-}
-
 function show_language_options($lang = "") {
   global $LANGUAGES;
   reset($LANGUAGES);

@@ -1,7 +1,7 @@
 <?php
 
-#$mailto = 'php-mirrors@lists.php.net';
-$mailto = 'jimw@apache.org';
+$mailto = 'php-mirrors@lists.php.net';
+#$mailto = 'jimw@apache.org';
 
 $re = array(
         1 => 'First',

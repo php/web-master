@@ -72,3 +72,10 @@ function show_prev_next($begin,$rows,$skip,$total,$extra=array()) {
 <?php
 }
 
+function show_country_options($cc = "") {
+  $res = @mysql_query("SELECT id,name FROM country ORDER BY name");
+  while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
+    echo "<option value=\"$row[id]\"", $cc == $row['id'] ? " selected" : "", ">$row[name]</option>";
+  }
+}
+
