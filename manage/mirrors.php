@@ -90,49 +90,49 @@ elseif (isset($id)) {
 ?>
 <table>
 <form method="POST" action="<?php echo $PHP_SELF;?>">
-<input type="hidden" name="id" value="<?php echo $row[id];?>" />
+<input type="hidden" name="id" value="<?php echo $row['id'];?>" />
 <?php echo $id ? '<input type="hidden" name="mode" value="update" />' : '<input type="hidden" name="mode" value="insert" />' ; ?>
 <tr>
  <th align="right">Hostname:</th>
- <td><input type="text" name="hostname" value="<?php echo htmlspecialchars($row[hostname]);?>" size="40" maxlength="40" /></td>
+ <td><input type="text" name="hostname" value="<?php echo htmlspecialchars($row['hostname']);?>" size="40" maxlength="40" /></td>
 </tr>
 <tr>
  <th align="right">Active?</th>
- <td><input type="checkbox" name="active"<?php echo $row[active] ? " checked" : "";?> /></td>
+ <td><input type="checkbox" name="active"<?php echo $row['active'] ? " checked" : "";?> /></td>
 </tr>
 <tr>
  <th align="right">Type:</th>
- <td><select name="mirrortype"><?php show_mirrortype_options($row[mirrortype]);?></select></td>
+ <td><select name="mirrortype"><?php show_mirrortype_options($row['mirrortype']);?></select></td>
 </tr>
 <tr>
  <th align="right">Cname:</th>
- <td><input type="text" name="cname" value="<?php echo htmlspecialchars($row[cname]);?>" size="40" maxlength="80" /></td>
+ <td><input type="text" name="cname" value="<?php echo htmlspecialchars($row['cname']);?>" size="40" maxlength="80" /></td>
 </tr>
 <tr>
  <th align="right">Maintainer:</th>
- <td><input type="text" name="maintainer" value="<?php echo htmlspecialchars($row[maintainer]);?>" size="40" maxlength="255" /></td>
+ <td><input type="text" name="maintainer" value="<?php echo htmlspecialchars($row['maintainer']);?>" size="40" maxlength="255" /></td>
 </tr>
 <tr>
  <th align="right">Provider:</th>
- <td><input type="text" name="providername" value="<?php echo htmlspecialchars($row[providername]);?>" size="40" maxlength="255" /></td>
+ <td><input type="text" name="providername" value="<?php echo htmlspecialchars($row['providername']);?>" size="40" maxlength="255" /></td>
 </tr>
 <tr>
  <th align="right">Provider URL (with http://):</th>
- <td><input type="text" name="providerurl" value="<?php echo htmlspecialchars($row[providerurl]);?>" size="40" maxlength="255" /></td>
+ <td><input type="text" name="providerurl" value="<?php echo htmlspecialchars($row['providerur'l]);?>" size="40" maxlength="255" /></td>
 </tr>
 <tr>
  <th align="right">Country:</th>
- <td><select name="cc"><?php show_country_options($row[cc]);?></select></td>
+ <td><select name="cc"><?php show_country_options($row['cc']);?></select></td>
 </tr>
 <tr>
  <th align="right">Language:</th>
- <td><select name="lang"><?php show_language_options($row[lang]);?></select></td>
+ <td><select name="lang"><?php show_language_options($row['lang']);?></select></td>
 <tr>
  <th align="right">Stats?</th>
- <td><input type="checkbox" name="has_stats"<?php echo $row[has_stats] ? " checked" : "";?> /></td>
+ <td><input type="checkbox" name="has_stats"<?php echo $row['has_stats'] ? " checked" : "";?> /></td>
 <tr>
  <th align="right">Search?</th>
- <td><input type="checkbox" name="has_search"<?php echo $row[has_search] ? " checked" : "";?> /></td>
+ <td><input type="checkbox" name="has_search"<?php echo $row['has_search'] ? " checked" : "";?> /></td>
 </tr>
 <tr>
  <td><input type="submit" value="<?php echo $id ? "Change" : "Add";?>" />
@@ -155,18 +155,20 @@ $res = mysql_query("SELECT * FROM mirrors ORDER BY hostname")
  <th>Maintainer</th>
  <th>Provider</th>
  <th>Stats</th>
+ <th>Search</th>
  <th>&nbsp;</th>
 </tr>
 <?php
 $color = '#dddddd';
 while ($row = mysql_fetch_array($res)) {?>
-<tr bgcolor="<?php echo $row[active] ? ($row[mirrortype] == 1 ? $color : substr($color,0,5)."ff") : "#ff".substr($color,3);?>">
+<tr bgcolor="<?php echo $row['active'] ? ($row['mirrortype'] == 1 ? $color : substr($color,0,5)."ff") : "#ff".substr($color,3);?>">
  <td align="center"><a href="<?php echo "$PHP_SELF?id=$row[id]";?>">edit</a></td>
- <td><a href="<?php echo ereg("^(f|ht)tp:",$row[hostname]) ? "" : "http://", htmlspecialchars($row[hostname]);?>"><?php echo htmlspecialchars($row[hostname]);?></a></td>
- <td><?php echo htmlspecialchars($row[maintainer]);?>&nbsp;</td>
- <td><a href="<?php echo htmlspecialchars($row[providerurl]);?>"><?php echo htmlspecialchars($row[providername]);?></a></td>
- <td align="center"><?php echo $row[has_stats] ? "<a href=\"http://$row[hostname]/stats/\">go</a>" : "&nbsp;";?></td>
- <td align="center"><?php echo ($row[mirrortype] == 1) ? "<a href=\"$PHP_SELF?mode=delete&hostname=$row[hostname]&id=$row[id]\">delete</a>" : "&nbsp;";?></td>
+ <td><a href="<?php echo ereg("^(f|ht)tp:",$row['hostname']) ? "" : "http://", htmlspecialchars($row['hostname']);?>"><?php echo htmlspecialchars($row['hostname']);?></a></td>
+ <td><?php echo htmlspecialchars($row['maintainer']);?>&nbsp;</td>
+ <td><a href="<?php echo htmlspecialchars($row['providerur'l]);?>"><?php echo htmlspecialchars($row['providername']);?></a></td>
+ <td align="center"><?php echo $row['has_stats'] ? "<a href=\"http://$row[hostname]/stats/\">go</a>" : "&nbsp;";?></td>
+ <td align="center"><?php echo $row['has_search'] ? "<a href=\"http://$row[hostname]/search.php\">go</a>" : "&nbsp;";?></td>
+ <td align="center"><?php echo ($row['mirrortype'] == 1) ? "<a href=\"$PHP_SELF?mode=delete&hostname=$row[hostname]&id=$row[id]\">delete</a>" : "&nbsp;";?></td>
 </tr>
 <?php
   $color = $color == '#dddddd' ? '#eeeeee' : '#dddddd';
