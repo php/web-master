@@ -133,6 +133,9 @@ function ParseNews ($index_page = "") {
         
         // And the text needs to be cleaned up
         $headlines[$num]['text'] = ProcessText($headline['text']);
+
+        // And date needs to be reformatted
+        $headlines[$num]['date'] = date("Y-m-d", $headline['date']);
     }
     
     return $headlines;
@@ -144,6 +147,7 @@ function GenerateRSSHeader($headlines, &$RSS) {
             "<rdf:RDF\n" .
             "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" .
             "\txmlns=\"http://purl.org/rss/1.0/\"\n" .
+            "\txmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n" .
             ">\n" .
             "<channel rdf:about=\"http://www.php.net/\">\n" .
             "\t<title>PHP: Hypertext Preprocessor</title>\n" .
@@ -166,11 +170,12 @@ function GenerateRSSFooter(&$RSS) {
 }
 
 // Add an RSS item's information to $RSS
-function GenerateRSSItem($href, $title, $text, &$RSS) {
+function GenerateRSSItem($href, $title, $text, $date, &$RSS) {
     $RSS .= "\n<item rdf:about=\"$href\">\n" .
             "\t<title>" . htmlspecialchars($title) . "</title>\n" .
             "\t<link>" . htmlspecialchars($href) . "</link>\n" .
             "\t<description>" . htmlspecialchars($text) . "</description>\n" .
+            "\t<dc:date>" . $date . "</dc:date>\n" .
             "</item>\n";
 }
 
@@ -191,7 +196,7 @@ $RSS .= "<!-- RSS-Items -->\n";
 
 // Add every news item to the feed
 foreach ($hlines as $hline) {
-    GenerateRSSItem($hline['link'], $hline['title'], $hline['text'], $RSS);
+    GenerateRSSItem($hline['link'], $hline['title'], $hline['text'], $hline['date'], $RSS);
 }
 
 // Add end separator
