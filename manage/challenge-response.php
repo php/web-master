@@ -20,7 +20,7 @@ if (isset($_POST['confirm_them']) && is_array($_POST['confirm'])) {
 	}
 }
 
-$res = db_query("select distinct sender from phpmasterdb.users left join accounts.quarantine on users.email = rcpt where username='$user'");
+$res = db_query("select distinct sender from phpmasterdb.users left join accounts.quarantine on users.email = rcpt where username='$user' and not isnull(id)");
 
 $inmates = array();
 while ($row = mysql_fetch_array($res)) {
