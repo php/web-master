@@ -1,27 +1,49 @@
 #!/usr/local/bin/php -q
 <?php /* vim: set noet ts=2 sw=2 ft=php3: : */
 
+// We protect the master server with this token, so
+// only who knows the token can fetch data from the server
 $token = getenv("TOKEN");
 if (!$token) die("you have to set the TOKEN environment variable");
 $token = rawurlencode($token);
 
+// We need the root path for phpweb to write the data there
 if (!$argv[1]) die("usage: $argv[0] directory\n");
-
 $root = $argv[1];
 
-/* get mirrors list */
+// This script may run for a long time,
+// due to remote data fetching
+set_time_limit(30 * 60);
+
+// Get list of mirror sites
 fetch_into_file("http://master.php.net/fetch/mirrors.php?token=$token",
                 "$root/include/mirrors.inc");
 
-/* get countries list */
+// Get list of countries
 fetch_into_file("http://master.php.net/fetch/countries.php?token=$token",
                 "$root/include/countries.inc");
 
-/* get upcoming events */
+// Get list of upcoming events
 fetch_into_file("http://master.php.net/fetch/events.php?nm=3&token=$token",
                 "$root/backend/events.csv");
 
-/* create RSS news feed file */
+// Get last modified date of ip-to-country data
+$ipdb = "$root/backend/ip-to-country.db";
+if (file_exists($ipdb)) { $lastmod = filemtime($ipdb); }
+else { $lastmod = 0; }
+
+// Fetch data from server to local temporary file
+fetch_into_file("http://www.directi.com/iptocountry/?site=php.net&dbformat=1&lastupdate=" . $lastmod,
+                "ip-to-country.db");
+
+// If the file contains more then a 'no updates' message,
+// then we expect it to be real ip-to-country data, and
+// move the file to the right place
+if (@filesize("ip-to-country.db") > strlen("no updates")) {
+    rename("ip-to-country.db", $ipdb);
+}
+                                
+// Create RSS news feed file
 $dest = fopen("$root/news.rss", "w");
 if (!$dest) { echo "failed to open $root/news.rss for writing"; }
 else {
@@ -30,34 +52,45 @@ else {
     fclose($dest);
 }
 
-function fetch_into_file($url,$file) {
-  $source = @fopen($url,"r");
-  if (!$source) {
-    return;
-  }
-
-  $dest = @fopen("$file~","w");
-  if (!$dest) {
-    echo "failed to open '$file~' for writing\n";
-    return;
-  }
-
-  while (!feof($source)) {
-    $chunk = fread($source,4096);
-    if (fwrite($dest,$chunk) < 0) {
-      fclose($source); fclose($dest);
-      unlink("$file~");
-      echo "failed writing to '$file~'\n";
-      return;
+// Fetch data into a temporary file first, and then
+// overwrite the real file with the new data
+function fetch_into_file($url, $file)
+{
+    // Open URL for reading
+    $source = @fopen($url, "r");
+    if (!$source) {
+        return;
     }
-  }
-  fclose($source); fclose($dest);
 
-  if (!@filesize("$file~")) {
-    echo "'$file~' was empty, skipping\n";
-    unlink("$file~");
-    return;
-  }
+    // Open temporary file for writing
+    $dest = @fopen("$file~", "w");
+    if (!$dest) {
+        echo "failed to open '$file~' for writing\n";
+        return;
+    }
+
+    // Read until $source provides data, and write
+    // out the chunk to the output file if possible
+    while (!feof($source)) {
+        $chunk = fread($source, 4096);
+        if (fwrite($dest, $chunk) < 0) {
+            fclose($source);
+            fclose($dest);
+            unlink("$file~");
+            echo "failed writing to '$file~'\n";
+            return;
+        }
+    }
+    fclose($source);
+    fclose($dest);
+
+    // If we don't have new data, delete file
+    if (!@filesize("$file~")) {
+        echo "'$file~' was empty, skipping\n";
+        unlink("$file~");
+        return;
+    }
   
-  return rename("$file~",$file);
+    // Replace real file with temporary file
+    return rename("$file~", $file);
 }
