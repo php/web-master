@@ -425,9 +425,9 @@ $summary .= '</table></div>';
 arsort($stats['phpversion']);
 $versions = "";
 foreach($stats['phpversion'] as $version => $amount) {
-    $versions .= "<strong>$version</strong>: $amount,";
+    $versions .= "<strong>$version</strong>: $amount, ";
 }
-$versions = substr($versions, 0, -1);
+$versions = substr($versions, 0, -2);
 
 echo <<<EOS
 <p>
