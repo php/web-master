@@ -47,6 +47,17 @@ distributed in an attempt to better improve them.</p>
     <td><a href="#pair1df">#</a></td>
     <td><a href="#pair1up">#</a></td>
     <td>lists/cvs/pear/lxr/bonsai/news</td>
+    <td>pear</td>
+  </tr>
+  <tr>
+    <td><a href="#pair1"><b>new</b> pair1.php.net</a></td>
+    <td>dual p3/1GHz</td>
+    <td>512MB</td>
+  <td><a href="#pair1free">#</a></td>
+    <td><a href="#pair1top">#</a></td>
+    <td><a href="#pair1df">#</a></td>
+    <td><a href="#pair1up">#</a></td>
+    <td></td>
     <td>cvs/db/master/cvsweb (?)</td>
   </tr>
   <tr> 
@@ -60,16 +71,27 @@ distributed in an attempt to better improve them.</p>
     <td>mx</td>
     <td>lists/mx/news</td>
   </tr>
+  <tr>
+    <td><a href="#pair1"><b>new</b> pair2.php.net</a></td>
+    <td>dual p3/1GHz</td>
+    <td>512MB</td>
+  <td><a href="#pair1free">#</a></td>
+    <td><a href="#pair1top">#</a></td>
+    <td><a href="#pair1df">#</a></td>
+    <td><a href="#pair1up">#</a></td>
+    <td></td>
+    <td>lists/mx/news</td>
+  </tr>
   <tr> 
     <td>pair3.php.net</td>
-    <td>???</td>
-    <td>???</td>
+    <td>dual p3/1Ghz</td>
+    <td>512MB</td>
     <td>???</td>
     <td>&nbsp;</td>
     <td>???</td>
     <td>???</td>
     <td>n/a</td>
-    <td>pear</td>
+    <td>old pair1.php.net.. pear</td>
   </tr>
   <tr> 
     <td><a href="#rn1">rn1.php.net</a></td>
