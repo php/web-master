@@ -291,22 +291,31 @@ $res = mysql_query("SELECT mirrors.*,
  automatically every hour, there is no direct manual way to start a check.
 </p>
 
-<div align="center">
-<table border="0" cellspacing="0" cellpadding="3" id="mirrors">
 <?php
+
+// Start table
+$summary = '<div align="center">
+<table border="0" cellspacing="0" cellpadding="3" id="mirrors">';
 
 // Previous country code
 $prevcc = "n/a";
 
+$stats = array(
+    'mirrors' => mysql_num_rows($red)
+);
+
 // Go through all mirror sites
 while ($row = mysql_fetch_array($res)) {
     
+    // Collect statistical information
+    $stats['phpversion'][$row['phpversion']++;
+    
     // Print separator row
-    echo '<tr><td colspan="7"></td></tr>' . "\n";
+    $summary .= '<tr><td colspan="7"></td></tr>' . "\n";
 
     // Print out a country header, if a new country is found
     if ($prevcc != $row['cc']) {
-        echo '<tr><th colspan="7">' . $row['countryname'] . "</th></tr>\n";
+        $summary .= '<tr><th colspan="7">' . $row['countryname'] . "</th></tr>\n";
     }
     $prevcc = $row['cc'];
 
@@ -323,6 +332,7 @@ while ($row = mysql_fetch_array($res)) {
         else {
             // Not up to date or not current
             if (!$row['up'] || !$row['current']) {
+                $stats['autodisabled']++;
                 $siteimage = "error";
                 if (!empty($row['ocmt'])) {
                     $errorinfo = $row['ocmt'] . " (last accessed: " .
@@ -345,6 +355,7 @@ while ($row = mysql_fetch_array($res)) {
         $siteimage = "deactivated";
         if (!empty($row['ocmt']))     { $errorinfo = $row['ocmt']; }
         elseif (!empty($row['acmt'])) { $errorinfo = $row['acmt']; }
+        $stats['disabled']++;
     }
 
     // See what needs to be printed out as search info
@@ -353,6 +364,7 @@ while ($row = mysql_fetch_array($res)) {
     if (in_array($row['has_search'], array("1", "2"))) {
         $searchcell .= "<a href=\"http://$row[hostname]/search.php\" target=\"_blank\">" .
                        "<img src=\"/images/mirror_search.png\" /></a>";
+        $stats['has_search']++;
     }
     if ($row['has_search'] == "2") { $searchcell .= ')'; }
     if (!$searchcell) { $searchcell = "&nbsp;"; }
@@ -362,6 +374,7 @@ while ($row = mysql_fetch_array($res)) {
     if ($row['has_stats'] == "1") {
         $statscell = "<a href=\"http://$row[hostname]/stats/\" target=\"_blank\">" .
                      "<img src=\"/images/mirror_stats.png\" /></a>";
+        $stats['has_stats']++;
     }
 
     // Maintainer contact information cell
@@ -377,43 +390,48 @@ while ($row = mysql_fetch_array($res)) {
     }
 
     // Mirror status information
-    echo "<tr bgcolor=\"#e0e0e0\">\n" .
-         "<td bgcolor=\"#ffffff\" align=\"right\">\n" .
-         "<img src=\"/images/mirror_{$siteimage}.png\" /></td>\n";
+    $summary .= "<tr bgcolor=\"#e0e0e0\">\n" .
+                "<td bgcolor=\"#ffffff\" align=\"right\">\n" .
+                "<img src=\"/images/mirror_{$siteimage}.png\" /></td>\n";
 
     // Print out mirror site link
-    echo '<td><a href="http://' . $row['hostname'] . '/" target="_blank">' .
-         $row['hostname'] . '</a><br /></td>' . "\n";
+    $summary .= '<td><a href="http://' . $row['hostname'] . '/" target="_blank">' .
+                $row['hostname'] . '</a><br /></td>' . "\n";
 
     // Print out mirror provider information
-    echo '<td><a href="' . $row['providerurl'] . '">' .
-         $row['providername'] . '</a><br /></td>' . "\n";
+    $summary .= '<td><a href="' . $row['providerurl'] . '">' .
+                $row['providername'] . '</a><br /></td>' . "\n";
 
     // Print out maintainer email cell
-    echo '<td align="right">' . $emailcell . '</td>' . "\n";
+    $summary .= '<td align="right">' . $emailcell . '</td>' . "\n";
 
     // Print out mirror search table cell
-    echo '<td align="center">' . $searchcell . '</td>' . "\n";
+    $summary .= '<td align="center">' . $searchcell . '</td>' . "\n";
 
     // Print out mirror stats table cell
-    echo '<td align="right">' . $statscell . '</td>' . "\n";
+    $summary .= '<td align="right">' . $statscell . '</td>' . "\n";
 
     // Print out mirror edit link
-    echo '<td align="right"><a href="mirrors.php?id=' . $row['id'] .
-         '"><img src="/images/mirror_edit.png"></a></td>' . "\n";
+    $summary .= '<td align="right"><a href="mirrors.php?id=' . $row['id'] .
+                '"><img src="/images/mirror_edit.png"></a></td>' . "\n";
 
     // End of row
-    echo '</tr>';
+    $summary .= '</tr>';
 
     // If any info on the error of this mirror is available, print it out
     if ($errorinfo) {
-        echo "<tr><tr bgcolor=\"#e0e0e0\"><td bgcolor=\"#ffffff\"></td>" .
-             "<td colspan=\"6\"><img src=\"/images/mirror_info.png\" /> " .
-             "$errorinfo</td></tr>";
+        $summary .= "<tr><tr bgcolor=\"#e0e0e0\"><td bgcolor=\"#ffffff\"></td>" .
+                    "<td colspan=\"6\"><img src=\"/images/mirror_info.png\" /> " .
+                    "$errorinfo</td></tr>";
     }
 }
+
+$summary .= '</table></div>';
+
+// Print out mirror statistics and the summary table 
+echo '<pre>'; var_dump($stats); echo '</pre>' . $summary;
+
 ?>
-</table></div>
 <p><a href="<?php echo $PHP_SELF;?>?id=0">Add a new mirror</a></p>
 <?php
 
