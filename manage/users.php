@@ -111,6 +111,7 @@ if (isset($id) && isset($in)) {
       }
       $cvsaccess = $in[cvsaccess] ? 1 : 0;
       $spamprotect = $in[spamprotect] ? 1 : 0;
+      $verified = $in[verified] ? 1 : 0;
 
       if ($id) {
         # update main table data
@@ -120,8 +121,14 @@ if (isset($id) && isset($in)) {
                  . ((is_admin($user) && $in[username]) ? ",username='$in[username]'" : "")
                  . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
+                 . ",verified=$verified"
                  . " WHERE userid=$id";
           query($query);
+          if(strlen($in['purpose'])) {
+              $purpose = addslashes($in['purpose']);
+              $query = "INSERT INTO users_note (userid, note, entered) VALUES ($id, '$purpose', NOW())";
+              query($query);
+          }
         }
 
         warn("record $id updated");
@@ -132,7 +139,8 @@ if (isset($id) && isset($in)) {
                . ($in[username] ? ",username='$in[username]'" : "")
                . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
                . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
-               . ",spamprotect=$spamprotect";
+               . ",spamprotect=$spamprotect"
+               . ",verified=$verified";
         query($query);
 
         $nid = mysql_insert_id();
@@ -196,7 +204,15 @@ if (isset($id)) {
  <td><input type="checkbox" name="in[spamprotect]"<?php echo $row[spamprotect] ? " checked" : "";?> /></td>
 </tr>
 <tr>
- <td><input type="submit" value="<?php echo $id ? "Change" : "Add";?>" />
+ <th align="right">Verified?</th>
+ <td><input type="checkbox" name="in[verified]"<?php echo $row[verified] ? " checked" : "";?> /></td>
+</tr>
+<tr>
+ <th align="right">Add Note: </th>
+ <td><textarea cols="50" rows="5" name="in[purpose]"></textarea></td>
+</tr>
+<tr>
+ <td><input type="submit" value="<?php echo $id ? "Update" : "Add";?>" />
 </tr>
 </form>
 <?php if (is_admin($user) && !$row[cvsaccess]) {?>
