@@ -17,7 +17,7 @@ what services they provide.</p>
 
 <p><b>machine:</b> dual p3/650, 512MB RAM, 40.9GB HD, redhat 6.1</p>
 
-<p><b>aliases:</b> www.php.net, bugs.php.net, conf.php.net, gtk.php.net</p>
+<p><b>aliases:</b> www.php.net, bugs.php.net, conf.php.net, gtk.php.net, qa.php.net</p>
 
 <h2>pair1.php.net (216.92.131.4)</h2>
 
@@ -33,13 +33,13 @@ what services they provide.</p>
 
 <p><b>machine:</b> dual p3/650, 1GB RAM, 33GB HD, redhat 7.1</p>
 
-<p><b>aliases:</b> download.php.net, snaps.php.net</p>
+<p><b>aliases:</b> download.php.net</p>
 
 <h2>va1.php.net (198.186.203.51)</h2>
 
 <p><b>machine:</b> dual p3/650, 1 GB RAM, 130GB HD, debian-stable</p>
 
-<p><b>aliases:</b> rsync.php.net</p>
+<p><b>aliases:</b> rsync.php.net, snaps.php.net</p>
 
 <p>originally compiled by jim winstead, september 2001</p>
 
