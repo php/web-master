@@ -50,8 +50,10 @@ with your CVS account, feel free to send us a note at group@php.net.";
       mail($userinfo[email],"CVS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>");
 
       mail($mailto,"CVS Account Request: $userinfo[username] approved by $user","","From: PHP Group <group@php.net>");
-      echo '<script language="javascript">window.close();</script>';
-      exit;
+      if (!$noclose) {
+        echo '<script language="javascript">window.close();</script>';
+        exit;
+      }
     }
     else {
       warn("wasn't able to grant cvs access to id $id.");
@@ -61,8 +63,10 @@ with your CVS account, feel free to send us a note at group@php.net.";
     if (mysql_query("DELETE FROM users WHERE userid=$id")
      && mysql_affected_rows()) {
       mysql_query("DELETE FROM users_note WHERE userid=$id");
-      echo '<script language="javascript">window.close();</script>';
-      exit;
+      if (!$noclose) {
+        echo '<script language="javascript">window.close();</script>';
+        exit;
+      }
     }
     else {
       warn("wasn't able to delete id $id.");
@@ -173,7 +177,10 @@ if (isset($id)) {
 ?>
 <table width="100%">
  <tr>
-  <td><a href="<?php echo "$PHP_SELF?username=$user";?>">edit your entry</a></td>
+  <td>
+    <a href="<?php echo "$PHP_SELF?username=$user";?>">edit your entry</a>
+  | <a href="<?php echo "$PHP_SELF?unapproved=1";?>">see outstanding requests</a>
+  </td>
   <td align="right">
    <form method="GET" action="<?php echo $PHP_SELF;?>">
     <input type="text" name="search" value="<?php echo clean($search);?>" />
@@ -191,6 +198,7 @@ $limit = "LIMIT $begin,$max";
 $orderby = $order ? "ORDER BY $order" : "";
 
 $searchby = $search ? "WHERE MATCH(name,email,username) AGAINST ('$search') OR MATCH(note) AGAINST ('$search')" : "";
+if (!$searchby && $unapproved) $searchby = 'WHERE username IS NOT NULL AND NOT cvsaccess';
 
 $query = "SELECT DISTINCT COUNT(users.userid) FROM users";
 if ($searchby)
@@ -230,7 +238,7 @@ while ($row = mysql_fetch_array($res)) {
  <td align="center"><a href="<?php echo "$PHP_SELF?id=$row[userid]";?>">edit</a></td>
  <td><?php echo htmlspecialchars($row[name]);?></td>
  <td><?php echo htmlspecialchars($row[email]);?></td>
- <td<?php if ($row[username] && !$row[cvsaccess]) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row[username]);?></td>
+ <td<?php if ($row[username] && !$row[cvsaccess]) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row[username]);?><?php if ($row[username] && !$row[cvsaccess]) echo " <a href=\"$PHP_SELF?action=approve&amp;noclose=1&amp;id=$row[id]\" title=\"approve\">+</a>";?></td>
 </tr>
 <?php
   if ($full && $row[note]) {?>
