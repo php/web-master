@@ -33,7 +33,7 @@ at <http://www.php.net/support.php>.
 
 Your note has been removed from the on-line manual.';
 
-if (!isset($action)) header("Location: http://www.php.net/");
+
 
 if($user && $pass) {
   setcookie("MAGIC_COOKIE",base64_encode("$user:$pass"),time()+3600*24*12,'/','.php.net');
@@ -47,7 +47,10 @@ if (!$user || !$pass || !verify_password($user,$pass)) {
   head();?>
 <p>You have to log in first.</p>
 <form method="post" action="<?php echo $PHP_SELF;?>">
-<input type="hidden" name="action" value="<?php echo clean($action);?>" />
+<?php
+if (isset($action))
+  echo '<input type="hidden" name="action" value="' . clean($action) . '" />';
+?>
 <table>
  <tr>
   <th align="right">CVS username:</th>
@@ -68,6 +71,62 @@ if (!$user || !$pass || !verify_password($user,$pass)) {
   foot();
   exit;
 }
+
+if (!isset($action)) {
+  // search !
+  head();
+
+  if (isset($keyword)) {
+    $sql = 'SELECT * FROM note WHERE note LIKE "%' . addslashes($keyword) . '%" LIMIT 20';
+    @mysql_connect("localhost","nobody","")
+      or die("unable to connect to database");
+    @mysql_select_db("php3")
+      or die("unable to select database");
+
+    if ($result = mysql_query($sql)) {
+      if (mysql_num_rows($result) != 0) {
+        while ($row = mysql_fetch_assoc($result)) {
+          $id = $row['id'];
+          echo "<p class=\"notepreview\">",clean_note(stripslashes($row['note'])),
+            "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
+            clean($row['user']),"</span>",
+            "<a href=\"http://master.php.net/manage/user-notes.php?action=edit+$id\" target=\"_blank\">Edit Note</a><br />",
+            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id\" target=\"_blank\">Delete Note</a><br />",
+            "<a href=\"http://master.php.net/manage/user-notes.php?action=reject+$id\" target=\"_blank\">Reject Note</a>",
+            "</p>";
+        }
+      } else {
+        echo "no results<br />";
+      }
+    } else {
+      echo "<p>An unknown error occured. Try again later.</p><pre>",mysql_error(),"</pre>";
+      foot();
+      exit;
+    }
+  }
+?>
+<p>Search the notes table.</p>
+<form method="post" action="<?php echo $PHP_SELF;?>">
+<table>
+ <tr>   
+  <th align="right">Keyword :</th>
+  <td><input type="text" name="keyword" value="" size="10" maxlength="32" /></td>
+ </tr>
+ <tr> 
+  <td align="center" colspan="2">
+    <input type="submit" value="Search" />
+  </td>
+ </tr>
+</table>
+</form>
+<?php
+foot();
+exit;
+}
+// end search
+
+
+
 
 if (preg_match("/^(.+)\\s+(\\d+)\$/", $action, $m)) {
   $action = $m[1]; $id = $m[2];
