@@ -7,7 +7,8 @@ $passwd_file = "/repository/CVSROOT/passwd";
 function find_password($user) {
 	global $passwd_file, $ignore_password;
 	if ($ignore_password) return " "; // can't be ""
-	$fp=fopen($passwd_file,"r");
+	$fp = fopen($passwd_file, "r");
+	if (!$fp) { die("unable to open CVS users file"); }
 	while(!feof($fp)) {
 		$line=fgets($fp,120);
 		list($luser,$passwd,$junk) = explode(":",$line);
