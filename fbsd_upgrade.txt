@@ -28,15 +28,28 @@
         Ensure that SMP and APIC_IO are only set, if the machine has
         multiple processors.  A SMP kernel will not boot on an UP
         machine. "sysctl hw.ncpu" will tell you the number of CPUs.
-	
-     8. make buildworld
 
-     9. make buildkernel installkernel KERNCONF=NEWPB1 
+     8. Clean up:
+     
+        rm -rf /usr/obj
+        
+     9. nohup make buildworld -jX &
+
+        where X is <number of cpus + 1>
+
+    10. make buildkernel installkernel KERNCONF=NEWPB1 
 
         Adapt kernel config name as necessary.
 
-    10. Reboot.
+    11. Take a snapshot of the running processes/services:
 
-    11. make installworld
-
+        ps ax > /root/pslist-old
+    
     12. Reboot.
+
+    13. make installworld
+
+    14. Reboot.
+
+    15. Compare the current process list with the saved one.  Ensure
+        that all services which ran before are running now.
