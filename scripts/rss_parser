@@ -111,7 +111,7 @@ function ParseNews ($index_page = "") {
                 #DEBUG# print "Title: $matches[1]<br />";
                 
             // Dates are below the headline title
-            } elseif (preg_match('/<font.*>\[(\d+)-(\S*)-(\d+)\]<\/font>/', $line, $matches)) {
+            } elseif (preg_match('/<span.*>\[(\d+)-(\S*)-(\d+)\]<\/span>/', $line, $matches)) {
                 
                 $headlines[$headlineid]['date'] = mktime(1,1,1, $mos[$matches[2]], $matches[1], $matches[3]);
                 #DEBUG# print "Date: $matches[1] $matches[2] $matches[3]<br />";
