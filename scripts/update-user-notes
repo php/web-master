@@ -13,6 +13,7 @@ $since = $argv[2];
 
 /* get user notes */
 $fp = fopen("http://master.php.net/fetch/user-notes.php?token=$token".($since?"&since=$since":""),"r");
+if (!$fp) die("unable to connect to master to get notes");
 
 $count = 0;
 
