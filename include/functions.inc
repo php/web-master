@@ -36,7 +36,7 @@ function head($title="") {?>
  <link rel="stylesheet" type="text/css" href="/style.css" />
 </head>
 <div id="header">
-<div id="logo"><a href="http://www.php.net/"><img src="/include/logo.gif" width="53" height="28" border="0" alt="php" /></a></div>
+<div id="logo"><a href="http://www.php.net/"><img src="/include/logo.gif" width="53" height="28" border="0" alt="php" align="absmiddle" /></a></div>
 <div id="links">
        <a href="/manage/event.php">events</a>
 &bull; <a href="/inventory.php">inventory</a>
