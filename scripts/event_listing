@@ -14,8 +14,8 @@ function pregenerate_events($csvfile, $outfile)
     if (!$out) { die("unable to pregenerate events list to '$outfile~'"); }
 
     // Read in events CSV file
-    $csv = @fopen($cvsfile, "r");
-    if (!$csv) { die("unable to open $cvsfile for reading"); }
+    $csv = @fopen($csvfile, "r");
+    if (!$csv) { die("unable to open $csvfile for reading"); }
 
     // Current month number, current category and categories list
     $cm = $ccat = 0;
