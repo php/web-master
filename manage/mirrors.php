@@ -268,12 +268,7 @@ $res = mysql_query("SELECT mirrors.*,
  <h1>Resources</h1>
  <a href="http://php.net/mirroring.php" target="_blank">Guidelines</a><br />
  <a href="mailto:mirrors@php.net">Mailing list</a><br />
- <a href="http://www.iana.org/cctld/cctld-whois.htm" target="_blank">Country TLDs</a><br />
- <h1>Legend</h1>
- <img src="/images/mirror_ok.png" /> Properly working<br />
- <img src="/images/mirror_special.png" /> Special site<br />
- <img src="/images/mirror_deactivated.png" /> Deactivated<br />
- <img src="/images/mirror_error.png" /> Outdated or inaccessible<br />
+ <a href="http://www.iana.org/cctld/cctld-whois.htm" target="_blank">Country TLDs</a>
  <h1>Last check time</h1>
  <?php echo gmdate("Y/m/d H:i:s", $checktime); ?> GMT
 </div>
@@ -428,12 +423,29 @@ while ($row = mysql_fetch_array($res)) {
 
 $summary .= '</table></div>';
 
-// Print out mirror statistics and the summary table 
-echo '<pre>'; var_dump($stats); echo '</pre>' . $summary;
+// Sort in reverse PHP version order and produce string
+arsort($stats['phpversion']);
+$versions = "";
+foreach($stats['phpversion'] as $version => $amount) {
+    $versions .= "<strong>$version</strong>: $amount,";
+}
+$versions = substr($versions, 0, -1);
 
-?>
-<p><a href="<?php echo $PHP_SELF;?>?id=0">Add a new mirror</a></p>
-<?php
+echo <<<EOS
+<p>
+ Total number of mirrors: {$stat['mirrors']} of which {$stat['disabled']} is manually
+ disabled (<img src="/images/mirror_deactivated.png" />) and {$stat['autodisabled']}
+ is automatically disabled (<img src="/images/mirror_error.png" />). Other sites are
+ properly working (<img src="/images/mirror_ok.png" />) Of all the sites,
+ {$stat['has_search']} has onsite search support (<img src="/images/mirror_search.png" />)
+ and {$stat['has_stats']} has stats support (<img src="/images/mirror_stats.png" />).
+ The PHP versions used on the sites are {$versions}.
+</p>
+
+$summary
+
+<p><a href="/manage/mirrors.php?id=0">Add a new mirror</a></p>
+EOS;
 
 // Print out footer (end of script run)
 foot();
