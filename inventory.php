@@ -50,17 +50,22 @@ resuming use of the machine to make sure we don't exceed those limits.</p>
 <p><b>stats:</b> MRTG stats (traffic, load avg, cpu usage, etc) are 
 available <a href="http://www.php.net/~imajes/mrtg/">here</a>.</p>
 
-<h2>va1.php.net (198.186.203.51)</h2>
+<h2>rn1.php.net (12.165.50.194)</h2>
 
-<p><b>machine:</b> dual p3/650, 1 GB RAM, 130GB HD, debian-stable</p>
+<p><b>machine:</b> Compaq DL380-G2 1.1GHz, 1GB RAM, 6x36GB SCSI HDs in RAID5 resulting in a 167GB cluster.</p>
 
 <p><b>aliases:</b> rsync.php.net, snaps.php.net</p>
 
-<p><b>notes:</b> this machine generates the online manuals. daily backups of
+<p><b>notes:</b> this machine resides in Reno, Nevada. A second machine in Raleigh, NC will be online soon as a mirror of 
+this box. This allows for absolute failover redundancy, and the possibilty of internal linkage. This box is quite a monster,
+ so having failover allows us the possibility to experiment with various distributed setups.</p>
+
+
+<!-- this machine generates the online manuals. daily backups of
 the cvs repository and the rsync modules are done. cricket also runs on this
-machine to track the usage of all of the machines.</p>
+machine to track the usage of all of the machines.</p> -->
 
 <p>originally compiled by jim winstead, september 2001</p>
-<p>last update: $Date$</p>
+<p>last update: $Id$</p>
 <?php
 foot();
