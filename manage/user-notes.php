@@ -7,7 +7,7 @@ include_once 'functions.inc';
 include_once 'email-validation.inc';
 //require_once 'alert_lib.inc'; // remove comment if alerts are needed
 
-$mailto = $mailfrom = "php-notes@lists.php.net";
+define("NOTES_MAIL", "php-notes@lists.php.net");
 
 $reject_text =
 'You are receiving this email because your note posted
@@ -119,19 +119,19 @@ if (preg_match("/^(.+)\\s+(\\d+)\$/", $action, $m)) {
 switch($action) {
 case 'approve':
   if ($id) {
-    if ($result = db_query("SELECT * FROM note WHERE id=$id")) {
-      if (!mysql_num_rows ($result)) {
-      	die ("Note #$id doesn't exist.  It has probably been deleted/rejected already");
-      }
-      
-      $row = mysql_fetch_array ($result);
+    if ($row = note_get_by_id($id)) {
       
       if ($row['status'] != 'na') {
       	die ("Note #$id has already been approved");
       }
       
       if ($row['id'] && db_query("UPDATE note SET status=NULL WHERE id=$id")) {
-        mail ($mailto, "note $row[id] approved from $row[sect] by $user", "This note has been approved and will appear in the manual\n\n----\n\n".$row['note'], "From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
+        note_mail_on_action(
+            $user,
+            $id,
+            "note {$row['id']} approved from {$row['sect']} by $user",
+            "This note has been approved and will appear in the manual.\n\n----\n\n{$row['note']}"
+        );
       }
       
       print "Note #$id has been approved and will appear in the manual";
@@ -141,18 +141,20 @@ case 'approve':
 case 'reject':
 case 'delete':
   if ($id) {
-    if ($result = db_query("SELECT * FROM note WHERE id=$id")) {
-      if (!mysql_num_rows ($result)) {
-      	die ("Note #$id doesn't exist.  It has probably been deleted/rejected already");
-      }
+    if ($row = note_get_by_id($id)) {
       
-      $row = mysql_fetch_array($result);
       if ($row['id'] && db_query("DELETE FROM note WHERE id=$id")) {
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
-        mail($mailto,"note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user","Note Submitter: $row[user]\n\n----\n\n".$row['note'],"From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
+        $action_taken = ($action == "reject" ? "rejected" : "deleted");
+        note_mail_on_action(
+            $user,
+            $id,
+            "note {$row['id'}] $action_taken from {$row['sect']} by $user",
+            "Note Submitter: {$row['user']}\n\n----\n\n{$row['note']}"
+        );
         if ($action == 'reject') {
-          mail_user($row['user'], $mailfrom, "note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
+          note_mail_user($row['user'], "note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
         }
       }
       
@@ -175,12 +177,7 @@ case 'edit':
       head();
     }
 
-    if ($result = db_query("SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id=$id")) {
-      if (!mysql_num_rows ($result)) {
-      	die ("Note #$id doesn't exist.  It has probably been deleted/rejected already");
-      }
-      $row = mysql_fetch_array($result);
-    }
+    $row = note_get_by_id($id);
 
     $email = isset($email) ? $email : addslashes($row['user']);
     $sect = isset($sect) ? $sect : addslashes($row['sect']);
@@ -190,9 +187,14 @@ case 'edit':
 
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
-        mail($mailto,"note $row[id] modified in $row[sect] by $user",stripslashes($note)."\n\n--was--\n$row[note]\n\nhttp://www.php.net/manual/en/$row[sect].php","From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
+        note_mail_on_action(
+            $user,
+            $id,
+            "note {$row['id']} modified in {$row['sect']} by $user",
+            stripslashes($note)."\n\n--was--\n{$row['note']}\n\nhttp://php.net/manual/en/{$row['sect']}.php"
+        );
         if (addslashes($row["sect"]) != $sect) {
-          mail_user($email, $mailfrom, "note $id moved from $row[sect] to $sect by notes editor $user", "----- Copy of your note below -----\n\n".stripslashes($note));
+          note_mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $user", "----- Copy of your note below -----\n\n".stripslashes($note));
         }
         header('Location: user-notes.php?id=' . $id . '&was=' . $action);
         exit;
@@ -301,7 +303,7 @@ function highlight_php($code, $return = FALSE)
 }
 
 // Send out a mail to the note submitter, with an envelope sender ignoring bounces
-function mail_user($mailto, $mailfrom, $subject, $message)
+function note_mail_user($mailto, $subject, $message)
 {
     $email = clean_antispam($email);
     if (is_emailable_address($email)) {
@@ -309,8 +311,27 @@ function mail_user($mailto, $mailfrom, $subject, $message)
             $mailto,
             $subject,
             $message,
-            "From: $mailfrom",
+            "From: ". NOTES_MAIL,
             "-fbounces-ignored@php.net"
         );
     }
+}
+
+// Return data about a note by its ID
+function note_get_by_id($id)
+{
+    $id = intval($id);
+    if ($result = db_query("SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id='$id'")) {
+        if (!mysql_num_rows($result)) {
+            die("Note #$id doesn't exist. It has probably been deleted/rejected already.");
+        }
+        return mysql_fetch_assoc($result);
+    }
+    return FALSE;
+}
+
+// Sends out a notification to the mailing list when
+// some action is performed on a user note.
+function note_mail_on_action($user, $id, $subject, $body) {
+    mail(NOTES_MAIL, $subject, $body, "From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
 }
