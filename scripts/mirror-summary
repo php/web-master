@@ -103,9 +103,6 @@ $inactives_text = "Hi!\n\nOur automatic mirror site check was unable to reach\n"
                  ."questions, if you think that the problem is not on your side.\n\n"
                  ."Mail sent out by the PHP.net automatic mirror site monitoring system";
 
-// This is just to test...
-$inactives['goba'] = 'Goba <goba@php.net>';
-                 
 // Send mail to all inactive mirror maintainers
 foreach ($inactives as $hostname => $maintainer) {
     mail($maintainer, "$hostname mirror site deactivated", $inactives_text, "From: php-mirrors@lists.php.net");
