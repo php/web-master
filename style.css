@@ -2,7 +2,7 @@ div#header {
   background: #dde;
   border: 2px solid #669;
   padding: 2px 4px;
-  width: 98%;
+  width: 100%;
 }
 div#header div#logo {
   display: inline;
@@ -42,4 +42,8 @@ div#resources ul {
 /* Mirrors table */
 table#mirrors {
   clear: both;
+}
+
+img {
+  border: 0px;
 }
