@@ -80,13 +80,10 @@ for ($i=0; $i < $total; $i++) {
         } else {
                 $hosts[$i]['active'] = true;
         }
-	if(strlen($rv > 40)) {
-		$hosts[$i]['error'] = true;
-	}
 	$info = explode("|", $rv);
 	$hosts[$i]['phpversion'] = $info['1'];
 	$hosts[$i]['lastupdate'] = $info['2'];
-	$hosts[$i]['xtra'] = $info['4'];
+	$hosts[$i]['xtra'] = $info['3'];
 }
 
 /* now prepare a mailer for php-mirrors */
@@ -94,7 +91,8 @@ for ($i=0; $i < $total; $i++) {
   $body =   "Following is data gathered from the various mirrors. It is ordered by those\n"
 	  . "that are suspected to be dead, mirrors which are alive but have errors, sites\n"
 	  . "which need to be prompted to update their PHP version, and finally the rest,\n"
-	  . "sorted by last update.\n\n";
+	  . "sorted by last update.\n"
+	  . "Edit mirror listings here: http://master.php.net/manage/mirrors.php\n\n";
 
   $body .=  "No response was returned from these following hosts:\n";
 
@@ -111,8 +109,8 @@ for ($i=0; $i < $total; $i++) {
   $body .=  "\nThese hosts returned extra information, so there may be errors:\n";
 
   for($i=0; $i < $total; $i++) {
-        if ($hosts[$i]['error'] == true) {
-                $body .= sprintf("%s - %s - %s\n%s\n", $hosts[$i]['hostname'], $hosts[$i]['phpversion'], date("F j, Y, g:i a", $hosts[$i]['lastupdate']));
+        if (strlen($hosts[$i]['xtra']) > 0) {
+                $body .= sprintf("%s - %s - %s\n%s\n", $hosts[$i]['hostname'], $hosts[$i]['phpversion'], date("F j, Y, g:i a", $hosts[$i]['lastupdate']), $hosts[$i]['xtra']);
         }
   }
 
@@ -148,7 +146,8 @@ a quick strlen check, and depending on how different it is from the string lengt
 
   $body . "---------------------------------------------------------------------------------------\n";
 
-mail("imajes@php.net", "PHP Mirror Status Info.", $body, "From: php-mirrors@lists.php.net");
+/* please edit this when testing to send mail to yourself, not to the list every time */
+mail("php-mirrors@lists.php.net", "PHP Mirror Status Info.", $body, "From: php-mirrors@lists.php.net");
 
 /* this cleans what we did. it also kills all the wget sessions that didn't end - however, the make session
 goes defunct and loses reporting over the child processes. This should die within a short period of time. */  
