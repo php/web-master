@@ -131,7 +131,7 @@ $res = mysql_query("SELECT * FROM mirrors ORDER BY hostname")
 $color = '#dddddd';
 while ($row = mysql_fetch_array($res)) {?>
 <tr bgcolor="<?php echo $row[active] ? ($row[mirrortype] == 1 ? $color : substr($color,0,5)."ff") : "#ff".substr($color,3);?>">
- <td align="center"><a href="<?php echo "$PHP_SELF?id=$row[id]";?>"><?php echo make_image('small_submit.gif', 'edit');?></a></td>
+ <td align="center"><a href="<?php echo "$PHP_SELF?id=$row[id]";?>">edit</a></td>
  <td><a href="<?php echo ereg("^(f|ht)tp:",$row[hostname]) ? "" : "http://", htmlspecialchars($row[hostname]);?>"><?php echo htmlspecialchars($row[hostname]);?></a></td>
  <td><?php echo htmlspecialchars($row[maintainer]);?>&nbsp;</td>
  <td><a href="<?php echo htmlspecialchars($row[providerurl]);?>"><?php echo htmlspecialchars($row[providername]);?></a></td>
