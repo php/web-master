@@ -27,7 +27,7 @@ function pregenerate_events($csvfile, $outfile)
     // Start output file with PHP code
     fwrite(
         $out,
-        "<?php\n$RSIDEBAR_DATA = <<<END_RSIDEBAR_DATA\n" .
+        "<?php\n\$RSIDEBAR_DATA = <<<END_RSIDEBAR_DATA\n" .
         "<h3>Upcoming Events <a href=\"submit-event.php\">[add]</a></h3>\n"
     );
     
