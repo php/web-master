@@ -22,7 +22,7 @@ head("user administration");
 if (isset($username) && !isset($id)) {
   $query = "SELECT userid FROM users"
          . " WHERE username='$username' OR email='$username'";
-  $res = query($query);
+  $res = db_query($query);
   if (!($id = @mysql_result($res,0))) {
     warn("wasn't able to find user matching '".clean($username)."'");
   }
@@ -36,7 +36,7 @@ if (isset($id) && isset($action)) {
   $id = (int)$id;
   switch ($action) {
   case 'approve':
-    if (mysql_query("UPDATE users SET cvsaccess=1 WHERE userid=$id")
+    if (db_query("UPDATE users SET cvsaccess=1 WHERE userid=$id")
      && mysql_affected_rows()) {
       $userinfo = fetch_user($id);
       $message =
@@ -63,7 +63,7 @@ with your CVS account, feel free to send us a note at group@php.net.";
     break;
   case 'remove':
     $userinfo = fetch_user($id);
-    if (mysql_query("DELETE FROM users WHERE userid=$id")
+    if (db_query("DELETE FROM users WHERE userid=$id")
      && mysql_affected_rows()) {
       $message = $userinfo[cvsaccess] ? 
 "Your CVS account ($userinfo[username]) was deleted.
@@ -81,7 +81,7 @@ If you'd like to make another appeal for a CVS account, feel free
 to send us a note at group@php.net.";
       mail($userinfo[email],"CVS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>");
       mail($mailto,$userinfo[cvsaccess] ? "CVS Account Deleted: $userinfo[username] deleted by $user" : "CVS Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>");
-      mysql_query("DELETE FROM users_note WHERE userid=$id");
+      db_query("DELETE FROM users_note WHERE userid=$id");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
         exit;
@@ -123,11 +123,11 @@ if (isset($id) && isset($in)) {
                  . ",spamprotect=$spamprotect"
                  . ",verified=$verified"
                  . " WHERE userid=$id";
-          query($query);
+          db_query($query);
           if(strlen($in['purpose'])) {
               $purpose = addslashes($in['purpose']);
               $query = "INSERT INTO users_note (userid, note, entered) VALUES ($id, '$purpose', NOW())";
-              query($query);
+              db_query($query);
           }
         }
 
@@ -141,7 +141,7 @@ if (isset($id) && isset($in)) {
                . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                . ",spamprotect=$spamprotect"
                . ",verified=$verified";
-        query($query);
+        db_query($query);
 
         $nid = mysql_insert_id();
 
@@ -154,7 +154,7 @@ if (isset($id) && isset($in)) {
 if ($id) {
   $query = "SELECT * FROM users"
          . " WHERE users.userid=$id";
-  $res = query($query);
+  $res = db_query($query);
   $row = mysql_fetch_array($res);
   if (!$row) unset($id);
 }
@@ -234,7 +234,7 @@ if (isset($id)) {
 </table>
 <?php
 if ($id) {
-  $res = mysql_query("SELECT note,UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=$id");
+  $res = db_query("SELECT note,UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=$id");
   echo "<b>notes</b>";
   while ($res && $row = mysql_fetch_array($res,MYSQL_ASSOC)) {
     echo "<div>",date("r",$row['ts']),"<br />$row[note]</div>";
@@ -279,15 +279,13 @@ elseif ($unapproved) {
 $query = "SELECT DISTINCT COUNT(users.userid) FROM users";
 if ($searchby)
   $query .= " LEFT JOIN users_note USING(userid) $searchby";
-$res = mysql_query($query)
-  or die("query '$query' failed: ".mysql_error());
+$res = db_query($query);
 $total = mysql_result($res,0);
 
 $query = "SELECT DISTINCT users.userid,cvsaccess,username,name,email,note FROM users LEFT JOIN users_note USING (userid) $searchby group by userid $orderby $limit";
 
 #echo "<pre>$query</pre>";
-$res = mysql_query($query)
-  or die("query '$query' failed: ".mysql_error());
+$res = db_query($query);
 
 $extra = array(
   "search" => stripslashes($search),
@@ -362,7 +360,7 @@ function can_modify($user,$userid) {
          . " WHERE userid=$userid"
          . "   AND (email='$quser' OR username='$quser')";
 
-  $res = mysql_query($query);
+  $res = db_query($query);
   return $res ? mysql_num_rows($res) : false;
 }
 
@@ -376,7 +374,7 @@ function fetch_user($user) {
     $query .= " WHERE username='$quser' OR email='$quser'";
   }
 
-  if ($res = query($query)) {
+  if ($res = db_query($query)) {
     return mysql_fetch_array($res);
   }
 

@@ -30,7 +30,7 @@ if (isset($id) && isset($action)) {
   $id = (int)$id;
   switch ($action) {
   case 'approve':
-    if (mysql_query("UPDATE phpcal SET approved=1,app_by='$user' WHERE id=$id")
+    if (db_query("UPDATE phpcal SET approved=1,app_by='$user' WHERE id=$id")
      && mysql_affected_rows()) {
       $event = fetch_event($id);
       $message = "This event has been approved. It will appear on the PHP website shortly.";
@@ -45,7 +45,7 @@ if (isset($id) && isset($action)) {
     break;
   case 'reject':
     $event = fetch_event($id);
-    if (mysql_query("DELETE FROM phpcal WHERE id=$id")
+    if (db_query("DELETE FROM phpcal WHERE id=$id")
      && mysql_affected_rows()) {
       $message = $event['approved'] ?  "This event has been deleted." : "This event has been rejected.";
       $did = $event['approved'] ? 'Deleted' : 'Rejected';
@@ -91,7 +91,7 @@ if (isset($id) && isset($in)) {
            . "country='$in[country]',"
            . "category='$in[category]'"
            . " WHERE id=$id";
-    query($query);
+    db_query($query);
 
     warn("record $id updated");
     unset($id);
@@ -252,15 +252,13 @@ if (!$searchby) {
 $query = "SELECT COUNT(id) FROM phpcal";
 if ($searchby)
   $query .= " $searchby";
-$res = mysql_query($query)
-  or die("query '$query' failed: ".mysql_error());
+$res = db_query($query);
 $total = mysql_result($res,0);
 
 $query = "SELECT phpcal.*,country.name AS cname FROM phpcal LEFT JOIN country ON phpcal.country = country.id $searchby $orderby $limit";
 
 #echo "<pre>$query</pre>";
-$res = mysql_query($query)
-  or die("query '$query' failed: ".mysql_error());
+$res = db_query($query);
 
 $extra = array(
   "search" => stripslashes($search),
@@ -316,7 +314,7 @@ function invalid_input($in) {
 function fetch_event($id) {
   $query = "SELECT * FROM phpcal WHERE id=$id";
 
-  if ($res = query($query)) {
+  if ($res = db_query($query)) {
     return mysql_fetch_array($res,MYSQL_ASSOC);
   }
 

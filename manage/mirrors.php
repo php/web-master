@@ -5,18 +5,14 @@ include_once 'functions.inc';
 
 // This page is for mirror administration
 head("mirror administration");
-
-// Connect to database and select php3 db
-mysql_connect("localhost","nobody","")
-  or die("unable to connect to database");
-mysql_select_db("php3");
+db_connect();
 
 // Get boolean values from form
 $active     = isset($active)     ? 1 : 0;
 $has_stats  = isset($has_stats)  ? 1 : 0;
 
 // Select last mirror check time from table
-$lct = mysql_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY lastchecked DESC LIMIT 1");
+$lct = db_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY lastchecked DESC LIMIT 1");
 list($checktime) = mysql_fetch_row($lct);
 
 // We have something to update in the database
@@ -60,13 +56,8 @@ if (isset($id) && isset($hostname)) {
         // If there is any query to execute
         if ($query) {
         
-            // Try to execute query, and provide failure information if unable to
-            if (!mysql_query($query)) {
-                echo "<h2 class=\"error\">Query failed: ", mysql_error(), "</h2>";
-            }
-            
-            // Else provide update message
-            else {
+            // Try to execute query, and provide information if successfull
+            if (db_query($query)) {
                 echo "<h2>$msg</h2>";
             }
             
@@ -98,7 +89,7 @@ elseif (isset($id)) {
   
   // The $id is not zero, so get mirror information
   if (intval($id) !== 0) {
-      $res = mysql_query(
+      $res = db_query(
           "SELECT *, " .
           "UNIX_TIMESTAMP(created) AS ucreated, " .
           "UNIX_TIMESTAMP(lastedited) AS ulastedited, " .
@@ -263,7 +254,7 @@ function page_mirror_list()
     // Query the whole mirror list and display all mirrors. The query is
     // similar to the one in the mirror fetch script. We need to get mirror
     // status data to show proper icons and need to order by country too
-    $res = mysql_query("
+    $res = db_query("
         SELECT mirrors.*,
         UNIX_TIMESTAMP(lastupdated) AS ulastupdated,
         UNIX_TIMESTAMP(lastchecked) AS ulastchecked,
@@ -272,7 +263,7 @@ function page_mirror_list()
         country.name as countryname
         FROM mirrors LEFT JOIN country ON mirrors.cc = country.id
         ORDER BY country.name, hostname"
-    ) or die("query failed");
+    );
 
     // Start table
     $summary = '<div align="center">

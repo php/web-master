@@ -34,6 +34,8 @@ at <http://php.net/support>.
 
 Your note has been removed from the online manual.';
 
+db_connect();
+
 if (!isset($action)) {
   // search !
   head();
@@ -62,12 +64,8 @@ if (!isset($action)) {
       $sql .= ' OR id = ' . (int)$keyword;
     }
     $sql .= ' LIMIT 20';
-    @mysql_connect("localhost","nobody","")
-      or die("unable to connect to database");
-    @mysql_select_db("php3")
-      or die("unable to select database");
 
-    if ($result = mysql_query($sql)) {
+    if ($result = db_query($sql)) {
       if (mysql_num_rows($result) != 0) {
         while ($row = mysql_fetch_assoc($result)) {
           $id = $row['id'];
@@ -85,10 +83,6 @@ if (!isset($action)) {
       } else {
         echo "no results<br />";
       }
-    } else {
-      echo "<p>An unknown error occured. Try again later.</p><pre>",mysql_error(),"</pre>";
-      foot();
-      exit;
     }
   }
 
@@ -122,15 +116,10 @@ if (preg_match("/^(.+)\\s+(\\d+)\$/", $action, $m)) {
   $action = $m[1]; $id = $m[2];
 }
 
-@mysql_connect("localhost","nobody","")
-  or die("unable to connect to database");
-@mysql_select_db("php3")
-  or die("unable to select database");
-
 switch($action) {
 case 'approve':
   if ($id) {
-    if ($result = mysql_query("SELECT * FROM note WHERE id=$id")) {
+    if ($result = db_query("SELECT * FROM note WHERE id=$id")) {
       if (!mysql_num_rows ($result)) {
       	die ("Note #$id doesn't exist.  It has probably been deleted/rejected already");
       }
@@ -141,29 +130,24 @@ case 'approve':
       	die ("Note #$id has already been approved");
       }
       
-      if ($row['id'] && mysql_query ("UPDATE note SET status=NULL WHERE id=$id")) {
+      if ($row['id'] && db_query("UPDATE note SET status=NULL WHERE id=$id")) {
         mail ($mailto, "note $row[id] approved from $row[sect] by $user", "This note has been approved and will appear in the manual\n\n----\n\n".$row['note'], "From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
       }
       
       print "Note #$id has been approved and will appear in the manual";
       exit;
-    } else {
-        head();
-        echo "<p>An unknown error occured. Try again later.</p><pre>",mysql_error(),"</pre>";
-        foot();
-        exit;
     }
   }
 case 'reject':
 case 'delete':
   if ($id) {
-    if ($result = mysql_query("SELECT * FROM note WHERE id=$id")) {
+    if ($result = db_query("SELECT * FROM note WHERE id=$id")) {
       if (!mysql_num_rows ($result)) {
       	die ("Note #$id doesn't exist.  It has probably been deleted/rejected already");
       }
       
       $row = mysql_fetch_array($result);
-      if ($row['id'] && mysql_query("DELETE FROM note WHERE id=$id")) {
+      if ($row['id'] && db_query("DELETE FROM note WHERE id=$id")) {
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
         mail($mailto,"note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user","Note Submitter: $row[user]\n\n----\n\n".$row['note'],"From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
@@ -182,10 +166,6 @@ case 'delete':
       }
       exit;
     }
-    head();
-    echo "<p>An unknown error occured. Try again later.</p><pre>",mysql_error(),"</pre>";
-    foot();
-    exit;
   }
   /* falls through, with id not set. */
 case 'preview':
@@ -195,7 +175,7 @@ case 'edit':
       head();
     }
 
-    if ($result = @mysql_query("SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id=$id")) {
+    if ($result = db_query("SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id=$id")) {
       if (!mysql_num_rows ($result)) {
       	die ("Note #$id doesn't exist.  It has probably been deleted/rejected already");
       }
@@ -206,7 +186,7 @@ case 'edit':
     $sect = isset($sect) ? $sect : addslashes($row['sect']);
 
     if (isset($note) && $action == "edit") {
-      if (@mysql_query("UPDATE note SET note='$note',user='$email',sect='$sect',updated=NOW() WHERE id=$id")) {
+      if (db_query("UPDATE note SET note='$note',user='$email',sect='$sect',updated=NOW() WHERE id=$id")) {
 
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
@@ -215,11 +195,6 @@ case 'edit':
           mail_user($email, $mailfrom, "note $id moved from $row[sect] to $sect by notes editor $user", "----- Copy of your note below -----\n\n".stripslashes($note));
         }
         header('Location: user-notes.php?id=' . $id . '&was=' . $action);
-        exit;
-      }
-      else {
-        echo "<p>An unknown error occured. Try again later.</p><pre>",mysql_error(),"</pre>";
-        foot();
         exit;
       }
     }
