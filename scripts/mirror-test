@@ -143,7 +143,7 @@ foreach ($hosts as $index => $host) {
     
     // Check that the mirror has all the mirror settings updated
     if ($info[7] != '1') {
-      $hosts[$index]['problem'] = "Mirror settings are not up to date (see mirroring page)";
+      $hosts[$index]['problem'] = "Mirror settings are not up to date (check rsync parameters)";
     }
     
 }

@@ -110,7 +110,8 @@ $inactives_text = "Hi!\n\nOur automatic mirror site check was unable to reach\n"
                  ."official PHP.net mirror site.\n\n"
                  ."{{lasterror}}"
                  ."Please correct the problem or reply to this mail with your\n"
-                 ."questions, if you think that the problem is not on your side.\n\n"
+                 ."questions, if you think that the problem is not on your side.\n"
+                 ."Your mirror will be kept disabled until the error is fixed.\n\n"
                  ."Mail sent out by the PHP.net automatic mirror site monitoring system";
 
 // Send mail to all inactive mirror maintainers
