@@ -12,7 +12,7 @@ if (!ereg("/\$",$root)) $root = "$root/";
 $since = $argv[2];
 
 /* get user notes */
-$fp = fopen("http://www.php.net/bin/user-notes.php?token=$token".($since?"&since=$since":""),"r");
+$fp = fopen("http://master.php.net/fetch/user-notes.php?token=$token".($since?"&since=$since":""),"r");
 
 $count = 0;
 
