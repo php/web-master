@@ -153,7 +153,7 @@ elseif (isset($id)) {
    <th align="right">Default Language:</th>
    <td><select name="lang"><?php show_language_options($row['lang']); ?></select></td>
   <tr>
-   <th align="right">Local Stats</th>
+   <th align="right">Local Stats:</th>
    <td><input type="checkbox" name="has_stats"<?php echo $row['has_stats'] ? " checked" : ""; ?> /></td>
   <tr>
    <td colspan="2" align="center"><input type="submit" value="<?php echo $id ? "Change" : "Add"; ?>" />
@@ -166,27 +166,27 @@ elseif (isset($id)) {
    <th colspan="2"><?php if (!$row['up'] || !$row['current']) { echo '<p class="error">This mirror is automatically disabled</p>'; } else { echo "&nbsp;"; } ?></th>
   </tr>
   <tr>
-   <th>Mirror added:</th>
+   <th align="right">Mirror added:</th>
    <td><?php print_date($row['created']); ?></td>
   </tr>
   <tr>
-   <th>Last edit time:</th>
+   <th align="right">Last edit time:</th>
    <td><?php print_date($row['lastedited']); ?></td>
   </tr>
   <tr>
-   <th>Last mirror check time:</th>
+   <th align="right">Last mirror check time:</th>
    <td><?php print_date($row['lastchecked']); if (!$row['up']) { echo '<br /><i>does not seem to be up!</i>'; } ?></td>
   </tr>
   <tr>
-   <th>Last update time:</th>
+   <th align="right">Last update time:</th>
    <td><?php print_date($row['lastupdated']); if (!$row['current']) { echo '<i><br />does not seem to be current!</i>'; } ?></td>
   </tr>
   <tr>
-   <th>PHP version used:</th>
+   <th align="right">PHP version used:</th>
    <td><?php print_version($row['phpversion']); ?></td>
   </tr>
   <tr>
-   <th>Local Search</th>
+   <th align="right">Local Search:</th>
    <td><?php echo $searchtypes[$row['has_search']]; ?></td>
   </tr>
  </table>
