@@ -22,7 +22,7 @@ list($checktime) = mysql_fetch_row($lct);
 // We have something to update in the database
 if (isset($id) && isset($hostname)) {
 
-    if (is_admin($user)) {
+    if (is_mirror_site_admin($user)) {
         // No query need to be made
         $query = FALSE;
         
@@ -82,7 +82,7 @@ if (isset($id) && isset($hostname)) {
                 }
                 @mail(
                     "php-mirrors@lists.php.net",
-                    "PHP Mirrors Updated by $user.",
+                    "[mirrors] Update by $user.",
                     $body,
                     "From: php-mirrors@lists.php.net"
                 );
@@ -249,26 +249,185 @@ if (intval($id) !== 0) {
     exit();
 }
 
-// Query whole mirror list and display all mirrors. The query is
-// similar to one in the mirror fetch script. We need to get mirror
-// status data to show proper icons and need to order by country too
-$res = mysql_query("SELECT mirrors.*,
-                   UNIX_TIMESTAMP(lastupdated) AS ulastupdated,
-                   UNIX_TIMESTAMP(lastchecked) AS ulastchecked,
-                   (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < mirrors.lastchecked) AS up,
-                   (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < mirrors.lastupdated) AS current,
-                   country.name as countryname
-                   FROM mirrors LEFT JOIN country ON mirrors.cc = country.id
-                   ORDER BY country.name, hostname"
-       ) or die("query failed");
-?>
+page_mirror_list();
+
+foot();
+
+// =============================================================================
+
+// Mirror listing page function
+function page_mirror_list()
+{
+    global $checktime;
+    
+    // Query the whole mirror list and display all mirrors. The query is
+    // similar to the one in the mirror fetch script. We need to get mirror
+    // status data to show proper icons and need to order by country too
+    $res = mysql_query("
+        SELECT mirrors.*,
+        UNIX_TIMESTAMP(lastupdated) AS ulastupdated,
+        UNIX_TIMESTAMP(lastchecked) AS ulastchecked,
+        (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < mirrors.lastchecked) AS up,
+        (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < mirrors.lastupdated) AS current,
+        country.name as countryname
+        FROM mirrors LEFT JOIN country ON mirrors.cc = country.id
+        ORDER BY country.name, hostname"
+    ) or die("query failed");
+
+    // Start table
+    $summary = '<div align="center">
+    <table border="0" cellspacing="0" cellpadding="3" id="mirrors">';
+
+    // Previous country code
+    $prevcc = "n/a";
+
+    $stats = array(
+        'mirrors' => mysql_num_rows($res)
+    );
+
+    // Go through all mirror sites
+    while ($row = mysql_fetch_array($res)) {
+    
+        // Collect statistical information
+        $stats['phpversion'][$row['phpversion']]++;
+    
+        // Print separator row
+        $summary .= '<tr><td colspan="7"></td></tr>' . "\n";
+
+        // Print out a country header, if a new country is found
+        if ($prevcc != $row['cc']) {
+            $summary .= '<tr><th colspan="7">' . $row['countryname'] . "</th></tr>\n";
+        }
+        $prevcc = $row['cc'];
+
+        // No info on why the mirror is disabled
+        $errorinfo = "";
+
+        // Active mirror site
+        if ($row['active']) {
+        
+            // Special active mirror site (green)
+            if ($row['mirrortype'] != 1) { $siteimage = "special"; }
+        
+            // Not special, but active
+            else {
+                // Not up to date or not current
+                if (!$row['up'] || !$row['current']) {
+                    $stats['autodisabled']++;
+                    $siteimage = "error";
+                    if (!empty($row['ocmt'])) {
+                        $errorinfo = $row['ocmt'] . " (last accessed: " .
+                                     get_print_date($row['ulastchecked']) . ")";
+                    } elseif (!$row['current']) {
+                        $errorinfo = "content out of date (last updated: " .
+                                     get_print_date($row['ulastupdated']) . ")";
+                    }
+                }
+                // Up to date and current
+                else {
+                    $siteimage = "ok";
+                }
+            }
+        }
+        // Not active mirror site (maybe deactivated by the
+        // mirror check bot, because of a /manual alias,
+        // or deactivated by some admin)
+        else {
+            $siteimage = "deactivated";
+            if (!empty($row['ocmt']))     { $errorinfo = $row['ocmt']; }
+            elseif (!empty($row['acmt'])) { $errorinfo = $row['acmt']; }
+            $stats['disabled']++;
+        }
+
+        // See what needs to be printed out as search info
+        $searchcell = '';
+        if ($row['has_search'] == "2") { $searchcell = '('; }
+        if (in_array($row['has_search'], array("1", "2"))) {
+            $searchcell .= "<a href=\"http://$row[hostname]/search.php\" target=\"_blank\">" .
+                           "<img src=\"/images/mirror_search.png\" /></a>";
+            $stats['has_search']++;
+        }
+        if ($row['has_search'] == "2") { $searchcell .= ')'; }
+        if (!$searchcell) { $searchcell = "&nbsp;"; }
+
+        // Stats information cell
+        $statscell = '&nbsp;';
+        if ($row['has_stats'] == "1") {
+            $statscell = "<a href=\"http://$row[hostname]/stats/\" target=\"_blank\">" .
+                         "<img src=\"/images/mirror_stats.png\" /></a>";
+            $stats['has_stats']++;
+        }
+
+        // Maintainer contact information cell
+        $emailcell = '&nbsp;';
+        $maintainer = trim($row['maintainer']);
+        if ($row['maintainer']) {
+            if (preg_match("!<(.+)>!", $maintainer, $found)) {
+                $addr = $found[1];
+                $name = str_replace("<$addr>", "", $maintainer);
+                $emailcell = '<a href="mailto:' . $addr . '?subject=' . $row['hostname'] .
+                '&amp;cc=webmaster@php.net">' . $name . ' <img src="/images/mirror_mail.png" /></a>';
+            }
+        }
+
+        // Mirror status information
+        $summary .= "<tr bgcolor=\"#e0e0e0\">\n" .
+                    "<td bgcolor=\"#ffffff\" align=\"right\">\n" .
+                    "<img src=\"/images/mirror_{$siteimage}.png\" /></td>\n";
+
+        // Print out mirror site link
+        $summary .= '<td><a href="http://' . $row['hostname'] . '/" target="_blank">' .
+                    $row['hostname'] . '</a><br /></td>' . "\n";
+
+        // Print out mirror provider information
+        $summary .= '<td><a href="' . $row['providerurl'] . '">' .
+                    $row['providername'] . '</a><br /></td>' . "\n";
+
+        // Print out maintainer email cell
+        $summary .= '<td align="right">' . $emailcell . '</td>' . "\n";
+
+        // Print out mirror search table cell
+        $summary .= '<td align="center">' . $searchcell . '</td>' . "\n";
+
+        // Print out mirror stats table cell
+        $summary .= '<td align="right">' . $statscell . '</td>' . "\n";
+
+        // Print out mirror edit link
+        $summary .= '<td align="right"><a href="mirrors.php?id=' . $row['id'] .
+                    '"><img src="/images/mirror_edit.png"></a></td>' . "\n";
+
+        // End of row
+        $summary .= '</tr>';
+
+        // If any info on the error of this mirror is available, print it out
+        if ($errorinfo) {
+            $summary .= "<tr><tr bgcolor=\"#e0e0e0\"><td bgcolor=\"#ffffff\"></td>" .
+                        "<td colspan=\"6\"><img src=\"/images/mirror_info.png\" /> " .
+                        "$errorinfo</td></tr>";
+        }
+    }
+
+    $summary .= '</table></div>';
+
+    // Sort in reverse PHP version order and produce string
+    arsort($stats['phpversion']);
+    $versions = "";
+    foreach($stats['phpversion'] as $version => $amount) {
+        if (empty($version)) { $version = "n/a"; }
+        $versions .= "<strong>$version</strong>: $amount, ";
+    }
+    $versions = substr($versions, 0, -2);
+    
+    $last_check_time = get_print_date($checktime);
+
+echo <<<EOS
 <div id="resources">
  <h1>Resources</h1>
  <a href="http://php.net/mirroring.php" target="_blank">Guidelines</a><br />
  <a href="mailto:mirrors@php.net">Mailing list</a><br />
  <a href="http://www.iana.org/cctld/cctld-whois.htm" target="_blank">Country TLDs</a>
  <h1>Last check time</h1>
- <?php echo gmdate("Y/m/d H:i:s", $checktime); ?> GMT
+ {$last_check_time}
 </div>
 
 <p>
@@ -276,6 +435,7 @@ $res = mysql_query("SELECT mirrors.*,
  human intervention, so if you add/delete/modify a mirror, it will be reflected in the
  DNS table automatically in a short time.
 </p>
+
 <p>
  An automatically deactivated mirror cannot be activated manually. It will be activated after
  the next run of the automatic check (if the mirror is all right). Deactivated mirror maintainers
@@ -284,153 +444,6 @@ $res = mysql_query("SELECT mirrors.*,
  automatically every hour, there is no direct manual way to start a check.
 </p>
 
-<?php
-
-// Start table
-$summary = '<div align="center">
-<table border="0" cellspacing="0" cellpadding="3" id="mirrors">';
-
-// Previous country code
-$prevcc = "n/a";
-
-$stats = array(
-    'mirrors' => mysql_num_rows($res)
-);
-
-// Go through all mirror sites
-while ($row = mysql_fetch_array($res)) {
-    
-    // Collect statistical information
-    $stats['phpversion'][$row['phpversion']]++;
-    
-    // Print separator row
-    $summary .= '<tr><td colspan="7"></td></tr>' . "\n";
-
-    // Print out a country header, if a new country is found
-    if ($prevcc != $row['cc']) {
-        $summary .= '<tr><th colspan="7">' . $row['countryname'] . "</th></tr>\n";
-    }
-    $prevcc = $row['cc'];
-
-    // No info on why the mirror is disabled
-    $errorinfo = "";
-
-    // Active mirror site
-    if ($row['active']) {
-        
-        // Special active mirror site (green)
-        if ($row['mirrortype'] != 1) { $siteimage = "special"; }
-        
-        // Not special, but active
-        else {
-            // Not up to date or not current
-            if (!$row['up'] || !$row['current']) {
-                $stats['autodisabled']++;
-                $siteimage = "error";
-                if (!empty($row['ocmt'])) {
-                    $errorinfo = $row['ocmt'] . " (last accessed: " .
-                                 get_print_date($row['ulastchecked']) . ")";
-                } elseif (!$row['current']) {
-                    $errorinfo = "content out of date (last updated: " .
-                                 get_print_date($row['ulastupdated']) . ")";
-                }
-            }
-            // Up to date and current
-            else {
-                $siteimage = "ok";
-            }
-        }
-    }
-    // Not active mirror site (maybe deactivated by the
-    // mirror check bot, because of a /manual alias,
-    // or deactivated by some admin)
-    else {
-        $siteimage = "deactivated";
-        if (!empty($row['ocmt']))     { $errorinfo = $row['ocmt']; }
-        elseif (!empty($row['acmt'])) { $errorinfo = $row['acmt']; }
-        $stats['disabled']++;
-    }
-
-    // See what needs to be printed out as search info
-    $searchcell = '';
-    if ($row['has_search'] == "2") { $searchcell = '('; }
-    if (in_array($row['has_search'], array("1", "2"))) {
-        $searchcell .= "<a href=\"http://$row[hostname]/search.php\" target=\"_blank\">" .
-                       "<img src=\"/images/mirror_search.png\" /></a>";
-        $stats['has_search']++;
-    }
-    if ($row['has_search'] == "2") { $searchcell .= ')'; }
-    if (!$searchcell) { $searchcell = "&nbsp;"; }
-
-    // Stats information cell
-    $statscell = '&nbsp;';
-    if ($row['has_stats'] == "1") {
-        $statscell = "<a href=\"http://$row[hostname]/stats/\" target=\"_blank\">" .
-                     "<img src=\"/images/mirror_stats.png\" /></a>";
-        $stats['has_stats']++;
-    }
-
-    // Maintainer contact information cell
-    $emailcell = '&nbsp;';
-    $maintainer = trim($row['maintainer']);
-    if ($row['maintainer']) {
-        if (preg_match("!<(.+)>!", $maintainer, $found)) {
-            $addr = $found[1];
-            $name = str_replace("<$addr>", "", $maintainer);
-            $emailcell = '<a href="mailto:' . $addr . '?subject=' . $row['hostname'] .
-            '&amp;cc=webmaster@php.net">' . $name . ' <img src="/images/mirror_mail.png" /></a>';
-        }
-    }
-
-    // Mirror status information
-    $summary .= "<tr bgcolor=\"#e0e0e0\">\n" .
-                "<td bgcolor=\"#ffffff\" align=\"right\">\n" .
-                "<img src=\"/images/mirror_{$siteimage}.png\" /></td>\n";
-
-    // Print out mirror site link
-    $summary .= '<td><a href="http://' . $row['hostname'] . '/" target="_blank">' .
-                $row['hostname'] . '</a><br /></td>' . "\n";
-
-    // Print out mirror provider information
-    $summary .= '<td><a href="' . $row['providerurl'] . '">' .
-                $row['providername'] . '</a><br /></td>' . "\n";
-
-    // Print out maintainer email cell
-    $summary .= '<td align="right">' . $emailcell . '</td>' . "\n";
-
-    // Print out mirror search table cell
-    $summary .= '<td align="center">' . $searchcell . '</td>' . "\n";
-
-    // Print out mirror stats table cell
-    $summary .= '<td align="right">' . $statscell . '</td>' . "\n";
-
-    // Print out mirror edit link
-    $summary .= '<td align="right"><a href="mirrors.php?id=' . $row['id'] .
-                '"><img src="/images/mirror_edit.png"></a></td>' . "\n";
-
-    // End of row
-    $summary .= '</tr>';
-
-    // If any info on the error of this mirror is available, print it out
-    if ($errorinfo) {
-        $summary .= "<tr><tr bgcolor=\"#e0e0e0\"><td bgcolor=\"#ffffff\"></td>" .
-                    "<td colspan=\"6\"><img src=\"/images/mirror_info.png\" /> " .
-                    "$errorinfo</td></tr>";
-    }
-}
-
-$summary .= '</table></div>';
-
-// Sort in reverse PHP version order and produce string
-arsort($stats['phpversion']);
-$versions = "";
-foreach($stats['phpversion'] as $version => $amount) {
-    if (empty($version)) { $version = "n/a"; }
-    $versions .= "<strong>$version</strong>: $amount, ";
-}
-$versions = substr($versions, 0, -2);
-
-echo <<<EOS
 <p>
  Total number of mirrors: {$stats['mirrors']} of which {$stats['disabled']} is manually
  disabled (<img src="/images/mirror_deactivated.png" />) and {$stats['autodisabled']}
@@ -441,13 +454,12 @@ echo <<<EOS
  The PHP versions used on the sites are {$versions}.
 </p>
 
-$summary
+<p align="center"><a href="/manage/mirrors.php?id=0">Add a new mirror</a></p>
 
-<p><a href="/manage/mirrors.php?id=0">Add a new mirror</a></p>
+$summary
 EOS;
 
-// Print out footer (end of script run)
-foot();
+}
 
 // Show mirror type options defaulting to current type
 function show_mirrortype_options($type = 1)
@@ -477,16 +489,17 @@ function print_version($version)
     else { echo $version; }
 }
 
-function is_admin($user) {
-    #TODO: use acls, once implemented.
-    if (in_array($user,
-        array(
-            "jimw","rasmus","andrei","zeev","andi","sas","thies","rubys",
-            "ssb","imajes","goba","derick","cortesi")
+// Check if a user should modify the mirror data 
+// TODO: use acls, once implemented
+function is_mirror_site_admin($user) {
+    if (in_array(
+            $user,
+            array(
+                "jimw", "rasmus", "andrei", "zeev", "andi", "sas", "thies",
+                "rubys", "ssb", "imajes", "goba", "derick", "cortesi"
+            )
         )
     ) {
-        return true;
-    }
+        return TRUE;
+    } else { return FALSE; }
 }
-
-?>
