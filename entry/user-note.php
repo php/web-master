@@ -26,11 +26,11 @@ is very reasonable considering the current
 flow of notes usually submitted.  This prevents
 a large flood of notes from coming in.
 */
-$result = @mysql_query ('SELECT COUNT(*) FROM note WHERE ts >= '.time() - 60);
+$result = @mysql_query ("SELECT COUNT(*) FROM note WHERE ts >= (NOW() - INTERVAL 1 MINUTE)");
 
 if (!$result) {
   mail ('alindeman@php.net', "failed manual note query", 'Note quota query failed -- '.mysql_error());
-  die("failed to insert record");
+  die("failed to query note db");
 }
 
 list ($count) = mysql_fetch_row ($result);
