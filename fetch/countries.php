@@ -14,7 +14,6 @@ if (@mysql_pconnect("localhost","nobody","")) {
         echo "'$row[id]' => '", addslashes($row['name']), "',\n";
       }
       echo ");\n";
-      echo "?>\n";
     }
   }
 }
