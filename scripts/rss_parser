@@ -75,7 +75,7 @@ function ParseNews ($index_page = "") {
     
     // We have not started to parse the
     // news and we have no headlines right here
-    $news_started = false;
+    $news_started = FALSE;
     $headlineid = 0;
     
     // Try to classify every line backed with state information
@@ -85,8 +85,8 @@ function ParseNews ($index_page = "") {
         // We are not in a news item
         if (!$news_started) {
             
-            // If we found the mysite comment, then we are at the right place
-            if (preg_match('/\<!--\$MYSITE--\>/', $line)) { $news_started = true; }
+            // If we found theis comment, then we are at the right place
+            if (strpos($line, "DO NOT REMOVE THIS COMMENT")) { $news_started = TRUE; }
             else { continue; }
             
         // We are in a news item
