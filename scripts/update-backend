@@ -5,13 +5,17 @@ $token = getenv("TOKEN");
 if (!$token) die("you have to set the TOKEN environment variable");
 $token = rawurlencode($token);
 
+if (!$argv[1]) die("usage: $argv[0] directory\n");
+
+$root = $argv[1];
+
 /* get mirrors list */
 fetch_into_file("http://master.php.net/fetch/mirrors.php?token=$token",
-                "include/mirrors.inc");
+                "$root/include/mirrors.inc");
 
 /* get upcoming events */
 fetch_into_file("http://master.php.net/fetch/events.php?nm=3&token=$token",
-                "backend/events.csv");
+                "$root/backend/events.csv");
 
 function fetch_into_file($url,$file) {
   $source = fopen($url,"r");
