@@ -106,7 +106,7 @@ foreach ($hosts as $index => $host) {
         continue;
     }
 
-    // GET mirror-info.php from the registered hostname
+    // GET the echo manual page from the registered hostname
     $rc = fputs($fp, "GET /manual/en/function.echo.php HTTP/1.0\r\nHost: $host[hostname]\r\n\r\n");
     
     // If we were unable to write to socket, skip mirror site
@@ -135,6 +135,13 @@ foreach ($hosts as $index => $host) {
         continue;
     }
 
+    // Close socket
+    fclose($fp);
+
+    // =======================================================================
+    // Update the host's data if everything seems to be all right
+    // =======================================================================
+    
     // Put pieces into the $hosts array
     $hosts[$index]['phpversion'] = $info[1];
     
