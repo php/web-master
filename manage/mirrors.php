@@ -302,14 +302,17 @@ while ($row = mysql_fetch_array($res)) {
     
     // Print out a country header, if a new country is found
     if ($prevcc != $row['cc']) {
-        echo '<tr><td colspan="4"></td></tr>' . "\n" .
+        echo '<tr><td colspan="6"></td></tr>' . "\n" .
              '<tr bgcolor="#cccccc"><td width="40" align="center">' .
              '<img src="http://static.php.net/www.php.net/images/flags/' .
              strtolower($row['cc']) . '.png" /><br /></td>' .
-             '<td colspan="3"><b>' . $row['countryname'] .
+             '<td colspan="5"><b>' . $row['countryname'] .
              '</b><br /></td></tr>' . "\n";
     }
     $prevcc = $row['cc'];
+
+    // No info on why the mirror is disabled
+    $errorinfo = "";
 
     // Active mirror site
     if ($row['active']) {
@@ -322,6 +325,10 @@ while ($row = mysql_fetch_array($res)) {
             // Not up to date or not current
             if (!$row['up'] || !$row['current']) {
                 $siteimage = "error";
+                $row['ocmt'] = trim($row['ocmt']);
+                if (!empty($row['ocmt'])) {
+                    $errorinfo = $row['ocmt'];
+                }
             }
             // Up to date and current
             else {
@@ -332,6 +339,10 @@ while ($row = mysql_fetch_array($res)) {
     // Not active mirror site
     else {
         $siteimage = "deactivated";
+        $row['acmt'] = trim($row['acmt']);
+        if (!empty($row['acmt'])) {
+            $errorinfo = $row['acmt'];
+        }
     }
 
     // See what needs to print out as search info
@@ -374,6 +385,13 @@ while ($row = mysql_fetch_array($res)) {
 
     // End of row
     echo '</tr>';
+
+    // If any info on the error of this mirror is available, print it out
+    if ($errorinfo) {
+        echo "<tr><tr bgcolor=\"#e0e0e0\"><td bgcolor=\"#ffffff\"></td>" .
+             "<td colspan=\"5\"><img src=\"/images/mirror_info.png\" />" .
+             "<small>$errorinfo</small></td></tr>";
+    }
 }
 ?>
 </table></div>
