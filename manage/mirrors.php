@@ -157,7 +157,7 @@ elseif (isset($id)) {
    <td colspan="2" align="center"><input type="submit" value="<?php echo $id ? "Change" : "Add"; ?>" />
   </tr>
  </table>
- </td><td>
+ </td><td valign="top">
 <?php if (intval($id) !== 0) { ?>
  <table>
   <tr>
@@ -173,11 +173,11 @@ elseif (isset($id)) {
   </tr>
   <tr>
    <th>Last mirror check time:</th>
-   <td><?php echo $row['lastchecked']; if (!$row['up']) { echo '<i>does not seem to be up!</i>'; } ?></td>
+   <td><?php echo $row['lastchecked']; if (!$row['up']) { echo '<br /><i>does not seem to be up!</i>'; } ?></td>
   </tr>
   <tr>
    <th>Last update time:</th>
-   <td><?php echo $row['lastupdated']; if (!$row['current']) { echo '<i>does not seem to be current!</i>'; } ?></td>
+   <td><?php echo $row['lastupdated']; if (!$row['current']) { echo '<i><br />does not seem to be current!</i>'; } ?></td>
   </tr>
   <tr>
    <th>PHP version used on mirror site:</th>
@@ -208,7 +208,7 @@ $res = mysql_query("SELECT mirrors.*, " .
 <table border="0" cellspacing="1" width="100%">
  <tr bgcolor="#aaaaaa">
   <td></td>
-  <th>Hostname</th>
+  <th>Name</th>
   <th>Maintainer</th>
   <th>Provider</th>
   <th>Stats</th>
@@ -252,7 +252,7 @@ while ($row = mysql_fetch_array($res)) {
    <a href="<?php echo "$PHP_SELF?id=$row[id]";?>">edit</a>
   </td>
   <td>
-   <a href="<?php echo "http://", hsc($row['hostname']); ?>"><?php echo hsc(str_replace(".php.net", "", $row['hostname'])); ?></a>
+   <a href="<?php echo "http://", hsc($row['hostname']); ?>"><?php echo hsc(preg_replace("!\\.php\\.net$!", "", $row['hostname'])); ?></a>
   </td>
   <td>
    <?php echo hsc($row['maintainer']); ?>
@@ -272,7 +272,7 @@ while ($row = mysql_fetch_array($res)) {
  </tr>
 <?php
   // Switch color to the alternate one
-  $color = ($color == 'd' ? 'e' : 'd');
+  $c = ($c == 'd' ? 'e' : 'd');
 }
 ?>
 </table>
