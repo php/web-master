@@ -28,7 +28,7 @@ if (@mysql_query($query)) {
   $msg .= "http://master.php.net/manage/user-notes.php?action=reject+$new_id\n";
   # make sure we have a return address.
   if (!$user) $user = "php-general@lists.php.net";
-  mail($mailto,"note $new_id added to $sect",$msg,"From: $user");
+  mail($mailto,"note $new_id added to $sect",$msg,"From: $user\r\nMessage-ID: <note-$new_id@php.net>");
 } else {
   // mail it.
   mail($failto, "failed manual note query", $query);

@@ -80,7 +80,7 @@ case 'delete':
     if ($result = mysql_query("SELECT * FROM note WHERE id=$id")) {
       $row = mysql_fetch_array($result);
       if (!$row['removed'] && mysql_query("UPDATE note SET removed=1 WHERE id=$id")) {
-        mail("php-notes@lists.php.net","note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user",$row['note'],"From: $user@php.net");
+        mail("php-notes@lists.php.net","note $row[id] ".($action == "reject" ? "rejected" : "deleted")." from $row[sect] by $user",$row['note'],"From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
         if ($action == 'reject') {
           $email = clean_antispam($row['user']);
           if (is_emailable_address($email)) {
@@ -114,7 +114,7 @@ case 'edit':
 
     if (isset($note) && $action == "edit") {
       if (@mysql_query("UPDATE note SET note='$note',user='$email',updated=NOW() WHERE id=$id")) {
-        mail("php-notes@lists.php.net","note $row[id] modified in $row[sect] by $user",stripslashes($note)."\n\n--was--\n$row[note]\n\nhttp://www.php.net/manual/en/$row[sect].php","From: $user@php.net");
+        mail("php-notes@lists.php.net","note $row[id] modified in $row[sect] by $user",stripslashes($note)."\n\n--was--\n$row[note]\n\nhttp://www.php.net/manual/en/$row[sect].php","From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
         echo "<p>note $id edited.</p>";
       }
       else {
