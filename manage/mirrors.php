@@ -301,7 +301,7 @@ $summary = '<div align="center">
 $prevcc = "n/a";
 
 $stats = array(
-    'mirrors' => mysql_num_rows($red)
+    'mirrors' => mysql_num_rows($res)
 );
 
 // Go through all mirror sites
