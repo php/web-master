@@ -1,0 +1,205 @@
+<?php
+
+// This file contains code to scrape the PHP.net homepage and
+// generate RSS news feed information out of that (included
+// in the update-backend PHP-CLI script)
+
+// Thanks to Adolfo Garcia Veytia for contributing the
+// original version of this code to php.net
+
+// Return the whole file in a string
+function getData($fname) {
+    if (!is_readable($fname)) { return false; }
+    $fp = fopen($fname, "r");
+    if (!$fp) { return false; }
+    $raw_code = fread($fp, filesize ($fname));
+    fclose($fp);
+    return $raw_code;
+}
+
+// Try to find a link in the text with any the used linking methods
+function scanLinks($text) {
+
+    if (preg_match('/<\?php\s+print_link\s*\("([^"]+)",\s*"[^"]+"\);\s*\?>/', $text, $matches)) {
+        $link = $matches[1];
+    } elseif (preg_match('/<\?php\s+print_link\s*\(\'([^\']+)\',\s*\'[^\']+\'\);\s*\?>/', $text, $matches)) {
+        $link = $matches[1];
+    } elseif (preg_match('/<\?php\s+print_link\s*\("([^"]+)",\s*make_image\s*\([^\)]*\)\s*\);\s*\?>/', $text, $matches)) {
+        $link = $matches[1];
+    } elseif (preg_match('/<a\s+href="([^"]*)">/', $text, $matches)) {
+        $link = $matches[1];
+    }
+    
+    // Make sure it is a full URL
+    if (!preg_match('/^http:/', $link)) { 
+        $link = ($link{0} != '/') ? "http://www.php.net/$link" : "http://www.php.net$link";
+    }
+    
+    return $link;
+}
+
+// Preserve parts in the text needed and drop out everything unsusable
+function ProcessText($text) {
+
+    // Delete images, since this data will go through XML
+    $text = preg_replace('/<\?php\s+echo\s+make_image\s*\("([^"]*)",\s*"([^"]*)",\s+"([^"]*)"\);\s*\?>/i', " ", $text);
+    
+    // Replace the links with <a> links (use this or the one below)
+    /*
+        $text = preg_replace('/<\?php\s+print_link\s*\("([^"]+)",\s*"([^"]+)"\);\s*\?>/', "<a href=\"$1\">$2</a>", $text); // <?php
+        $text = preg_replace('/<\?php\s+print_link\s*\(\'([^\']+)\',\s*\'([^\']+)\'\);\s*\?>/', "<a href=\"$1\">$2</a>", $text);
+        $text = preg_replace('/<\?php\s+print_link\s*\("([^"]+)",\s*make_image\s*\([^\)]*\)\s*\);\s*\?>/', "", $text);
+    */
+    
+    // Remove the hyperlink references (use this or the one above)
+    $text = preg_replace('/<\?php\s+print_link\s*\("([^"]+)",\s*"([^"]+)"\);\s*\?>/', "$2", $text);
+    $text = preg_replace('/<\?php\s+print_link\s*\(\'([^\']+)\',\s*\'([^\']+)\'\);\s*\?>/', "$2", $text);
+    $text = preg_replace('/<\?php\s+print_link\s*\("([^"]+)",\s*make_image\s*\([^\)]*\)\s*\);\s*\?>/', "", $text);
+    
+    // Return with the content HTML stripped
+    return strip_tags($text);
+}
+
+// Parse the index file searching for news item information
+function ParseNews ($index_page = "") {
+
+    // Split the file by newlines
+    $lines = preg_split("/\n/", $index_page);
+    print "<pre>"; print_r($lines); print "</pre>";
+    
+    // Define month conversion hash
+    $mos = array(
+        "Jan" => 1,  "Feb" => 2, "Mar" => 3, "Apr" => 4, "May" => 5, "Jun" => 6,
+        "Jul" => 7,  "Aug" => 8, "Sep" => 9, "Oct" => 10, "Nov" => 11, "Dec" => 12
+    );
+    
+    // We have not started to parse the
+    // news and we have no headlines right here
+    $news_started = false;
+    $headlineid = 0;
+    
+    // Try to classify every line backed with state information
+    // and patterns to recognize for news item elements
+    while (list($i, $line) = each($lines)) {
+
+        // We are not in a news item
+        if (!$news_started) {
+            
+            // If we found the mysite comment, then we are at the right place
+            if (preg_match('/\<!--\$MYSITE--\>/', $line)) { $news_started = true; }
+            else { next; }
+            
+        // We are in a news item
+        } elseif ($news_started) {
+            
+            // Headline separator reached
+            if (preg_match('/hdelim\(\);/', $line)) {
+                
+                $headlineid++;
+                #DEBUG# print "<p>Info: New Headline: $headlineid<br />";
+                
+            // End of headlines reached
+            } elseif (preg_match('/<a href="\/news.php">Old News<\/a>/', $line)) {
+                
+                array_pop($headlines);
+                break;
+
+            // The headline title is in <h1> tags [it needs to be be on line line!]
+            } elseif (preg_match('/<h1>(.*)<\/h1>/i', $line, $matches)) {
+                
+                $headlines[$headlineid]['title'] = "$matches[1]";
+                #DEBUG# print "Title: $matches[1]<br />";
+                
+            // Dates are below the headline title
+            } elseif (preg_match('/<font.*>\[(\d+)-(\S*)-(\d+)\]<\/font>/', $line, $matches)) {
+                
+                $headlines[$headlineid]['date'] = mktime(1,1,1, $mos[$matches[2]], $matches[1], $matches[3]);
+                #DEBUG# print "Date: $matches[1] $matches[2] $matches[3]<br />";
+
+            // Everything else is part of the headline text
+            } else {
+                if (!preg_match('/^\s*\?>\s*$/', $line)) {
+                    $headlines[$headlineid]['text'] = $headlines[$headlineid]['text'] . " $line";
+                }
+            }
+        }
+    }
+
+    // Cycle through the headlines
+    foreach ($headlines as $num => $headline) {
+        
+        // The first link found is THE link for the news item
+        $headlines[$num]['link'] = scanLinks($headline['text']);
+        
+        // And the text needs to be cleaned up
+        $headlines[$num]['text'] = ProcessText($headline['text']);
+    }
+    
+    return $headlines;
+}
+
+// Generate RSS header text and inject it into $RSS
+function GenerateRSSHeader($headlines, &$RSS) {
+    $RSS .= "<" . "?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" .
+            "<rdf:RDF\n" .
+            "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" .
+            "\txmlns=\"http://purl.org/rss/1.0/\"\n" .
+            ">\n" .
+            "<channel rdf:about=\"http://www.php.net/\">\n" .
+            "\t<title>PHP: Hypertext Preprocessor</title>\n" .
+            "\t<link>http://www.php.net/</link>\n" .
+            "\t<description>The PHP scripting language web site</description>\n" .
+            "\t<items>\n" .
+            "\t\t<rdf:Seq>\n";
+    
+    // Cycle through all the Resources on the RSS
+    foreach ($headlines as $headline) {
+        $RSS .= "\t\t\t<rdf:li rdf:resource=\"" . $headline['link'] . "\" />\n";
+    }
+
+    $RSS .= "\t\t</rdf:Seq>\n\t</items>\n</channel>\n";
+}
+
+// Add RSS footer information to $RSS
+function GenerateRSSFooter(&$RSS) {
+    $RSS .= "</rdf:RDF>\n";
+}
+
+// Add an RSS item's information to $RSS
+function GenerateRSSItem($href, $title, $text, &$RSS) {
+    $RSS .= "\n<item rdf:about=\"$href\">\n" .
+            "\t<title>" . htmlspecialchars($title) . "</title>\n" .
+            "\t<link>" . htmlspecialchars($href) . "</link>\n" .
+            "\t<description>" . htmlspecialchars($text) . "</description>\n" .
+            "</item>\n";
+}
+
+// Get the PHP.net index page's source code
+$homepage = getData("$root/index.php");
+
+// This returns a data structure containing all the news items found  
+$hlines = ParseNews($homepage);
+
+// Start with an empty RSS string
+$RSS = '';
+
+// Generate the RSS Header
+GenerateRSSHeader($hlines, $RSS);
+
+// Add separator comment
+$RSS .= "<!-- RSS-Items -->\n";
+
+// Add every news item to the feed
+foreach ($hlines as $hline) {
+    GenerateRSSItem($hline['link'], $hline['title'], $hline['text'], $RSS);
+}
+
+// Add end separator
+$RSS .= "<!-- / RSS-Items PHP/RSS -->\n";
+
+// Dump the last XML tag
+GenerateRSSFooter($RSS);
+
+echo $RSS;
+
+?>
