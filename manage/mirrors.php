@@ -86,8 +86,8 @@ elseif (isset($id)) {
   if (intval($id) !== 0) {
       $res = mysql_query(
           "SELECT *, " .
-          "UNIX_TIMESTAMP(created) AS ucreated, UNIX_TIMESTAMP(lastedited) AS ulastedited" .
-          "UNIX_TIMESTAMP(lastupdated) AS ulastupdated, UNIX_TIMESTAMP(lastchecked) AS ulastchecked" .
+          "UNIX_TIMESTAMP(created) AS ucreated, UNIX_TIMESTAMP(lastedited) AS ulastedited, " .
+          "UNIX_TIMESTAMP(lastupdated) AS ulastupdated, UNIX_TIMESTAMP(lastchecked) AS ulastchecked, " .
           "(DATE_SUB(NOW(), INTERVAL 3 DAY) < lastchecked) AS up, " .
           "(DATE_SUB(NOW(), INTERVAL 7 DAY) < lastupdated) AS current " .
           "FROM mirrors WHERE id = $id"
