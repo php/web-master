@@ -26,6 +26,7 @@ $COUNTRIES = array(
    "id" => "Indonesia",
    "ie" => "Ireland",
    "il" => "Israel",
+   "is" => "Iceland",
    "it" => "Italy",
    "jp" => "Japan",
    "kr" => "Korea",
