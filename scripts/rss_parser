@@ -87,7 +87,7 @@ function ParseNews ($index_page = "") {
             
             // If we found the mysite comment, then we are at the right place
             if (preg_match('/\<!--\$MYSITE--\>/', $line)) { $news_started = true; }
-            else { next; }
+            else { continue; }
             
         // We are in a news item
         } elseif ($news_started) {
