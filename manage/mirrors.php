@@ -300,11 +300,12 @@ $prevcc = "000";
 // Go through all mirror sites
 while ($row = mysql_fetch_array($res)) {
     
+    // Print separator row
+    echo '<tr><td colspan="6"></td></tr>' . "\n" .
+
     // Print out a country header, if a new country is found
     if ($prevcc != $row['cc']) {
-        echo '<tr><td colspan="6"></td></tr>' . "\n" .
-             '<tr bgcolor="#cccccc"><td colspan="6"><b>' .
-             $row['countryname'] . "</b><br /></td></tr>\n";
+        echo '<tr><th colspan="6">' . $row['countryname'] . "</th></tr>\n";
     }
     $prevcc = $row['cc'];
 
@@ -345,18 +346,29 @@ while ($row = mysql_fetch_array($res)) {
     }
 
     // See what needs to print out as search info
-    $srccell = '&nbsp;';
-    if ($row['has_search'] == "1") { $srccell = 'new'; }
-    elseif ($row['has_search'] == "2") { $srccell = 'old'; }
-    if ($srccell != '&nbsp;') {
-        $srccell = "<a href=\"http://$row[hostname]/search.php\">" .
-                   "<img src=\"/images/mirror_search.png\" /> [$srccell]</a>";
+    $searchcell = '&nbsp;';
+    if ($row['has_search'] == "1") { $searchcell = 'new'; }
+    elseif ($row['has_search'] == "2") { $searchcell = 'old'; }
+    if ($searchcell != '&nbsp;') {
+        $searchcell = "<a href=\"http://$row[hostname]/search.php\">" .
+                      "<img src=\"/images/mirror_search.png\" /> [$searchcell]</a>";
     }
 
     $statscell = '&nbsp;';
     if ($row['has_stats'] == "1") {
         $statscell = "<a href=\"http://$row[hostname]/stats\">" .
                      "<img src=\"/images/mirror_stats.png\" /></a>";
+    }
+
+    $emailcell = '&nbsp;';
+    $maintainer = trim($row['maintainer']);
+    if ($row['maintainer']) {
+        if (preg_match("!<(.+)>!", $maintainer, $found)) {
+            $addr = $found[1];
+            $name = str_replace("<$addr>", "", $maintainer);
+            $emailcell = '<a href="mailto:' . $addr . '&amp;subject=' . $row['hostname'] .
+            '&amp;cc=webmaster@php.net">$name <img src="/images/mirror_mail.png" /></a>';
+        }
     }
 
     // Mirror edit link
@@ -373,8 +385,11 @@ while ($row = mysql_fetch_array($res)) {
     echo '<td><a href="' . $row['providerurl'] . '">' .
          $row['providername'] . '</a><br /></td>' . "\n";
 
+    // Print out maintainer email cell
+    echo '<td align="right">' . $emailcell . '</td>' . "\n";
+
     // Print out mirror search table cell
-    echo '<td align="right">' . $srccell . '</td>' . "\n";
+    echo '<td align="right">' . $searchcell . '</td>' . "\n";
 
     // Print out mirror stats table cell
     echo '<td align="right">' . $statscell . '</td>' . "\n";
