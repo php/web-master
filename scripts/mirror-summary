@@ -116,7 +116,7 @@ $inactives_text = "Hi!\n\nOur automatic mirror site check was unable to reach\n"
 // Send mail to all inactive mirror maintainers
 foreach ($inactives as $hostname => $hostinfo) {
     if (!empty($hostinfo[1])) {
-        $last_errror = "The last error message stored for your mirror is:\n  {$hostinfo[1]}\n\n";
+        $last_error = "The last error message stored for your mirror is:\n  {$hostinfo[1]}\n\n";
     }
     else { $last_error = ""; }
     mail(
