@@ -351,7 +351,7 @@ while ($row = mysql_fetch_array($res)) {
     $searchcell = '';
     if ($row['has_search'] == "2") { $searchcell = '('; }
     if (in_array($row['has_search'], array("1", "2"))) {
-        $searchcell .= "<a href=\"http://$row[hostname]/search.php\">" .
+        $searchcell .= "<a href=\"http://$row[hostname]/search.php\" target=\"_blank\">" .
                        "<img src=\"/images/mirror_search.png\" /></a>";
     }
     if ($row['has_search'] == "2") { $searchcell .= ')'; }
@@ -360,7 +360,7 @@ while ($row = mysql_fetch_array($res)) {
     // Stats information cell
     $statscell = '&nbsp;';
     if ($row['has_stats'] == "1") {
-        $statscell = "<a href=\"http://$row[hostname]/stats\">" .
+        $statscell = "<a href=\"http://$row[hostname]/stats/\" target=\"_blank\">" .
                      "<img src=\"/images/mirror_stats.png\" /></a>";
     }
 
