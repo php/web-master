@@ -10,7 +10,7 @@ if (@mysql_connect("localhost","nobody","")) {
     $res = @mysql_query("SELECT cvsuser,email FROM users WHERE cvsuser IS NOT NULL AND email != ''");
     if ($res) {
       while ($row = @mysql_fetch_array($res)) {
-        echo "$row[cvsuser]: $row[email]\n";
+        echo "$row[cvsuser]: $row[email];\n";
       }
     }
   }
