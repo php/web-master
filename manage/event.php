@@ -157,7 +157,7 @@ if (isset($id)) {
  <tr>
   <th>Country</th>
   <td>
-   <select name="in[country]" width="30">
+   <select name="in[country]">
     <option value="">- Select a country -</option>
     <?php show_country_options($in['country']);?>
    </select>
@@ -166,7 +166,7 @@ if (isset($id)) {
  <tr>
   <th>Event Category</th>
   <td>
-   <select name="in[category]" width="20">
+   <select name="in[category]">
 <?php
         display_options($cat,$in['category']);
 ?>
