@@ -23,7 +23,7 @@ for($i=0; $row = mysql_fetch_array($result,MYSQL_ASSOC); $i++) {
 
 /* make all hosts active again -- cop out / cheat to get around the deactivation later */
 
-$query = "UPDATE mirrors SET active = 1";
+$query = "UPDATE mirrors SET active = 1 WHERE mirrortype = 1 ";
 
 $result = mysql_query($query) or die("unable to update the database");
 
