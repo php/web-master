@@ -13,6 +13,7 @@ $COUNTRIES = array(
    "ch" => "Switzerland",
    "cl" => "Chile",
    "cn" => "China",
+   "cr" => "Costa Rica",
    "cz" => "Czech Republic",
    "de" => "Germany",
    "dk" => "Denmark",
