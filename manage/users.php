@@ -117,7 +117,7 @@ if (isset($id) && isset($in)) {
         if (isset($in[email]) && isset($in[name])) {
           $query = "UPDATE users SET name='$in[name]',email='$in[email]'"
                  . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
-                 . ($in[username] ? ",username='$in[username]'" : "")
+                 . ((is_admin($user) && $in[username]) ? ",username='$in[username]'" : "")
                  . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
                  . " WHERE userid=$id";
@@ -180,11 +180,11 @@ if (isset($id)) {
  <th align="right">Password (crypted):</th>
  <td><input type="text" name="in[passwd]" value="<?php echo htmlspecialchars($row[passwd]);?>" size="20" maxlength="20" /></td>
 </tr>
-<?php }?>
 <tr>
  <th align="right">CVS username:</th>
  <td><input type="text" name="in[username]" value="<?php echo htmlspecialchars($row[username]);?>" size="16" maxlength="16" /></td>
 </tr>
+<?php }?>
 <?php if (is_admin($user)) {?>
 <tr>
  <th align="right">CVS access?</th>
