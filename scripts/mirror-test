@@ -41,8 +41,8 @@ mysql_free_result($result);
 // Get mirrmon output to double check our results
 $doublecheck = ''; $mirrmon = array();
 $dcheck = explode("\n", @file_get_contents("http://iso.ego.fi/php_mirrors/state.txt"));
-if (is_array($dcheck) && count($dcheck) == count($hosts)) {
-    $doublecheck = "Double checking " . count($dcheck) . " mirrors\n";
+if (is_array($dcheck)) {
+    $doublecheck = "Double checking " . count($dcheck) . "/" . count($hosts) . " mirrors\n";
     foreach ($dcheck as $mirrinfo) {
       $details = explode(" ", $mirrorinfo);
       $mirrmon[$details[0]] = array($details[1], $details[3]);
