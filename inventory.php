@@ -47,6 +47,8 @@ take over the mailing lists if pair1 ever fails.</p>
 <p><b>stats:</b> MRTG stats (traffic, load avg, cpu usage, etc) are 
 available <a href="http://www.php.net/~imajes/mrtg/">here</a>.</p>
 
+<p><b>technical contact:</b> connect to irc.ev1.net:7000, join #rackshack</p>
+
 <h2>rn1.php.net (12.165.50.194)</h2>
 
 <p><b>machine:</b> Compaq DL380-G2 1.1GHz, 1GB RAM, 6x36GB SCSI HDs in RAID5 resulting in a 167GB cluster.</p>
