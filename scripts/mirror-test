@@ -10,7 +10,7 @@ mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
 mysql_select_db("php3");
 
-$query = "SELECT maintainer,hostname,id FROM mirrors WHERE active = 1 AND mirrortype = 1";
+$query = "SELECT maintainer,hostname,id FROM mirrors WHERE mirrortype = 1";
 
 $result = mysql_query($query)
   or die("unable to get from the database");
@@ -84,6 +84,10 @@ for ($i=0; $i < $total; $i++) {
 	$hosts[$i]['phpversion'] = $info['1'];
 	$hosts[$i]['lastupdate'] = $info['2'];
 	$hosts[$i]['xtra'] = $info['3'];
+	
+	if (strlen($info['3']) > 0) {
+		$moreinfo = true;
+	}
 }
 
 /* now prepare a mailer for php-mirrors */
@@ -94,24 +98,27 @@ for ($i=0; $i < $total; $i++) {
 	  . "sorted by last update.\n"
 	  . "Edit mirror listings here: http://master.php.net/manage/mirrors.php\n\n";
 
-  $body .=  "No response was returned from these following hosts:\n";
+  $body .=  "No response was returned from these following hosts, and they were removed from the active list:\n\n";
 
   for($i=0; $i < $total; $i++) {
 	if ($hosts[$i]['active'] == false) {
-		$deadhosts .= sprintf("%s, ", $hosts[$i]['hostname']);
+		$body .= sprintf("%s -- %s\n", $hosts[$i]['hostname'], $hosts[$i]['maintainer']);
+		
+		mysql_connect("localhost","nobody","") or die("unable to connect to database");
+		mysql_select_db("php3");
+		$query = "UPDATE mirrors SET active = 0 WHERE hostname = '" . $hosts[$i]['hostname'] . "'"; 
+		$result = mysql_query($query) or die("unable to get from the database");
 	}
   }
-  /* hack to make it neat, 'cause i can't think of any other way of doing it */
-  $deadhosts .= ".\n";
-  $deadhosts = str_replace(", .", ".", $deadhosts);
-  $body .= wordwrap($deadhosts, 72);
+  
+  if (isset($moreinfo)){
+    $body .=  "\nThese hosts returned extra information, so there may be errors:\n";
 
-  $body .=  "\nThese hosts returned extra information, so there may be errors:\n";
-
-  for($i=0; $i < $total; $i++) {
+    for($i=0; $i < $total; $i++) {
         if (strlen($hosts[$i]['xtra']) > 0) {
                 $body .= sprintf("%s - %s - %s\n%s\n", $hosts[$i]['hostname'], $hosts[$i]['phpversion'], date("F j, Y, g:i a", $hosts[$i]['lastupdate']), $hosts[$i]['xtra']);
         }
+    }
   }
 
   $body .=  "\nAnd now for the rest of the mirrors:\n"
@@ -147,6 +154,7 @@ a quick strlen check, and depending on how different it is from the string lengt
   $body . "---------------------------------------------------------------------------------------\n";
 
 /* please edit this when testing to send mail to yourself, not to the list every time */
+
 mail("php-mirrors@lists.php.net", "PHP Mirror Status Info.", $body, "From: php-mirrors@lists.php.net");
 
 /* this cleans what we did. it also kills all the wget sessions that didn't end - however, the make session
