@@ -57,7 +57,7 @@ foreach ($hosts as $index => $host) {
 
     // Diagnostical info
     $doublecheck .= $host['hostname'] . ' : ' .
-                    date("r", $host['lastupdate']) . "/" .
+                    date("r", $host['lastupdated']) . "/" .
                     date("r", $mirrmon[$host['hostname']][0]) . " .. " .
                     date("r", $host['lastchecked']) . "/" .
                     date("r", $mirrmon[$host['hostname']][1]) . "\n";
