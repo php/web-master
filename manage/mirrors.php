@@ -52,15 +52,18 @@ switch($mode) {
 	case "update":
 		
 		$query = "UPDATE mirrors SET hostname='$hostname',active=$active,mirrortype=$mirrortype,cname='$cname',maintainer='$maintainer',providername='$providername',providerurl='$providerurl',cc='$cc',lang='$lang',has_stats=$has_stats,has_search=$has_search,lastedited=NOW() WHERE id=$id";
+		$msg = "$hostname updated";
 	break;
 
 	case "delete":	
 		
 		$query = "DELETE FROM mirrors WHERE id=$id";	
+		$msg = "$hostname deleted";
 	break;	
 
 	case "insert";
 		$query = "INSERT INTO mirrors (hostname,active,mirrortype,cname,maintainer,providername,providerurl,cc,lang,has_stats,has_search,created,lastedited) VALUES ('$hostname',$active,$mirrortype,'$cname','$maintainer','$providername','$providerurl','$cc','$lang',$has_stats,$has_search,NOW(),NOW())";
+		$msg = "$hostname added";
 	break;
 
 	default:
@@ -71,8 +74,13 @@ switch($mode) {
     echo "<h2 class=\"error\">Query failed: ", mysql_error(), "</h2>";
   }
   else {
-    echo "<h2>$hostname ", $id ? "updated" : "added", ".</h2>";
+    echo "<h2>$msg</h2>";
   }
+ if($mode == "delete") {
+	// quick security mail..
+	$body = "The mirrors list was updated, and $hostname was deleted.";
+	mail("php-mirrors@lists.php.net", "PHP Mirrors Updated.", $body, "From: php-mirrors@lists.php.net");
+ }
 }
 elseif (isset($id)) {
   if ($id) {
@@ -158,7 +166,7 @@ while ($row = mysql_fetch_array($res)) {?>
  <td><?php echo htmlspecialchars($row[maintainer]);?>&nbsp;</td>
  <td><a href="<?php echo htmlspecialchars($row[providerurl]);?>"><?php echo htmlspecialchars($row[providername]);?></a></td>
  <td align="center"><?php echo $row[has_stats] ? "<a href=\"http://$row[hostname]/stats/\">go</a>" : "&nbsp;";?></td>
- <td align="center"><?php echo ($row[mirrortype] == 1) ? "<a href=\"$PHP_SELF?mode=delete&id=$row[id]\">delete</a>" : "&nbsp;";?></td>
+ <td align="center"><?php echo ($row[mirrortype] == 1) ? "<a href=\"$PHP_SELF?mode=delete&hostname=$row[hostname]&id=$row[id]\">delete</a>" : "&nbsp;";?></td>
 </tr>
 <?php
   $color = $color == '#dddddd' ? '#eeeeee' : '#dddddd';
