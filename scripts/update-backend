@@ -18,13 +18,13 @@ fetch_into_file("http://master.php.net/fetch/events.php?nm=3&token=$token",
                 "$root/backend/events.csv");
 
 function fetch_into_file($url,$file) {
-  $source = fopen($url,"r");
+  $source = @fopen($url,"r");
   if (!$source) {
     echo "failed to open '$url' for reading\n";
     return;
   }
 
-  $dest = fopen("$file~","w");
+  $dest = @fopen("$file~","w");
   if (!$dest) {
     echo "failed to open '$dest~' for writing\n";
     return;
