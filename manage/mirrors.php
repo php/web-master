@@ -351,7 +351,7 @@ while ($row = mysql_fetch_array($res)) {
                    "<img src=\"/images/mirror_search.png\" /> [$srccell]</a>";
     }
 
-    $statcell = '&nbsp;';
+    $statscell = '&nbsp;';
     if ($row['has_stats'] == "1") {
         $statscell = "<a href=\"http://$row[hostname]/stats\">" .
                      "<img src=\"/images/mirror_stats.png\" /></a>";
