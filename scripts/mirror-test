@@ -65,7 +65,7 @@ $fw = @fwrite($fp, $mf);
 
 /* execute it, gather data...  */
 
-exec("make -C /tmp/mirrors/ -i -j -k all");
+exec("make -C /tmp/mirrors/ -i -j -k all 2> /dev/null");
 
 /* now get the info from the files and populate our arrays of data */
 
@@ -103,5 +103,5 @@ for($i=0; $i < $total; $i++) {
 /* this cleans what we did. it also kills all the wget sessions that didn't end - however, the make session
 goes defunct and loses reporting over the child processes. This should die within a short period of time. */  
 
-exec("make -C /tmp/mirrors/ -k -i clean");
+exec("make -C /tmp/mirrors/ -k -i clean 2> /dev/null");
 ?> 
