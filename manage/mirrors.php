@@ -160,11 +160,9 @@ elseif (isset($id)) {
    <td><select name="cc"><?php show_country_options($row['cc']); ?></select></td>
   </tr>
   <tr>
-   <th align="right">Default Language:</th>
-   <td><select name="lang"><?php show_language_options($row['lang']); ?></select></td>
-  <tr>
    <th align="right">Local Stats:</th>
    <td><input type="checkbox" name="has_stats"<?php echo $row['has_stats'] ? " checked" : ""; ?> /></td>
+  </tr>
   <tr>
    <td colspan="2" align="center"><input type="submit" value="<?php echo $id ? "Change" : "Add"; ?>" />
   </tr>
@@ -198,6 +196,10 @@ elseif (isset($id)) {
   <tr>
    <th align="right">Local Search:</th>
    <td><?php echo $searchtypes[$row['has_search']]; ?></td>
+  </tr>
+  <tr>
+   <th align="right">Default Language:</th>
+   <td><?php echo $LANGUAGES[$row['lang']] . " [" . $row['lang'] . "]"; ?></td>
   </tr>
  </table>
 <?php } else { echo "&nbsp;"; } ?>
