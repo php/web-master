@@ -5,6 +5,8 @@
 // Fetch ip-to-country.com data and index database
 function fetch_ip_to_country($root)
 {
+    mail("goba@php.net", "ip-to-country: starting update", "");
+    
     // Files used / affected
     $ipdbt   = "ip-to-country.db~";
     $ipdbc   = "ip-to-country.dbr~";
@@ -26,6 +28,8 @@ function fetch_ip_to_country($root)
 
     // No success in getting the DB
     if (!$succ) { return FALSE; }
+    
+    mail("goba@php.net", "ip-to-country: succesful download", "");
                             
     /*
      The following code checks the structure of the file
