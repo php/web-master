@@ -52,7 +52,7 @@ foreach ($hosts as $index => $host) {
     // Request the exact file on www.php.net as it redirects
     // the request to a mirror site, and we would not handle
     // that properly...
-    if ($row['hostname'] == 'www.php.net') {
+    if ($host['hostname'] == 'www.php.net') {
         $filename = '/mirror-info.php';
     } else {
         $filename = '/mirror-info';
