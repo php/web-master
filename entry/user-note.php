@@ -3,7 +3,8 @@
 //require_once 'alert_lib.inc';
 
 $mailto = 'php-notes@lists.php.net';
-$failto = 'jimw@php.net, alindeman@php.net';
+$failto = 'jimw@php.net, alindeman@php.net, didou@keliglia.com';
+$dbugto = 'didou@keliglia.com';
 
 if (!isset($user) || empty($note) || empty($sect))
   die("missing some parameters.");
@@ -57,6 +58,10 @@ $query .= "('$user','$note','$sect',NOW(), NULL)";
 //na = not approved.  Don't display notes until they are approved by an editor
 //This has been reverted until it has been discussed further.
 
+// testing the mail function
+mail($dbugto, "from user-note.php", "I'm ok !");
+
+
 //echo "<!--$query-->\n";
 if (@mysql_query($query)) {
   $new_id = mysql_insert_id();	
@@ -72,7 +77,9 @@ if (@mysql_query($query)) {
   // see who requested an alert
   // ** alerts **
   //$mailto .=  get_emails_for_sect($sect);
-  mail($mailto,"note $new_id added to $sect",$msg,"From: $user\r\nMessage-ID: <note-$new_id@php.net>");
+  if (!mail($mailto,"note $new_id added to $sect",$msg,"From: $user\r\nMessage-ID: <note-$new_id@php.net>")) {
+    mail($dbugto, "mail() failed", $msg);
+  }
 } else {
   // mail it.
   mail($failto,
