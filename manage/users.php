@@ -28,12 +28,13 @@ if (isset($username) && !isset($id)) {
   }
 }
 
+if(isset($id)) $id = (int)$id;
+
 if (isset($id) && isset($action)) {
   if (!is_admin($user)) {
     warn("you're not allowed to take actions on users.");
     exit;
   }
-  $id = (int)$id;
   switch ($action) {
   case 'approve':
     if (db_query("UPDATE users SET cvsaccess=1 WHERE userid=$id")
