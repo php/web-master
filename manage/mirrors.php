@@ -15,6 +15,8 @@ $has_stats  = isset($has_stats)  ? 1 : 0;
 $lct = db_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY lastchecked DESC LIMIT 1");
 list($checktime) = mysql_fetch_row($lct);
 
+if (isset($id)) $id = (int)$id;
+
 // We have something to update in the database
 if (isset($id) && isset($hostname)) {
 

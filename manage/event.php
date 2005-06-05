@@ -26,8 +26,9 @@ head("event administration");
   or die("unable to connect to database");
 @mysql_select_db("phpmasterdb");
 
+if (isset($id)) $id = (int)$id;
+
 if (isset($id) && isset($action)) {
-  $id = (int)$id;
   switch ($action) {
   case 'approve':
     if (db_query("UPDATE phpcal SET approved=1,app_by='$user' WHERE id=$id")
