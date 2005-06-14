@@ -100,7 +100,7 @@ function ParseNews ($index_page = "") {
                 #DEBUG# print "<p>Info: New Headline: $headlineid<br />";
                 
             // End of headlines reached
-            } elseif (strpos($line, '<a href="/news-2003.php">News Archive</a>')) {
+            } elseif (strpos($line, '<a href="/news-2004.php">News Archive</a>')) {
                 
                 array_pop($headlines);
                 break;
