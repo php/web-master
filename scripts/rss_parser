@@ -64,6 +64,9 @@ function ProcessText($text) {
 // Parse the index file searching for news item information
 function ParseNews ($index_page = "") {
 
+    // Remove commented items
+    $index_page = preg_replace("/<!--[\w\W]*?-->/Um", "", $index_page); 
+
     // Split the file by newlines
     $lines = preg_split("/\n/", $index_page);
     #DEBUG# print "<pre>"; print_r($lines); print "</pre>";
