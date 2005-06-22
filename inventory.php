@@ -59,7 +59,7 @@ available <a href="http://www.php.net/~imajes/mrtg/">here</a>.</p>
 this box. This allows for absolute failover redundancy, and the possibilty of internal linkage. This box is quite a monster,
  so having failover allows us the possibility to experiment with various distributed setups.</p>
 
-<h2>rn2.php.net (67.72.78.18)</h2>
+<h2>rn2.php.net (216.27.81.34)</h2>
 
 <p><b>machine:</b> (same as rn1) P3-1133, 1.2GB RAM, 165GB HD</p>
 
