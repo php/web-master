@@ -65,6 +65,18 @@ if (@mysql_query($query)) {
   $new_id = mysql_insert_id();	
   $msg = stripslashes($note);
   $msg .= "\n----\n";
+  $msg .= "Submitter IP: {$_SERVER['REMOTE_ADDR']}";
+  if ($xFwd = isset($_SERVER['HTTP_X_FORWARDED_FOR']) || $xVia = isset($_SERVER['HTTP_VIA'])) {
+    $msg .= " (proxied:";
+    if ($xFwd) {
+      $msg .= " " . htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']);
+    }
+    if ($xVia) {
+      $msg .= " " . htmlspecialchars($_SERVER['HTTP_VIA']);
+    }
+    $msg .= ")";
+  }
+  $msg .= "\n----\n";
   $msg .= "Manual Page -- http://www.php.net/manual/en/$sect.php\n";
   $msg .= "Edit        -- http://master.php.net/manage/user-notes.php?action=edit+$new_id\n";
   //$msg .= "Approve     -- http://master.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
