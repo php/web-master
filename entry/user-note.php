@@ -64,6 +64,7 @@ $query .= "('$user','$note','$sect',NOW(), NULL)";
 if (@mysql_query($query)) {
   $new_id = mysql_insert_id();	
   $msg = stripslashes($note);
+  /*
   $msg .= "\n----\n";
   $msg .= "Submitter IP: {$_SERVER['REMOTE_ADDR']}";
   if ($xFwd = isset($_SERVER['HTTP_X_FORWARDED_FOR']) || $xVia = isset($_SERVER['HTTP_VIA'])) {
@@ -76,6 +77,7 @@ if (@mysql_query($query)) {
     }
     $msg .= ")";
   }
+  */
   $msg .= "\n----\n";
   $msg .= "Manual Page -- http://www.php.net/manual/en/$sect.php\n";
   $msg .= "Edit        -- http://master.php.net/manage/user-notes.php?action=edit+$new_id\n";
