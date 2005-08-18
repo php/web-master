@@ -44,26 +44,30 @@ $body = "Following is data gathered from the various mirrors. It is ordered by t
       . "Edit mirror listings here: http://master.php.net/manage/mirrors.php\n\n";
 
 // List mirrors which seem to be down
-$body .=  "No response was returned from these following hosts within the last three days:\n\n";
 for ($i=0; $i < $total; $i++) {
     if (!$hosts[$i]['active']) {
-        $body .= sprintf("%s -- %s\n", $hosts[$i]['hostname'], $hosts[$i]['maintainer']);
         $inactives[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $hosts[$i]['ocmt']);
     }
 }
+if (count($inactives)) {
+  $body .= "No response was returned from these following hosts within the last three days:\n\n";
+  $body .= wordwrap(join(', ', array_keys($inactives))) . "\n";
+}
 
 // List all mirrors which seem to be outdated
-$body .=  "\nThese mirrors have not been updated in at least 7 days:\n\n";
 for ($i=0; $i < $total; $i++) {
     if ($hosts[$i]['active'] && !$hosts[$i]['current']) {
-        $body .= sprintf("%s -- %s\n", $hosts[$i]['hostname'], $hosts[$i]['maintainer']);
         $outdated[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $hosts[$i]['ocmt']);
     }
+}
+if (count($outdated)) {
+    $body .= "\nThese mirrors have not been updated in at least 7 days:\n\n";
+    $body .= wordwrap(join(', ', array_keys($outdated))) . "\n";
 }
 
 $body .= "\nAnd now for the rest of the mirrors:\n"
        . "----------------------------------------------------------------------------------------\n"
-       . " Host \t\t PHP Version \t\t Last Updated\t\t Maintainer\n"
+       . " Host \t\t PHP Version \t\t Last Updated\n"
        . "----------------------------------------------------------------------------------------\n";
 
 /* A note about the padding - given that email readers produce interesting results for spacing,
@@ -88,7 +92,7 @@ function pad($deflen, $item) {
 
 for ($i=0; $i < $total; $i++) {
     if ($hosts[$i]['active'] && $hosts[$i]['current']){
-        $body .= sprintf(" %s%s%s%s%s\t\t%s\n", $hosts[$i]['hostname'], pad(11, "hostname"), $hosts[$i]['phpversion'], pad(5, "phpversion"), date("F j, Y, g:i a", $hosts[$i]['lastupdate']), $hosts[$i]['maintainer']);
+        $body .= sprintf(" %s%s%s%s%s\n", $hosts[$i]['hostname'], pad(11, "hostname"), $hosts[$i]['phpversion'], pad(5, "phpversion"), date("F j, Y, g:i a", $hosts[$i]['lastupdate']));
     }
 }
 
@@ -105,7 +109,7 @@ mail(
 // Mail text for those mirror maintainers with inactive mirror sites
 $inactives_text = "Hi!\n\nOur automatic mirror site check was unable to reach\n"
                  ."the PHP.net mirror site maintained by you for three or more days\n"
-                 ."now, *or* have found a critical error in your mirror setup.\n"
+                 ."now, *or* have found a permanent fatal error in your mirror setup.\n"
                  ."Therefore our bot automatically disabled your listing as an\n"
                  ."official PHP.net mirror site.\n\n"
                  ."{{lasterror}}"
