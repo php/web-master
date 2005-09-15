@@ -87,6 +87,7 @@ if (@mysql_query($query)) {
   $msg .= "Delete: spam                -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=spam\n";
   $msg .= "Delete: useless             -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=useless\n";
   $msg .= "Delete: non-english         -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=non-english\n";
+  $msg .= "Delete: already in docs     -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=already+in+docs\n";
   $msg .= "Delete: other reasons       -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes\n";
   $msg .= "Reject      -- http://master.php.net/manage/user-notes.php?action=reject+$new_id&report=yes\n";
   $msg .= "Search      -- http://master.php.net/manage/user-notes.php\n";

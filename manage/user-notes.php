@@ -83,6 +83,7 @@ if (!$action) {
             "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=bad+code\" target=\"_blank\">Delete Note: bad code</a><br />",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=spam\" target=\"_blank\">Delete Note: spam</a><br />",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=non-english\" target=\"_blank\">Delete Note: non-english</a><br />",
+            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=already+in+docs\" target=\"_blank\">Delete Note: already in docs</a><br />",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id\" target=\"_blank\">Delete Note: other reason</a><br />",
             "<a href=\"http://master.php.net/manage/user-notes.php?action=reject+$id\" target=\"_blank\">Reject Note</a>",
             "</p>",
