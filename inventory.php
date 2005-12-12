@@ -28,7 +28,7 @@ take over the mailing lists if pair1 ever fails.</p>
 
 <p><b>machine:</b> dual p3/1000 xeon, 512MB RAM, 70GB HD, freebsd 4.8</p>
 
-<p><b>aliases:</b> chora, cvs, cvsup, cvsweb, lxr, viewcvs</p>
+<p><b>aliases:</b> idle</p>
 
 <h2>pb12.php.net (216.92.131.66)</h2>
 
@@ -92,6 +92,11 @@ machine to track the usage of all of the machines.</p> -->
 <p><b>machine:</b> Dual Xeon 2.4GHz, 1GB RAM, 36GB HD, RHEL 3</p>
 <p><b>aliases:</b> ecelerity, master.php.net, php.net MX</p>
 <p><b>technical contact:</b> Scott Kveton, Oregon State OSL (scott AT osuosl.org)</p>
+
+<h2>y1.php.net (66.163.161.116)</h2>
+<p><b>machine:</b> Dual Xeon 3GHz, 4GB RAM, 6x73GB SCSI HD RAID10, 64-bit FreeBSD6</p>
+<p><b>aliases:</b> chora, cvs, cvsup, cvsweb, lxr, viewcvs</p>
+<p><b>technical contact:</b> Rasmus or Andrei</p>
 
 <p>originally compiled by jim winstead, september 2001</p>
 <p>last update: $Id$</p>
