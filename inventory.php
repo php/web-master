@@ -84,7 +84,7 @@ machine to track the usage of all of the machines.</p> -->
 <h2>sp1.php.net (69.28.246.234)</h2>
 
 <p><b>machine:</b> Celeron 2.5GHz, 1GB RAM, 120GB HD, Debian GNU/Linux</p>
-<p><b>aliases:</b> idle</p>
+<p><b>aliases:</b> gcov</p>
 <p><b>technical contact:</b> Cameron Jones (cameron.jones AT spry.com)</p>
 
 <h2>osu1.php.net (140.211.166.39)</h2>
