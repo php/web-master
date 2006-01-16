@@ -5,7 +5,7 @@
 $mailto = 'php-notes@lists.php.net';
 $failto = 'jimw@php.net, alindeman@php.net';
 
-if (!isset($user) || empty($note) || empty($sect))
+if (!isset($user) || empty($note) || empty($sect) || empty($ip) || !isset($redirip))
   die("missing some parameters.");
 
 @mysql_connect("localhost","nobody", "")
@@ -66,7 +66,7 @@ if (@mysql_query($query)) {
   $msg = stripslashes($note);
 
   $msg .= "\n----\n";
-  $msg .= "Submitter IP: {$_SERVER['REMOTE_ADDR']}";
+  $msg .= "Server IP: {$_SERVER['REMOTE_ADDR']}";
   if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) || isset($_SERVER['HTTP_VIA'])) {
     $msg .= " (proxied:";
     if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
@@ -77,6 +77,7 @@ if (@mysql_query($query)) {
     }
     $msg .= ")";
   }
+  $msg .= "Probable Submitter: {$ip}" . ($redirip ? htmlspecialchars($redirip) : '') . "\n";
 
   $msg .= "\n----\n";
   $msg .= "Manual Page -- http://www.php.net/manual/en/$sect.php\n";
