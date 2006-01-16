@@ -77,7 +77,7 @@ if (@mysql_query($query)) {
     }
     $msg .= ")";
   }
-  $msg .= "Probable Submitter: {$ip}" . ($redirip ? htmlspecialchars($redirip) : '') . "\n";
+  $msg .= "Probable Submitter: {$ip}" . ($redirip ? ' (proxied: '.htmlspecialchars($redirip).')' : '') . "\n";
 
   $msg .= "\n----\n";
   $msg .= "Manual Page -- http://www.php.net/manual/en/$sect.php\n";
