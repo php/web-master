@@ -51,6 +51,11 @@ if ($count >= 3) {
   die ('[TOO MANY NOTES]');
 }
 
+// check if the IP is blacklisted
+if (is_spammer($_SERVER['REMOTE_ADDR']) || is_spammer($redirip)) {
+    die ('[SPAMMER]');
+}
+
 $sect = ereg_replace("\.php$","",$sect);
 
 $query = "INSERT INTO note (user, note, sect, ts, status) VALUES ";
@@ -108,3 +113,30 @@ if (@mysql_query($query)) {
       'From: webmaster@php.net');
   die("failed to insert record");
 }
+
+
+
+/* check if an IP is marked as spammer.
+   test with 127.0.0.2 for positive and 127.0.0.1 for negative
+*/
+function is_spammer($ip) {
+    $reverse_ip = implode('.', array_reverse(explode('.', $ip)));
+
+    // spammers lists
+    $lists[] = 'list.dsbl.org';
+    $lists[] = 'dnsbl.sorbs.net';
+
+    foreach ($lists as $list) {
+        $host = $reverse_ip . '.' . $list;
+
+        if (gethostbyname($host) != $host) {
+            return true;
+        }
+    }
+    return false;
+}
+
+//var_dump(is_spammer('127.0.0.1')); // false
+//var_dump(is_spammer('127.0.0.2')); // true
+
+?>
