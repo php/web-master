@@ -123,13 +123,15 @@ function is_spammer($ip) {
     $reverse_ip = implode('.', array_reverse(explode('.', $ip)));
 
     // spammers lists
-    $lists[] = 'list.dsbl.org';
-    $lists[] = 'dnsbl.sorbs.net';
+    // [0] => dns server, [1] => exclude ip
+    $lists[] = array('list.dsbl.org');
+    $lists[] = array('dnsbl.sorbs.net', '127.0.0.10'); // exclude dynamic ips list
 
     foreach ($lists as $list) {
-        $host = $reverse_ip . '.' . $list;
+        $host = $reverse_ip . '.' . $list[0];
+        $dns  = gethostbyname($host);
 
-        if (gethostbyname($host) != $host) {
+        if ($dns != $host && (empty($list[1]) || $dns != $list[1])) {
             return true;
         }
     }
