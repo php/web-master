@@ -5,8 +5,39 @@
 $mailto = 'php-notes@lists.php.net';
 $failto = 'jimw@php.net, alindeman@php.net';
 
+// list of usual SPAM words
+$worlds_backlist = array(
+	'alprazolam',
+	'arimidex',
+	'carisoprodol',
+	'ciprofloxacin',
+	'ephedra',
+	'esomeprazole',
+	'glucophage',
+	'hydrocodone',
+	'metronidazole',
+	'nexium',
+	'testosterone',
+	'vicoprofen',
+	'xanax',
+	'zanaflex',
+);
+
+
 if (!isset($user) || empty($note) || empty($sect) || empty($ip) || !isset($redirip))
   die("missing some parameters.");
+
+// check if the IP is blacklisted
+if (is_spammer($_SERVER['REMOTE_ADDR']) || is_spammer($redirip)) {
+    die ('[SPAMMER]');
+}
+
+// check if the note contains some prohibited words
+foreach($worlds_backlist as $bad_word) {
+    if (strpos($note, $bad_word) !== false) {
+        die('[SPAM WORD]');
+    }
+}
 
 @mysql_connect("localhost","nobody", "")
   or die("failed to connect to database");
@@ -49,11 +80,6 @@ if ($count >= 3) {
 	'From: webmaster@php.net'
        );
   die ('[TOO MANY NOTES]');
-}
-
-// check if the IP is blacklisted
-if (is_spammer($_SERVER['REMOTE_ADDR']) || is_spammer($redirip)) {
-    die ('[SPAMMER]');
 }
 
 $sect = ereg_replace("\.php$","",$sect);
