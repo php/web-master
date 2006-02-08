@@ -30,6 +30,7 @@ $worlds_backlist = array(
 	'naproxen',
 	'nexium',
 	'paroxetine',
+	'phentermine',
 	'pravachol',	
 	'testosterone',
 	'tramadol',
