@@ -40,12 +40,13 @@ take over the mailing lists if pair1 ever fails.</p>
 
 <p><b>machine:</b> p3/1GHz, 1GB RAM 40GB HD, redhat 7.2</p>
 
-<p><b>aliases:</b> www, conf, conf2, pres, talks</p>
+<p><b>aliases:</b> </p>
 
-<p><b>notes:</b> This machine is on a dedicated 10mbps switch. whilst it can maintain 10mbps, it cannot burst above that.</p> 
+<p><b>notes:</b> This machine is on a dedicated 10mbps switch. whilst it can maintain 10mbps, it cannot burst above that.<br />
+                 Being re-imaged...</p> 
 
 <p><b>stats:</b> MRTG stats (traffic, load avg, cpu usage, etc) are 
-available <a href="http://www.php.net/~imajes/mrtg/">here</a>.</p>
+available <a href="http://rs1.php.net/~imajes/mrtg/">here</a>.</p>
 
 <p><b>technical contact:</b> connect to irc.ev1.net:7000, join #rackshack</p>
 
@@ -96,6 +97,11 @@ machine to track the usage of all of the machines.</p> -->
 <h2>y1.php.net (66.163.161.116)</h2>
 <p><b>machine:</b> Dual Xeon 3GHz, 4GB RAM, 6x73GB SCSI HD RAID10, 64-bit FreeBSD6</p>
 <p><b>aliases:</b> chora, cvs, cvsup, cvsweb, lxr, viewcvs</p>
+<p><b>technical contact:</b> Rasmus or Andrei</p>
+
+<h2>y2.php.net (66.163.161.117)</h2>
+<p><b>machine:</b> Dual Xeon 2.8GHz, 4GB RAM, 2x73GB SCSI HD RAID1, 64-bit FreeBSD6</p>
+<p><b>aliases:</b> www, talks, conf, static, download</p>
 <p><b>technical contact:</b> Rasmus or Andrei</p>
 
 <p>originally compiled by jim winstead, september 2001</p>
