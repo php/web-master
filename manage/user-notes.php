@@ -393,7 +393,6 @@ function highlight_php($code, $return = FALSE)
 // Send out a mail to the note submitter, with an envelope sender ignoring bounces
 function note_mail_user($mailto, $subject, $message)
 {
-return;
     $mailto = clean_antispam($mailto);
     if (is_emailable_address($mailto)) {
         mail(
@@ -422,7 +421,6 @@ function note_get_by_id($id)
 // some action is performed on a user note.
 function note_mail_on_action($user, $id, $subject, $body)
 {
-return;
     mail(NOTES_MAIL, $subject, $body, "From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
 }
 
