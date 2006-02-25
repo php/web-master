@@ -83,7 +83,7 @@ if (!$action) {
 	    echo '<a href="http://master.php.net/note/delete/', $id, '/', urlencode($reason), '">', 'Delete Note: ', htmlspecialchars($text), "</a><br />\n";
 	  }
           echo "<a href=\"http://master.php.net/note/delete/$id\" target=\"_blank\">Delete Note: other reason</a><br />",
-            "<a href=\"http://master.php.net/note/reject/reject/$id\" target=\"_blank\">Reject Note</a>",
+            "<a href=\"http://master.php.net/note/reject/$id\" target=\"_blank\">Reject Note</a>",
             "</p>",
 	    "<hr />";
         }
