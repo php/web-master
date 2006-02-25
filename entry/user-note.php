@@ -137,7 +137,7 @@ if (@mysql_query($query)) {
       . str_pad($reason, $note_del_reasons_pad)
       . "-- http://master.php.net/note/delete/$new_id/" . urlencode($reason) ."\n";
   }
-  $msg .= "Reject      -- http://master.php.net/reject/$new_id&report=yes\n";
+  $msg .= "Reject      -- http://master.php.net/note/reject/$new_id&report=yes\n";
   $msg .= "Search      -- http://master.php.net/manage/user-notes.php\n";
   # make sure we have a return address.
   if (!$user) $user = "php-general@lists.php.net";
