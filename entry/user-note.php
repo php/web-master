@@ -137,6 +137,7 @@ if (@mysql_query($query)) {
       . str_pad($reason, $note_del_reasons_pad)
       . "-- http://master.php.net/note/delete/$new_id/" . urlencode($reason) ."\n";
   }
+  $msg .= str_pad('Delete: other reasons', $note_del_reasons_pad) . "-- http://master.php.net/note/delete/$id\n";
   $msg .= "Reject      -- http://master.php.net/note/reject/$new_id\n";
   $msg .= "Search      -- http://master.php.net/manage/user-notes.php\n";
   # make sure we have a return address.
