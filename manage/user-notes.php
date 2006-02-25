@@ -5,6 +5,7 @@
 include_once 'login.inc';
 include_once 'functions.inc';
 include_once 'email-validation.inc';
+include_once 'note-reasons.inc';
 //require_once 'alert_lib.inc'; // remove comment if alerts are needed
 
 define("NOTES_MAIL", "php-notes@lists.php.net");
@@ -77,15 +78,12 @@ if (!$action) {
             hsc($row['user']),"</span><br />",
 	    "Note id: $id<br />\n",
 	    "<a href=\"http://www.php.net/manual/en/{$row['sect']}.php\">http://www.php.net/manual/en/{$row['sect']}.php</a><br />\n",
-            "<a href=\"http://master.php.net/manage/user-notes.php?action=edit+$id\" target=\"_blank\">Edit Note</a><br />",
-            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=integrated\" target=\"_blank\">Delete Note: Integrated in the manual</a><br />",
-            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=useless\" target=\"_blank\">Delete Note: useless</a><br />",
-            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=bad+code\" target=\"_blank\">Delete Note: bad code</a><br />",
-            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=spam\" target=\"_blank\">Delete Note: spam</a><br />",
-            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=non-english\" target=\"_blank\">Delete Note: non-english</a><br />",
-            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id&reason=already+in+docs\" target=\"_blank\">Delete Note: already in docs</a><br />",
-            "<a href=\"http://master.php.net/manage/user-notes.php?action=delete+$id\" target=\"_blank\">Delete Note: other reason</a><br />",
-            "<a href=\"http://master.php.net/manage/user-notes.php?action=reject+$id\" target=\"_blank\">Reject Note</a>",
+            "<a href=\"http://master.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
+	  foreach ($note_del_reasons AS $reason => $text) {
+	    echo '<a href="http://master.php.net/note/delete/', $id, '/', urlencode($reason), '">', 'Delete Note: ', htmlspecialchars($text), "</a><br />\n";
+	  }
+          echo "<a href=\"http://master.php.net/note/delete/$id\" target=\"_blank\">Delete Note: other reason</a><br />",
+            "<a href=\"http://master.php.net/note/reject/reject/$id\" target=\"_blank\">Reject Note</a>",
             "</p>",
 	    "<hr />";
         }
@@ -395,6 +393,7 @@ function highlight_php($code, $return = FALSE)
 // Send out a mail to the note submitter, with an envelope sender ignoring bounces
 function note_mail_user($mailto, $subject, $message)
 {
+return;
     $mailto = clean_antispam($mailto);
     if (is_emailable_address($mailto)) {
         mail(
@@ -423,6 +422,7 @@ function note_get_by_id($id)
 // some action is performed on a user note.
 function note_mail_on_action($user, $id, $subject, $body)
 {
+return;
     mail(NOTES_MAIL, $subject, $body, "From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
 }
 

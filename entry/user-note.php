@@ -1,6 +1,7 @@
 <?php
 // ** alerts ** remove comment when alerts are on-line
 //require_once 'alert_lib.inc';
+include_once 'note-reasons.inc';
 
 $mailto = 'php-notes@lists.php.net';
 $failto = 'jimw@php.net, alindeman@php.net';
@@ -129,16 +130,14 @@ if (@mysql_query($query)) {
 
   $msg .= "\n----\n";
   $msg .= "Manual Page -- http://www.php.net/manual/en/$sect.php\n";
-  $msg .= "Edit        -- http://master.php.net/manage/user-notes.php?action=edit+$new_id\n";
+  $msg .= "Edit        -- http://master.php.net/note/edit/$new_id\n";
   //$msg .= "Approve     -- http://master.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
-  $msg .= "Delete: added to the manual -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=added+to+the+manual\n";
-  $msg .= "Delete: bad code            -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=bad+code\n";
-  $msg .= "Delete: spam                -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=spam\n";
-  $msg .= "Delete: useless             -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=useless\n";
-  $msg .= "Delete: non-english         -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=non-english\n";
-  $msg .= "Delete: already in docs     -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes&reason=already+in+docs\n";
-  $msg .= "Delete: other reasons       -- http://master.php.net/manage/user-notes.php?action=delete+$new_id&report=yes\n";
-  $msg .= "Reject      -- http://master.php.net/manage/user-notes.php?action=reject+$new_id&report=yes\n";
+  foreach ($note_del_reasons AS $reason) {
+    $msg .= "Del: "
+      . str_pad($reason, $note_del_reasons_pad)
+      . "-- http://master.php.net/note/delete/$new_id/" . urlencode($reason) ."\n";
+  }
+  $msg .= "Reject      -- http://master.php.net/reject/$new_id&report=yes\n";
   $msg .= "Search      -- http://master.php.net/manage/user-notes.php\n";
   # make sure we have a return address.
   if (!$user) $user = "php-general@lists.php.net";
