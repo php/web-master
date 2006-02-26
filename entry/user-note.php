@@ -3,6 +3,8 @@
 //require_once 'alert_lib.inc';
 include_once 'note-reasons.inc';
 
+$spamassassin = '/opt/ecelerity/3rdParty/bin/spamassassin';
+
 $mailto = 'php-notes@lists.php.net';
 $failto = 'jimw@php.net, alindeman@php.net';
 
@@ -56,6 +58,16 @@ foreach($worlds_backlist as $bad_word) {
         die('[SPAM WORD]');
     }
 }
+
+// check with spamassassin if the note is spam or not
+$spam = shell_exec('echo ' . escapeshellarg($note) . " | $spamassassin -L -e 8");
+
+if (preg_match('/^X-Spam-Status:.+(?:\n\t.+)*/m', $spam, $match)) {
+    $spam_data = $match[0];
+} else {
+    $spam_data = 'error matching the SpamAssassin data';
+}
+
 
 @mysql_connect("localhost","nobody", "")
   or die("failed to connect to database");
@@ -129,6 +141,9 @@ if (@mysql_query($query)) {
   $msg .= "\nProbable Submitter: {$ip}" . ($redirip ? ' (proxied: '.htmlspecialchars($redirip).')' : '');
 
   $msg .= "\n----\n";
+  $msg .= $spam_data;
+  $msg .= "\n----\n";
+
   $msg .= "Manual Page -- http://www.php.net/manual/en/$sect.php\n";
   $msg .= "Edit        -- http://master.php.net/note/edit/$new_id\n";
   //$msg .= "Approve     -- http://master.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
