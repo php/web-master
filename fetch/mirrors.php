@@ -6,7 +6,7 @@ $date = gmdate("Y/m/d H:i:s");
 // Info on the $MIRRORS array structure and some constants
 $structinfo = "
 /*
- Structure of an element of the $MIRRORS array:
+ Structure of an element of the \$MIRRORS array:
 
   0  Country code
   1  Provider name
@@ -31,7 +31,7 @@ define('MIRROR_OK',          0);
 define('MIRROR_NOTACTIVE',   1);
 define('MIRROR_OUTDATED',    2);
 define('MIRROR_DOESNOTWORK', 3);
-
+if(!\$APC || (\$APC && !\$MIRRORS = apc_fetch('mirrors'))) {
 ";
 
 // A token is required, since this should only get accessed from rsync.php.net
@@ -96,7 +96,7 @@ if (@mysql_connect("localhost","nobody","")) {
                      "        \"$row[providerurl]\", $row[mirrortype], $row[has_search],\n" .
                      "        \"$row[lang]\", $status),\n";
             }
-            echo ");\n";
+            echo ");\nif(\$APC) apc_store('mirrors',\$MIRRORS);\n}\n";
         }
     }
 }
