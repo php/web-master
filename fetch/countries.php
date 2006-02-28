@@ -9,11 +9,11 @@ if (@mysql_connect("localhost","nobody","")) {
   if (@mysql_select_db("phpmasterdb")) {
     $res = @mysql_query("SELECT * FROM country ORDER BY name");
     if ($res) {
-      echo "<?php\n\$COUNTRIES = array(\n";
+      echo "<?php\nif(!$APC || ($APC && !$COUNTRIES=apc_fetch('countries'))) {\n\$COUNTRIES = array(\n";
       while ($row = @mysql_fetch_array($res)) {
         echo "'$row[id]' => '", addslashes($row['name']), "',\n";
       }
-      echo ");\n";
+      echo ");if($APC) apc_store('countries',$COUNTRIES);\n}\n";
     }
   }
 }
