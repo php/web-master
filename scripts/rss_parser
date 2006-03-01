@@ -151,7 +151,7 @@ function ParseNews ($index_page = "") {
 
 // Generate RSS header text and inject it into $RSS
 function GenerateRSSHeader($headlines, &$RSS) {
-    $RSS .= "<" . "?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n" .
+    $RSS .= "<" . "?xml version=\"1.0\" encoding=\"utf-8\"?>\n" .
             "<rdf:RDF\n" .
             "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" .
             "\txmlns=\"http://purl.org/rss/1.0/\"\n" .
@@ -180,9 +180,9 @@ function GenerateRSSFooter(&$RSS) {
 // Add an RSS item's information to $RSS
 function GenerateRSSItem($href, $title, $text, $date, &$RSS) {
     $RSS .= "\n<item rdf:about=\"$href\">\n" .
-            "\t<title>" . htmlspecialchars($title) . "</title>\n" .
-            "\t<link>" . htmlspecialchars($href) . "</link>\n" .
-            "\t<description>" . htmlspecialchars($text) . "</description>\n" .
+            "\t<title>$title</title>\n" .
+            "\t<link>$href</link>\n" .
+            "\t<description>$text</description>\n" .
             "\t<dc:date>" . $date . "</dc:date>\n" .
             "</item>\n";
 }
