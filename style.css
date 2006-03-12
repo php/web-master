@@ -1,0 +1,277 @@
+/* Let no border around the body appear, and set
+   it to display on a white background */
+body, html {
+    margin: 0px;
+    padding: 0px;
+    background-color: white;
+}
+
+/* Font settings for page elements */
+body, ul, td, th, p, h1, h2, h3, h4, small, .small,
+.tableTitle, .tableExtras, input, textarea, select {
+    font-family: verdana, arial, helvetica, sans-serif;
+}
+code, pre, tt {
+    font-family: Courier, "Courier New", monospace;
+}
+
+/* General header styles */
+h1, h2, h3, h4 {
+    font-weight: bold;
+    color: #000066;
+}
+h1 { font-size: 130%; }
+h2 { font-size: 125%; }
+h3 { font-size: 110%; }
+h4 { font-size: 100%; }
+
+.top {
+    font-size: 150%;
+	font-weight: bold;
+    color: #000066;
+    vertical-align: middle;
+    white-space: none;
+	margin: 0 !important;
+	margin-bottom: 0 !important;
+	padding: 0 !important;
+}
+
+/* Horizontal delimiter defaults */
+hr {
+    border: 0px;
+    color: black;
+    background-color: black;
+    height: 1px;
+}
+
+/* Default font size for elements */
+body, ul, td, th {
+    font-size: 85%;
+}
+
+/* Indented block */
+div.indent {
+    margin-left: 50px;
+}
+
+li {
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+em {
+	font-weight: bold;
+	font-style: italic;
+}
+
+acronym {
+        border-bottom: 1px dashed #00cc00;
+        cursor: help;
+}
+
+.error {
+        color: #cc0000;
+}
+
+.sidebartoc {
+/*	font-size: 80%;*/
+	padding: 5px;
+}
+
+.sidebartoc p {
+	text-align: left !important;
+}
+
+small, .small {
+	font-size: 75%;
+}
+
+a.small {
+	text-decoration: none;
+}
+
+.tableTitle {
+	font-weight: bold;
+}
+
+.tableExtras {
+	font-size: 85%;
+	color: #FFFFFF;
+}
+
+p.formerror {
+        border: 1px solid #ff0000;
+        color: #000000;
+        background: #ffeeee;
+        padding: 2px 4px;
+}
+
+div.errors, .warn {
+        border: 1px dashed #666600;
+        color: #660000;
+        background: #ffeeee;
+        margin: 4px;
+        padding: 6px;
+}
+
+div.tip, p.tip {
+        border: 1px solid #00c;
+        color: #000066;
+        background: #eeeeff;
+        padding: 0px 8px;
+}
+
+form.thin {
+	margin-bottom: 0px;
+	margin-top: 0px;
+}
+
+.parameter:after {
+	content: " ";
+}
+
+div.mirror {  
+	border: 1px dashed #660000;
+	background: #ffeeee;
+	color: #660000;
+	margin: 4px;
+	padding: 6px;
+} 
+
+img {
+	border: 0px;
+}
+img.flag {
+	border: 1px solid #000000;
+}
+
+.md5sum {
+	color: #6666cc;
+}
+
+/* Used on the credits page [.e, .h, .v and .vr] */
+.e {
+	background-color: #ccccff; 
+	font-weight: bold;
+}
+
+.h {
+	background-color: #9999cc; 
+	font-weight: bold;
+}
+
+.v {
+	background-color: #cccccc;
+}
+
+.vr {
+	background-color: #cccccc; 
+	text-align: right;
+}
+
+/* Standard table formatting */
+table.standard td {
+    background-color: #eeeeee;
+}
+table.standard th {
+    background-color: #cccccc;
+}
+table.standard td.sub, table.standard th.sub,
+table.standard th.subr {
+    background-color: #dddddd;
+}
+table.standard th.subr {
+    text-align: right;
+    vertical-align: top;
+}
+
+/* browsers handle this differently
+input.max, textarea.max, select.max {
+    width: 100%;
+}
+*/
+
+/* PHP code syntax highlighting */
+div.phpcode, pre {
+   margin: 5px 0;
+}
+div.phpcode span.html {
+    color: black;	
+}
+
+div.phpcode span.comment {
+    color: #FF8000;
+}
+
+div.phpcode span.default {
+    color: #0000BB;
+}
+
+div.phpcode span.keyword {
+    color: #007700;
+}
+
+div.phpcode span.string {
+    color: #DD0000;
+}
+
+.center {
+	text-align: center;
+}
+.center table {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: left;
+}
+.center th {
+	text-align: center;
+}
+
+/* Thanks listing on frontpage */
+ul.simple {
+	padding-left: 8px;
+	margin: 0 0 1em 0;
+}
+ul.simple li {
+	padding: 0px;
+	list-style-type: none;
+	font-size: 125%;
+}
+
+/* Left sidebar TOC */
+ul#sidebartoc {
+    margin: 0px 5px 5px 5px;
+    padding: 0px;
+}
+/* TOC elements on manual pages ------------------------------------------- */
+ul#sidebartoc li {
+    margin: 1px 0 1px 1px;
+    padding: 1px 0 1px 11px;
+    list-style-type: none;
+    background-repeat: no-repeat;
+    background-position: center left;
+	background-image: url(/images/box-0.gif);
+}
+ul#sidebartoc li.header {
+    font-weight: bold;
+    font-size: 135%;
+    padding: 5px 0px 5px 11px;
+    border-bottom: 1px solid #cccccc;
+    margin-bottom: 5px;
+}
+ul#sidebartoc li.up {
+	background-image: url(/images/caret-u.gif);
+}
+ul#sidebartoc li.home {
+	background-image: url(/images/caret-t.gif);
+}
+ul#sidebartoc li.active {
+	background-image: url(/images/box-1.gif);
+    font-weight: bold;
+}
+ul#sidebartoc li a {
+    text-decoration: none;
+}
+ul#sidebartoc li a:hover {
+    text-decoration: underline;
+}
