@@ -28,7 +28,7 @@
 		$started = 'not running';
 	}
 ?>
-<h1><?php echo $mytag; ?>: make log (<?php echo &started; ?>)</h1>
+<h1><?php echo $mytag; ?>: make log (<?php echo $started; ?>)</h1>
 <?php
 	if ($show)
 	{
