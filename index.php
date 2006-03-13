@@ -27,22 +27,22 @@ along with a code coverage analysis.
 <?php
 $tags = array('PHP_4_4', 'PHP_5_1', 'PHP_HEAD');
 
-function show_link($tag, $link, $file = NULL, $last_date = false)
+function show_link($tag, $link, $file = NULL, $l_time = false)
 {
 	if (is_null($file))
 	{
 		$file = $link;
 	}
-	$date = @filemtime(dirname(__FILE__) . "/$tag/$file");
-	if (file_exists(dirname(__FILE__) . "/$tag/$file") && ($last_date === false || $date > $last_date))
+	$m_time = @filemtime(dirname(__FILE__) . "/$tag/$file");
+	if (file_exists(dirname(__FILE__) . "/$tag/$file") && ($l_time === false || $m_time > $l_time))
 	{
-		echo "<td align='left'><a href='/$tag/$link'>" . date("M d Y H:i:s", $date) . "</td>";
+		echo "<td align='left'><a href='/$tag/$link'>" . date("M d Y H:i:s", $m_time) . "</td>";
 	}
 	else
 	{
 		echo "<td>&nbsp;</td>";
 	}
-	return $date;
+	return $m_time;
 }
 
 foreach($tags as $tag)
@@ -51,8 +51,8 @@ foreach($tags as $tag)
 	echo "<th align='left'>$tag</th>";
 	show_link($tag, 'lcov/index.html');
 	show_link($tag, 'run-tests.log.php', 'run-tests.html.inc');
-	$date = show_link($tag, 'make.log.php', 'make.log');
-	show_link($tag, 'make.log.new.php', 'make.log.new', $date);
+	$l_time = show_link($tag, 'make.log.php', 'make.log');
+	show_link($tag, 'make.log.new.php', 'make.log.new', $l_time);
 	echo "</tr>\n";
 }
 ?>
