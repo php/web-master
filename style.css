@@ -250,7 +250,7 @@ ul#sidebartoc li {
     list-style-type: none;
     background-repeat: no-repeat;
     background-position: center left;
-	background-image: url(/images/box-0.gif);
+    background-image: url(/images/box-0.gif);
 }
 ul#sidebartoc li.header {
     font-weight: bold;
@@ -260,18 +260,45 @@ ul#sidebartoc li.header {
     margin-bottom: 5px;
 }
 ul#sidebartoc li.up {
-	background-image: url(/images/caret-u.gif);
+    background-image: url(/images/caret-u.gif);
 }
 ul#sidebartoc li.home {
-	background-image: url(/images/caret-t.gif);
+    background-image: url(/images/caret-t.gif);
 }
 ul#sidebartoc li.active {
-	background-image: url(/images/box-1.gif);
+    background-image: url(/images/box-1.gif);
     font-weight: bold;
 }
 ul#sidebartoc li a {
+    color: #000066;
     text-decoration: none;
 }
+ul#sidebartoc li a:visited {
+    color: #000066;
+    text-decoration: none;
+}
+ul#sidebartoc li a:active {
+    color: #000066;
+    text-decoration: none;
+    font-weight: bold;
+}
 ul#sidebartoc li a:hover {
+    text-decoration: underline;
+}
+
+a.header {
+    color: #000066;
+    text-decoration: none;
+}
+a.header:visited {
+    color: #000066;
+    text-decoration: none;
+}
+a.header:active {
+    color: #000066;
+    text-decoration: none;
+}
+a.header:hover {
+    color: #000066;
     text-decoration: underline;
 }
