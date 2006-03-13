@@ -16,10 +16,10 @@
 <table cellpadding="10" cellspacing="0" width="100%"><tr><td align="left" valign="top"><!- content -->
 <h1>PHP: Test and Code Coverage analysis</h1>
 <p>
-This page is deticated to automatic PHP code coverage testing.
-Every day a current cvs snapshot will be build on the machine 
-and tested. After all tests are done the results are visualized
-along with a code coverage analysis.
+This page is deticated to automatic PHP code coverage testing. On a regular 
+basis current cvs snapshots are being build and tested on this machine. 
+After all tests are done the results are visualized along with a code coverage
+analysis.
 </p>
 <p>
 <table class='standard' border='1' cellspacing='0' cellpadding='4'><!-- links -->
