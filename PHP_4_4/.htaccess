@@ -1,0 +1,2 @@
+ErrorDocument 300 /PHP_4_4/
+ErrorDocument 404 /PHP_4_4/
