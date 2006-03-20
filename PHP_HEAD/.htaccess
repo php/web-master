@@ -1,3 +1,2 @@
 ErrorDocument 300 /PHP_HEAD/
 ErrorDocument 404 /PHP_HEAD/
-AddType application/x-httpd-php .php .html

@@ -21,7 +21,7 @@ ErrorDocument 404 /index.php
 
 #<IfModule mod_rewrite.c>
 	RewriteEngine On
-	RewriteRule ^PHP_([_A-Z0-9]+)/?$ /PHP_$1/lcov/index.html [R,L]
+	RewriteRule ^PHP_([_A-Z0-9]+)/?$ /PHP_$1/lcov/index.php [R,L]
 #</IfModule>
 
 ErrorDocument 300 /index.php

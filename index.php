@@ -49,7 +49,7 @@ foreach($tags as $tag)
 {
 	echo "<tr>";
 	echo "<th align='left'>$tag</th>";
-	show_link($tag, 'lcov/index.html');
+	show_link($tag, 'lcov/index.php');
 	show_link($tag, 'run-tests.log.php', 'run-tests.html.inc');
 	$l_time = show_link($tag, 'make.log.php', 'make.log');
 	show_link($tag, 'make.log.new.php', 'make.log.new', $l_time);
