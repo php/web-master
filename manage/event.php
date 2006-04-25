@@ -1,5 +1,7 @@
 <?php
 
+header("Content-type: text/html; charset=utf-8");
+
 require_once 'login.inc';
 require_once 'functions.inc';
 require_once 'email-validation.inc';
