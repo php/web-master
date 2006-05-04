@@ -50,7 +50,7 @@ if (!isset($user) || empty($note) || empty($sect) || empty($ip) || !isset($redir
   die("missing some parameters.");
 
 // check if the IP is blacklisted
-if (is_spammer($_SERVER['REMOTE_ADDR']) || is_spammer($redirip)) {
+if (is_spammer($_SERVER['REMOTE_ADDR']) || is_spammer($ip) || is_spammer($redirip)) {
     die ('[SPAMMER]');
 }
 
