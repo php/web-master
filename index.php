@@ -25,7 +25,6 @@ analysis.
 <table class='standard' border='1' cellspacing='0' cellpadding='4'><!-- links -->
 <tr><th>TAG</th><th>coverage</th><th>run-tests</th><th>make log</th><th>running make</th></tr>
 <?php
-$tags = array('PHP_4_4', 'PHP_5_1', 'PHP_HEAD');
 
 function show_link($tag, $link, $file = NULL, $l_time = false)
 {

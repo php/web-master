@@ -1,6 +1,6 @@
 <?php
 
-$tags = array('PHP_4_4', 'PHP_5_1', 'PHP_HEAD'); $mytag = NULL;
+$tags = array('PHP_4_4', 'PHP_5_1', 'PHP_5_2', 'PHP_HEAD'); $mytag = NULL;
 
 if (isset($maindir))
 {
