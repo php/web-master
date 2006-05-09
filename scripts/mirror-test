@@ -139,13 +139,28 @@ foreach ($hosts as $index => $host) {
     if ($info[6] == "manual-alias") {
         $hosts[$index]['lastupdated'] = '0';
         $hosts[$index]['problem'] = "Apache manual alias in effect";
+        continue;
     }
     
     // Check that the mirror has all the mirror settings updated
     if ($info[7] != '1') {
       $hosts[$index]['problem'] = "Mirror settings are not up to date (check rsync parameters)";
+      continue;
     }
-    
+
+    // Check if mirror has correct ServerName/ServerAlias entries
+    // Most likely cause is unofficial hostname as ServerName instead of ServerAlias
+    // Important to keep my php.net cookie around
+    $mysite = parse_url($info[0]);
+    if (is_array($mysite)) {
+        $mysite = $mysite['host'];
+    }
+
+    if (!$mysite || $mysite != $host['hostname']) {
+        $hosts[$index]['problem'] = "Apache ServerName directive does not match '{$host['hostname']}'."
+         . " (consider swapping ServerName and ServerAlias)";
+        continue;
+    }
 }
 
 // Go through all mirror sites checked
