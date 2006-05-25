@@ -38,6 +38,8 @@ $worlds_backlist = array(
 	'pravachol',	
 	'testosterone',
 	'tramadol',
+	'ultram',
+	'valium',
 	'vicodin',
 	'vicoprofen',
 	'xanax',
