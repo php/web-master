@@ -269,6 +269,14 @@ ul#sidebartoc li.active {
     background-image: url(/images/box-1.gif);
     font-weight: bold;
 }
+ul#sidebartoc li.last {
+    padding: 5px 0px 5px 11px;
+    border-bottom: 1px solid #cccccc;
+    margin-bottom: 5px;
+}
+ul#sidebartoc li.small {
+    font-size: 90%;
+}
 ul#sidebartoc li a {
     color: #000066;
     text-decoration: none;
