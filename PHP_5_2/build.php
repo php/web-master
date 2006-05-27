@@ -15,7 +15,7 @@
 <td bgcolor="#cccccc" background="/images/checkerboard.gif" width="1"><img src="/images/spacer.gif" width="1" height="1" border="0" alt="" /></td>
 <td align="left" valign="top">
 <table cellpadding="10" cellspacing="0" width="100%"><tr><td align="left" valign="top"><!- content -->
-<h1><?php echo $mytag; ?>: make log (finished)</h1>
+<h1><?php echo $mytag; ?>: <a href="build.sh">build.sh</a></h1>
 <pre>
 <?php fpassthru(fopen(dirname(__FILE__) . '/build.sh', 'r')); ?>
 </pre>
