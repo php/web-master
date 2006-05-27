@@ -68,6 +68,20 @@ foreach($tags as $tag)
 <li>Integrate external components.</li>
 </ul>
 </p>
+<h1>How to help</h1>
+<p>
+<ul>
+<li>Visit the <a href="http://qa.php.net">QA site</a> and read <a href="http://qa.php.net/hotohelp.php">How You Can Help</a>.</li>
+<li>Check out <a href="http://qa.php.net/write-test.php">how to write tests</a> for anything you see uncovered.</a>
+<li>Set up PHP/GCOV testinng on your systems and report any found issues to the <a href="http://qa.php.net/">QA</a> team.
+    <ul>
+    <li><a href="/lcov_1.5-1_all.deb">lcov_1.5-1_all.deb</a></li>
+    <li><a href="/lcov-1.5-pre1.noarch.rpm">lcov-1.5-pre1.noarch.rpm</a></li>
+    <li><a href="/genhtml.gcov-php-net">patched genhtml</a></li>
+    </ul>
+</li>
+</ul>
+</p>
 </td>
 </tr>
 </table><!-- content -->
