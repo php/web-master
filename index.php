@@ -73,12 +73,19 @@ foreach($tags as $tag)
 <ul>
 <li>Visit the <a href="http://qa.php.net">QA site</a> and read <a href="http://qa.php.net/hotohelp.php">How You Can Help</a>.</li>
 <li>Check out <a href="http://qa.php.net/write-test.php">how to write tests</a> for anything you see uncovered.</a>
-<li>Set up PHP/GCOV testinng on your systems and report any found issues to the <a href="http://qa.php.net/">QA</a> team.
+<li><p>Set up PHP/GCOV testinng on your systems and report any found issues to the <a href="http://qa.php.net/">QA</a> team.
+    You need lcov 1.5 which you can get from here
     <ul>
     <li><a href="/lcov_1.5-1_all.deb">lcov_1.5-1_all.deb</a></li>
     <li><a href="/lcov-1.5-pre1.noarch.rpm">lcov-1.5-pre1.noarch.rpm</a></li>
+    </ul>
+    </p>
+    <p>
+    After you have installed lcov from the above, replace genhtml with the
+    <ul>
     <li><a href="/genhtml.gcov-php-net">patched genhtml</a></li>
     </ul>
+    </p>
 </li>
 </ul>
 </p>
