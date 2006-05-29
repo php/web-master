@@ -50,6 +50,13 @@
 #   2004-08-09 / Peter Oberparleiter: added configuration file support
 #   2005-03-04 / Cal Pierog: added legend to HTML output, fixed coloring of
 #                "good coverage" background
+#   2006-03-18 / Marcus Boerger: added --custom-intro, --custom-outro and
+#                overwrite --no-prefix if --prefix is present
+#   2006-03-20 / Peter Oberparleiter: changes to custom_* function (rename
+#                to html_prolog/_epilog, minor modifications to implementation),
+#                changed prefix/noprefix handling to be consistent with current
+#                logic
+#   2006-03-20 / Peter Oberparleiter: added --html-extension option
 #
 
 use strict;
@@ -60,7 +67,7 @@ use Digest::MD5 qw(md5_base64);
 
 # Global constants
 our $title		= "LTP GCOV extension - code coverage report";
-our $lcov_version	= "LTP GCOV extension version 1.5";
+our $lcov_version	= "LTP GCOV extension version 1.1";
 our $lcov_url		= "http://ltp.sourceforge.net/coverage/lcov.php";
 
 # Specify coverage rate limits (in %) for classifying file entries
@@ -115,6 +122,8 @@ sub apply_prefix($$);
 sub system_no_output($@);
 sub read_config($);
 sub apply_config($);
+sub get_html_prolog($);
+sub get_html_epilog($);
 
 
 # HTML related prototypes
@@ -186,6 +195,11 @@ our $highlight;		# If set, highlight lines covered by converted data only
 our $legend;		# If set, include legend in output
 our $tab_size = 8;	# Number of spaces to use in place of tab
 our $config;		# Configuration file contents
+our $html_prolog_file;	# Custom HTML prolog file (up to and including <body>)
+our $html_epilog_file;	# Custom HTML epilog file (from </body> onwards)
+our $html_prolog;	# Actual HTML prolog
+our $html_epilog;	# Actual HTML epilog
+our $html_ext = "html";	# Extension for generated HTML files
 
 our $cwd = `pwd`;	# Current working directory
 chomp($cwd);
@@ -227,7 +241,11 @@ if ($config)
 		"genhtml_no_source"		=> \$no_sourceview,
 		"genhtml_num_spaces"		=> \$tab_size,
 		"genhtml_highlight"		=> \$highlight,
-		"genhtml_legend"		=> \$legend});
+		"genhtml_legend"		=> \$legend,
+		"genhtml_html_prolog"		=> \$html_prolog_file,
+		"genhtml_html_epilog"		=> \$html_epilog_file,
+		"genthml_html_extension"	=> \$html_ext
+		});
 }
 
 # Parse command line options
@@ -247,7 +265,10 @@ if (!GetOptions("output-directory=s"	=> \$output_directory,
 		"legend"		=> \$legend,
 		"quiet"			=> \$quiet,
 		"help|h"		=> \$help,
-		"version"		=> \$version
+		"version"		=> \$version,
+		"html-prolog=s"		=> \$html_prolog_file,
+		"html-epilog=s"		=> \$html_epilog_file,
+		"html-extension=s"	=> \$html_ext
 		))
 {
 	print_usage(*STDERR);
@@ -311,12 +332,24 @@ if ($tab_size < 1)
 	exit(1);
 }
 
+# Get HTML prolog and epilog
+$html_prolog = get_html_prolog($html_prolog_file);
+$html_epilog = get_html_epilog($html_epilog_file);
+
 # Issue a warning if --no-sourceview is enabled together with --frames
-if ($no_sourceview && $frames)
+if ($no_sourceview && defined($frames))
 {
 	warn("WARNING: option --frames disabled because --no-sourceview ".
 	     "was specified!\n");
 	$frames = undef;
+}
+
+# Issue a warning if --no-prefix is enabled together with --prefix
+if ($no_prefix && defined($dir_prefix))
+{
+	warn("WARNING: option --prefix disabled because --no-prefix was ".
+	     "specified!\n");
+	$dir_prefix = undef;
 }
 
 if ($frames)
@@ -336,7 +369,6 @@ if ($output_directory)
 			and die("ERROR: cannot create directory $_!\n");
 	}
 }
-
 
 # Do something
 gen_html();
@@ -362,23 +394,31 @@ Usage: $executable_name [OPTIONS] INFOFILE(S)
 Create HTML output for coverage data found in INFOFILE. Note that INFOFILE
 may also be a list of filenames.
 
+Misc:
   -h, --help                        Print this help, then exit
   -v, --version                     Print version number, then exit
   -q, --quiet                       Do not print progress messages
-  -s, --show-details                Generate detailed directory view
-  -f, --frames                      Use HTML frames for source code view
-  -b, --baseline-file BASEFILE      Use BASEFILE as baseline file
+
+Operation:
   -o, --output-directory OUTDIR     Write HTML output to OUTDIR
-  -t, --title TITLE                 Display TITLE in header of all pages
+  -s, --show-details                Generate detailed directory view
   -d, --description-file DESCFILE   Read test case descriptions from DESCFILE
   -k, --keep-descriptions           Do not remove unused test descriptions
-  -c, --css-file CSSFILE            Use external style sheet file CSSFILE
+  -b, --baseline-file BASEFILE      Use BASEFILE as baseline file
   -p, --prefix PREFIX               Remove PREFIX from all directory names
       --no-prefix                   Do not remove prefix from directory names
+
+HTML output:
+  -f, --frames                      Use HTML frames for source code view
+  -t, --title TITLE                 Display TITLE in header of all pages
+  -c, --css-file CSSFILE            Use external style sheet file CSSFILE
       --no-source                   Do not create source code view
       --num-spaces NUM              Replace tabs with NUM spaces in source view
       --highlight                   Highlight lines with converted-only data
       --legend                      Include color legend in HTML output
+      --html-prolog FILE            Use FILE as HTML prolog for generated pages
+      --html-epilog FILE            Use FILE as HTML epilog for generated pages
+      --html-extension EXT          Use EXT as filename extension for pages
 
 See $lcov_url for more information about this tool.
 END_OF_USAGE
@@ -507,11 +547,11 @@ sub gen_html()
 		# Generate name for directory overview HTML page
 		if ($dir_name =~ /^\/(.*)$/)
 		{
-			$link_name = substr($dir_name, 1)."/index.html";
+			$link_name = substr($dir_name, 1)."/index.$html_ext";
 		}
 		else
 		{
-			$link_name = $dir_name."/index.html";
+			$link_name = $dir_name."/index.$html_ext";
 		}
 
 		$overview{$dir_name} = "$lines_found,$lines_hit,$link_name";
@@ -521,8 +561,8 @@ sub gen_html()
 
 	# Generate overview page
 	info("Writing directory view page.\n");
-	open(*HTML_HANDLE, ">index.html")
-		or die("ERROR: cannot open index.html for writing!\n");
+	open(*HTML_HANDLE, ">index.$html_ext")
+		or die("ERROR: cannot open index.$html_ext for writing!\n");
 	write_html_prolog(*HTML_HANDLE, "", "LCOV - $test_title");
 	write_header(*HTML_HANDLE, 0, "", "", $overall_found, $overall_hit);
 	write_file_table(*HTML_HANDLE, "", \%overview, {}, 0);
@@ -614,14 +654,14 @@ sub process_dir($)
 			# Link to frameset page
 			$overview{$base_name} =
 				"$lines_found,$lines_hit,".
-				"$base_name.gcov.frameset.html";
+				"$base_name.gcov.frameset.$html_ext";
 		}
 		else
 		{
 			# Link directory to source code view page
 			$overview{$base_name} =
 				"$lines_found,$lines_hit,".
-				"$base_name.gcov.html";
+				"$base_name.gcov.$html_ext";
 		}
 
 		$testhash{$base_name} = $testdata;
@@ -631,8 +671,8 @@ sub process_dir($)
 	}
 
 	# Generate directory overview page (without details)
-	open(*HTML_HANDLE, ">$rel_dir/index.html")
-		or die("ERROR: cannot open $rel_dir/index.html ".
+	open(*HTML_HANDLE, ">$rel_dir/index.$html_ext")
+		or die("ERROR: cannot open $rel_dir/index.$html_ext ".
 		       "for writing!\n");
 	write_html_prolog(*HTML_HANDLE, $base_dir,
 			  "LCOV - $test_title - $trunc_dir");
@@ -645,9 +685,9 @@ sub process_dir($)
 	if ($show_details)
 	{
 		# Generate directory overview page including details
-		open(*HTML_HANDLE, ">$rel_dir/index-detail.html")
+		open(*HTML_HANDLE, ">$rel_dir/index-detail.$html_ext")
 			or die("ERROR: cannot open $rel_dir/".
-			       "index-detail.html for writing!\n");
+			       "index-detail.$html_ext for writing!\n");
 		write_html_prolog(*HTML_HANDLE, $base_dir,
 				  "LCOV - $test_title - $trunc_dir");
 		write_header(*HTML_HANDLE, 1, $trunc_dir, $rel_dir,
@@ -758,8 +798,8 @@ sub process_file($$$)
 
 	$converted = get_converted_lines($testdata);
 	# Generate source code view for this file
-	open(*HTML_HANDLE, ">$rel_dir/$base_name.gcov.html")
-		or die("ERROR: cannot open $rel_dir/$base_name.gcov.html ".
+	open(*HTML_HANDLE, ">$rel_dir/$base_name.gcov.$html_ext")
+		or die("ERROR: cannot open $rel_dir/$base_name.gcov.$html_ext ".
 		       "for writing!\n");
 	$pagetitle = "LCOV - $test_title - $trunc_dir/$base_name";
 	write_html_prolog(*HTML_HANDLE, $base_dir, $pagetitle);
@@ -782,17 +822,17 @@ sub process_file($$$)
 		@source);
 
 	# Create frameset page
-	open(*HTML_HANDLE, ">$rel_dir/$base_name.gcov.frameset.html")
+	open(*HTML_HANDLE, ">$rel_dir/$base_name.gcov.frameset.$html_ext")
 		or die("ERROR: cannot open ".
-		       "$rel_dir/$base_name.gcov.frameset.html".
+		       "$rel_dir/$base_name.gcov.frameset.$html_ext".
 		       " for writing!\n");
 	write_frameset(*HTML_HANDLE, $base_dir, $base_name, $pagetitle);
 	close(*HTML_HANDLE);
 
 	# Write overview frame
-	open(*HTML_HANDLE, ">$rel_dir/$base_name.gcov.overview.html")
+	open(*HTML_HANDLE, ">$rel_dir/$base_name.gcov.overview.$html_ext")
 		or die("ERROR: cannot open ".
-		       "$rel_dir/$base_name.gcov.overview.html".
+		       "$rel_dir/$base_name.gcov.overview.$html_ext".
 		       " for writing!\n");
 	write_overview(*HTML_HANDLE, $base_dir, $base_name, $pagetitle,
 		       scalar(@source));
@@ -850,6 +890,7 @@ sub read_info_file($)
 	my $hitcount;			# Count for lines hit
 	my $count;			# Execution count of current line
 	my $negative;			# If set, warn about negative counts
+	my $changed_testname;		# If set, warn about changed testname
 	my $checksum;			# Checksum of current line
 	local *INFO_HANDLE;		# Filehandle for .info file
 
@@ -899,10 +940,15 @@ sub read_info_file($)
 		# Switch statement
 		foreach ($line)
 		{
-			/^TN:(\w*(,\w+)?)/ && do
+			/^TN:([^,]*)/ && do
 			{
 				# Test name information found
 				$testname = defined($1) ? $1 : "";
+				if ($testname =~ s/\W/_/g)
+				{
+					$changed_testname = 1;
+				}
+
 				last;
 			};
 
@@ -1024,6 +1070,11 @@ sub read_info_file($)
 	{
 		warn("WARNING: negative counts found in tracefile ".
 		     "$tracefile\n");
+	}
+	if ($changed_testname)
+	{
+		warn("WARNING: invalid characters removed from testname in ".
+		     "tracefile $tracefile\n");
 	}
 
 	return(\%result);
@@ -1222,6 +1273,7 @@ sub read_testfile($)
 {
 	my %result;
 	my $test_name;
+	my $changed_testname;
 	local *TEST_HANDLE;
 
 	open(TEST_HANDLE, "<".$_[0])
@@ -1236,6 +1288,10 @@ sub read_testfile($)
 		{
 			# Store name for later use
 			$test_name = $1;
+			if ($test_name =~ s/\W/_/g)
+			{
+				$changed_testname = 1;
+			}
 		}
 
 		# Match lines beginning with TD:<whitespace(s)>
@@ -1256,6 +1312,12 @@ sub read_testfile($)
 	}
 
 	close(TEST_HANDLE);
+
+	if ($changed_testname)
+	{
+		warn("WARNING: invalid characters removed from testname in ".
+		     "descriptions file $_[0]\n");
+	}
 
 	return \%result;
 }
@@ -1344,8 +1406,9 @@ sub write_description_file($$$)
 	my $test_name;
 	local *HTML_HANDLE;
 
-	open(HTML_HANDLE, ">descriptions.html")
-		or die("ERROR: cannot open descriptions.html for writing!\n");
+	open(HTML_HANDLE, ">descriptions.$html_ext")
+		or die("ERROR: cannot open descriptions.$html_ext for ".
+		       "writing!\n");
 
 	write_html_prolog(*HTML_HANDLE, "", "LCOV - test case descriptions");
 	write_header(*HTML_HANDLE, 3, "", "", $found, $hit);
@@ -2050,39 +2113,15 @@ sub write_html(*$)
 
 sub write_html_prolog(*$$)
 {
+	my $basedir = $_[1];
 	my $pagetitle = $_[2];
+	my $prolog;
 
+	$prolog = $html_prolog;
+	$prolog =~ s/\@pagetitle\@/$pagetitle/g;
+	$prolog =~ s/\@basedir\@/$basedir/g;
 
-	# *************************************************************
-
-	write_html($_[0], <<END_OF_HTML)
-	<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
-
-	<html lang="en">
-	<?php \$maindir='/local/Web/sites/php-gcov-web'; require \$maindir.'/main.inc'; ?>
-	<head>
-	  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-	  <title>$pagetitle</title>
-	  <link rel="stylesheet" type="text/css" href="$_[1]gcov.css">
-	  <link rel="stylesheet" href="/style.css" />
-	  <link rel="shortcut icon" href="/favicon.ico" />
-	</head>
-
-	<body bgcolor="#ffffff" text="#000000" link="#000099" alink="#0000ff" vlink="#000099">
-	<?php include \$maindir.'/header.inc'; ?>
-	<table border="0" cellspacing="0" cellpadding="0"><!-- outer -->
-	<tr>
-	<td align="left" valign="top" width="120" bgcolor="#f0f0f0">
-	<?php include \$maindir.'/sidebar.inc'; ?>
-	</td>
-	<td bgcolor="#cccccc" background="/images/checkerboard.gif" width="1"><img src="/images/spacer.gif" width="1" height="1" border="0" alt="" /></td>
-	<td align="left" valign="top">
-	<table cellpadding="10" cellspacing="0" width="100%"><tr><td align="left" valign="top"><!- content -->
-
-END_OF_HTML
-	;
-
-	# *************************************************************
+	write_html($_[0], $prolog);
 }
 
 
@@ -2632,7 +2671,9 @@ END_OF_HTML
 
 sub write_html_epilog(*$;$)
 {
+	my $basedir = $_[1];
 	my $break_code = "";
+	my $epilog;
 
 	if (defined($_[2]))
 	{
@@ -2647,20 +2688,13 @@ sub write_html_epilog(*$;$)
 	  <tr><td class="versionInfo">Generated by: <a href="$lcov_url"$break_code>$lcov_version</a></td></tr>
 	  </table>
 	  <br>
-
-	</td>
-	</tr>
-	</table><!-- content -->
-	</td>
-	</tr>
-	</table><!-- outer -->
-	<?php include \$maindir.'/footer.inc'; ?>
-	</body>
-	</html>
 END_OF_HTML
 	;
 
-	# *************************************************************
+	$epilog = $html_epilog;
+	$epilog =~ s/\@basedir\@/$basedir/g;
+
+	write_html($_[0], $epilog);
 }
 
 
@@ -2687,8 +2721,8 @@ sub write_frameset(*$$$)
 	</head>
 
 	<frameset cols="$frame_width,*">
-	  <frame src="$_[2].gcov.overview.html" name="overview">
-	  <frame src="$_[2].gcov.html" name="source">
+	  <frame src="$_[2].gcov.overview.$html_ext" name="overview">
+	  <frame src="$_[2].gcov.$html_ext" name="source">
 	  <noframes>
 	    <center>Frames not supported by your browser!<br></center>
 	  </noframes>
@@ -2716,7 +2750,7 @@ sub write_overview_line(*$$$)
 	# *************************************************************
 
 	write_html($_[0], <<END_OF_HTML)
-	    <area shape="rect" coords="0,$y1,$x2,$y2" href="$_[1].gcov.html#$_[3]" target="source" alt="overview">
+	    <area shape="rect" coords="0,$y1,$x2,$y2" href="$_[1].gcov.$html_ext#$_[3]" target="source" alt="overview">
 END_OF_HTML
 	;
 
@@ -2779,7 +2813,7 @@ END_OF_HTML
 	  </map>
 
 	  <center>
-	  <a href="$_[2].gcov.html#top" target="source">Top</a><br><br>
+	  <a href="$_[2].gcov.$html_ext#top" target="source">Top</a><br><br>
 	  <img src="$_[2].gcov.png" width=$overview_width height=$max_line alt="Overview" border=0 usemap="#overview">
 	  </center>
 	</body>
@@ -2837,7 +2871,7 @@ sub write_header(*$$$$$)
 	{
 		# Directory overview
 		$base_dir = get_relative_base_path($rel_filename);
-		$view = "<a href=\"$base_dir"."index.html\">".
+		$view = "<a href=\"$base_dir"."index.$html_ext\">".
 			"$overview_title</a> - $trunc_name";
 	}
 	elsif ($type == 2)
@@ -2852,16 +2886,16 @@ sub write_header(*$$$$$)
 		{
 			# Need to break frameset when clicking any of these
 			# links
-			$view = "<a href=\"$base_dir"."index.html\" ".
+			$view = "<a href=\"$base_dir"."index.$html_ext\" ".
 				"target=\"_parent\">$overview_title</a> - ".
-				"<a href=\"index.html\" target=\"_parent\">".
+				"<a href=\"index.$html_ext\" target=\"_parent\">".
 				"$dir_name</a> - $base_name";
 		}
 		else
 		{
-			$view = "<a href=\"$base_dir"."index.html\">".
+			$view = "<a href=\"$base_dir"."index.$html_ext\">".
 				"$overview_title</a> - ".
-				"<a href=\"index.html\">".
+				"<a href=\"index.$html_ext\">".
 				"$dir_name</a> - $base_name";
 		}
 	}
@@ -2869,7 +2903,7 @@ sub write_header(*$$$$$)
 	{
 		# Test description header
 		$base_dir = "";
-		$view = "<a href=\"$base_dir"."index.html\">".
+		$view = "<a href=\"$base_dir"."index.$html_ext\">".
 			"$overview_title</a> - test case descriptions";
 	}
 
@@ -2883,13 +2917,13 @@ sub write_header(*$$$$$)
 		{
 			# Need to break frameset when clicking this link
 			$test .= " ( <a href=\"$base_dir".
-				 "descriptions.html\" target=\"_parent\">".
+				 "descriptions.$html_ext\" target=\"_parent\">".
 				 "view test case descriptions</a> )";
 		}
 		else
 		{
 			$test .= " ( <a href=\"$base_dir".
-				 "descriptions.html\">".
+				 "descriptions.$html_ext\">".
 				 "view test case descriptions</a> )";
 		}
 	}
@@ -2973,7 +3007,7 @@ sub write_file_table(*$$$$)
 			# This is the detail list, provide link to standard
 			# list
 			$coverage_heading .= " ( <a class=\"detail\" href=\"".
-					     "index.html\">hide ".
+					     "index.$html_ext\">hide ".
 					     "details</a> )";
 		}
 		else
@@ -2981,7 +3015,7 @@ sub write_file_table(*$$$$)
 			# This is the standard list, provide link to detail
 			# list
 			$coverage_heading .= " ( <a class=\"detail\" href=\"".
-					     "index-detail.html\">show ".
+					     "index-detail.$html_ext\">show ".
 					     "details</a> )";
 		}
 	}
@@ -3029,7 +3063,7 @@ sub write_file_table(*$$$$)
 			if ($test_description{$testname})
 			{
 				$testname = "<a href=\"$base_dir".
-					    "descriptions.html#$testname\">".
+					    "descriptions.$html_ext#$testname\">".
 					    "$testname</a>";
 			}
 
@@ -3704,4 +3738,89 @@ sub apply_config($)
 			${$ref->{$_}} = $config->{$_};
 		}
 	}
+}
+
+
+#
+# get_html_prolog(FILENAME)
+#
+# If FILENAME is defined, return contents of file. Otherwise return default
+# HTML prolog. Die on error.
+#
+
+sub get_html_prolog($)
+{
+	my $filename = $_[0];
+	my $result = "";
+
+	if (defined($filename))
+	{
+		local *HANDLE;
+
+		open(HANDLE, "<".$filename)
+			or die("ERROR: cannot open html prolog $filename!\n");
+		while (<HANDLE>)
+		{
+			$result .= $_;
+		}
+		close(HANDLE);
+	}
+	else
+	{
+		$result = <<END_OF_HTML
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+  <title>\@pagetitle\@</title>
+  <link rel="stylesheet" type="text/css" href="\@basedir\@gcov.css">
+</head>
+
+<body>
+
+END_OF_HTML
+		;
+	}
+
+	return $result;
+}
+
+
+#
+# get_html_epilog(FILENAME)
+#
+# If FILENAME is defined, return contents of file. Otherwise return default
+# HTML epilog. Die on error.
+#
+sub get_html_epilog($)
+{
+	my $filename = $_[0];
+	my $result = "";
+
+	if (defined($filename))
+	{
+		local *HANDLE;
+
+		open(HANDLE, "<".$filename)
+			or die("ERROR: cannot open html epilog $filename!\n");
+		while (<HANDLE>)
+		{
+			$result .= $_;
+		}
+		close(HANDLE);
+	}
+	else
+	{
+		$result = <<END_OF_HTML
+
+</body>
+</html>
+END_OF_HTML
+		;
+	}
+
+	return $result;
+
 }
