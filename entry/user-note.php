@@ -1,4 +1,9 @@
 <?php
+
+// service closed until we can filter spam
+die ('[CLOSED]');
+
+
 // ** alerts ** remove comment when alerts are on-line
 //require_once 'alert_lib.inc';
 include_once 'note-reasons.inc';
