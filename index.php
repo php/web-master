@@ -71,7 +71,7 @@ foreach($tags as $tag)
 <h1>How to help</h1>
 <p>
 <ul>
-<li>Visit the <a href="http://qa.php.net">QA site</a> and read <a href="http://qa.php.net/hotohelp.php">How You Can Help</a>.</li>
+<li>Visit the <a href="http://qa.php.net">QA site</a> and read <a href="http://qa.php.net/howtohelp.php">How You Can Help</a>.</li>
 <li>Check out <a href="http://qa.php.net/write-test.php">how to write tests</a> for anything you see uncovered.</a>
 <li><p>Set up PHP/GCOV testinng on your systems and report any found issues to the <a href="http://qa.php.net/">QA</a> team.
     You need lcov 1.5 which you can get from here
