@@ -38,7 +38,7 @@ if (isset($mytag))
 	foreach($subitems as $item => $href)
 	{
 		$cls = " class='small'";
-		echo "<li$cls><a href='/$tag/$href'>$item</a></li>\n";
+		echo "<li$cls><a href='/$mytag/$href'>$item</a></li>\n";
 	}
 }
 
