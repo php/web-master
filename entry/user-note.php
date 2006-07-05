@@ -1,7 +1,7 @@
 <?php
 
 // service closed until we can filter spam
-die ('[CLOSED]');
+//die ('[CLOSED]');
 
 
 // ** alerts ** remove comment when alerts are on-line
