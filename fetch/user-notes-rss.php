@@ -40,13 +40,13 @@ while ($row = mysql_fetch_array($res, MYSQL_ASSOC)) {
 
 header('Content-type: text/xml');
 ?>
-<?php echo "<?";?>xml version="1.0" encoding="UTF-8"?>
+<?php echo "<?";?>xml version="1.0" encoding="Latin1"?>
 <rdf:RDF
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   xmlns="http://purl.org/rss/1.0/"
   xmlns:dc="http://purl.org/dc/elements/1.1/"
 >
- <channel rdf:about="http://bugs.php.net/">
+ <channel rdf:about="http://www.php.net/">
   <title>PHP Manual User Notes</title>
   <link>http://master.php.net/manage/user-notes.php</link>
   <description/>
