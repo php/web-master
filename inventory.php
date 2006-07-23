@@ -42,7 +42,7 @@ take over the mailing lists if pair1 ever fails.</p>
 <p><b>stats:</b> MRTG stats (traffic, load avg, cpu usage, etc) are 
 available <a href="http://rs1.php.net/~imajes/mrtg/">here</a>.</p>
 
-<p><b>technical contact:</b> connect to irc.ev1.net:7000, join #rackshack</p>
+<p><b>technical contact:</b> connect to irc.ev1.net:7000, join #ev1servers</p>
 
 <h2>sc1.php.net (66.225.196.49)</h2>
 
