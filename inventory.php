@@ -11,28 +11,22 @@ performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 
 <h2>pb1.php.net (216.92.131.4)</h2>
 
-<p><b>machine:</b> dual p3/1000 xeon, 512MB RAM, 27GB HD, freebsd 4.8</p>
+<p><b>machine:</b> dual p3/1000 xeon, 512MB RAM, 27GB HD, freebsd 4.11</p>
 
 <p><b>aliases:</b> lists.php.net, news.php.net</p>
 
 <h2>pb2.php.net (216.92.131.5)</h2>
 
-<p><b>machine:</b> p3/566, 128MB RAM, 27GB HD, freebsd 4.8</p>
+<p><b>machine:</b> p3/566, 128MB RAM, 27GB HD, freebsd 5.5</p>
 
 <p><b>aliases:</b> idle</p>
 
 <p><b>notes:</b> this machine maintains a copy of ~ezmlm from pair1, so it can
 take over the mailing lists if pair1 ever fails.</p>
 
-<h2>pb11.php.net (216.92.131.65)</h2>
-
-<p><b>machine:</b> dual p3/1000 xeon, 512MB RAM, 70GB HD, freebsd 4.8</p>
-
-<p><b>aliases:</b> idle</p>
-
 <h2>pb12.php.net (216.92.131.66)</h2>
 
-<p><b>machine:</b> dual p3/1000 xeon, 512MB RAM, 70GB HD, freebsd 4.10</p>
+<p><b>machine:</b> dual p3/1000 xeon, 512MB RAM, 70GB HD, freebsd 4.11</p>
 
 <p><b>aliases:</b> pear, pecl</p>
 
@@ -49,22 +43,6 @@ take over the mailing lists if pair1 ever fails.</p>
 available <a href="http://rs1.php.net/~imajes/mrtg/">here</a>.</p>
 
 <p><b>technical contact:</b> connect to irc.ev1.net:7000, join #rackshack</p>
-
-<h2>rn1.php.net (12.165.50.194)</h2>
-
-<p><b>machine:</b> Compaq DL380-G2 1.1GHz, 1GB RAM, 6x36GB SCSI HDs in RAID5 resulting in a 167GB cluster.</p>
-
-<p><b>aliases:</b> idle</p>
-
-<p><b>notes:</b> this machine resides in Reno, Nevada. A second machine in Raleigh, NC will be online soon as a mirror of 
-this box. This allows for absolute failover redundancy, and the possibilty of internal linkage. This box is quite a monster,
- so having failover allows us the possibility to experiment with various distributed setups.</p>
-
-<h2>rn2.php.net (216.27.81.34)</h2>
-
-<p><b>machine:</b> (same as rn1) P3-1133, 1.2GB RAM, 165GB HD</p>
-
-<p><b>aliases:</b> bonsai</p>
 
 <h2>sc1.php.net (66.225.196.49)</h2>
 
