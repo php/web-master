@@ -54,9 +54,9 @@ if (@mysql_query($query)) {
   mail($mailto,"CVS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id@php.net>");
 
   $msg .= "\n-- \n";
-  $msg .= "approve: http://master.php.net/manage/users.php?action=approve&id=$new_id\n";
-  $msg .= "reject:  http://master.php.net/manage/users.php?action=remove&id=$new_id\n";
-  $msg .= "view:    http://master.php.net/manage/users.php?id=$new_id\n";
+  $msg .= "approve: https://master.php.net/manage/users.php?action=approve&id=$new_id\n";
+  $msg .= "reject:  https://master.php.net/manage/users.php?action=remove&id=$new_id\n";
+  $msg .= "view:    https://master.php.net/manage/users.php?id=$new_id\n";
 
   mail($failto,"CVS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id-admin@php.net>");
 } else {

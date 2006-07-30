@@ -308,7 +308,7 @@ function page_mirror_list()
                     $stats['autodisabled']++;
                     $siteimage = "error";
                     if (!empty($row['ocmt'])) {
-                        $errorinfo = $row['ocmt'] . " (last accessed: " .
+                        $errorinfo = $row['ocmt'] . " (problem since: " .
                                      get_print_date($row['ulastchecked']) . ")";
                     } elseif (!$row['current']) {
                         $errorinfo = "content out of date (last updated: " .
