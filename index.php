@@ -60,7 +60,7 @@ foreach($tags as $tag)
 <h1>ToDo</h1>
 <p>
 <ul>
-<li>Integrate gcov testing into PHP_4_4 (<a href='PHP_4_4-gcov-20060323.diff.txt.bz2'>patch</a>)</li>
+<li>Integrate gcov testing into PHP_4_4 (<a href='PHP_4_4-gcov-20060810.diff.txt.bz2'>patch</a>)</li>
 <li>Running the tests from a cron job (5.1 takes ~25 hours, HEAD takes ~52 hours).</li>
 <li>Enable all core extensions.</li>
 <li>Integrate PECL extensions.</li>
