@@ -24,6 +24,12 @@ performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 <p><b>notes:</b> this machine maintains a copy of ~ezmlm from pair1, so it can
 take over the mailing lists if pair1 ever fails.</p>
 
+<h2>pb11.php.net (216.92.131.65)</h2>
+
+<p><b>machine:</b> dual p3/1000 xeon, 512MB RAM, 70GB HD, freebsd 4.8</p>
+
+<p><b>aliases:</b> docs, livedocs</p>
+
 <h2>pb12.php.net (216.92.131.66)</h2>
 
 <p><b>machine:</b> dual p3/1000 xeon, 512MB RAM, 70GB HD, freebsd 4.11</p>
