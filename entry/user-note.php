@@ -70,13 +70,15 @@ foreach($worlds_backlist as $bad_word) {
 }
 
 // check with spamassassin if the note is spam or not
+/*
 $spam = shell_exec('echo ' . escapeshellarg($note) . " | $spamassassin -L -e 8");
 
-if (preg_match('/^X-Spam-Status:.+(?:\n\t.+)*/m', $spam, $match)) {
+if (preg_match('/^X-Spam-Status:.+(?:\n\t.+)*'.'/m', $spam, $match)) {
     $spam_data = $match[0];
 } else {
     $spam_data = 'error matching the SpamAssassin data';
 }
+*/
 
 
 @mysql_connect("localhost","nobody", "")
@@ -151,8 +153,8 @@ if (@mysql_query($query)) {
   $msg .= "\nProbable Submitter: {$ip}" . ($redirip ? ' (proxied: '.htmlspecialchars($redirip).')' : '');
 
   $msg .= "\n----\n";
-  $msg .= $spam_data;
-  $msg .= "\n----\n";
+//  $msg .= $spam_data;
+//  $msg .= "\n----\n";
 
   $msg .= "Manual Page -- http://www.php.net/manual/en/$sect.php\n";
   $msg .= "Edit        -- https://master.php.net/note/edit/$new_id\n";
