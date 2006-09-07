@@ -58,8 +58,8 @@ if (!isset($user) || empty($note) || empty($sect) || empty($ip) || !isset($redir
   die("missing some parameters.");
 
 // check if the IP is blacklisted
-if (is_spammer($_SERVER['REMOTE_ADDR']) || is_spammer($ip) || is_spammer($redirip)) {
-    die ('[SPAMMER]');
+if (($spamip=is_spammer($_SERVER['REMOTE_ADDR'])) || ($spamip=is_spammer($ip)) || ($spamip=is_spammer($redirip))) {
+    die ("[SPAMMER] $spamip");
 }
 
 // check if the note contains some prohibited words
@@ -203,7 +203,7 @@ function is_spammer($ip) {
         $dns  = gethostbyname($host);
 
         if ($dns != $host && (empty($list[1]) || $dns != $list[1])) {
-            return true;
+            return $ip;
         }
     }
     return false;
