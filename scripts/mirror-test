@@ -101,7 +101,7 @@ foreach ($hosts as $index => $host) {
 
     // Invalid data received, skip mirror site
     if (count($info) < 8) {
-        $hosts[$index]['problem'] = "invalid data received (probably improper ErrorHandler)";
+        $hosts[$index]['problem'] = "invalid data received (probably improper ErrorHandler, see /mirroring.php)";
         continue;
     }
     
@@ -138,13 +138,13 @@ foreach ($hosts as $index => $host) {
     // alias is in effect
     if ($info[6] == "manual-alias") {
         $hosts[$index]['lastupdated'] = '0';
-        $hosts[$index]['problem'] = "Apache manual alias in effect";
+        $hosts[$index]['problem'] = "Apache manual alias in effect, see /mirroring.php";
         continue;
     }
     
     // Check that the mirror has all the mirror settings updated
     if ($info[7] != '1') {
-      $hosts[$index]['problem'] = "Mirror settings are not up to date (check rsync parameters)";
+      $hosts[$index]['problem'] = "Rsync setup problems, see /mirroring.php";
       continue;
     }
 
@@ -158,7 +158,7 @@ foreach ($hosts as $index => $host) {
 
     if (!$mysite || $mysite != $host['hostname']) {
         $hosts[$index]['problem'] = "Apache ServerName directive does not match '{$host['hostname']}'."
-         . " (consider swapping ServerName and ServerAlias)";
+         . " (consider swapping ServerName and ServerAlias, see /mirroring.php)";
         continue;
     }
 }
