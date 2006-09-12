@@ -13,11 +13,14 @@ function require_token()
 
 // -----------------------------------------------------------------------------------
 
-function head($title="") {?>
+function head($title="") {
+  header("Content-type: text/html; charset=utf-8");
+?>
 <html>
 <head>
  <title><?php echo $title;?></title>
  <link rel="stylesheet" type="text/css" href="/style.css" />
+ <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 </head>
 <body>
  <div id="header">

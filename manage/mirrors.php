@@ -1,6 +1,4 @@
 <?php
-header("Content-type: text/html; charset=utf-8");
-
 // Force login and include common functions
 include_once 'login.inc';
 include_once 'functions.inc';
