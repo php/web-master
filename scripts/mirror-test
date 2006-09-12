@@ -18,8 +18,7 @@
 set_time_limit(30 * 60);
 
 // Connect to local MySQL database
-mysql_connect("localhost", "nobody", "")
-    or die("unable to connect to database");
+mysql_connect("localhost", "nobody", "") or die("unable to connect to database");
 mysql_select_db("phpmasterdb");
 
 // Get mirror information for all active mirrors (regardless of their type!)
@@ -27,8 +26,7 @@ $query = "SELECT maintainer, hostname, id, has_search, has_stats, lang,
           UNIX_TIMESTAMP(lastchecked) as lastchecked,
           UNIX_TIMESTAMP(lastupdated) AS lastupdated
           FROM mirrors WHERE active = 1";
-$result = mysql_query($query)
-    or die("unable to get from the database: " . mysql_error());
+$result = mysql_query($query) or die("unable to get from the database: " . mysql_error());
 
 // Get all mirror site data to the $hosts array
 $hosts = array();
@@ -39,37 +37,27 @@ while ($row = mysql_fetch_array($result)) {
 // Free up the result to get more memory
 mysql_free_result($result);
 
-// Get all mirror sites, and count the index of them
-foreach ($hosts as $index => $host) {
+// Check host for errors, inject data into $data and $problem
+function host_has_error($hostname, $filename, &$data, &$problem) {
 
     // Open port 80 on the mirror site
-    $fp = @fsockopen($host['hostname'], 80, $errno, $errstr, 15);
+    $fp = @fsockopen($hostname, 80, $errno, $errstr, 15);
     
     // If we were unable to open the port, continue with the next mirror
     if (!$fp) {
-        $hosts[$index]['problem'] = "unable to connect";
-        continue;
-    }
-    
-    // Request the exact file on www.php.net as it redirects
-    // shortcut requests to a mirror site, and we would not handle
-    // that properly. Otherwise on a mirror site we need to check
-    // the shortcut functionality too.
-    if ($host['hostname'] == 'www.php.net') {
-        $filename = '/mirror-info.php';
-    } else {
-        $filename = '/mirror-info';
+        $problem = "Unable to connect.";
+        return TRUE;
     }
 
-    // GET mirror-info.php from the registered hostname
+    // GET the page from the registered hostname
     $rc = fputs($fp, "GET $filename HTTP/1.0\r\n" .
-                     "Host: {$host['hostname']}\r\n" .
+                     "Host: {$hostname}\r\n" .
                      "User-Agent: PHP.net Mirror Site Check\r\n\r\n");
     
     // If we were unable to write to socket, skip mirror site
     if ($rc === FALSE) {
-        $hosts[$index]['problem'] = "unable to send request";
-        continue;
+        $problem = "Unable to send request.";
+        return TRUE;
     }
     
     // Set timeout to 5 seconds
@@ -83,31 +71,51 @@ foreach ($hosts as $index => $host) {
 
     // If we were unable to pass the HTTP headers, skip mirror site
     if ($line === FALSE || $line == "") {
-        $hosts[$index]['problem'] = "unable to get past HTTP response headers (probably timeout)";
-        continue;
+        $problem = "Unable to get past HTTP response headers. Probably timeout.";
+        return TRUE;
     }
         
     // Get data row from socket
-    $rv = fgets($fp);
+    $data = fgets($fp);
 
-    // If unable to read that row, skip mirror site
-    if ($rv === FALSE) {
-        $hosts[$index]['problem'] = "unable to get data (probably timeout)";
-        continue;
-    }
-    
-    // Explode information row by delimiter
-    $info = explode("|", trim($rv));
-
-    // Invalid data received, skip mirror site
-    if (count($info) < 8) {
-        $hosts[$index]['problem'] = "invalid data received (probably improper ErrorHandler, see /mirroring.php)";
-        continue;
-    }
-    
     // Close socket
     fclose($fp);
 
+    // If unable to read that row, skip mirror site
+    if ($data === FALSE) {
+        $problem = "Unable to get data. Probably timeout.";
+        return TRUE;
+    }
+    
+    return FALSE;
+}
+
+// Get all mirror sites, and count the index of them
+foreach ($hosts as $index => $host) {
+
+    // Request the exact file on www.php.net as it redirects
+    // shortcut requests to a mirror site, and we would not handle
+    // that properly. Otherwise on a mirror site we need to check
+    // the shortcut functionality too.
+    $filename = ($host['hostname'] == 'www.php.net') ? '/mirror-info.php' : '/mirror-info';
+
+    // -------------------------------------------------------------------------
+    // First HTTP request for the mirror-info file
+    $data = $problem = '';
+    if (host_has_error($host['hostname'], $filename, $data, $problem)) {
+      $host[$index]['problem'] = $problem;
+      continue;
+    }
+
+    // Explode information row by delimiter
+    $info = explode("|", trim($data));
+
+    // Invalid data received, skip mirror site
+    if (count($info) < 8) {
+        $hosts[$index]['problem'] = "Invalid data received. Probably improper ErrorHandler, see /mirroring.php.";
+        continue;
+    }
+    
     // Put pieces into the $hosts array
     $hosts[$index]['phpversion'] = $info[1];
     
@@ -115,13 +123,14 @@ foreach ($hosts as $index => $host) {
     if (is_numeric($info[2])) {
         $hosts[$index]['mirrorupdated'] = $info[2];
     } else {
-        $hosts[$index]['problem'] = "invalid last update time";
+        $hosts[$index]['problem'] = "Invalid last update time.";
     }
     
     // If new search information is available, override previous one
-    if (in_array($info[3], array('0', '1', '2'))) {
+    /*if (in_array($info[3], array('0', '1', '2'))) {
         $hosts[$index]['has_search'] = $info[3];
-    }
+    }*/
+    $hosts[$index]['has_search'] = 0;
 
     // Update stats availability info 
     if (in_array($info[4], array('0', '1'))) {
@@ -136,15 +145,15 @@ foreach ($hosts as $index => $host) {
     // Set mirror's lastupdated time to a default,
     // thus deactivating it in case of a manual
     // alias is in effect
-    if ($info[6] == "manual-alias") {
+    /*if ($info[6] == "manual-alias") {
         $hosts[$index]['lastupdated'] = '0';
-        $hosts[$index]['problem'] = "Apache manual alias in effect, see /mirroring.php";
+        $hosts[$index]['problem'] = "Apache manual alias in effect, see /mirroring.php.";
         continue;
-    }
+    }*/
     
     // Check that the mirror has all the mirror settings updated
     if ($info[7] != '1') {
-      $hosts[$index]['problem'] = "Rsync setup problems, see /mirroring.php";
+      $hosts[$index]['problem'] = "Rsync setup problems, see /mirroring.php.";
       continue;
     }
 
@@ -158,7 +167,20 @@ foreach ($hosts as $index => $host) {
 
     if (!$mysite || $mysite != $host['hostname']) {
         $hosts[$index]['problem'] = "Apache ServerName directive does not match '{$host['hostname']}'."
-         . " (consider swapping ServerName and ServerAlias, see /mirroring.php)";
+         . " Consider swapping ServerName and ServerAlias, see /mirroring.php.";
+        continue;
+    }
+
+    // -------------------------------------------------------------------------
+    // Second HTTP request, checking for Apache manual alias
+    $data = $problem = '';
+    if (host_has_error($host['hostname'], '/manual/noalias.txt', $data, $problem)) {
+        $host[$index]['problem'] = $problem;
+        continue;
+    }
+    if (trim($data) != 'manual-noalias') {
+        $hosts[$index]['lastupdated'] = '0';
+        $hosts[$index]['problem'] = "Apache manual alias in effect, see /mirroring.php.";
         continue;
     }
 }
