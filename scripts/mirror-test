@@ -103,7 +103,7 @@ foreach ($hosts as $index => $host) {
     // First HTTP request for the mirror-info file
     $data = $problem = '';
     if (host_has_error($host['hostname'], $filename, $data, $problem)) {
-      $host[$index]['problem'] = $problem;
+      $hosts[$index]['problem'] = $problem;
       continue;
     }
 
@@ -175,7 +175,7 @@ foreach ($hosts as $index => $host) {
     // Second HTTP request, checking for Apache manual alias
     $data = $problem = '';
     if (host_has_error($host['hostname'], '/manual/noalias.txt', $data, $problem)) {
-        $host[$index]['problem'] = $problem;
+        $hosts[$index]['problem'] = $problem;
         continue;
     }
     if (trim($data) != 'manual-noalias') {
