@@ -20,6 +20,8 @@ CREATE TABLE mirrors (
   lastupdated datetime NOT NULL default '0000-00-00 00:00:00',
   lastchecked datetime NOT NULL default '0000-00-00 00:00:00',
   phpversion varchar(16) NOT NULL default '',
+  acmt text,
+  ocmt text,
   PRIMARY KEY  (id),
   UNIQUE KEY hostname (hostname)
 ) TYPE=MyISAM;

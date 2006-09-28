@@ -13,22 +13,22 @@
 */
 
 CREATE TABLE IF NOT EXISTS note (
-  id INT NOT NULL AUTO_INCREMENT,
-  sect VARCHAR(80) NOT NULL DEFAULT '',
-  user VARCHAR(80) DEFAULT NULL,
-  note TEXT,
-  ts DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
-  status VARCHAR(16) DEFAULT NULL,
-  lang VARCHAR(16) DEFAULT NULL,
-  votes INT NOT NULL DEFAULT '0',
-  rating INT NOT NULL DEFAULT '0',
-  updated DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+  id mediumint(9) NOT NULL auto_increment,
+  sect varchar(80) NOT NULL default '',
+  user varchar(80) default NULL,
+  note text,
+  ts datetime NOT NULL default '0000-00-00 00:00:00',
+  status varchar(16) default NULL,
+  lang varchar(16) default NULL,
+  votes int(11) NOT NULL default '0',
+  rating int(11) NOT NULL default '0',
+  updated datetime NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (id),
-  KEY (sect)
+  KEY idx_sect (sect)
 ) TYPE=MyISAM PACK_KEYS=1;
 
 CREATE TABLE IF NOT EXISTS alerts (
-  user INT NOT NULL,
-  sect VARCHAR(80) not NULL,
+  user INT NOT NULL default '0',
+  sect VARCHAR(80) not NULL default '',
   updated TIMESTAMP(14) NOT NULL
-);
+) TYPE=MyISAM;
