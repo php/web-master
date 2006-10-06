@@ -36,6 +36,8 @@ take over the mailing lists if pair1 ever fails.</p>
 
 <p><b>aliases:</b> pear, pecl</p>
 
+<p><b>technical contact:</b> Pair's ticket system <tt>qs AT pair.com</tt>.</p>
+
 <h2>rs1.php.net (64.246.30.37)</h2>
 
 <p><b>machine:</b> p3/1GHz, 1GB RAM 40GB HD, redhat 7.2</p>
