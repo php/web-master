@@ -80,6 +80,12 @@ machine to track the usage of all of the machines.</p> -->
 <p><b>aliases:</b> ecelerity, master.php.net, php.net MX</p>
 <p><b>technical contact:</b> Scott Kveton, Oregon State OSL (scott AT osuosl.org)</p>
 
+<h2>ovh.php.net (213.251.181.15)</h2>
+
+<p><b>machine:</b> ?</p>
+<p><b>aliases:</b> pecl (work in progress)</p>
+<p><b>technical contact:</b> BinarySec</p>
+
 <h2>y1.php.net (66.163.161.116)</h2>
 <p><b>machine:</b> Dual Xeon 3GHz, 4GB RAM, 6x73GB SCSI HD RAID10, 64-bit FreeBSD6</p>
 <p><b>aliases:</b> chora, cvs, cvsup, cvsweb, lxr, viewcvs</p>
