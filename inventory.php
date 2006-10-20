@@ -78,7 +78,8 @@ machine to track the usage of all of the machines.</p> -->
 
 <p><b>machine:</b> Dual Xeon 2.4GHz, 1GB RAM, 36GB HD, RHEL 3</p>
 <p><b>aliases:</b> ecelerity, master.php.net, php.net MX</p>
-<p><b>technical contact:</b> Scott Kveton, Oregon State OSL (scott AT osuosl.org)</p>
+<p><b>technical contact:</b> Corey Shields, Oregon State OSL (cshields AT osuosl.org).
+	For support, (support AT osuosl.org)</p>
 
 <h2>ovh.php.net (213.251.181.15)</h2>
 
