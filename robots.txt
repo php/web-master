@@ -1,6 +1,0 @@
-User-agent: *
-Disallow: /backend/
-Disallow: /distributions/
-Disallow: /stats/
-Disallow: /source.php
-Disallow: /search.php

@@ -1,0 +1,116 @@
+Client Instance README File
+
+PHP Quality Assurance GCOV Website
+
+Author: Daniel Pronych ( pronych AT php DOT net )
+
+Document Modified Date: August 2006
+
+Table of Contents
+
+AUDIENCE
+FILES
+REQUIREMENTS
+INSTALLATION
+CRON CONFIGURATION
+
+==
+AUDIENCE
+==
+
+This README applies to the installation and configuration of the client instance.  It covers the files required to set up the client instance, client requirements for proper operation, the installation process and finally the configurations required.
+
+==
+FILES
+==
+
+The scripts cron directory from the CVS is required for the client instance.  The following lists the locations where the required scripts can be accessed to install the client instance.
+
+--
+Cron Scripts
+--
+http://cvs.php.net/viewvc.cgi/php-gcov-web/cron/?pathrev=SOC06
+
+==
+REQUIREMENTS
+==
+
+PHP 4.4 and above are required (though PHP 5.1 and above is recommended) to have the cron scripts function as a client instance.  Additionally, the client instance will require several PHP extensions to be installed for proper operation, including:
+
+bzip2
+
+==
+INSTALLATION
+==
+
+To properly install the cron scripts locations for the cron scripts and builds directory would first need to be determined.
+
+Once a location for the cron scripts has been determined set up access to the CVS repository for the chosen cron directory and perform a cvs update to download all the cron files.
+
+All PHP builds that will be done should be placed in a common directory with the directory name to match the PHP version and the PHP tag system.  This common path should be used in the CRON CONFIGURATION section for modifying the tags.inc file.  
+
+Note: If not all PHP builds will be done be sure to remove the PHP tags from tags.inc that are not going to be done otherwise errors will occur in the build process.
+
+==
+CRON CONFIGURATION
+==
+
+The cron configuration consists of several parts.  First a common directory structure needs to be created to house the PHP builds and store the log files created during the build process with correct permissions granted to the user that will run the cron scripts and the ability to output log files into a tmp directory for each PHP version.  Since the cron scripts can be used for either a master server instance or client instance the scripts must also be configured to use the correct process.
+
+--
+CRON DIRECTORY CONFIGURATION
+--
+
+First note that all PHP builds should exist under a common directory referred to here as the "Build Directory Root" with subdirectories that have a name that matches the PHP tag exactly.  The Build Directory Root should also have a tmp folder referred to here as the "Build Log Root" that should also contain a subdirectory with the same name as the PHP tag.  The user that runs the cron script needs full control over the Build Directory Root and Build Log Root.
+
+An example structure, assuming only PHP 4.4 is to be built, is as follows:
+
+(Build Directory Root)
+/var/phpbuild/
+/var/phpbuild/PHP_4_4
+
+(Build Log Root)
+/var/phpbuild/tmp
+/var/phpbuild/tmp/PHP_4_4
+
+--
+CRON TAG CONFIGURATION
+--
+
+Note: Due to the client and master nature of the cron system an "Output Directory Root" needs to be defined; however, no output should actually occur when configured as a client instance.  Nonetheless, a path needs to be specified here.
+
+The tags themselves are contained in the file tags.inc in the following format (Note: each line is terminated by a carriage return and line feed, and the directory paths do not have an ending slash):
+
+Build Directory Root
+Output Directory Root
+PHP Tag 1
+PHP Tag 2
+...
+PHP Tag X
+
+a sample configuration follows:
+
+/var/phpbuild
+/dev/null
+PHP_4_4
+PHP_5_1
+PHP_5_2
+PHP_HEAD
+
+--
+CRON CONFIG.PHP CONFIGURATION
+--
+
+To tell the cron scripts to run as a client instance, verify the following configuration setting is made in config.php:
+
+$is_master = false;
+
+Note the additional setting:
+
+$server_submit_url	(The web address to which build related information should be sent)
+
+The following settings are user-specific and should be updated with your account information.  Enter the password exactly as given, the password will be encrypted when the information is submitted to the central server.
+
+$server_submit_user	(The username the content will be submitted under)
+$server_submit_pass	(The password that goes with the above user name setting)
+

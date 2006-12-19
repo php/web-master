@@ -1,0 +1,171 @@
+Master Instance README File
+
+PHP Quality Assurance GCOV Website
+
+Author: Daniel Pronych ( pronych AT php DOT net )
+
+Document Modified Date: August 2006
+
+Table of Contents
+
+AUDIENCE
+FILES
+REQUIREMENTS
+INSTALLATION
+CRON CONFIGURATION
+WEBSITE CONFIGURATION
+
+==
+AUDIENCE
+==
+
+This README applies to the installation and configuration of the server instance.  It covers the files required to set up the server instance, server requirements for proper operation, the installation process and finally the configurations required.
+
+==
+FILES
+==
+
+Note that the cron scripts and the www scripts are required for the server instance.  The following lists the locations where the required scripts required can be accessed to install the server instance.  Also note the SQL in the cron scripts sql directory is also required for the server instance.
+
+--
+Cron Scripts
+--
+http://cvs.php.net/viewvc.cgi/php-gcov-web/cron/?pathrev=SOC06
+
+--
+Website Scripts
+--
+http://cvs.php.net/viewvc.cgi/php-gcov-web/www/?pathrev=SOC06
+
+==
+REQUIREMENTS
+==
+
+PHP 5.1 and above is required to have the cron scripts function as server instance.  Additionally, the master server instance will require several PHP extensions to be installed for proper operation, including:
+
+bzip2
+ctype
+gd
+pdo
+pdo-mysql
+
+==
+INSTALLATION
+==
+
+To properly install the scripts, the locations for the cron scripts and website scripts would first need to be determined.  Also note in advance that the system location of the cron scripts need to allow the web server user read permissions to available for certain files, as discussed in the WEBSITE CONFIGURATION section.
+
+Once a location for the cron scripts has been determined set up access to the CVS repository for the chosen cron directory and perform a cvs update to download all the cron files.
+
+For the server instance to function properly, SQL data will also need to be loaded into a database for access by the cron and website scripts.  Start by creating a database and database user with full permissions on the chosen database.  Next go to the sql directory in the cron folder and load recommended.sql into the database to create all the necessary tables and populate with the basic entries (such as the current PHP versions).  Also included are two other sql scripts, tables.sql contains just the SQL to create the database tables, and sample.sql contains the database tables along with a few database entries that show the setup to accept other platform data.
+
+To install the website scripts determine an acceptable location that would be accessible by the web server user, set up access to the CVS repository for the chosen website directory and perform a cvs update to download all the website files.  The web server would need to be configured to allow web site scripts to be accessed over the World Wide Web and particularly for receiving data from other platforms.
+
+==
+CRON CONFIGURATION
+==
+
+The cron configuration consists of several parts.  First a common directory structure needs to be created to house the PHP builds and store the log files created during the build process with correct permissions granted to the user that will run the cron scripts and the ability to output log files into a tmp directory for each PHP version.  Since the cron scripts can be used for either a master server instance or client instance the scripts must also be configured to use the correct process.
+
+--
+CRON DIRECTORY CONFIGURATION
+--
+
+First note that all PHP builds should exist under a common directory referred to here as the "Build Directory Root" with subdirectories that have a name that matches the PHP tag exactly.  The Build Directory Root should also have a tmp folder referred to here as the "Build Log Root" that should also contain a subdirectory with the same name as the PHP tag.  The user that runs the cron script needs full control over the Build Directory Root, Build Log Root, and at least write access to the Output Directory Root.
+
+An example structure, assuming only PHP 4.4 is to be built, is as follows:
+
+(Build Directory Root)
+/var/phpbuild/
+/var/phpbuild/PHP_4_4
+
+(Build Log Root)
+/var/phpbuild/tmp
+/var/phpbuild/tmp/PHP_4_4
+
+(Output Directory Root)
+/var/local/phpgcov/www
+/var/local/phpgcov/www/PHP_4_4
+/var/local/phpgcov/www/PHP_4_4/graphs
+
+Note: This section covered management of local builds only, in the WEBSITE CONFIGURATION section accepting data posted from user-submitted platforms will be discussed and configured.
+
+--
+CRON TAG CONFIGURATION
+--
+
+The tags themselves are contained in the file tags.inc in the following format (Note: each line is terminated by a carriage return and line feed, and the directory paths do not have an ending slash):
+
+Build Directory Root
+Output Directory Root
+PHP Tag 1
+PHP Tag 2
+...
+PHP Tag X
+
+a sample configuration follows:
+
+/var/phpbuild
+/var/local/phpgcov/www
+PHP_4_4
+PHP_5_1
+PHP_5_2
+PHP_HEAD
+
+--
+CRON CONFIG.PHP CONFIGURATION
+--
+
+To tell the cron scripts to run as a master server instance, the following configuration settings should be made to config.php:
+
+$is_master = true;
+
+--
+DATABASE CONFIGURATION
+--
+
+The database configuration basically involves importing a SQL script into a database set aside for hosting the GCOV data that will be used by the website.  
+
+In the cron directory there will be a subdirectory called sql, in that directory is the file recommended.sql.  By importing this file into the database, the basic tables needed for operation will be inserted along with the basic PHP tags.
+
+To accept data from other platforms users will need to added to the other_platforms table in the database.  This ensures that users are authenticated before the build data will be accepted into the database or into the other_platforms build directory.  The basic information required for an individual user account are:
+
+user_name 	(the user name that will identify this user from others)
+user_pass	(a MD5 version of the user password to verify)
+
+Other optional settings are available:
+
+user_email	(Optional: in case future correspondence is required, this field may prove useful)
+last_build_xml 	(Optional: this field allows the last XML file sent by the user to be stored)
+last_build_os	(Optional: this field is used to maintain a user's operating system for the other platforms search feature)
+last_build_ver	(optional: this field is used to maintain the specific operating system version)
+
+The database configuration also involves modification of the database.php file in the cron scripts directory.  The variables that require changes are:
+
+$myuser		(database username)
+$mypass		(database password)
+$mydsn		(connection string that defines the database system, host name and the database path)
+
+--
+WEBSITE CONFIGURATION
+--
+
+The website configuration involves the correct directory structure for local builds and build submitted for other platforms along with the correct permissions (such as read and write) to each and several changes to the config.php file.
+
+There should be a subdirectory for each PHP version in the Output Directory Root, such as the following (assuming the web root is located at /var/local/phpgcov/www/):
+
+/var/local/phpgcov/www/PHP_4_4
+/var/local/phpgcov/www/PHP_5_1
+/var/local/phpgcov/www/PHP_5_2
+/var/local/phpgcov/www/PHP_HEAD
+
+There should also be a subdirectory to store the builds submitted from users and the web user should have create folder, read and write permissions to the other_platforms directory.  Continuing our web root example the folder would look like this on the local server:
+
+/var/local/phpgcov/www/other_platforms
+
+For config.php, the following settings will need to be modified:
+
+$appvars['site']['tagsfile']	(This setting should equate to the system location of the tags.inc file, by default, in the cron scripts directory)
+
+$appvars['site']['dbcsfile']	(This setting should equate to the system location of the database.php file, by default, in the cron scripts directory)
+

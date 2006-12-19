@@ -1,0 +1,11 @@
+Options +FollowSymLinks -Indexes
+
+<IfModule mod_dir.c>
+	DirectoryIndex index.php
+</IfModule>
+
+<IfModule mod_rewrite.c>
+	RewriteEngine On
+	RewriteRule ^PHP_([_A-Z0-9]+)$ /viewer.php?version=PHP_$1 [R,L]
+	RewriteRule ^PHP_([_A-Z0-9]+)/([a-z]+)/?$ /viewer.php?version=PHP_$1&func=$2 [R,L]
+</IfModule>
