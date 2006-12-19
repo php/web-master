@@ -153,11 +153,7 @@ if($is_master)
 
 		// Graphs will be generated and the database updated with the latest build information
 		if($makestatus == 'pass')
-		{			
-			$graph_mode = 'weekly';
-			require $workdir.'/graph.php';
-
-			$graph_mode = 'monthly';
+		{
 			require $workdir.'/graph.php';
 
 			// Do SQL updates for the specific PHP version

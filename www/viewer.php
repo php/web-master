@@ -94,17 +94,10 @@ $func_array = array(
 
 // Define the acceptable modes for the graphs
 $graph_mode_array = array(
-		'weekly' => 
-			array(
-				'name' => 'weekly',
-				'title' => 'Weekly'
-			),
-		'monthly' =>
-			array(
-				'name' => 'monthly',
-				'title' => 'Monthly'
-			)
-		);
+		'Week'  => 'Weekly',
+		'Month' => 'Monthly',
+		'Year'  => 'Yearly'
+);
 
 $graph_types_array = array('codecoverage','failures','memleaks','warnings');
 
@@ -267,8 +260,8 @@ HTML;
 		// If date is not set display all available dates
 		if(isset($graph_mode_array[$mode]))
 		{
-			$appvars['page']['title'] = 'PHP: '.$version.' Last '.$graph_mode_array[$mode]['title'] . ' Graphs';
-			$appvars['page']['head'] = 'Last '.$graph_mode_array[$mode]['title']. ' Graphs';
+			$appvars['page']['title'] = 'PHP: '.$version.' '.$graph_mode_array[$mode] . ' Graphs';
+			$appvars['page']['head'] = $graph_mode_array[$mode]. ' Graphs';
 			$appvars['page']['headtitle'] = $version;
 
 			$content .= '<p>The following images show the changes in code coverage, compile warnings, memory leaks and test failures:</p>';
@@ -296,13 +289,13 @@ HTML;
 			$appvars['page']['headtitle'] = $version;
 
 			$content .= <<< HTML
-<p>Select the period of time you wish to view as a graphical progression.</p>
+<p>Select the period of time you wish to view as a graphical progression:</p>
 HTML;
 
-			foreach($graph_mode_array as $graph_mode)
+			foreach($graph_mode_array as $idx => $graph_mode)
 			{
 				$content .= <<< HTML
-<a href="viewer.php?version=$version&func=graph&mode=$graph_mode[name]">Last $graph_mode[title]</a><br />
+<a href="viewer.php?version=$version&func=graph&mode=$idx">$graph_mode</a><br />
 HTML;
 			}
 		} // End check for valid graph mode

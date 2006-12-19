@@ -14,6 +14,7 @@
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
   | Author: Daniel Pronych <pronych@php.net>                             |
+  |         Nuno Lopes <nlopess@php.net>                                 |
   +----------------------------------------------------------------------+
 */
 
@@ -38,38 +39,43 @@ if(!defined('CRON_PHP'))
 	die(basename($_SERVER['PHP_SELF']).": Sorry this file must be called by a cron script.\n");
 }
 
-include_once 'lib/jpgraph/jpgraph.php';
-include_once 'lib/jpgraph/jpgraph_line.php';
+// periods for graph generation
+$graph_modes = array(
+		// title, xlabel, SQL period, php func converter (from mysql to x ploting)
+	7	=> array('Week', 'Day', 'DATE', 'date2day'),
+	30	=> array('Month', 'Day', 'DATE', 'date2day'),
+	// 334 = 1 year - 1 month (so that we dont have mixed data with the current and last year month results)
+	334	=> array('Year', 'Month', 'MONTH', 'month2text')
+);
 
-/*
-support for:
-weekly ( 7 days )
-monthly ( 30 days )
-*/
-
-$days = 0;
-
-if($graph_mode == 'monthly')
+function date2day($d)
 {
-	$graph_mode_text = 'Month';
-	$graph_days = 30;
+	return substr($d, 8);
 }
-else if($graph_mode == 'weekly')
+
+function month2text($m)
 {
-	$graph_mode_text = 'Week';
-	$graph_days = 7;
+	return date('M', mktime(0, 0, 0, $m));
 }
+
+include 'lib/jpgraph/jpgraph.php';
+include 'lib/jpgraph/jpgraph_line.php';
 
 // make sure the directory exists
 @mkdir("$outdir/graphs");
 
-// Make sure an acceptable graph mode is selected before continuing
-if($graph_days > 0)
+foreach ($graph_modes as $days => $opts) {
+	gen_graph($days, $opts[0], $opts[1], $opts[2], $opts[3]);
+}
+
+
+function gen_graph($graph_days, $graph_mode_text, $xLabel, $sqlgroup, $date2text)
 {
+	global $mysqlconn, $version_id, $outdir;
 
 	try
 	{
-		$sql = 'SELECT DATE(build_datetime), max( build_percent_code_coverage ) , max( build_numwarnings ) , max( build_numfailures ) , max( build_numleaks ) FROM local_builds WHERE DATE_SUB( CURDATE( ) , INTERVAL ? DAY ) <= build_datetime AND version_id=? GROUP BY DATE(build_datetime)';
+		$sql = "SELECT $sqlgroup(build_datetime), max( build_percent_code_coverage ) , max( build_numwarnings ) , max( build_numfailures ) , max( build_numleaks ) FROM local_builds WHERE DATE_SUB( CURDATE( ) , INTERVAL ? DAY ) <= build_datetime AND version_id=? GROUP BY $sqlgroup(build_datetime)";
 		$stmt = $mysqlconn->prepare($sql);
 		$stmt->execute(array($graph_days, $version_id));
 	}
@@ -106,24 +112,24 @@ if($graph_days > 0)
 
 	while($row = $stmt->fetch())
 	{
-		list($build_date, $build_codecoverage, $build_numwarnings, $build_numfailures, $build_numleaks) = $row;
+		list($date, $build_codecoverage, $build_numwarnings, $build_numfailures, $build_numleaks) = $row;
 
-		list($year, $month, $day) = explode('-', $build_date);
+		$date = $date2text($date);
 
 		// Code Coverage less then 0 means could not be located
 		if($build_codecoverage >= 0) {
 			$data_y['codecoverage'][] = $build_codecoverage;
-			$data_x['codecoverage'][] = $day;
+			$data_x['codecoverage'][] = $date;
 		}
 
 		$data_y['failures'][] = $build_numfailures;
-		$data_x['failures'][] = $day;
+		$data_x['failures'][] = $date;
 
 		$data_y['memleaks'][] = $build_numleaks;
-		$data_x['memleaks'][] = $day;
+		$data_x['memleaks'][] = $date;
 
 		$data_y['warnings'][] = $build_numwarnings;
-		$data_x['warnings'][] = $day;
+		$data_x['warnings'][] = $date;
 
 	} // Cycle through the results
 
@@ -136,7 +142,7 @@ if($graph_days > 0)
 			// Ensure individual graph has enough data to be drawn
 			if(count($data_y[$curgraph['name']]) > 1)
 			{
-				$graph_filename = $outdir.DIRECTORY_SEPARATOR.'graphs'.DIRECTORY_SEPARATOR.$curgraph['name'].'_'.$graph_mode.'.png';
+				$graph_filename = $outdir.DIRECTORY_SEPARATOR.'graphs'.DIRECTORY_SEPARATOR.$curgraph['name'].'_'.$graph_mode_text.'.png';
 
 				// Create the graph. These two calls are always required
 				$graph = new Graph(400, 300, 'auto');
@@ -157,7 +163,7 @@ if($graph_days > 0)
 
 				// Add the plot to the graph
 				$graph->Add($lineplot);
-				$graph->xaxis->SetTitle('Day');
+				$graph->xaxis->SetTitle($xLabel);
 				$graph->xaxis->SetTickLabels($data_x[$curgraph['name']]);
 				$graph->xaxis->SetTextTickInterval(1);
 
@@ -174,14 +180,10 @@ if($graph_days > 0)
 				echo "graph.php: graph of mode $curgraph[name] had an insufficient number of valid data points.\n";
 		} // End looping each graph type
 
-		echo "graph.php: completed the $graph_mode graph mode\n";
+		echo "graph.php: completed the $graph_mode_text graph mode\n";
 	} // End check that number of rows > 1
 	else
 	{
 		echo "graph.php: has insufficent data rows to make these graphs for $version_id \n";
 	}
-}
-else
-{
-	echo "graph.php was not called with an acceptable mode\n";
 }
