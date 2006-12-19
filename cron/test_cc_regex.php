@@ -62,7 +62,7 @@ ext/ming/ming.o(.text+0x851): In function `zif_ming_setSWFCompression':
 
 	// Regular expression to select the error and warning information
 	// tuned for gcc 3.4, 4.0 and 4.1
-	$gcc_regex = '/^((.+)(\(\.text\+[[:xdigit:]]+\))?: In function [`\'](\w+)\':\s+)?'.
+	$gcc_regex = '/^((.+)(\(\.text\+0x[[:xdigit:]]+\))?: In function [`\'](\w+)\':\s+)?'.
 		'((?(1)(?(3)[^:\n]+|\2)|[^:\n]+)):(\d+): (?:(error|warning):\s+)?(.+)'.
 		str_repeat('(?:\s+\5:(\d+): (?:(error|warning):\s+)?(.+))?', 99). // capture up to 100 errors
 		'/mS';
