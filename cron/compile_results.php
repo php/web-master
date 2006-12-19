@@ -41,11 +41,11 @@ if($data === false)
 else
 {
 	// Regular expression to select the error and warning information
-	// tuned for gcc 3.4 and 4.0
-	$gcc_regex = '/^(.+): In function [`\'](\w+)\':\s+'.
-		'\1:(\d+): (error|warning):\s+(.+)'.
-		str_repeat('(?:\s+\1:(\d+): (error|warning):\s+(.+))?', 99). // capture up to 100 errors
-		'/m';
+	// tuned for gcc 3.4, 4.0 and 4.1
+	$gcc_regex = '/^((.+)(\(\.text\+[[:xdigit:]]+\))?: In function [`\'](\w+)\':\s+)?'.
+		'((?(1)(?(3)[^:\n]+|\2)|[^:\n]+)):(\d+): (?:(error|warning):\s+)?(.+)'.
+		str_repeat('(?:\s+\5:(\d+): (?:(error|warning):\s+)?(.+))?', 99). // capture up to 100 errors
+		'/mS';
 
 	preg_match_all($gcc_regex, $data, $data, PREG_SET_ORDER);
 
@@ -53,10 +53,10 @@ else
 
 	$index_write = '';
 
-	foreach ($data as $error) 
+	foreach ($data as $error)
 	{
 
-		$file     = $error[1];
+		$file     = $error[5];
 
 		// Remove the phpdir portion from the file path if it occurs
 		if(substr($file, 0, strlen($phpdir)) == $phpdir)
@@ -65,7 +65,7 @@ else
 		}
 		else 
 		{
-			$file = '/'.$file;
+			$filepath = $file;
 		} // End check for phpdir in file path
 		
 		// If stats are not previously set for this file, initialize it to the default values
@@ -75,16 +75,15 @@ else
 			@$stats[$file][1] = 0; // number of file warnings
 			@$stats[$file][2] = '';   // data to write
 		}
-									
-		$function = $error[2];
 
+		$function = $error[4] ? $error[4] : '(top level)';
 		$write = '';
 
-		// Start at 4th element
-		for ($i = 3; isset($error[$i]); $i += 3) 
+		// the real data starts at 6th element
+		for ($i = 6; isset($error[$i]); $i += 3) 
 		{
 			$line = $error[$i];
-			$type = $error[$i+1]; // whether the type was an error or a warning
+			$type = $error[$i+1] ? $error[$i+1] : 'error'; // warning or error (default)
 			$msg  = $error[$i+2];
 
 			$lxrpath = '';
@@ -156,9 +155,9 @@ Total: {$total}</p>
 
 <table border="1">
 <tr>
-<td>File</td>
-<td>Number of errors</td>
-<td>Number of warnings</td>
+<th>File</th>
+<th>Number of errors</th>
+<th>Number of warnings</th>
 </tr>
 HTML;
 		} else {
@@ -195,9 +194,9 @@ HTML;
 			$write = <<< HTML
 <table border="1">
  <tr>
-  <td>Function</td>
-  <td>Line</td>
-  <td>Message</td>
+  <th>Function</th>
+  <th>Line</th>
+  <th>Message</th>
  </tr>
 HTML;
 
