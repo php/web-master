@@ -16,7 +16,6 @@ DROP TABLE IF EXISTS `local_builds`;
 CREATE TABLE `local_builds` (
 `build_id` int(11) NOT NULL auto_increment,
 `version_id` int(11) NOT NULL,
-`build_date` date NOT NULL default '2000-01-01',
 `build_datetime` datetime NOT NULL default '2000-01-01 12:00:00',
 `build_numerrors` int(11) NOT NULL,
 `build_numwarnings` int(11) NOT NULL,

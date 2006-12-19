@@ -24,9 +24,12 @@
 /*
 Inportant Notes:
 
-* For the sake of simplicity, the SQL selects the highest number of each of the four criteria with the limitation of one data point allowed per day.  This also keeps the graph from becoming too messy with too many data points.
+* For the sake of simplicity, the SQL selects the highest number of each of the four
+* criteria with the limitation of one data point allowed per day. This also keeps the graph
+* from becoming too messy with too many data points.
 
-* Graphs can only be generated for the period of time if at least more than one data point exist during that time frame.  Otherwise an error would occur when starting the graph creation process.
+* Graphs can only be generated for the period of time if at least more than one data point exist
+* during that time frame. Otherwise an error would occur when starting the graph creation process.
 
 */
 
@@ -66,7 +69,7 @@ if($graph_days > 0)
 
 	try
 	{
-		$sql = 'SELECT build_date, max( build_percent_code_coverage ) , max( build_numwarnings ) , max( build_numfailures ) , max( build_numleaks ) FROM local_builds WHERE DATE_SUB( CURDATE( ) , INTERVAL ? DAY ) <= build_date AND version_id=? GROUP BY build_date';
+		$sql = 'SELECT DATE(build_datetime), max( build_percent_code_coverage ) , max( build_numwarnings ) , max( build_numfailures ) , max( build_numleaks ) FROM local_builds WHERE DATE_SUB( CURDATE( ) , INTERVAL ? DAY ) <= build_datetime AND version_id=? GROUP BY DATE(build_datetime)';
 		$stmt = $mysqlconn->prepare($sql);
 		$stmt->execute(array($graph_days, $version_id));
 	}
