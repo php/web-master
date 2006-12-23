@@ -15,6 +15,8 @@ performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 
 <p><b>aliases:</b> lists.php.net, news.php.net</p>
 
+<p><b>technical contact:</b> Pair's ticket system <tt>qs AT pair.com</tt>.</p>
+
 <h2>pb2.php.net (216.92.131.5)</h2>
 
 <p><b>machine:</b> p3/566, 128MB RAM, 27GB HD, freebsd 5.5</p>
@@ -24,11 +26,15 @@ performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 <p><b>notes:</b> this machine maintains a copy of ~ezmlm from pair1, so it can
 take over the mailing lists if pair1 ever fails.</p>
 
+<p><b>technical contact:</b> Pair's ticket system <tt>qs AT pair.com</tt>.</p>
+
 <h2>pb11.php.net (216.92.131.65)</h2>
 
 <p><b>machine:</b> dual p3/1000 xeon, 512MB RAM, 70GB HD, freebsd 4.8</p>
 
 <p><b>aliases:</b> docs, livedocs</p>
+
+<p><b>technical contact:</b> Pair's ticket system <tt>qs AT pair.com</tt>.</p>
 
 <h2>pb12.php.net (216.92.131.66)</h2>
 
