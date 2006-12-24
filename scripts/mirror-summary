@@ -128,7 +128,7 @@ foreach ($inactives as $hostname => $hostinfo) {
         $hostinfo[0],
         "$hostname mirror site deactivated",
         str_replace("{{lasterror}}", $last_error, $inactives_text),
-        "From: php-mirrors@lists.php.net\r\nBcc: goba@php.net"
+        "From: php-mirrors@lists.php.net"
     );
 }
 
