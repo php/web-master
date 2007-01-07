@@ -502,7 +502,7 @@ function show_mirrortype_options($type = 1)
 function get_print_date($date)
 {
     if (intval($date) == 0) { return 'n/a'; }
-    else { return gmdate("Y/m/d H:i:s", $date) . " GMT"; }
+    else { return gmdate("D, d M Y H:i:s", $date) . " GMT"; }
 }
 
 // Print out PHP version number
