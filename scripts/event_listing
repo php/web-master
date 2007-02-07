@@ -28,7 +28,7 @@ function pregenerate_events($csvfile, $outfile)
     fwrite(
         $out,
         "<?php\n\$RSIDEBAR_DATA = <<<END_RSIDEBAR_DATA\n" .
-        "<h3>Upcoming Events <a href=\"submit-event.php\">[add]</a></h3>\n"
+        "<h3>Upcoming Events <a href=\"/submit-event.php\">[add]</a></h3>\n"
     );
     
     // While we can read the events file
@@ -72,7 +72,7 @@ function pregenerate_events($csvfile, $outfile)
         if (!isset($seen[$desc])) {
             
             // Add event to sidebar
-            fwrite($out, "<span class=\"event_$ccode\">$d. <a href=\"cal.php?id=$id\">" .
+            fwrite($out, "<span class=\"event_$ccode\">$d. <a href=\"/cal.php?id=$id\">" .
                          htmlspecialchars(stripslashes($desc)) .
                          "</a></span><br />\n"
             );
