@@ -31,6 +31,7 @@ function pregenerate_events($csvfile, $outfile)
         "<h3>Upcoming Events <a href=\"/submit-event.php\">[add]</a></h3>\n"
     );
     
+    $content = ""; $buffer = array();
     // While we can read the events file
     while (TRUE) {
 
@@ -64,24 +65,44 @@ function pregenerate_events($csvfile, $outfile)
 
         // Start new category with a category header
         if ($ccat != (int) $cat) {
-            fwrite($out, '<h4>' . $cats[$cat] . "</h4>\n");
+            if($ccat) {
+                // "buffer" the current content before we move onto next category
+                $buffer[$ccat] = $content;
+            }
+
+            $content = '<h4>' . $cats[$cat] . "</h4>\n";
             $ccat = $cat;
         }
         
         // There is no event with this description in this month already seen
         if (!isset($seen[$desc])) {
             
-            // Add event to sidebar
-            fwrite($out, "<span class=\"event_$ccode\">$d. <a href=\"/cal.php?id=$id\">" .
+            // Add event to the "buffer"
+            $content .= "<span class=\"event_$ccode\">$d. <a href=\"/cal.php?id=$id\">" .
                          htmlspecialchars(stripslashes($desc)) .
-                         "</a></span><br />\n"
-            );
+                         "</a></span><br />\n";
             
             // Set seen flag
             $seen[$desc] = TRUE;
         }
     }
-    
+    // Add the last category to the "buffer"
+    $buffer[$ccat] = $content;
+
+    // Organize the output
+    if ($buffer[2]) { // Conferences
+        fwrite($out, $buffer[2]);
+    }
+    if ($buffer[1]) { // User Group Events
+        fwrite($out, $buffer[1]);
+    }
+    if ($buffer[3]) { // Training
+        fwrite($out, $buffer[3]);
+    }
+    if ($buffer[0]) { // Unkown
+        fwrite($out, $buffer[0]);
+    }
+
     // End heredoc string
     fwrite($out, "END_RSIDEBAR_DATA;\n");
 
