@@ -41,10 +41,18 @@ $dest = fopen("$root/news.rss", "w");
 if (!$dest) { echo "failed to open $root/news.rss for writing"; }
 else {
     include "rss_parser";
-    fwrite($dest, $RSS);
+    fwrite($dest, $RSSNews);
     fclose($dest);
 }
 touch("$root/news.rss", @filemtime("$root/index.php"));
+
+$dest = fopen("$root/conferences/news.rss", "w");
+if (!$dest) { echo "failed to open $root/conferences/news.rss for writing"; }
+else {
+    fwrite($dest, $RSSConf);
+    fclose($dest);
+}
+touch("$root/conferences/news.rss", @filemtime("$root/conferences/index.php"));
 
 // Compress mirrorkit dir in backend to mirrorkit.tgz, and
 // then move it to the webspace in case it is properly done

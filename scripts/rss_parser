@@ -150,16 +150,16 @@ function ParseNews ($index_page = "") {
 }
 
 // Generate RSS header text and inject it into $RSS
-function GenerateRSSHeader($headlines, &$RSS) {
+function GenerateRSSHeader($headlines, &$RSS, $aboutLink) {
     $RSS .= "<" . "?xml version=\"1.0\" encoding=\"utf-8\"?>\n" .
             "<rdf:RDF\n" .
             "\txmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n" .
             "\txmlns=\"http://purl.org/rss/1.0/\"\n" .
             "\txmlns:dc=\"http://purl.org/dc/elements/1.1/\"\n" .
             ">\n" .
-            "<channel rdf:about=\"http://www.php.net/\">\n" .
+            "<channel rdf:about=\"$aboutLink\">\n" .
             "\t<title>PHP: Hypertext Preprocessor</title>\n" .
-            "\t<link>http://www.php.net/</link>\n" .
+            "\t<link>$aboutLink</link>\n" .
             "\t<description>The PHP scripting language web site</description>\n" .
             "\t<items>\n" .
             "\t\t<rdf:Seq>\n";
@@ -187,6 +187,7 @@ function GenerateRSSItem($href, $title, $text, $date, &$RSS) {
             "</item>\n";
 }
 
+function GenerateRSSFile($root, $aboutLink) {
 // Get the PHP.net index page's source code
 $homepage = getData("$root/index.php");
 
@@ -197,7 +198,7 @@ $hlines = ParseNews($homepage);
 $RSS = '';
 
 // Generate the RSS Header
-GenerateRSSHeader($hlines, $RSS);
+GenerateRSSHeader($hlines, $RSS, $aboutLink);
 
 // Add separator comment
 $RSS .= "<!-- RSS-Items -->\n";
@@ -214,5 +215,10 @@ $RSS .= "<!-- / RSS-Items PHP/RSS -->\n";
 GenerateRSSFooter($RSS);
 
 #DEBUG# echo $RSS;
+return $RSS;
+}
+
+$RSSNews = GenerateRSSFile($root, "http://www.php.net/");
+$RSSConf = GenerateRSSFile("$root/conferences", "http://www.php.net/conferences/");
 
 ?>
