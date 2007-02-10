@@ -65,11 +65,18 @@ if (($spamip=is_spammer($_SERVER['REMOTE_ADDR'])) || ($spamip=is_spammer($ip)) |
 }
 
 // check if the note contains some prohibited words
+$note_lc = strtolower($note);
 foreach($worlds_backlist as $bad_word) {
-    if (strpos($note, $bad_word) !== false) {
+    if (strpos($note_lc, $bad_word) !== false) {
         die('[SPAM WORD]');
     }
 }
+
+// run a few more spam checks
+if (is_spam($note_lc)) {
+    die ('[SPAM WORD]');
+}
+unset($note_lc);
 
 // check with spamassassin if the note is spam or not
 /*
@@ -207,6 +214,16 @@ function is_spammer($ip) {
         if ($dns != $host && (empty($list[1]) || $dns != $list[1])) {
             return $ip;
         }
+    }
+    return false;
+}
+
+function is_spam ($text) {
+    if (preg_match('/\[(url|link)=[^]]+\]/', $text)) {
+        return true;
+    }
+    if (substr_count($text, 'http://') > 4) {
+        return true;
     }
     return false;
 }
