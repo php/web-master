@@ -50,11 +50,11 @@ function pregenerate_events($csvfile, $outfile)
             // Update current month information
             $cm = (int) $m;
 
-            // Start month with a header
-            fwrite($out, '<h4 class="eventmonth">' .
+            // Buffer month header
+            $headline = '<h4 class="eventmonth">' .
                          strftime('%B', mktime(12, 0, 0, $cm, $d, $y)) .
-                         "</h4>\n"
-            );
+                         "</h4>\n";
+            $buffer[$headline] = array();
 
             // We have not seen any events in this month
             $seen = array();
@@ -67,7 +67,7 @@ function pregenerate_events($csvfile, $outfile)
         if ($ccat != (int) $cat) {
             if($ccat) {
                 // "buffer" the current content before we move onto next category
-                $buffer[$ccat] = $content;
+                $buffer[$headline][$ccat] = $content;
             }
 
             $content = '<h4>' . $cats[$cat] . "</h4>\n";
@@ -87,20 +87,23 @@ function pregenerate_events($csvfile, $outfile)
         }
     }
     // Add the last category to the "buffer"
-    $buffer[$ccat] = $content;
+    $buffer[$headline][$ccat] = $content;
 
     // Organize the output
-    if ($buffer[2]) { // Conferences
-        fwrite($out, $buffer[2]);
-    }
-    if ($buffer[1]) { // User Group Events
-        fwrite($out, $buffer[1]);
-    }
-    if ($buffer[3]) { // Training
-        fwrite($out, $buffer[3]);
-    }
-    if ($buffer[0]) { // Unkown
-        fwrite($out, $buffer[0]);
+    $order = array(
+        2, // Conferences
+        1, // User Group Events
+        3, // Training
+        0, // Unkown
+    );
+
+    foreach($buffer as $headline => $categories) {
+        // Start month with a header
+        fwrite($out, $headline);
+
+        foreach($order as $category) {
+            fwrite($out, $buffer[$headline][$category]);
+        }
     }
 
     // End heredoc string
