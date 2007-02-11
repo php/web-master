@@ -106,7 +106,7 @@ function ParseNews ($index_page = "", $aboutLink) {
                 #DEBUG# print "<p>Info: New Headline: $headlineid<br />";
                 
             // End of headlines reached
-            } elseif (preg_match('@<a href="/news-\d+.php">News Archive</a>@', $line)) {
+            } elseif (preg_match('@<a href="/archive/index.php">News Archive</a>@', $line) || strpos($line, "// NO MORE NEWS TO PARSE")) {
                 
                 array_pop($headlines);
                 break;
