@@ -18,9 +18,11 @@ function getData($fname) {
 }
 
 // Try to find a link in the text with any the used linking methods
-function scanLinks($text) {
+function scanLinks($text, $rootLink) {
 
-    if (preg_match('/<\?php\s+print_link\s*\("([^"]+)",\s*"[^"]+"\);\s*\?>/', $text, $matches)) {
+    if (preg_match('/<a\s+name="([^"]*)">/', $text, $matches)) {
+        $link = "#" .$matches[1];
+    } elseif (preg_match('/<\?php\s+print_link\s*\("([^"]+)",\s*"[^"]+"\);\s*\?>/', $text, $matches)) {
         $link = $matches[1];
     } elseif (preg_match('/<\?php\s+print_link\s*\(\'([^\']+)\',\s*\'[^\']+\'\);\s*\?>/', $text, $matches)) {
         $link = $matches[1];
@@ -32,7 +34,8 @@ function scanLinks($text) {
     
     // Make sure it is a full URL
     if (!preg_match('/^http:/', $link)) { 
-        $link = ($link{0} != '/') ? "http://www.php.net/$link" : "http://www.php.net$link";
+        $rootLink = rtrim($rootLink, "/");
+        $link = ($link{0} != '/') ? "$rootLink/$link" : "$rootLink$link";
     }
     
     return $link;
@@ -62,7 +65,7 @@ function ProcessText($text) {
 }
 
 // Parse the index file searching for news item information
-function ParseNews ($index_page = "") {
+function ParseNews ($index_page = "", $aboutLink) {
 
     // Remove commented items
     $index_page = preg_replace("/<!--[\w\W]*?-->/", "", $index_page); 
@@ -137,7 +140,7 @@ function ParseNews ($index_page = "") {
     foreach ($headlines as $num => $headline) {
         
         // The first link found is THE link for the news item
-        $headlines[$num]['link'] = scanLinks($headline['text']);
+        $headlines[$num]['link'] = scanLinks($headline['text'], $aboutLink);
         
         // And the text needs to be cleaned up
         $headlines[$num]['text'] = ProcessText($headline['text']);
@@ -192,7 +195,7 @@ function GenerateRSSFile($root, $aboutLink) {
 $homepage = getData("$root/index.php");
 
 // This returns a data structure containing all the news items found  
-$hlines = ParseNews($homepage);
+$hlines = ParseNews($homepage, $aboutLink);
 
 // Start with an empty RSS string
 $RSS = '';
