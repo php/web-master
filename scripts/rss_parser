@@ -68,7 +68,7 @@ function ProcessText($text) {
 function ParseNews ($index_page = "", $aboutLink) {
 
     // Remove commented items
-    $index_page = preg_replace("/<!--[\w\W]*?-->/", "", $index_page); 
+    //$index_page = preg_replace("/<!--[\w\W]*?-->/", "", $index_page); 
 
     // Split the file by newlines
     $lines = preg_split("/\n/", $index_page);
@@ -122,6 +122,10 @@ function ParseNews ($index_page = "", $aboutLink) {
                 
                 $headlines[$headlineid]['date'] = mktime(1,1,1, $mos[$matches[2]], $matches[1], $matches[3]);
                 #DEBUG# print "Date: $matches[1] $matches[2] $matches[3]<br />";
+
+            // Subjects (i.e RDF category)
+            } elseif (preg_match("/<!-- SUBJECT: (.*?) -->/", $line, $matches)) {
+                $headlines[$headlineid]['subject'] = $matches[1];
 
             // Everything else is part of the headline text
             } else {
@@ -181,10 +185,16 @@ function GenerateRSSFooter(&$RSS) {
 }
 
 // Add an RSS item's information to $RSS
-function GenerateRSSItem($href, $title, $text, $date, &$RSS) {
+function GenerateRSSItem($href, $title, $text, $date, $subject, &$RSS) {
+    if($subject) {
+        $s = "\t<dc:subject>$subject</dc:subject>\n";
+    } else {
+        $s = "";
+    }
     $RSS .= "\n<item rdf:about=\"$href\">\n" .
             "\t<title>$title</title>\n" .
             "\t<link>$href</link>\n" .
+            $s .
             "\t<description>$text</description>\n" .
             "\t<dc:date>" . $date . "</dc:date>\n" .
             "</item>\n";
@@ -208,7 +218,7 @@ $RSS .= "<!-- RSS-Items -->\n";
 
 // Add every news item to the feed
 foreach ($hlines as $hline) {
-    GenerateRSSItem($hline['link'], $hline['title'], $hline['text'], $hline['date'], $RSS);
+    GenerateRSSItem($hline['link'], $hline['title'], $hline['text'], $hline['date'], isset($hline['subject']) ? $hline['subject'] : false, $RSS);
 }
 
 // Add end separator
