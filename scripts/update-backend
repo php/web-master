@@ -46,6 +46,7 @@ else {
 }
 touch("$root/news.rss", @filemtime("$root/index.php"));
 
+// Create conferences/cfp feed
 $dest = fopen("$root/conferences/news.rss", "w");
 if (!$dest) { echo "failed to open $root/conferences/news.rss for writing"; }
 else {
@@ -53,6 +54,16 @@ else {
     fclose($dest);
 }
 touch("$root/conferences/news.rss", @filemtime("$root/conferences/index.php"));
+
+// Pregenerate conference teaser
+include "conference_teaser";
+pregenerate_conf_teaser("$root/conferences/news.rss", "$root/include/pregen-confs.inc");
+
+/*
+// Pregenerate version feed
+include "php_version";
+pregenerate_version_feed("$root/include/version.inc", "$root/versions.xml");
+*/
 
 // Compress mirrorkit dir in backend to mirrorkit.tgz, and
 // then move it to the webspace in case it is properly done

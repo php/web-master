@@ -1,0 +1,45 @@
+<?php
+
+/* vim: ft=php
+ This code is used to pregenerate the conference teaser array displayed
+ on the PHP.net (and all mirror's) homepage. It gets the filename
+ of the RSS where the info is already fetched, and generates the
+ PHP code ready to be included to $outfile 
+*/
+
+function pregenerate_conf_teaser($rssfile, $outfile)
+{
+    // Try to open output file for reading
+    $out = @fopen("$outfile~", "w");
+    if (!$out) { die("unable to pregenerate conference teaser to '$outfile~'"); }
+
+    // Load the RSS file and register used namespaces
+    $sxe = new SimpleXMLElement($rssfile, null, true, "http://purl.org/rss/1.0/");
+    $sxe->registerXPathNamespace("dc", "http://purl.org/dc/elements/1.1/");
+
+    // Loop over the items and store them in a array
+    foreach($sxe->item as $item) {
+        $url = (string)$item->link[0];
+        $subject = (string)current($item->xpath("dc:subject"));
+        $title = (string)$item->title[0];
+        $STORE[$subject][$url] = $title;
+    }
+
+    // Create PHP readable array
+    $write = '$CONF_TEASER = ' .var_export($STORE, true);
+
+    // Write & close
+    fwrite($out, "<?php\n$write\n?>");
+    fclose($out);
+    
+    // If we don't have new data, delete file
+    if (!@filesize("$outfile~")) {
+        echo "'$outfile~' was empty, skipping\n";
+        unlink("$outfile~");
+        return;
+    }
+  
+    // Replace real file with temporary file
+    return rename("$outfile~", $outfile);    
+}
+
