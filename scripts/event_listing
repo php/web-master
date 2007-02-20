@@ -28,7 +28,7 @@ function pregenerate_events($csvfile, $outfile)
     fwrite(
         $out,
         "<?php\n\$RSIDEBAR_DATA = <<<END_RSIDEBAR_DATA\n" .
-        "<h3>Upcoming Events <a href=\"/submit-event.php\">[add]</a></h3>\n"
+        "<h4>Upcoming Events <a href=\"/submit-event.php\">[add]</a></h4>\n"
     );
     
     $content = ""; $buffer = array();
