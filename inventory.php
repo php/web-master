@@ -42,9 +42,6 @@ performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 <p><b>notes:</b> This machine is on a dedicated 10mbps switch. whilst it can maintain 10mbps, it cannot burst above that.<br />
                  Being re-imaged...</p> 
 
-<p><b>stats:</b> MRTG stats (traffic, load avg, cpu usage, etc) are 
-available <a href="http://rs1.php.net/~imajes/mrtg/">here</a>.</p>
-
 <p><b>technical contact:</b> connect to irc.ev1.net:7000, join #ev1servers</p>
 
 <h2>sc1.php.net (66.225.196.49)</h2>
