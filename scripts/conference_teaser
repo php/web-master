@@ -20,6 +20,7 @@ function pregenerate_conf_teaser($rssfile, $outfile)
     // Loop over the items and store them in a array
     foreach($sxe->item as $item) {
         $url = (string)$item->link[0];
+        $url = str_replace("http://www.php.net", "", $url); // /relative/path/to/item
         $subject = (string)current($item->xpath("dc:subject"));
         $title = (string)$item->title[0];
         $STORE[$subject][$url] = $title;
