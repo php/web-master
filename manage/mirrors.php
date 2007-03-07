@@ -353,6 +353,7 @@ function page_mirror_list()
 
         if ($row['has_search']) {
             $searchcell = "SQLite";
+            $stats['has_search']++;
         } else {
             $searchcell = "&nbsp;";
         }
