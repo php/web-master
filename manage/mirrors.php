@@ -209,9 +209,15 @@ if (intval($id) !== 0) {
    <th align="right">PHP version used:</th>
    <td><?php print_version($row['phpversion']); ?></td>
   </tr>
+<!--
   <tr>
    <th align="right">Local Search:</th>
    <td><?php echo $searchtypes[$row['has_search']]; ?></td>
+  </tr>
+-->
+  <tr>
+   <th align="right">SQLite available:</th>
+   <td><?php echo $row['has_search'] ? "Yes" : "No"; ?></td>
   </tr>
   <tr>
    <th align="right">Local Stats:</th>
@@ -332,6 +338,8 @@ function page_mirror_list()
         }
 
         // See what needs to be printed out as search info
+        /* This info isn't used anymore and "has_search" is now misused under 
+         * SQLite availability check
         $searchcell = '';
         if ($row['has_search'] == "2") { $searchcell = '('; }
         if (in_array($row['has_search'], array("1", "2"))) {
@@ -341,6 +349,13 @@ function page_mirror_list()
         }
         if ($row['has_search'] == "2") { $searchcell .= ')'; }
         if (!$searchcell) { $searchcell = "&nbsp;"; }
+        */
+
+        if ($row['has_search']) {
+            $searchcell = "SQLite";
+        } else {
+            $searchcell = "&nbsp;";
+        }
 
         // Stats information cell
         $statscell = '&nbsp;';
@@ -442,7 +457,7 @@ echo <<<EOS
   </tr>
   <tr>
    <td><img src="/images/mirror_search.png" /></td>
-   <td>Search:</td>
+   <td>SQLite:</td>
    <td>{$stats['has_search']}</td>
   </tr>
   <tr>

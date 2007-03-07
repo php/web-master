@@ -13,7 +13,7 @@ $structinfo = "
   2  Local stats flag (TRUE / FALSE)
   3  Provider URL
   4  Mirror type [see type constants]
-  5  Local search engine flag (TRUE / FALSE)
+  5  SQLite availability [was originally: local search engine flag] (TRUE / FALSE)
   6  Default language code
   7  Status [see status constants]
 
