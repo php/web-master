@@ -287,8 +287,9 @@ function page_mirror_list()
     while ($row = mysql_fetch_array($res)) {
     
         // Collect statistical information
-        $stats['phpversion'][$row['phpversion']]++;
-    
+        @$stats['phpversion'][$row['phpversion']]++;
+        @$stats['phpversion_counts'][$row['phpversion'][0]]++;
+
         // Print separator row
         $summary .= '<tr><td colspan="7"></td></tr>' . "\n";
 
@@ -425,6 +426,9 @@ function page_mirror_list()
         $versions .= "<strong>$version</strong>: $amount, ";
     }
     $versions = substr($versions, 0, -2);
+
+    // Create version specific statistics
+    $stats['version5_percent'] = sprintf('%.1f%%', $stats['phpversion_counts'][5] / $stats['mirrors'] * 100);
     
     $last_check_time = get_print_date($checktime);
     
@@ -465,6 +469,11 @@ echo <<<EOS
    <td><img src="/images/mirror_stats.png" /></td>
    <td>Stats:</td>
    <td>{$stats['has_stats']}</td>
+  </tr>
+  <tr>
+   <td><img src="/images/mirror_info.png" /></td>
+   <td>PHP 5:</td>
+   <td>{$stats['version5_percent']}</td>
   </tr>
  </table>
  <h1>Resources</h1>
