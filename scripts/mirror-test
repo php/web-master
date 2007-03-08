@@ -117,7 +117,11 @@ foreach ($hosts as $index => $host) {
     }
     
     // Put pieces into the $hosts array
-    $hosts[$index]['phpversion'] = $info[1];
+    if (preg_match("@^\d+\.\d+\.\d+@", $info[1], $matches)) {
+        $hosts[$index]['phpversion'] = $matches[0];
+    } else {
+        $hosts[$index]['phpversion'] = 'Unknown';
+    }
     
     // The last updated date is a number [db security]
     if (is_numeric($info[2])) {
