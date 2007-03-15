@@ -544,7 +544,8 @@ function is_mirror_site_admin($user) {
             $user,
             array(
                 "jimw", "rasmus", "andrei", "zeev", "andi", "sas", "thies",
-                "rubys", "ssb", "imajes", "goba", "derick", "cortesi", "wez", "bjori"
+                "rubys", "ssb", "imajes", "goba", "derick", "cortesi", "wez", 
+                "bjori", "philip"
             )
         )
     ) {
