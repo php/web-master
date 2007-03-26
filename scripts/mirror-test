@@ -1,5 +1,5 @@
 #!/usr/local/bin/php -q
-<?php # vim: ft=php
+<?php # vim: ft=php et
 
 /*
  Check the state of each mirror site, and store the
@@ -103,6 +103,7 @@ foreach ($hosts as $index => $host) {
     // First HTTP request for the mirror-info file
     $data = $problem = '';
     if (host_has_error($host['hostname'], $filename, $data, $problem)) {
+      $hosts[$index]['lastupdated'] = 0;
       $hosts[$index]['problem'] = $problem;
       continue;
     }
@@ -181,6 +182,7 @@ foreach ($hosts as $index => $host) {
     // Second HTTP request, checking for Apache manual alias
     $data = $problem = '';
     if (host_has_error($host['hostname'], '/manual/noalias.txt', $data, $problem)) {
+        $hosts[$index]['lastupdated'] = 0;
         $hosts[$index]['problem'] = $problem;
         continue;
     }
