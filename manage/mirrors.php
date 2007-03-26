@@ -1,4 +1,4 @@
-<?php
+<?php // vim: et
 // Force login and include common functions
 include_once 'login.inc';
 include_once 'functions.inc';
@@ -291,11 +291,11 @@ function page_mirror_list()
         @$stats['phpversion_counts'][$row['phpversion'][0]]++;
 
         // Print separator row
-        $summary .= '<tr><td colspan="7"></td></tr>' . "\n";
+        $summary .= '<tr><td colspan="8"></td></tr>' . "\n";
 
         // Print out a country header, if a new country is found
         if ($prevcc != $row['cc']) {
-            $summary .= '<tr><th colspan="7">' . $row['countryname'] . "</th></tr>\n";
+            $summary .= '<tr><th colspan="8">' . $row['countryname'] . "</th></tr>\n";
         }
         $prevcc = $row['cc'];
 
@@ -398,6 +398,9 @@ function page_mirror_list()
         // Print out mirror search table cell
         $summary .= '<td align="center">' . $searchcell . '</td>' . "\n";
 
+        // Print out version information for this mirror
+        $summary .= '<td align="center">' . $row['phpversion']. '</td>' . "\n";
+
         // Print out mirror stats table cell
         $summary .= '<td align="right">' . $statscell . '</td>' . "\n";
 
@@ -411,7 +414,7 @@ function page_mirror_list()
         // If any info on the error of this mirror is available, print it out
         if ($errorinfo) {
             $summary .= "<tr><tr bgcolor=\"#e0e0e0\"><td bgcolor=\"#ffffff\"></td>" .
-                        "<td colspan=\"6\"><img src=\"/images/mirror_info.png\" /> " .
+                        "<td colspan=\"7\"><img src=\"/images/mirror_info.png\" /> " .
                         "$errorinfo</td></tr>";
         }
     }
