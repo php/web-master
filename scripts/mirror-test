@@ -1,5 +1,7 @@
 #!/usr/local/bin/php -q
 <?php # vim: ft=php et
+// This script is executed on master, the php5 binary can be found at
+// /local/php5/bin/php
 
 /*
  Check the state of each mirror site, and store the
