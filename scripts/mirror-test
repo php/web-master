@@ -1,7 +1,6 @@
-#!/usr/local/bin/php -q
+#!/local/php5/bin/php -q
 <?php # vim: ft=php et
-// This script is executed on master, the php5 binary can be found at
-// /local/php5/bin/php
+// This script is executed on master
 
 /*
  Check the state of each mirror site, and store the
@@ -91,6 +90,14 @@ function host_has_error($hostname, $filename, &$data, &$problem) {
     
     return FALSE;
 }
+
+// Set default context options
+$opts = array(
+    "user_agent"    => "PHP.net Mirror Site check",
+    "max_redirects" => 0,
+    "timeout"       => 5,
+);
+$context  = stream_context_get_default(array("http" => $opts));
 
 // Get all mirror sites, and count the index of them
 foreach ($hosts as $index => $host) {
@@ -191,6 +198,37 @@ foreach ($hosts as $index => $host) {
     if (trim($data) != 'manual-noalias') {
         $hosts[$index]['lastupdated'] = '0';
         $hosts[$index]['problem'] = "Apache manual alias in effect, see /mirroring.php.";
+        continue;
+    }
+
+    // -------------------------------------------------------------------------
+    // Third HTTP request, checking for known problems that has been hunting
+    // some mirrors for years (See bug#26840)
+    $url = "http://{$host['hostname']}/manual/en/faq.html.php";
+    $headers = get_headers($url, 1);
+    if($headers == false) {
+        /* Possibly timed out, lets let it slight for now */
+        continue;
+    }
+    
+    // No. This is not a joke. Some mirrors (*hint*tw.php.net*hint*) return
+    // "Content-type" for instance, not "Content-Type"
+    $headers = array_change_key_case($headers, CASE_LOWER);
+
+    if(strpos($headers[0], "200") === false) {
+        $hosts[$index]['lastupdated'] = 0;
+        $hosts[$index]['problem'] = "Header weirdness. Pages named '.html.php' are returning wrong status headers\n";
+        $hosts[$index]['problem'].= "Your mirror is currently returning '{$headers[0]}', not '200 OK'\n";
+        $hosts[$index]['problem'].= "(The test was ran on $url)";
+        var_dump($host['hostname'], $headers[0]);
+        continue;
+    }
+    if (strpos($headers["content-type"], "text/html") === false) {
+        $hosts[$index]['lastupdated'] = 0;
+        $hosts[$index]['problem'] = "Content-Type weirdness. Pages named '.html.php' are returning wrong Content-Type headers\n";
+        $hosts[$index]['problem'].= "Should be returning 'text/html' but are returning '{$headers["Content-Type"]}'\n";
+        $hosts[$index]['problem'].= "(The test was ran on $url)";
+        var_dump($host['hostname'], $headers["content-type"]);
         continue;
     }
 }
