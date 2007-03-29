@@ -227,7 +227,7 @@ foreach ($hosts as $index => $host) {
     if (strpos($headers["content-type"], "text/html") === false) {
         $hosts[$index]['lastupdated'] = 0;
         $hosts[$index]['problem'] = "Content-Type weirdness. Pages named '.html.php' are returning wrong Content-Type headers\n";
-        $hosts[$index]['problem'].= "Should be returning 'text/html' but are returning '{$headers["Content-Type"]}'\n";
+        $hosts[$index]['problem'].= "Should be returning 'text/html' but are returning '{$headers["content-type"]}'\n";
         $hosts[$index]['problem'].= "(The test was ran on $url)";
         continue;
     }
