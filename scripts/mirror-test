@@ -122,6 +122,8 @@ foreach ($hosts as $index => $host) {
 
     // Invalid data received, skip mirror site
     if (count($info) < 8) {
+        // This is a *serious* error, disable it!
+        $hosts[$index]['lastupdated'] = 0;
         $hosts[$index]['problem'] = "Invalid data received. Probably improper ErrorHandler, see /mirroring.php.";
         continue;
     }
