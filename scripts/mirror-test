@@ -220,7 +220,6 @@ foreach ($hosts as $index => $host) {
         $hosts[$index]['problem'] = "Header weirdness. Pages named '.html.php' are returning wrong status headers\n";
         $hosts[$index]['problem'].= "Your mirror is currently returning '{$headers[0]}', not '200 OK'\n";
         $hosts[$index]['problem'].= "(The test was ran on $url)";
-        var_dump($host['hostname'], $headers[0]);
         continue;
     }
     if (strpos($headers["content-type"], "text/html") === false) {
@@ -228,7 +227,6 @@ foreach ($hosts as $index => $host) {
         $hosts[$index]['problem'] = "Content-Type weirdness. Pages named '.html.php' are returning wrong Content-Type headers\n";
         $hosts[$index]['problem'].= "Should be returning 'text/html' but are returning '{$headers["Content-Type"]}'\n";
         $hosts[$index]['problem'].= "(The test was ran on $url)";
-        var_dump($host['hostname'], $headers["content-type"]);
         continue;
     }
 }
