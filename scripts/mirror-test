@@ -235,10 +235,12 @@ foreach ($hosts as $index => $host) {
     // -------------------------------------------------------------------------
     // Fourth HTTP request, checking for apache MultiViews configuration
     // (See bug#31852)
+    /* FIXME: Disable the test untill we can figure out what exactly is causing this
+
     $url = "http://{$host['hostname']}/functions";
     $headers = get_headers($url, 1);
     if($headers == false) {
-        /* Probably timed out, let it slight for now */
+        // Probably timed out, let it slight for now
         continue;
     }
     $headers = array_change_key_case($headers, CASE_LOWER);
@@ -249,7 +251,7 @@ foreach ($hosts as $index => $host) {
         $hosts[$index]['problem'].= "(The test was ran on $url and should return the function language reference)";
         continue;
     }
-
+    */
 
 }
 
