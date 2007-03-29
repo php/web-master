@@ -415,7 +415,7 @@ function page_mirror_list()
         if ($errorinfo) {
             $summary .= "<tr><tr bgcolor=\"#e0e0e0\"><td bgcolor=\"#ffffff\"></td>" .
                         "<td colspan=\"7\"><img src=\"/images/mirror_info.png\" /> " .
-                        "$errorinfo</td></tr>";
+                        nl2br($errorinfo) . "</td></tr>";
         }
     }
 
