@@ -235,7 +235,6 @@ foreach ($hosts as $index => $host) {
     // -------------------------------------------------------------------------
     // Fourth HTTP request, checking for apache MultiViews configuration
     // (See bug#31852)
-    /* FIXME: Disable the test untill we can figure out what exactly is causing this
 
     $url = "http://{$host['hostname']}/functions";
     $headers = get_headers($url, 1);
@@ -247,11 +246,10 @@ foreach ($hosts as $index => $host) {
 
     if (strpos($headers["content-type"], "text/html") === false) {
         $hosts[$index]['lastupdated'] = 0;
-        $hosts[$index]['problem'] = "MultiViews/Content Negotiation turned on.\n";
+        $hosts[$index]['problem'] = "MultiViews on. See the *updated* mirror guidelines at http://{$host['hostname']}/mirroring\n";
         $hosts[$index]['problem'].= "(The test was ran on $url and should return the function language reference)";
         continue;
     }
-    */
 
 }
 
