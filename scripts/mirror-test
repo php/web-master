@@ -244,7 +244,7 @@ foreach ($hosts as $index => $host) {
     if (strpos($headers["content-type"], "text/html") === false) {
         $hosts[$index]['lastupdated'] = 0;
         $hosts[$index]['problem'] = "MultiViews/Content Negotiation turned on.\n";
-        $hosts[$index]['problem'] = "(The test was ran on $url and should return the function language reference)";
+        $hosts[$index]['problem'].= "(The test was ran on $url and should return the function language reference)";
         continue;
     }
 
