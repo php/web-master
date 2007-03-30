@@ -1,4 +1,4 @@
-<?php
+<?php // vim: ft=php et
 
 /*
  This code is used to pregenerate the events listing displayed
@@ -98,6 +98,10 @@ function pregenerate_events($csvfile, $outfile)
     );
 
     foreach($buffer as $headline => $categories) {
+        // Prevent empty listing
+        if(empty($categories)) {
+            continue;
+        }
         // Start month with a header
         fwrite($out, $headline);
 
