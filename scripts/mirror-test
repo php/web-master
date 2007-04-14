@@ -112,7 +112,7 @@ foreach ($hosts as $index => $host) {
     // First HTTP request for the mirror-info file
     $data = $problem = '';
     if (host_has_error($host['hostname'], $filename, $data, $problem)) {
-      $hosts[$index]['lastupdated'] = 0;
+      $hosts[$index]['disable'] = true;
       $hosts[$index]['problem'] = $problem;
       continue;
     }
@@ -123,7 +123,7 @@ foreach ($hosts as $index => $host) {
     // Invalid data received, skip mirror site
     if (count($info) < 8) {
         // This is a *serious* error, disable it!
-        $hosts[$index]['lastupdated'] = 0;
+        $hosts[$index]['disable'] = true;
         $hosts[$index]['problem'] = "Invalid data received. Probably improper ErrorHandler, see /mirroring.php.";
         continue;
     }
@@ -139,6 +139,7 @@ foreach ($hosts as $index => $host) {
     if (is_numeric($info[2])) {
         $hosts[$index]['mirrorupdated'] = $info[2];
     } else {
+        $hosts[$index]['disable'] = true;
         $hosts[$index]['problem'] = "Invalid last update time.";
     }
     
@@ -193,12 +194,12 @@ foreach ($hosts as $index => $host) {
     // Second HTTP request, checking for Apache manual alias
     $data = $problem = '';
     if (host_has_error($host['hostname'], '/manual/noalias.txt', $data, $problem)) {
-        $hosts[$index]['lastupdated'] = 0;
+        $hosts[$index]['disable'] = true;
         $hosts[$index]['problem'] = $problem;
         continue;
     }
     if (trim($data) != 'manual-noalias') {
-        $hosts[$index]['lastupdated'] = '0';
+        $hosts[$index]['disable'] = true;
         $hosts[$index]['problem'] = "Apache manual alias in effect, see /mirroring.php.";
         continue;
     }
@@ -218,14 +219,14 @@ foreach ($hosts as $index => $host) {
     $headers = array_change_key_case($headers, CASE_LOWER);
 
     if(strpos($headers[0], "200") === false) {
-        $hosts[$index]['lastupdated'] = 0;
+        $hosts[$index]['disable'] = true;
         $hosts[$index]['problem'] = "Header weirdness. Pages named '.html.php' are returning wrong status headers\n";
         $hosts[$index]['problem'].= "Your mirror is currently returning '{$headers[0]}', not '200 OK'\n";
         $hosts[$index]['problem'].= "(The test was ran on $url)";
         continue;
     }
     if (strpos($headers["content-type"], "text/html") === false) {
-        $hosts[$index]['lastupdated'] = 0;
+        $hosts[$index]['disable'] = true;
         $hosts[$index]['problem'] = "Content-Type weirdness. Pages named '.html.php' are returning wrong Content-Type headers\n";
         $hosts[$index]['problem'].= "Should be returning 'text/html' but are returning '{$headers["content-type"]}'\n";
         $hosts[$index]['problem'].= "(The test was ran on $url)";
@@ -245,7 +246,7 @@ foreach ($hosts as $index => $host) {
     $headers = array_change_key_case($headers, CASE_LOWER);
 
     if (strpos($headers["content-type"], "text/html") === false) {
-        $hosts[$index]['lastupdated'] = 0;
+        $hosts[$index]['disable'] = true;
         $hosts[$index]['problem'] = "MultiViews on. See the *updated* mirror guidelines at http://{$host['hostname']}/mirroring\n";
         $hosts[$index]['problem'].= "(The test was ran on $url and should return the function language reference)";
         continue;
@@ -263,7 +264,7 @@ foreach ($hosts as $index => $host) {
     }
 
     if(strpos($headers[0], "200 OK") === false) {
-        $hosts[$index]['lastupdated'] = 0;
+        $hosts[$index]['disable'] = true;
         $hosts[$index]['problem'] = "Please follow our mirror guidelines. You need to remove the 'var' handler\n";
         $hosts[$index]['problem'].= "(The test was ran on $url and should return 'variable handling functions')";
         continue;
@@ -273,6 +274,7 @@ foreach ($hosts as $index => $host) {
 
 // Go through all mirror sites checked
 $mirrorsupdated = 0; $problems = "";
+$four_days_ago = strtotime("-4 days");
 foreach ($hosts as $host) {
     
     // If a "problem" is not specified, then we were able to check
@@ -299,9 +301,16 @@ foreach ($hosts as $host) {
     // Store the problem encountered in the database, and collect
     // all the problems into one string in case it will be mailed
     else {
+        if(isset($host['disable']) && $host['disable'] === true) {
+            $query = "UPDATE mirrors SET ocmt = '" . addslashes($host['problem']) . "', " .
+                     "lastchecked = FROM_UNIXTIME($four_days_ago), " .
+                     "lastupdated = FROM_UNIXTIME(" . $host['lastupdated'] . ") " .
+                     "WHERE hostname = '" . $host['hostname'] . "'";
+        } else {
         $query = "UPDATE mirrors SET ocmt = '" . addslashes($host['problem']) . "', " .
                  "lastupdated = FROM_UNIXTIME(" . $host['lastupdated'] . ") " .
                  "WHERE hostname = '" . $host['hostname'] . "'";
+        }
         $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
         $problems .= $host['hostname'] . "\t- " . $host['problem'] . "\n";
     }
