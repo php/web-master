@@ -307,9 +307,9 @@ foreach ($hosts as $host) {
                      "lastupdated = FROM_UNIXTIME(" . $host['lastupdated'] . ") " .
                      "WHERE hostname = '" . $host['hostname'] . "'";
         } else {
-        $query = "UPDATE mirrors SET ocmt = '" . addslashes($host['problem']) . "', " .
-                 "lastupdated = FROM_UNIXTIME(" . $host['lastupdated'] . ") " .
-                 "WHERE hostname = '" . $host['hostname'] . "'";
+            $query = "UPDATE mirrors SET ocmt = '" . addslashes($host['problem']) . "', " .
+                     "lastupdated = FROM_UNIXTIME(" . $host['lastupdated'] . ") " .
+                     "WHERE hostname = '" . $host['hostname'] . "'";
         }
         $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
         $problems .= $host['hostname'] . "\t- " . $host['problem'] . "\n";

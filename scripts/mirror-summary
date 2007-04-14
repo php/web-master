@@ -104,12 +104,12 @@ $body . "-----------------------------------------------------------------------
 if(DEBUG) {
     echo $body . "\n\n";
 } else {
-mail(
-    "php-mirrors@lists.php.net",
-    "[mirrors] Status information",
-    $body,
-    "From: php-mirrors@lists.php.net"
-);
+    mail(
+        "php-mirrors@lists.php.net",
+        "[mirrors] Status information",
+        $body,
+        "From: php-mirrors@lists.php.net"
+    );
 }
 
 
@@ -134,12 +134,12 @@ foreach ($inactives as $hostname => $hostinfo) {
     if(DEBUG) {
         echo $hostname. " - $last_error \n\n";
     } else {
-    mail(
-        $hostinfo[0],
-        "$hostname mirror site deactivated",
-        str_replace("{{lasterror}}", $last_error, $inactives_text),
-        "From: php-mirrors@lists.php.net"
-    );
+        mail(
+            $hostinfo[0],
+            "$hostname mirror site deactivated",
+            str_replace("{{lasterror}}", $last_error, $inactives_text),
+            "From: php-mirrors@lists.php.net"
+        );
     }
 }
 
@@ -157,11 +157,11 @@ foreach ($outdated as $hostname => $hostinfo) {
     if(DEBUG) {
         echo $hostname . " - outdated\n\n";
     } else {
-    mail(
-        $hostinfo[0],
-        "$hostname mirror site deactivated",
-        $outdated_text,
-        "From: php-mirrors@lists.php.net"
-    );
+        mail(
+            $hostinfo[0],
+            "$hostname mirror site deactivated",
+            $outdated_text,
+            "From: php-mirrors@lists.php.net"
+        );
     }
 }
