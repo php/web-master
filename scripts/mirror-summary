@@ -7,6 +7,9 @@
  contact details).
 */
 
+// Please edit this when testing to print the mail out, not send them to the list every time
+define("DEBUG", false);
+
 // This script will run for a long time
 set_time_limit (0);
 
@@ -98,13 +101,17 @@ for ($i=0; $i < $total; $i++) {
 
 $body . "---------------------------------------------------------------------------------------\n";
 
-// Please edit this when testing to send mail to yourself, not to the list every time
+if(DEBUG) {
+    echo $body . "\n\n";
+} else {
 mail(
     "php-mirrors@lists.php.net",
     "[mirrors] Status information",
     $body,
     "From: php-mirrors@lists.php.net"
 );
+}
+
 
 // Mail text for those mirror maintainers with inactive mirror sites
 $inactives_text = "Hi!\n\nOur automatic mirror site check was unable to reach\n"
@@ -124,12 +131,16 @@ foreach ($inactives as $hostname => $hostinfo) {
         $last_error = "The last error message stored for your mirror is:\n  {$hostinfo[1]}\n\n";
     }
     else { $last_error = ""; }
+    if(DEBUG) {
+        echo $hostname. " - $last_error \n\n";
+    } else {
     mail(
         $hostinfo[0],
         "$hostname mirror site deactivated",
         str_replace("{{lasterror}}", $last_error, $inactives_text),
         "From: php-mirrors@lists.php.net"
     );
+    }
 }
 
 // Mail text for those mirror maintainers with outdated mirror sites
@@ -143,10 +154,14 @@ $outdated_text = "Hi!\n\nOur automatic mirror site check found out, that\n"
 
 // Send mail to all outdated mirror maintainers
 foreach ($outdated as $hostname => $hostinfo) {
+    if(DEBUG) {
+        echo $hostname . " - outdated\n\n";
+    } else {
     mail(
         $hostinfo[0],
         "$hostname mirror site deactivated",
         $outdated_text,
         "From: php-mirrors@lists.php.net"
     );
+    }
 }
