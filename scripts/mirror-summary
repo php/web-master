@@ -53,7 +53,7 @@ for ($i=0; $i < $total; $i++) {
     }
 }
 if (count($inactives)) {
-  $body .= "No response was returned from these following hosts within the last three days:\n\n";
+  $body .= "These mirrors are badly broken or no response was returned within the last three days:\n\n";
   $body .= wordwrap(join(', ', array_keys($inactives))) . "\n";
 }
 
