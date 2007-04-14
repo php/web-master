@@ -251,6 +251,24 @@ foreach ($hosts as $index => $host) {
         continue;
     }
 
+    // -------------------------------------------------------------------------
+    // Fifth HTTP request, checking for `var` handler
+    // (See bug#35970)
+
+    $url = "http://{$host['hostname']}/manual/en/ref.var.php";
+    $headers = get_headers($url, 1);
+    if($headers == false) {
+        // Probably timed out, let it slight
+        continue;
+    }
+
+    if(strpos($headers[0], "200 OK") === false) {
+        $hosts[$index]['lastupdated'] = 0;
+        $hosts[$index]['problem'] = "Please follow our mirror guidelines. You need to remove the 'var' handler\n";
+        $hosts[$index]['problem'].= "(The test was ran on $url and should return 'variable handling functions')";
+        continue;
+    }
+
 }
 
 // Go through all mirror sites checked
