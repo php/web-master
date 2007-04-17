@@ -14,7 +14,7 @@ define("DEBUG", false);
 set_time_limit (0);
 
 // Empty arrays by default
-$inactives = $outdated = array();
+$inactives = $outdated = $disabled = array();
  
 // Try to connect to the database and select phpmasterdb database
 mysql_connect("localhost","nobody","") or die("unable to connect to database");
@@ -27,7 +27,7 @@ list($checktime) = mysql_fetch_row($lct);
 // Select all mirrors ordered by hostname
 $query = "SELECT maintainer, hostname, id, UNIX_TIMESTAMP(lastupdated) AS lastupdate, " .
          "phpversion, (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < lastchecked) AS active, " .
-         "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < lastupdated) AS current, ocmt " .
+         "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < lastupdated) AS current, active AS enabled, acmt, ocmt " .
          "FROM mirrors ORDER BY hostname";
 
 // Execute SQL query
@@ -49,7 +49,8 @@ $body = "Following is data gathered from the various mirrors. It is ordered by t
 // List mirrors which seem to be down
 for ($i=0; $i < $total; $i++) {
     if (!$hosts[$i]['active']) {
-        $inactives[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $hosts[$i]['ocmt']);
+        $cmt = !empty($hosts[$i]['ocmt']) ? $hosts[$i]['ocmt'] : $hosts[$i]['acmt'];
+        $inactives[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $cmt);
     }
 }
 if (count($inactives)) {
@@ -59,13 +60,25 @@ if (count($inactives)) {
 
 // List all mirrors which seem to be outdated
 for ($i=0; $i < $total; $i++) {
-    if ($hosts[$i]['active'] && !$hosts[$i]['current']) {
-        $outdated[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $hosts[$i]['ocmt']);
+    if ($hosts[$i]['active'] && !$hosts[$i]['current'] && !$hosts[$i]['enabled']) {
+        $cmt = !empty($hosts[$i]['ocmt']) ? $hosts[$i]['ocmt'] : $hosts[$i]['acmt'];
+        $outdated[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $cmt);
     }
 }
 if (count($outdated)) {
     $body .= "\nThese mirrors have not been updated in at least 7 days:\n\n";
     $body .= wordwrap(join(', ', array_keys($outdated))) . "\n";
+}
+
+for ($i=0; $i < $total; $i++) {
+    if (!$hosts[$i]['enabled']) {
+        $cmt = !empty($hosts[$i]['ocmt']) ? $hosts[$i]['ocmt'] : $hosts[$i]['acmt'];
+        $disabled[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $cmt);
+    }
+}
+if (count($disabled)) {
+    $body .= "\nThese mirrors are manually disabled:\n\n";
+    $body .= wordwrap(join(', ', array_keys($disabled))) . "\n";
 }
 
 $body .= "\nAnd now for the rest of the mirrors:\n"
@@ -126,7 +139,7 @@ $inactives_text = "Hi!\n\nOur automatic mirror site check was unable to reach\n"
                  ."Mail sent out by the PHP.net automatic mirror site monitoring system";
 
 // Send mail to all inactive mirror maintainers
-foreach ($inactives as $hostname => $hostinfo) {
+foreach (array_merge($inactives, $disabled) as $hostname => $hostinfo) {
     if (!empty($hostinfo[1])) {
         $last_error = "The last error message stored for your mirror is:\n  {$hostinfo[1]}\n\n";
     }
@@ -165,3 +178,4 @@ foreach ($outdated as $hostname => $hostinfo) {
         );
     }
 }
+
