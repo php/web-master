@@ -73,6 +73,14 @@ machine to track the usage of all of the machines.</p> -->
 <p><b>technical contact:</b> Corey Shields, Oregon State OSL (cshields AT osuosl.org).
 	For support, (support AT osuosl.org)</p>
 
+<h2>oti1.php.net (66.80.117.35)</h2>
+<p><b>machine:</b> win32 snaps generator</p>
+<p><b>technical contact:</b> Wez or George</p>
+
+<h2>oti2.php.net (8.8.38.129)</h2>
+<p><b>machine:</b> 2x2.4GHz Xeon, 1GB RAM, 2x18GB SCSI disks. <a href="http://www.supermicro.com/products/system/1U/6012/SYS-6012L-6.cfm">SuperMicro 6012L-6</a>
+<p><b>technical contact:</b> Wez or George</p>
+
 <h2>ovh.php.net (213.251.181.15)</h2>
 
 <p><b>machine:</b> ?</p>
