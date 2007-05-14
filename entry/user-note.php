@@ -3,92 +3,38 @@
 // service closed until we can filter spam
 //die ('[CLOSED]');
 
-
 // ** alerts ** remove comment when alerts are on-line
 //require_once 'alert_lib.inc';
 include_once 'note-reasons.inc';
-
-$spamassassin = '/opt/ecelerity/3rdParty/bin/spamassassin';
+include_once 'spam-lib.inc';
 
 $mailto = 'php-notes@lists.php.net';
 $failto = 'jimw@php.net, alindeman@php.net';
 
-// list of usual SPAM words
-$worlds_backlist = array(
-	'adipex',
-	'alprazolam',
-	'arimidex',
-	'ativan',
-	'bontril',
-	'carisoprodol',
-	'http://cars-4-you.org',
-	'http://the-best-cars.org',
-	'casino',
-	'ciprofloxacin',
-	'clonazepam',
-	'digoxin',
-	'ephedra',
-	'esomeprazole',
-	'glucophage',
-	'http://20six.co.uk',
-	'hydrochlorothiazide',
-	'hydrocodone',
-	'lisinopril',
-	'lopressor',
-	'lorazepam',
-	'meridia',
-	'metronidazole',
-	'naproxen',
-	'nexium',
-	'paroxetine',
-	'phentermine',
-	'poker',
-	'pravachol',	
-	'testosterone',
-	'tramadol',
-	'ultram',
-	'valium',
-	'vicodin',
-	'vicoprofen',
-	'xanax',
-	'zanaflex',
-	'http://republika.pl',
-);
-
-
 if (!isset($user) || empty($note) || empty($sect) || empty($ip) || !isset($redirip))
   die("missing some parameters.");
 
-// check if the IP is blacklisted
-if (($spamip=is_spammer($_SERVER['REMOTE_ADDR'])) || ($spamip=is_spammer($ip)) || ($spamip=is_spammer($redirip))) {
+
+/* SPAM Checks ******************************************/
+$note_lc = strtolower($note);
+
+// Disallow URL SPAM
+if (check_spam_urls($note_lc, 4)) {
+    die ('[SPAM WORD]');
+}
+
+// Compare the text against a known list of bad words
+if (check_spam_words($note_lc, $words_blacklist)) {
+    die('[SPAM WORD]');
+}
+
+// Check if the IP is blacklisted
+if (($spamip=is_spam_ip($_SERVER['REMOTE_ADDR'])) || ($spamip=is_spam_ip($ip)) || ($spamip=is_spam_ip($redirip))) {
     die ("[SPAMMER] $spamip");
 }
 
-// check if the note contains some prohibited words
-$note_lc = strtolower($note);
-foreach($worlds_backlist as $bad_word) {
-    if (strpos($note_lc, $bad_word) !== false) {
-        die('[SPAM WORD]');
-    }
-}
-
-// run a few more spam checks
-if (is_spam($note_lc)) {
-    die ('[SPAM WORD]');
-}
 unset($note_lc);
-
-// check with spamassassin if the note is spam or not
-/*
-$spam = shell_exec('echo ' . escapeshellarg($note) . " | $spamassassin -L -e 8");
-
-if (preg_match('/^X-Spam-Status:.+(?:\n\t.+)*'.'/m', $spam, $match)) {
-    $spam_data = $match[0];
-} else {
-    $spam_data = 'error matching the SpamAssassin data';
-}
-*/
-
+/* End SPAM Checks ******************************************/
 
 @mysql_connect("localhost","nobody", "")
   or die("failed to connect to database");
@@ -195,38 +141,7 @@ if (@mysql_query($query)) {
 
 
 
-/* check if an IP is marked as spammer.
-   test with 127.0.0.2 for positive and 127.0.0.1 for negative
-*/
-function is_spammer($ip) {
-    $reverse_ip = implode('.', array_reverse(explode('.', $ip)));
 
-    // spammers lists
-    // [0] => dns server, [1] => exclude ip
-    $lists[] = array('list.dsbl.org');
-    $lists[] = array('bl.spamcop.net');
-    $lists[] = array('dnsbl.sorbs.net', '127.0.0.10'); // exclude dynamic ips list
-
-    foreach ($lists as $list) {
-        $host = $reverse_ip . '.' . $list[0];
-        $dns  = gethostbyname($host);
-
-        if ($dns != $host && (empty($list[1]) || $dns != $list[1])) {
-            return $ip;
-        }
-    }
-    return false;
-}
-
-function is_spam ($text) {
-    if (preg_match('/\[(url|link)=[^]]+\]/', $text)) {
-        return true;
-    }
-    if (substr_count($text, 'http://') > 4) {
-        return true;
-    }
-    return false;
-}
 
 //var_dump(is_spammer('127.0.0.1')); // false
 //var_dump(is_spammer('127.0.0.2')); // true
