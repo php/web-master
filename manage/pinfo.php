@@ -1,6 +1,6 @@
 <?php
-require 'login.inc';
-require 'functions.inc';
+require_once 'login.inc';
+require_once 'functions.inc';
 
 if (!is_mirror_site_admin($user)) {
     warn("Sorry, you are not allowed to view this web page");
