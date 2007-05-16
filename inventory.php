@@ -57,7 +57,7 @@ machine to track the usage of all of the machines.</p> -->
 <h2>ez1.php.net (128.39.198.38)</h2>
 
 <p><b>machine:</b>Dell PE 650, 1GB RAM, 120GB disk</p>
-<p><b>aliases:</b> bugs, docs, embed, gtk, irssi.embed, museum, qa, smarty, snaps</p>
+<p><b>aliases:</b> bugs, embed, gtk, irssi.embed, museum, qa, smarty, snaps</p>
 <p><b>technical contact:</b> Ole Sigurd Nyvold Hansen (Ole.S.Hansen AT hit.no)</p>
 
 <h2>sp1.php.net (69.28.246.234)</h2>
