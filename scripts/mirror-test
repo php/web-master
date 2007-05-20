@@ -301,7 +301,7 @@ foreach ($hosts as $host) {
     // Store the problem encountered in the database, and collect
     // all the problems into one string in case it will be mailed
     else {
-        if(isset($host['disable']) && $host['disable'] === true && $host["lastchecked"] < $four_days_ago) {
+        if(isset($host['disable']) && $host['disable'] === true && $host["lastchecked"] > $four_days_ago) {
             $query = "UPDATE mirrors SET ocmt = '" . addslashes($host['problem']) . "', " .
                      "lastchecked = FROM_UNIXTIME($four_days_ago), " .
                      "lastupdated = FROM_UNIXTIME(" . $host['lastupdated'] . ") " .
