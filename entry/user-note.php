@@ -11,7 +11,13 @@ include_once 'spam-lib.inc';
 $mailto = 'php-notes@lists.php.net';
 $failto = 'jimw@php.net, alindeman@php.net';
 
-if (!isset($user) || empty($note) || empty($sect) || empty($ip) || !isset($redirip))
+$user    = filter_input(INPUT_POST, "user",     FILTER_SANITIZE_EMAIL);
+$note    = filter_input(INPUT_POST, "note",     FILTER_UNSAFE_RAW);
+$sect    = filter_input(INPUT_POST, "sect",     FILTER_SANITIZE_STRIPPED,   FILTER_FLAG_STRIP_HIGH);
+$ip      = filter_input(INPUT_POST, "ip",       FILTER_VALIDATE_IP,         FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE);
+$redirip = filter_input(INPUT_POST, "redirip",  FILTER_VALIDATE_IP,         FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE);
+
+if (empty($user) || empty($note) || empty($sect) || !$ip)
   die("missing some parameters.");
 
 
@@ -29,7 +35,7 @@ if (check_spam_words($note_lc, $words_blacklist)) {
 }
 
 // Check if the IP is blacklisted
-if (($spamip=is_spam_ip($_SERVER['REMOTE_ADDR'])) || ($spamip=is_spam_ip($ip)) || ($spamip=is_spam_ip($redirip))) {
+if (($spamip=is_spam_ip($_SERVER['REMOTE_ADDR'])) || ($spamip=is_spam_ip($ip)) || ($redirip && $spamip=is_spam_ip($redirip))) {
     die ("[SPAMMER] $spamip");
 }
 
@@ -72,18 +78,22 @@ if ($count >= 3) {
 	'Too many notes submitted in one minute.  Consider increasing quota' . "\n" . 
         'Occured at '.date ('M d, Y g:i:s A') . "\n" .
 	"User   : $user\n" .
-	"Section: $section\n" .
+	"Section: $sect\n" .
 	"Note   : $note",
 	'From: webmaster@php.net'
        );
   die ('[TOO MANY NOTES]');
 }
 
-$sect = ereg_replace("\.php$","",$sect);
+$sect = trim(ereg_replace("\.php$","",$sect));
 
 $query = "INSERT INTO note (user, note, sect, ts, status) VALUES ";
 # no need to call htmlspecialchars() -- we handle it on output
-$query .= "('$user','$note','$sect',NOW(), NULL)";
+$query .= sprintf("('%s','%s','%s',NOW(), NULL)",
+                  mysql_real_escape_string($user),
+                  mysql_real_escape_string($note),
+                  mysql_real_escape_string($sect)
+);
 
 //na = not approved.  Don't display notes until they are approved by an editor
 //This has been reverted until it has been discussed further.
@@ -91,7 +101,7 @@ $query .= "('$user','$note','$sect',NOW(), NULL)";
 //echo "<!--$query-->\n";
 if (@mysql_query($query)) {
   $new_id = mysql_insert_id();	
-  $msg = stripslashes($note);
+  $msg = $note;
 
   $msg .= "\n----\n";
   $msg .= "Server IP: {$_SERVER['REMOTE_ADDR']}";
