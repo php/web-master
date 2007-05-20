@@ -19,7 +19,7 @@ function validateUser($user) {
         $ret = filter_var($user,    FILTER_SANITIZE_STRIPPED, FILTER_FLAG_STRIP_HIGH);
         $ret = str_replace(array("\r", "\n"), "", $ret);
     }
-    return trim($res);
+    return trim($ret);
 }
 
 
