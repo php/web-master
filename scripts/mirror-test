@@ -124,7 +124,7 @@ foreach ($hosts as $index => $host) {
     if (count($info) < 8) {
         // This is a *serious* error, disable it!
         $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "Invalid data received. Probably improper ErrorHandler, see /mirroring.php.";
+        $hosts[$index]['problem'] = "Invalid data received. See: http://php.net/mirroring-troubles.php#invalid-data";
         continue;
     }
     
@@ -200,7 +200,7 @@ foreach ($hosts as $index => $host) {
     }
     if (trim($data) != 'manual-noalias') {
         $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "Apache manual alias in effect, see /mirroring.php.";
+        $hosts[$index]['problem'] = "Apache manual alias. See: http://php.net/mirroring-troubles.php#manual-redirect";
         continue;
     }
 
@@ -227,9 +227,7 @@ foreach ($hosts as $index => $host) {
     }
     if (strpos($headers["content-type"], "text/html") === false) {
         $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "Content-Type weirdness. Pages named '.html.php' are returning wrong Content-Type headers\n";
-        $hosts[$index]['problem'].= "Should be returning 'text/html' but are returning '{$headers["content-type"]}'\n";
-        $hosts[$index]['problem'].= "(The test was ran on $url)";
+        $hosts[$index]['problem'] = "Content-Type. See: http://php.net/mirroring-troubles.php#content-type";
         continue;
     }
 
@@ -247,8 +245,7 @@ foreach ($hosts as $index => $host) {
 
     if (strpos($headers["content-type"], "text/html") === false) {
         $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "MultiViews on. See the *updated* mirror guidelines at http://{$host['hostname']}/mirroring\n";
-        $hosts[$index]['problem'].= "(The test was ran on $url and should return the function language reference)";
+        $hosts[$index]['problem'] = "MultiViews on. See: http://php.net/mirroring-troubles.php#multiviews";
         continue;
     }
 
@@ -265,8 +262,7 @@ foreach ($hosts as $index => $host) {
 
     if(strpos($headers[0], "200 OK") === false) {
         $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "Please follow our mirror guidelines. You need to remove the 'var' handler\n";
-        $hosts[$index]['problem'].= "(The test was ran on $url and should return 'variable handling functions')";
+        $hosts[$index]['problem'] = "Var Handler. See: http://php.net/mirroring-troubles.php#var";
         continue;
     }
 
