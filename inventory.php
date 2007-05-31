@@ -9,6 +9,11 @@ what services they provide.</p>
 <p>Note regarding FreeBSD machines: Upgrades should be 
 performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 
+<h2>nex1.php.net (208.69.122.11)</h2>
+<p><b>machine:</b> Dual Xeon 2.8GHz, 2GB RAM, 2x120GB HD RAID1, CentOS</p>
+<p><b>aliases:</b> idle (soon gcov, qa)</p>
+<p><b>technical contact:</b> Chris Wells (clwells AT nexcess.net)</p>
+
 <h2>pb1.php.net (216.92.131.4)</h2>
 
 <p><b>machine:</b> dual p3/1000 xeon, 512MB RAM, 27GB HD, freebsd 4.11</p>
