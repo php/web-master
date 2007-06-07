@@ -1,0 +1,107 @@
+<?php /* vim: set noet ts=4 sw=4 ft=php: : */
+
+$XML_OPTIONS =  LIBXML_COMPACT | LIBXML_NOBLANKS | LIBXML_NOCDATA | LIBXML_NSCLEAN | LIBXML_XINCLUDE;
+function pregen_atom($feed, $feedDest, $newsDest) {
+	$dom = new DOMDocument("1.0", "UTF-8");
+	$dom->formatOutput = true;
+	$dom->preserveWhiteSpace = false;
+	$options = $GLOBALS["XML_OPTIONS"];
+
+	$dom->load($feed, $options);
+	$dom->save($feedDest, $options);
+
+	$entrys = $dom->getElementsByTagNameNS("http://www.w3.org/2005/Atom", "entry");
+
+	$NEWS = array();
+	foreach($entrys as $entry) {
+		$fragment = "";
+		$c = array();
+		$contentNode 	  = $entry->getElementsByTagName("content")->item(0)->firstChild;
+
+		foreach($entry->getElementsByTagName("link") as $link) {
+			if($link->getAttribute("rel") == "alternate") {
+				$self     = $link->getAttribute("href");
+				$fragment = parse_url("http://php.net" . $self, PHP_URL_FRAGMENT);
+				break;
+			}
+	 	}
+
+		$dateNode         = $entry->getElementsByTagName("published")->item(0)->firstChild;
+		$date             = date("d-M-Y", strtotime($dom->saveXML($dateNode, $options)));
+		$dateSpanNode     = $dom->createElement("span", "[$date]");
+		$dateSpanNode->setAttribute("class", "newsdate");
+
+		$contentNode->insertBefore($dateSpanNode, $contentNode->firstChild);
+		$contentNode->removeAttributeNS("http://www.w3.org/1999/xhtml", "");
+
+		$content          = $dom->saveXML($contentNode, $options);
+		$title            = $dom->saveXML($entry->getElementsByTagName("title")->item(0)->firstChild, $options);
+		$image            = $entry->getElementsByTagNameNS("http://php.net/ns/news", "newsImage");
+		if($image->length > 0) {
+			$image = array(
+				"link"    => $image->item(0)->getAttribute("link"),
+				"title"   => $image->item(0)->getAttribute("title"),
+				"image"   => $image->item(0)->nodeValue,
+			);
+		} else {
+			$image = false;
+		}
+
+		$newsEntry        = array(
+			"fragment"    => $fragment,
+			"title"       => $title,
+			"content"     => $content,
+			"image"       => $image,
+		);
+		$categories       = $entry->getElementsByTagName("category");
+		for ($i=0; $i<$categories->length; $i++) {
+			$c[] = $categories->item($i)->getAttribute("term");
+		}
+		if (in_array("cfp", $c) || in_array("conferences", $c)) {
+			$NEWS["conferences"][] = $newsEntry;
+		}
+		if (in_array("frontpage", $c)) {
+			$NEWS["frontpage"][] = $newsEntry;
+		}
+	}
+
+	$write = '<?php $NEWS_ENTRIES = ' . var_export($NEWS, 1) . ';';
+	file_put_contents($newsDest, $write);
+}
+
+function legacy_rss($atom, $newsDest, $confDest) {
+	$sxe = new SimpleXMLElement($atom, $GLOBALS["XML_OPTIONS"], true);
+	$CONF = $CONF_ITEMS = $NEWS = $NEWS_ITEMS= "";
+	$links = array();
+
+	foreach($sxe->entry as $entry) {
+		$item = "";
+		$term  = (string)$entry->category["term"];
+		$type = $term != "frontpage" ? "conf" : "news";
+		GenerateRSSItem(
+			$links[$type][]["link"] = "http://www.php.net" .$entry->link["href"],
+			(string)$entry->title,
+			ProcessText($entry->content->asXML()),
+			date("Y-m-d", strtotime((string)$entry->updated)),
+			$type == "conf" ? ($term == "conferences" ? "conference" : $term): null,
+			$item
+		);
+		if($type == "conf") {
+			$CONF_ITEMS .= $item;
+		} else {
+			$NEWS_ITEMS .= $item;
+		}
+	}
+	GenerateRSSHeader($links["conf"], $CONF, "http://www.php.net/conferences/");
+	GenerateRSSHeader($links["news"], $NEWS, "http://www.php.net/");
+
+	$CONF .= $CONF_ITEMS;
+	$NEWS .= $NEWS_ITEMS;
+
+	GenerateRSSFooter($CONF);
+	GenerateRSSFooter($NEWS);
+
+	file_put_contents($newsDest, $NEWS);
+	file_put_contents($confDest, $CONF);
+}
+

@@ -14,15 +14,26 @@ function pregenerate_conf_teaser($rssfile, $outfile)
     if (!$out) { die("unable to pregenerate conference teaser to '$outfile~'"); }
 
     // Load the RSS file and register used namespaces
-    $sxe = new SimpleXMLElement($rssfile, null, true, "http://purl.org/rss/1.0/");
-    $sxe->registerXPathNamespace("dc", "http://purl.org/dc/elements/1.1/");
+    $sxe = new SimpleXMLElement($rssfile, $GLOBALS["XML_OPTIONS"], true);
+    $sxe->registerXPathNamespace("php", "http://php.net/ns/news");
 
     // Loop over the items and store them in a array
-    foreach($sxe->item as $item) {
-        $url = (string)$item->link[0];
-        $url = str_replace("http://www.php.net", "", $url); // /relative/path/to/item
-        $subject = (string)current($item->xpath("dc:subject"));
-        $title = (string)$item->title[0];
+    foreach($sxe->entry as $item) {
+        $url = (string)$item->link["href"];
+        $subject = (string)$item->category["term"];
+		if($subject == "conferences") {
+			$subject = "conference";
+		}
+		elseif($subject != "cfp") {
+			// This is neither a conf announcement nor cfp, skip it
+			continue;
+		}
+        $title = (string)$item->title;
+		$lastDate = current($item->xpath("php:finalTeaserDate"));
+		if(strtotime($lastDate) < strtotime("tomorrow")) {
+			// finalTeaserDate has passed, skip it
+			continue;
+		}
         $STORE[$subject][$url] = $title;
     }
 

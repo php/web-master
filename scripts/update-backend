@@ -35,7 +35,8 @@ pregenerate_events("$root/backend/events.csv", "$root/include/pregen-events.inc"
 // Run ip-to-country fetch code
 include "ip-to-country";
 fetch_ip_to_country($root);
-                
+
+/* Old news system
 // Create RSS news feed file
 $dest = fopen("$root/news.rss", "w");
 if (!$dest) { echo "failed to open $root/news.rss for writing"; }
@@ -54,10 +55,15 @@ else {
     fclose($dest);
 }
 touch("$root/conferences/news.rss", @filemtime("$root/conferences/index.php"));
+*/
+include "pregen_news";
+pregen_atom("$root/archive/2007.xml", "$root/feed.atom", "$root/include/pregen-news.inc");
+include "rss_parser";
+legacy_rss("$root/feed.atom", "$root/news.rss", "$root/conferences/news.rss");
 
 // Pregenerate conference teaser
 include "conference_teaser";
-pregenerate_conf_teaser("$root/conferences/news.rss", "$root/include/pregen-confs.inc");
+pregenerate_conf_teaser("$root/feed.atom", "$root/include/pregen-confs.inc");
 
 /*
 // Pregenerate version feed
