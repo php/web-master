@@ -182,7 +182,9 @@ table.useredit tr {
 </tr>
 <tr>
  <th align="right">Email:</th>
- <td><input type="text" name="in[email]" value="<?php echo htmlspecialchars($row[email]);?>" size="40" maxlength="255" /></td>
+ <td><input type="text" name="in[email]" value="<?php echo htmlspecialchars($row[email]);?>" size="40" maxlength="255" /><br/>
+ 	Leave this field blank to disable email for this user.
+ </td>
 </tr>
 <tr>
  <td colspan="2">Leave password fields blank to leave password unchanged.</td>
@@ -359,7 +361,7 @@ while ($row = mysql_fetch_array($res)) {
 foot();
 
 function invalid_input($in) {
-  if (isset($in[email]) && !is_emailable_address($in[email])) {
+  if (isset($in[email]) && strlen($in[email]) && !is_emailable_address($in[email])) {
     return "'".clean($in[email])."' does not look like a valid email address";
   }
   if ($in[username] && !preg_match("/^[-\w]+\$/",$in[username])) {
