@@ -62,12 +62,19 @@ if (!$action) {
     echo $str . '<br />';
   }
 
-  if (isset($_REQUEST['keyword'])) {
+  if (isset($_REQUEST['keyword']) || isset($_REQUEST["view"])) {
+   if(isset($_REQUEST['keyword'])) {
     $sql = 'SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE note LIKE "%' . escape($_REQUEST['keyword']) . '%"';
     if (is_numeric($_REQUEST['keyword'])) {
       $sql .= ' OR id = ' . $_REQUEST['keyword'];
     }
     $sql .= ' LIMIT 20';
+   } else {
+     $page = (int)$_REQUEST["page"];
+     if($page < 0) { $page = 0; }
+     $limit = $page * 10; $page++;
+     $sql = "SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note ORDER BY id DESC LIMIT $limit, 10";
+   }
 
     if ($result = db_query($sql)) {
       if (mysql_num_rows($result) != 0) {
@@ -86,7 +93,10 @@ if (!$action) {
             "<a href=\"https://master.php.net/note/reject/$id\" target=\"_blank\">Reject Note</a>",
             "</p>",
 	    "<hr />";
-        }
+		}
+		if(isset($_REQUEST["view"])) {
+			echo "<p><a href=\"?view=1&page=$page\">Next 10</a>";
+		}
       } else {
         echo "no results<br />";
       }
@@ -110,6 +120,7 @@ if (!$action) {
 </form>
 
 <p><a href="<?php echo $_SERVER['PHP_SELF'];?>?action=mass">Mass change of sections</a></p>
+<p><a href="<?php echo $_SERVER['PHP_SELF'];?>?view=notes">View last 10 notes</a></p>
 <?php
 foot();
 exit;
