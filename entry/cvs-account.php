@@ -51,14 +51,14 @@ if (@mysql_query($query)) {
 
   $from = '"'.stripslashes($name).'" <'.stripslashes($email).">";
 
-  mail($mailto,"CVS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id@php.net>");
+  mail($mailto,"CVS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id@php.net>", "-fnoreply@php.net");
 
   $msg .= "\n-- \n";
   $msg .= "approve: https://master.php.net/manage/users.php?action=approve&id=$new_id\n";
   $msg .= "reject:  https://master.php.net/manage/users.php?action=remove&id=$new_id\n";
   $msg .= "view:    https://master.php.net/manage/users.php?id=$new_id\n";
 
-  mail($failto,"CVS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id-admin@php.net>");
+  mail($failto,"CVS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id-admin@php.net>", "-fnoreply@php.net");
 } else {
   mail($failto,"CVS Account Request: $username",
       "Failed to insert into database: ".mysql_error()."\n\n".

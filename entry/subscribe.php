@@ -32,7 +32,8 @@ $mail_sent = mail(
     "{$_POST['maillist']}-{$_POST['request']}-$sub@lists.php.net",
     "PHP Mailing List Website Subscription", 
     "This was a request generated from the form at {$_POST['referer']} by {$_POST['remoteip']}.",
-    "From: {$_POST['email']}\r\n"
+    "From: {$_POST['email']}\r\n",
+	"-fnoreply@php.net"
 );
 
 // Check if we sent mail
