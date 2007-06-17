@@ -74,7 +74,7 @@ Let us know if you have any further problems.
 -- 
 group@php.net
 ";
-      mail($row['email'],"Password change instructions for $row[username]",$body,'From: PHP Group <group@php.net>', '-fnoreply@php.net');
+      mail($row['username'] . '@php.net',"Password change instructions for $row[username]",$body,'From: PHP Group <group@php.net>', '-fnoreply@php.net');
       echo '<p>Okay, instructions on how to change your password have been sent to your email address. If you don\'t receive them, you\'ll have to contact group@php.net for help.</p>';
       foot();
       exit;
