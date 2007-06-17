@@ -2,8 +2,6 @@
 
 #TODO:
 # acls
-# trigger passwd file update on cvs.php.net
-# trigger mail alias update on php.net mx
 # handle flipping of the sort views
 
 require_once 'login.inc';
@@ -37,7 +35,7 @@ if (isset($id) && isset($action)) {
   }
   switch ($action) {
   case 'approve':
-    if (db_query("UPDATE users SET cvsaccess=1 WHERE userid=$id")
+    if (db_query("UPDATE users SET cvsaccess=1, enable=1 WHERE userid=$id")
      && mysql_affected_rows()) {
       $userinfo = fetch_user($id);
       $message =
@@ -111,6 +109,7 @@ if (isset($id) && isset($in)) {
         $in[passwd] = crypt($in[rawpasswd],substr(md5(time()),0,2));
       }
       $cvsaccess = $in[cvsaccess] ? 1 : 0;
+      $enable = $in[enable] ? 1 : 0;
       $spamprotect = $in[spamprotect] ? 1 : 0;
       $verified = $in[verified] ? 1 : 0;
       $use_sa = (int)$in[use_sa];
@@ -125,6 +124,7 @@ if (isset($id) && isset($in)) {
                  . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
                  . ",verified=$verified"
+                 . ",enable=$enable"
                  . ",use_sa=$use_sa"
                  . ",greylist=$greylist"
                  . " WHERE userid=$id";
@@ -183,7 +183,7 @@ table.useredit tr {
 <tr>
  <th align="right">Email:</th>
  <td><input type="text" name="in[email]" value="<?php echo htmlspecialchars($row[email]);?>" size="40" maxlength="255" /><br/>
- 	Leave this field blank to disable email for this user.
+  	<input type="checkbox" name="in[enable]"<?php echo $row[enable] ? " checked" : "";?> /> Enable email for my account.
  </td>
 </tr>
 <tr>
