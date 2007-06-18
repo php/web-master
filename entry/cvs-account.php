@@ -8,6 +8,11 @@ $failto = 'group@php.net';
 if (empty($name) || empty($email) || empty($username) || empty($passwd) || empty($note))
   die("missing some parameters");
 
+// Sophisticated security/spam protection question
+if (empty($yesno) || $yesno != "yes") {
+  die("You did not fill the form out correctly");
+}
+
 $username = strtolower($username);
 
 # these are reserved account names. some of them (like webmaster and group)
