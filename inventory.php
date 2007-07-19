@@ -11,7 +11,7 @@ performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 
 <h2>nex1.php.net (208.69.122.11)</h2>
 <p><b>machine:</b> Dual Xeon 2.8GHz, 2GB RAM, 2x120GB HD RAID1, CentOS</p>
-<p><b>aliases:</b> idle (soon gcov, qa)</p>
+<p><b>aliases:</b> gcov</p>
 <p><b>technical contact:</b> Chris Wells (clwells AT nexcess.net)</p>
 
 <h2>pb1.php.net (216.92.131.4)</h2>
@@ -68,7 +68,7 @@ machine to track the usage of all of the machines.</p> -->
 <h2>sp1.php.net (69.28.246.234)</h2>
 
 <p><b>machine:</b> Celeron 2.5GHz, 1GB RAM, 120GB HD, Debian GNU/Linux</p>
-<p><b>aliases:</b> gcov</p>
+<p><b>aliases:</b> none</p>
 <p><b>technical contact:</b> Cameron Jones (cameron.jones AT spry.com)</p>
 
 <h2>osu1.php.net (140.211.166.39)</h2>
