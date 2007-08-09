@@ -7,7 +7,7 @@
  PHP code ready to be included to $outfile 
 */
 
-function pregenerate_events($csvfile, $outfile)
+function pregenerate_events($csvfile, $outfile, $months = 2)
 {
     // Try to open output file for reading
     $out = @fopen("$outfile~", "w");
@@ -32,6 +32,10 @@ function pregenerate_events($csvfile, $outfile)
     );
     
     $content = ""; $buffer = array();
+    $endts = strtotime("+$months months");
+    $endm = date("n", $endts);
+    $endy = date("Y", $endts);
+
     // While we can read the events file
     while (TRUE) {
 
@@ -39,6 +43,8 @@ function pregenerate_events($csvfile, $outfile)
         $elems = fgetcsv($csv, 8192);
         if ($elems === FALSE) { break; }
         list($d, $m, $y, $ccode, $desc, $id, , , , , , , $cat) = $elems;
+        // Skip events way in the future
+        if (($endy == $y && $endm <= $m) || $endy < $y) { continue; }
 
         // Fgetcvs() returns an array with a single null element
         // for a blank line, which we need to skip
@@ -106,6 +112,9 @@ function pregenerate_events($csvfile, $outfile)
         fwrite($out, $headline);
 
         foreach($order as $category) {
+            if (!isset($buffer[$headline][$category])) {
+                continue;
+            }
             fwrite($out, $buffer[$headline][$category]);
         }
     }
