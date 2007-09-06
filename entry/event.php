@@ -1,6 +1,6 @@
 <?php
 
-$mailto = 'php-mirrors@lists.php.net';
+$mailto = 'php-webmaster@lists.php.net';
 #$mailto = 'jimw@apache.org';
 
 $re = array(
