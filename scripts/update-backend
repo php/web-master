@@ -39,26 +39,6 @@ pregenerate_events("$root/backend/events.csv", "$root/include/pregen-events.inc"
 include "ip-to-country";
 fetch_ip_to_country($root);
 
-/* Old news system
-// Create RSS news feed file
-$dest = fopen("$root/news.rss", "w");
-if (!$dest) { echo "failed to open $root/news.rss for writing"; }
-else {
-    include "rss_parser";
-    fwrite($dest, $RSSNews);
-    fclose($dest);
-}
-touch("$root/news.rss", @filemtime("$root/index.php"));
-
-// Create conferences/cfp feed
-$dest = fopen("$root/conferences/news.rss", "w");
-if (!$dest) { echo "failed to open $root/conferences/news.rss for writing"; }
-else {
-    fwrite($dest, $RSSConf);
-    fclose($dest);
-}
-touch("$root/conferences/news.rss", @filemtime("$root/conferences/index.php"));
-*/
 include "pregen_news";
 pregen_atom("$root/archive/2007.xml", "$root/feed.atom", "$root/include/pregen-news.inc");
 include "rss_parser";
