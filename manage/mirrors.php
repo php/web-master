@@ -375,7 +375,7 @@ function page_mirror_list()
                 $addr = $found[1];
                 $name = str_replace("<$addr>", "", $maintainer);
                 $emailcell = '<a href="mailto:' . $addr . '?subject=' . $row['hostname'] .
-                '&amp;cc=webmaster@php.net">' . $name . ' <img src="/images/mirror_mail.png" /></a>';
+                '&amp;cc=mirrors@php.net">' . $name . ' <img src="/images/mirror_mail.png" /></a>';
             }
         }
 
