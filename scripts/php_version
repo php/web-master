@@ -1,7 +1,7 @@
 <?php # vim: ft=php sw=4 ts=4 et
 
 function pregenerate_version_feed($v, $r, $output) {
-    $RC_ANNOUNCEMENT_TEXT = "Please check out the new Release Canidate on http://qa.php.net";
+    $RC_ANNOUNCEMENT_TEXT = 'Please check out the new Release Canidate on <a href="http://qa.php.net">http://qa.php.net</a>';
     $ANNOUNCEMENT_TEXT = "There is a new PHP release in town!";
 
     include $v; // version.inc ($RELEASES)
@@ -19,8 +19,9 @@ function pregenerate_version_feed($v, $r, $output) {
     $feed->appendChild($doc->createElement("title", "PHP.net releases"));
 
     $link = $doc->createElement("link");
-    $link->setAttribute("href", "/feeds/releases.atom");
+    $link->setAttribute("href", "/releases.atom");
     $link->setAttribute("rel", "self");
+    $feed->appendChild($link);
 
     $feed->appendChild($doc->createElement("icon", "/images/news/php-logo.gif"));
 
@@ -92,6 +93,7 @@ function pregenerate_version_feed($v, $r, $output) {
                 $announcement = "/releases/" . str_replace(".", "_", $version) . ".php";
                 $content = $doc->createElement("content");
                 $content->setAttribute("src", $announcement);
+                $content->setAttribute("type", "application/xhtml+xml");
                 $rel->appendChild($content);
                 $rel->appendChild($doc->createElement("id", "http://php.net$announcement"));
             } else {
