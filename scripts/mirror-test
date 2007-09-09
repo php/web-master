@@ -124,7 +124,8 @@ foreach ($hosts as $index => $host) {
     if (count($info) < 8) {
         // This is a *serious* error, disable it!
         $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "Invalid data received. See: http://php.net/mirroring-troubles.php#invalid-data";
+        $hosts[$index]['problem'] = "Invalid data received from /mirror-info. See: http://php.net/mirroring-troubles.php#invalid-data\n";
+        $hosts[$index]['problem'].= "Got: " . htmlentities($data). "\n";
         continue;
     }
     
