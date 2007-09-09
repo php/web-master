@@ -125,7 +125,6 @@ foreach ($hosts as $index => $host) {
         // This is a *serious* error, disable it!
         $hosts[$index]['disable'] = true;
         $hosts[$index]['problem'] = "Invalid data received from /mirror-info. See: http://php.net/mirroring-troubles.php#invalid-data\n";
-        $hosts[$index]['problem'].= "Got: " . htmlentities($data). "\n";
         continue;
     }
     
