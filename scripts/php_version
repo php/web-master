@@ -11,7 +11,6 @@ function pregenerate_version_feed($v, $r, $output) {
     $doc->formatOutput = true;
 
     $feed = $doc->createElementNs("http://www.w3.org/2005/Atom", "feed");
-    $feed->setAttributeNs("http://www.w3.org/XML/1998/namespace", "xml:base", "/");
     $doc->appendChild($feed);
 
     $doc->createAttributeNs("http://php.net/ns/releases", "php:bogus");
