@@ -1,0 +1,34 @@
+<?php /* vim: set noet ts=4 sw=4 ft=php: : */
+// $Id$
+
+// usage: configure files to parse and render out of cvs.php.net
+// uses http://pear.horde.org/index.php?package=Text_reST
+// Formatting guide see also: http://docutils.sourceforge.net/docs/user/rst/quickref.html
+
+$path = dirname(__FILE__) . "/../include/";
+require_once $path.'Text/reST.php';
+require_once $path.'Text/reST/Formatter.php';
+
+function pregen_rest_files($rest_dir, $urls) {
+	if (!file_exists($rest_dir)) {
+		if (!mkdir($rest_dir)) {
+			trigger_error(E_USER_WARNING, "Cannot create the rest cache directory");
+			return;
+		}
+	}
+
+	$base_url = 'http://cvs.php.net/viewvc.cgi/';
+
+	foreach ($urls as $rel_path) {
+		$url = $base_url.$rel_path.'?view=co';
+		$string = file_get_contents($url);
+
+		$document = Text_reST::parse($string);
+
+		$formatter = Text_reST_Formatter::factory('html');
+
+		$filename = $rest_dir.str_replace('/', '_', $rel_path).'.rest';
+		file_put_contents($filename, $formatter->format($document));
+	}
+}
+

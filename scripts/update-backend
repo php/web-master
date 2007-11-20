@@ -52,6 +52,15 @@ pregenerate_conf_teaser("$root/feed.atom", "$root/include/pregen-confs.inc");
 include "php_version";
 pregenerate_version_feed("$root/include/version.inc", "$root/include/releases.inc", "$root/releases.atom");
 
+// Pregenerate the reST files
+include "rest_render";
+/* URLs to parse/render */
+$urls = array(
+	'php-src/CODING_STANDARDS',
+);
+pregen_rest_files("$root/reST/cache/", $urls);
+
+
 // Compress mirrorkit dir in backend to mirrorkit.tgz, and
 // then move it to the webspace in case it is properly done
 chdir("$root/backend/mirrorkit");
