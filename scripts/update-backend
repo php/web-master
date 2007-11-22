@@ -24,7 +24,7 @@ fetch_into_file("http://master.php.net/fetch/countries.php?token=$token",
                 "$root/include/countries.inc");
 
 
-// Get list of upcoming events 
+// Get list of upcoming events
 fetch_into_file("http://master.php.net/fetch/events.php?token=$token",
                 "$root/backend/events.csv");
 
@@ -57,6 +57,7 @@ include "rest_render";
 /* URLs to parse/render */
 $urls = array(
 	'php-src/CODING_STANDARDS',
+	'php-src/README.RELEASE_PROCESS',
 );
 pregen_rest_files("$root/reST/cache/", $urls);
 
@@ -108,7 +109,7 @@ function fetch_into_file($url, $file)
         unlink("$file~");
         return;
     }
-  
+
     // Replace real file with temporary file
     return rename("$file~", $file);
 }
