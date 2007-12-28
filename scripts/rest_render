@@ -12,7 +12,7 @@ require_once $path.'Text/reST/Formatter.php';
 function pregen_rest_files($rest_dir, $urls) {
 	if (!file_exists($rest_dir)) {
 		if (!mkdir($rest_dir)) {
-			trigger_error(E_USER_WARNING, "Cannot create the rest cache directory");
+			trigger_error("Cannot create the rest cache directory", E_USER_WARNING);
 			return;
 		}
 	}
