@@ -7,12 +7,40 @@ function pregen_atom($feed, $feedDest, $newsDest) {
 	$dom->preserveWhiteSpace = false;
 	$options = $GLOBALS["XML_OPTIONS"];
 
-	$dom->load($feed, $options);
-	$dom->save($feedDest, $options);
+	$y = date("Y");
+	if (file_exists($feed .$y. ".xml")) {
+		$dom->load($feed .$y. ".xml", $options);
+	} elseif (file_exists($feed .(--$y). ".xml")) {
+		$dom->load($feed .$y. ".xml");
+	} else {
+		trigger_error("Can't find news feed", E_USER_WARNING);
+		return;
+	}
+
 
 	$entrys = $dom->getElementsByTagNameNS("http://www.w3.org/2005/Atom", "entry");
+	if(!$entrys || $entrys->length < 10) {
+		$fragment = $dom->createDocumentFragment();
+		$tmp = new DOMDocument("1.0", "UTF-8");
+		$tmp->formatOutput = true;
+		$tmp->preserveWhiteSpace = false;
 
+		$tmp->load($feed .($y-1). ".xml", $options);
+		$e = $tmp->getElementsByTagNameNS("http://www.w3.org/2005/Atom", "entry");
+		foreach($e as $n) {
+			$n->setAttribute("xmlns", "http://www.w3.org/2005/Atom");
+			$n->setAttribute("xmlns:php", "http://php.net/ns/news");
+			$fragment->appendXML($tmp->saveXML($n));
+		}
+		$child = $dom->documentElement->appendChild($fragment);
+		$child->removeAttributeNS("http://www.w3.org/1999/xhtml", "default");
+	}
+
+	$dom->save($feedDest, $options);
+	//$dom->normalizeDocument(); # For whatever reason this doesn't seem to work :(
+	$dom->load($feedDest);
 	$NEWS = array();
+
 	foreach($entrys as $entry) {
 		$fragment = "";
 		$c = array();
@@ -52,6 +80,7 @@ function pregen_atom($feed, $feedDest, $newsDest) {
 			"title"       => $title,
 			"content"     => $content,
 			"image"       => $image,
+			"date"        => $date,
 		);
 		$categories       = $entry->getElementsByTagName("category");
 		for ($i=0; $i<$categories->length; $i++) {

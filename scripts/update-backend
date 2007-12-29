@@ -40,7 +40,7 @@ include "ip-to-country";
 fetch_ip_to_country($root);
 
 include "pregen_news";
-pregen_atom("$root/archive/2007.xml", "$root/feed.atom", "$root/include/pregen-news.inc");
+pregen_atom("$root/archive/", "$root/feed.atom", "$root/include/pregen-news.inc");
 include "rss_parser";
 legacy_rss("$root/feed.atom", "$root/news.rss", "$root/conferences/news.rss");
 
@@ -114,3 +114,4 @@ function fetch_into_file($url, $file)
     // Replace real file with temporary file
     return rename("$file~", $file);
 }
+
