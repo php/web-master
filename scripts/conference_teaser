@@ -18,6 +18,7 @@ function pregenerate_conf_teaser($rssfile, $outfile)
     $sxe->registerXPathNamespace("php", "http://php.net/ns/news");
 
     // Loop over the items and store them in a array
+    $STORE = array();
     foreach($sxe->entry as $item) {
         $url = (string)$item->link["href"];
         $subject = (string)$item->category["term"];
