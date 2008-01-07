@@ -44,7 +44,7 @@ $body = "Following is data gathered from the various mirrors. It is ordered by t
       . "that are suspected to be dead, mirrors which are alive but have errors, and\n"
       . "finally the rest, sorted by hostname. The maintainers of inactive and outdated\n"
       . "mirror sites are automatically notified the same time, as this mail goes out.\n\n"
-      . "Edit mirror listings here: https://master.php.net/manage/mirrors.php\n\n";
+      . "View the mirror trouble guide here: http://php.net/mirroring-troubles.php\n\n";
 
 // List mirrors which seem to be down
 for ($i=0; $i < $total; $i++) {
