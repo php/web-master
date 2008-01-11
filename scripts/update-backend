@@ -58,6 +58,7 @@ include "rest_render";
 $urls = array(
 	'php-src/CODING_STANDARDS',
 	'php-src/README.CVS-RULES',
+	'php-src/README.MAILINGLIST-RULES',
 	'php-src/README.RELEASE_PROCESS',
 );
 pregen_rest_files("$root/reST/cache/", $urls);
@@ -114,4 +115,3 @@ function fetch_into_file($url, $file)
     // Replace real file with temporary file
     return rename("$file~", $file);
 }
-
