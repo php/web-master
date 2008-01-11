@@ -19,6 +19,7 @@ function pregen_rest_files($rest_dir, $urls) {
 
 	$base_url = 'http://cvs.php.net/viewvc.cgi/';
 
+	$filenames = array();
 	foreach ($urls as $rel_path) {
 		$url = $base_url.$rel_path.'?view=co';
 		$string = file_get_contents($url);
@@ -27,8 +28,13 @@ function pregen_rest_files($rest_dir, $urls) {
 
 		$formatter = Text_reST_Formatter::factory('html');
 
-		$filename = $rest_dir.str_replace('/', '_', $rel_path).'.rest';
+		$filenames[] = $filename = $rest_dir.str_replace('/', '_', $rel_path).'.rest';
 		file_put_contents($filename, $formatter->format($document));
+	}
+	// Remove old cache files
+	foreach(array_diff(glob($rest_dir."*.rest"), $filenames) as $old) {
+		echo "Removing old reST cache file: $old\n";
+		unlink($old);
 	}
 }
 
