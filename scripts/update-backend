@@ -58,7 +58,7 @@ include "rest_render";
 $urls = array(
 	'php-src/CODING_STANDARDS',
 	'php-src/README.CVS-RULES',
-	'php-src/README.MAILINGLIST-RULES',
+	'php-src/README.MAILINGLIST_RULES',
 	'php-src/README.RELEASE_PROCESS',
 );
 pregen_rest_files("$root/reST/cache/", $urls);
