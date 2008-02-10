@@ -61,8 +61,8 @@ function host_has_error($hostname, $filename, &$data, &$problem) {
         return TRUE;
     }
     
-    // Set timeout to 5 seconds
-    socket_set_timeout($fp, 5, 0);
+    // Set timeout to 15 seconds
+    socket_set_timeout($fp, 15, 0);
 
     // Get lines from the socket, until we get past the HTTP headers
     // (HTTP headers and data have one empty line between them)
@@ -95,7 +95,7 @@ function host_has_error($hostname, $filename, &$data, &$problem) {
 $opts = array(
     "user_agent"    => "PHP.net Mirror Site check",
     "max_redirects" => 0,
-    "timeout"       => 5,
+    "timeout"       => 15,
 );
 $context  = stream_context_get_default(array("http" => $opts));
 
