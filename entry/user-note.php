@@ -76,7 +76,7 @@ if (!$result) {
   mail ($failto,
        'failed manual note query',
        "Query Failed: $query\nError: ".mysql_error(),
-       'From: webmaster@php.net',
+       'From: php-webmaster@lists.php.net',
 	   '-fnoreply@php.net'
   );
   die("failed to query note db");
@@ -94,7 +94,7 @@ if ($count >= 3) {
 	"User   : $user\n" .
 	"Section: $sect\n" .
 	"Note   : $note",
-	'From: webmaster@php.net',
+	'From: php-webmaster@lists.php.net',
 	'-fnoreply@php.net'
   );
   die ('[TOO MANY NOTES]');
@@ -160,7 +160,7 @@ if (@mysql_query($query)) {
   mail($failto,
       'failed manual note query',
       "Query Failed: $query\nError: ".mysql_error(),
-      'From: webmaster@php.net',
+      'From: php-webmaster@lists.php.net',
 	  "-fnoreply@php.net");
   die("failed to insert record");
 }

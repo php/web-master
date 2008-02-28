@@ -27,7 +27,7 @@ function pregenerate_version_feed($v, $r, $output) {
     $author = $feed->appendChild($doc->createElement("author"));
     $author->appendChild($doc->createElement("name", "Webmaster"));
     $author->appendChild($doc->createElement("uri", "http://php.net/contact"));
-    $author->appendChild($doc->createElement("email", "webmaster@php.net"));
+    $author->appendChild($doc->createElement("email", "php-webmaster@lists.php.net"));
 
     $feed->appendChild($doc->createElement("id", "http://php.net/releases/index.php"));
 
