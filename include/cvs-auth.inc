@@ -25,7 +25,11 @@ function find_password($user)
 
 function verify_password($user, $pass)
 {
-    $psw = find_password($user);
+    return verify_login(find_password($user), $pass);
+}
+
+function verify_login($psw, $pass)
+{
     if (strlen($psw) > 0) {
         if (LOGIN_IGNORE_PWD || crypt($pass, substr($psw, 0, 2)) == $psw) {
             return TRUE;
@@ -33,3 +37,4 @@ function verify_password($user, $pass)
     }
     return FALSE;
 }
+
