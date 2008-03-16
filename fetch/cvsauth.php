@@ -18,7 +18,7 @@ $opts = array(
 
 $ctx = stream_context_create(array("http" => $opts));
 
-$s = file_get_contents("http://master.php.is/fetch/cvsauth.php", false, $ctx);
+$s = file_get_contents("https://master.php.net/fetch/cvsauth.php", false, $ctx);
 
 $a = @unserialize($s);
 if (!is_array($a)) {
