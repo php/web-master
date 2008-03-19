@@ -165,7 +165,7 @@ function legacy_rss($atom, $newsDest, $confDest) {
 		$term  = (string)$entry->category["term"];
 		$type = $term != "frontpage" ? "conf" : "news";
 		GenerateRSSItem(
-			$links[$type][]["link"] = "http://www.php.net" .$entry->link["href"],
+			$links[$type][]["link"] = $entry->link["href"],
 			(string)$entry->title,
 			ProcessText($entry->content->asXML()),
 			date("Y-m-d", strtotime((string)$entry->updated)),
