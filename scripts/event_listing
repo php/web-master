@@ -82,9 +82,15 @@ function pregenerate_events($csvfile, $outfile, $months = 2)
         
         // There is no event with this description in this month already seen
         if (!isset($seen[$desc])) {
+            if ($m < 10) {
+                $m = "0$m";
+            }
+            if ($d < 10) {
+                $d = "0$d";
+            }
             
             // Add event to the "buffer"
-            $content .= "<span class=\"event_$ccode\">$d. <a href=\"/cal.php?id=$id\">" .
+            $content .= "<span class=\"event_$ccode vevent\"><abbr title=\"$y-$m-$d\" class=\"dtstart\">$d</abbr>. <a href=\"/cal.php?id=$id\" class=\"summary\">" .
                          htmlspecialchars(stripslashes($desc)) .
                          "</a></span><br />\n";
             
