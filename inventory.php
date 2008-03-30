@@ -12,7 +12,7 @@ performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 <h2>nex1.php.net (208.69.122.11)</h2>
 <p><b>machine:</b> Dual Xeon 2.8GHz, 2GB RAM, 2x120GB HD RAID1, CentOS</p>
 <p><b>aliases:</b> gcov</p>
-<p><b>technical contact:</b> Chris Wells (clwells AT nexcess.net)</p>
+<p><b>technical contact:</b> (support AT nexcess net)</p>
 
 <h2>pb1.php.net (216.92.131.4)</h2>
 
@@ -20,7 +20,7 @@ performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 
 <p><b>aliases:</b> lists.php.net, news.php.net</p>
 
-<p><b>technical contact:</b> Pair's ticket system <tt>qs AT pair.com</tt>.</p>
+<p><b>technical contact:</b> Pair's ticket system <tt>qs AT pair com</tt>.</p>
 
 <h2>pb11.php.net (216.92.131.65)</h2>
 
@@ -28,7 +28,7 @@ performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 
 <p><b>aliases:</b> docs, livedocs</p>
 
-<p><b>technical contact:</b> Pair's ticket system <tt>qs AT pair.com</tt>.</p>
+<p><b>technical contact:</b> Pair's ticket system <tt>qs AT pair com</tt>.</p>
 
 <h2>pb12.php.net (216.92.131.66)</h2>
 
@@ -36,7 +36,7 @@ performed according to <a href="fbsd_upgrade.txt">this guide</a>.</p>
 
 <p><b>aliases:</b> pear, pecl</p>
 
-<p><b>technical contact:</b> Pair's ticket system <tt>qs AT pair.com</tt>.</p>
+<p><b>technical contact:</b> Pair's ticket system <tt>qs AT pair com</tt>.</p>
 
 <h2>rs1.php.net (64.246.30.37)</h2>
 
@@ -63,7 +63,7 @@ machine to track the usage of all of the machines.</p> -->
 
 <p><b>machine:</b>Dell PE 650, 1GB RAM, 120GB disk</p>
 <p><b>aliases:</b> bugs, embed, gtk, irssi.embed, museum, qa, smarty, snaps</p>
-<p><b>technical contact:</b> Ole Sigurd Nyvold Hansen (Ole.S.Hansen AT hit.no)</p>
+<p><b>technical contact:</b> Ole Sigurd Nyvold Hansen (Ole.S.Hansen AT hit no)</p>
 
 <h2>sp1.php.net (69.28.246.234)</h2>
 
@@ -75,7 +75,7 @@ machine to track the usage of all of the machines.</p> -->
 
 <p><b>machine:</b> Dual Xeon 2.4GHz, 1GB RAM, 36GB HD, RHEL 3</p>
 <p><b>aliases:</b> ecelerity, master.php.net, php.net MX</p>
-<p><b>technical contact:</b> Corey Shields, Oregon State OSL (cshields AT osuosl.org).
+<p><b>technical contact:</b> Corey Shields, Oregon State OSL (cshields AT osuosl org).
 	For support, (support AT osuosl.org)</p>
 
 <h2>oti1.php.net (66.80.117.35)</h2>
@@ -95,12 +95,12 @@ machine to track the usage of all of the machines.</p> -->
 <h2>y1.php.net (66.163.161.116)</h2>
 <p><b>machine:</b> Dual Xeon 3GHz, 4GB RAM, 6x73GB SCSI HD RAID10, 64-bit FreeBSD6</p>
 <p><b>aliases:</b> chora, cvs, cvsup, cvsweb, lxr, viewcvs</p>
-<p><b>technical contact:</b> Rasmus or Andrei</p>
+<p><b>technical contact:</b> Rasmus</p>
 
 <h2>y2.php.net (66.163.161.117)</h2>
 <p><b>machine:</b> Dual Xeon 2.8GHz, 4GB RAM, 2x73GB SCSI HD RAID1, 64-bit FreeBSD6</p>
 <p><b>aliases:</b> www, talks, conf, static, download</p>
-<p><b>technical contact:</b> Rasmus or Andrei</p>
+<p><b>technical contact:</b> Rasmus</p>
 
 <p>originally compiled by jim winstead, september 2001</p>
 <p>last update: $Id$</p>
