@@ -70,10 +70,22 @@ if (!$action) {
     }
     $sql .= ' LIMIT 20';
    } else {
-     $page = (int)$_REQUEST["page"];
+     $page = (int)$_REQUEST["page"];     
+     $type = isset($_REQUEST["type"]) ? $_REQUEST["type"] : 0;
+     
      if($page < 0) { $page = 0; }
      $limit = $page * 10; $page++;
-     $sql = "SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note ORDER BY id DESC LIMIT $limit, 10";
+     
+     /* First notes */
+     if ($type == 1) {
+     	$sql = "SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note ORDER BY id ASC LIMIT $limit, 10";
+     /* Minor notes */
+     } else if ($type == 2) {
+      $sql = "SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note ORDER BY LENGTH(note) ASC LIMIT $limit, 10"; 
+     /* Last notes */
+     } else {
+     	$sql = "SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note ORDER BY id DESC LIMIT $limit, 10";
+     }
    }
 
     if ($result = db_query($sql)) {
@@ -95,7 +107,7 @@ if (!$action) {
 	    "<hr />";
 		}
 		if(isset($_REQUEST["view"])) {
-			echo "<p><a href=\"?view=1&page=$page\">Next 10</a>";
+			echo "<p><a href=\"?view=1&page=$page&type=$type\">Next 10</a>";
 		}
       } else {
         echo "no results<br />";
@@ -120,7 +132,9 @@ if (!$action) {
 </form>
 
 <p><a href="<?php echo $_SERVER['PHP_SELF'];?>?action=mass">Mass change of sections</a></p>
-<p><a href="<?php echo $_SERVER['PHP_SELF'];?>?view=notes">View last 10 notes</a></p>
+<p><a href="<?php echo $_SERVER['PHP_SELF'];?>?view=notes&type=0">View last 10 notes</a></p>
+<p><a href="<?php echo $_SERVER['PHP_SELF'];?>?view=notes&type=1">View first 10 notes</a></p>
+<p><a href="<?php echo $_SERVER['PHP_SELF'];?>?view=notes&type=2">View minor 10 notes</a></p>
 <?php
 foot();
 exit;
