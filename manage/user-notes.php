@@ -71,7 +71,7 @@ if (!$action) {
     $sql .= ' LIMIT 20';
    } else {
      $page = (int)$_REQUEST["page"];     
-     $type = isset($_REQUEST["type"]) ? $_REQUEST["type"] : 0;
+     $type = isset($_REQUEST["type"]) ? intval($_REQUEST["type"]) : 0;
      
      if($page < 0) { $page = 0; }
      $limit = $page * 10; $page++;
