@@ -64,11 +64,12 @@ if (!$action) {
 
   if (isset($_REQUEST['keyword']) || isset($_REQUEST["view"])) {
    if(isset($_REQUEST['keyword'])) {
-    $sql = 'SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE note LIKE "%' . escape($_REQUEST['keyword']) . '%"';
+    $sql = 'SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE ';
     if (is_numeric($_REQUEST['keyword'])) {
-      $sql .= ' OR id = ' . $_REQUEST['keyword'];
+      $sql .= 'id = ' . (int) $_REQUEST['keyword'];
+    } else {
+      $sql .= 'note LIKE "%' . escape($_REQUEST['keyword']) . '%" LiMIT 20';
     }
-    $sql .= ' LIMIT 20';
    } else {
      $page = (int)$_REQUEST["page"];     
      $type = isset($_REQUEST["type"]) ? intval($_REQUEST["type"]) : 0;
