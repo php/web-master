@@ -9,6 +9,7 @@ include_once 'note-reasons.inc';
 //require_once 'alert_lib.inc'; // remove comment if alerts are needed
 
 define("NOTES_MAIL", "php-notes@lists.php.net");
+define("PHP_SELF", htmlentities($_SERVER['PHP_SELF'], ENT_QUOTES));
 
 $reject_text =
 'You are receiving this email because your note posted
@@ -118,7 +119,7 @@ if (!$action) {
 
 ?>
 <p>Search the notes table.</p>
-<form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
+<form method="post" action="<?php echo PHP_SELF; ?>">
 <table>
  <tr>   
   <th align="right">Keyword or ID:</th>
@@ -132,10 +133,10 @@ if (!$action) {
 </table>
 </form>
 
-<p><a href="<?php echo $_SERVER['PHP_SELF'];?>?action=mass">Mass change of sections</a></p>
-<p><a href="<?php echo $_SERVER['PHP_SELF'];?>?view=notes&type=0">View last 10 notes</a></p>
-<p><a href="<?php echo $_SERVER['PHP_SELF'];?>?view=notes&type=1">View first 10 notes</a></p>
-<p><a href="<?php echo $_SERVER['PHP_SELF'];?>?view=notes&type=2">View minor 10 notes</a></p>
+<p><a href="<?php echo PHP_SELF; ?>?action=mass">Mass change of sections</a></p>
+<p><a href="<?php echo PHP_SELF; ?>?view=notes&type=0">View last 10 notes</a></p>
+<p><a href="<?php echo PHP_SELF; ?>?view=notes&type=1">View first 10 notes</a></p>
+<p><a href="<?php echo PHP_SELF; ?>?view=notes&type=2">View minor 10 notes</a></p>
 <?php
 foot();
 exit;
@@ -181,7 +182,7 @@ case 'mass':
         $msg .= " to section <b>$_REQUEST[new_sect]</b>?";
         echo "<p>$msg</p>\n";
 ?>
-<form action="<?php echo $_SERVER['PHP_SELF']; ?>?action=mass" method="post">
+<form action="<?php echo PHP_SELF; ?>?action=mass" method="post">
 <input type="hidden" name="step" value="2">
 <input type="hidden" name="old_sect" value="<?php echo $_REQUEST["old_sect"]; ?>">
 <input type="hidden" name="ids" value="<?php echo $_REQUEST["ids"]; ?>">
@@ -201,7 +202,7 @@ case 'mass':
   }
   if ($step < 2) {
 ?>
-<form action="<?php echo $_SERVER['PHP_SELF']; ?>?action=mass" method="post">
+<form action="<?php echo PHP_SELF; ?>?action=mass" method="post">
 <input type="hidden" name="step" value="1">
 <p>Change section of notes which fit these criteria:</p>
 <table>
@@ -226,7 +227,7 @@ case 'mass':
 </form>
 <?php
   }
-  echo "<p><a href='{$_SERVER['PHP_SELF']}'>Back to notes index</a></p>\n";
+  echo "<p><a href='", PHP_SELF, "'>Back to notes index</a></p>\n";
   foot();
   exit;
 case 'approve':
@@ -323,7 +324,7 @@ case 'edit':
            stripslashes($email),"</span></p>";
     }
 ?>
-<form method="post" action="<?php echo $_SERVER['PHP_SELF'];?>">
+<form method="post" action="<?php echo PHP_SELF; ?>">
 <input type="hidden" name="id" value="<?php echo $id;?>" />
 <table>
  <tr>
