@@ -21,6 +21,12 @@ case "pear":
   $failto = 'pear-group@php.net';
   break;
 
+case "pecl":
+  $mailto = 'pecl-dev@lists.php.net';
+  $failto = 'group@php.net';
+  break;
+
+
 default:
   die ("Unknown group");
 }
