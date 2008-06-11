@@ -26,6 +26,10 @@ case "pecl":
   $failto = 'group@php.net';
   break;
 
+case "doc":
+  $mailto = 'phpdoc@lists.php.net';
+  $failto = 'group@php.net';
+  break;
 
 default:
   die ("Unknown group");
