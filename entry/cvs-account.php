@@ -2,15 +2,27 @@
 
 require 'email-validation.inc';
 
-$mailto = 'internals@lists.php.net';
-$failto = 'group@php.net';
-
-if (empty($name) || empty($email) || empty($username) || empty($passwd) || empty($note))
+if (empty($name) || empty($email) || empty($username) || empty($passwd) || empty($note) || empty($group))
   die("missing some parameters");
 
 // Sophisticated security/spam protection question
 if (empty($yesno) || $yesno != "yes") {
   die("You did not fill the form out correctly");
+}
+
+switch($group) {
+case "php":
+  $mailto = 'internals@lists.php.net';
+  $failto = 'group@php.net';
+  break;
+
+case "pear":
+  $mailto = 'pear-dev@lists.php.net';
+  $failto = 'pear-group@php.net';
+  break;
+
+default:
+  die ("Unknown group");
 }
 
 $username = strtolower($username);
@@ -47,7 +59,7 @@ $query .= "('$name','$email','$passwd','$username')";
 
 //echo "<!--$query-->\n";
 if (@mysql_query($query)) {
-  $new_id = mysql_insert_id();	
+  $new_id = mysql_insert_id();
 
   mysql_query("INSERT INTO users_note (userid, note, entered)"
              ." VALUES ($new_id, '$note', NOW())");
@@ -56,7 +68,10 @@ if (@mysql_query($query)) {
 
   $from = '"'.stripslashes($name).'" <'.stripslashes($email).">";
 
-  mail($mailto,"CVS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id@php.net>", "-fnoreply@php.net");
+  // The PEAR guys don't want these requests to their -dev@ list, only -group@
+  if ($group != "pear") {
+    mail($mailto,"CVS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id@php.net>", "-fnoreply@php.net");
+  }
 
   $msg .= "\n-- \n";
   $msg .= "approve: https://master.php.net/manage/users.php?action=approve&id=$new_id\n";
