@@ -76,8 +76,25 @@ The most likely reason is that you did not read the reasons for
 which CVS accounts are granted, and your request failed to meet
 the list of acceptable criteria.
 
-If you'd like to make another appeal for a CVS account, feel free
-to send us a note at group@php.net.";
+We urge you to make another appeal for a CVS account, but first
+it helps to write the appropriate list and:
+
+ * Introduce yourself
+ * Explain what you want to work on
+ * And show what work you've already done (patches)
+
+Choose a list that relates to your request:
+
+ * Internals:     internals@lists.php.net 
+ * Documentation: phpdoc@lists.php.net 
+ * PECL:          pecl-dev@lists.php.net 
+ * PEAR:          pear-group@lists.php.net 
+ * Other:         group@php.net 
+
+PHP accounts are granted to developers who have earned the trust
+of existing PHP developers through patches, and have demonstrated
+the ability to work with others.
+";
       mail($userinfo[email],"CVS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
       mail($mailto,$userinfo[cvsaccess] ? "CVS Account Deleted: $userinfo[username] deleted by $user" : "CVS Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
       db_query("DELETE FROM users_note WHERE userid=$id");
