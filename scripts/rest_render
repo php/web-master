@@ -23,10 +23,10 @@ function pregen_rest_files($rest_dir, $urls) {
 	foreach ($urls as $rel_path) {
 		$url = $base_url.$rel_path.'?view=co';
 		$string = file_get_contents($url);
-    if (!$string) {
+		if (!$string) {
 			trigger_error("FAIL. Someone mail systems@ and fix httpd on y1", E_USER_WARNING);
-      return;
-    }
+			return;
+		}
 
 		$document = Text_reST::parse($string);
 
