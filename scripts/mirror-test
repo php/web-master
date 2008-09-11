@@ -72,6 +72,9 @@ function host_has_error($hostname, $filename, &$data, &$problem) {
 
     // If we were unable to pass the HTTP headers, skip mirror site
     if ($line === FALSE || $line == "") {
+        if ($hostname == "tr.php.net") {
+            return FALSE;
+        }
         $problem = "Unable to get past HTTP response headers. Probably timeout.";
         return TRUE;
     }
