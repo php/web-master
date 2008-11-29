@@ -329,14 +329,14 @@ case 'edit':
 <table>
  <tr>
   <th align="right">Section:</th>
-  <td><input type="text" name="sect" value="<?php echo stripslashes($sect);?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="sect" value="<?php echo clean($sect);?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
   <th align="right">email:</th>
-  <td><input type="text" name="email" value="<?php echo stripslashes($email);?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="email" value="<?php echo clean($email);?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="note" cols="70" rows="15"><?php echo stripslashes($note);?></textarea></td>
+  <td colspan="2"><textarea name="note" cols="70" rows="15"><?php echo clean($note);?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
