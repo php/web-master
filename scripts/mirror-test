@@ -271,7 +271,7 @@ foreach ($hosts as $index => $host) {
 
     // -------------------------------------------------------------------------
     // Sixth HTTP request, checking for search capability (outbound connections)
-    // (See bug#46562)
+    // (See bug#46423)
 
     $url = "http://{$host['hostname']}/results.php?q=curl&p=manual&l=en";
     $headers = get_headers($url, 1);
