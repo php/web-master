@@ -341,4 +341,12 @@ if (intval(date("H")) == 0) {
         "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
     );
 }
+// If less then 70 mirrors updated there is something severly wrong. mail it.
+if ($mirrorsupdated < 70) {
+    @mail(
+        "php-webmaster@lists.php.net",
+        "[CRITICAL] Mirror site updates failure",
+        "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
+    );
+}
 
