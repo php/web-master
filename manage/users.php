@@ -1,4 +1,4 @@
-<?php
+<?php // vim: et ts=2 sw=2
 
 #TODO:
 # acls
@@ -7,6 +7,7 @@
 require_once 'login.inc';
 require_once 'functions.inc';
 require_once 'email-validation.inc';
+require_once dirname(__FILE__) . "/../include/svn-auth.inc";
 
 $mailto = "group@php.net";
 
@@ -124,7 +125,9 @@ if (isset($id) && isset($in)) {
     else {
       if ($in[rawpasswd]) {
         $in[passwd] = crypt($in[rawpasswd],substr(md5(time()),0,2));
+        $in[svnpasswd] = gen_svn_pass($in["username"], $in["rawpasswd"]);
       }
+
       $cvsaccess = $in[cvsaccess] ? 1 : 0;
       $enable = $in[enable] ? 1 : 0;
       $spamprotect = $in[spamprotect] ? 1 : 0;
@@ -137,6 +140,7 @@ if (isset($id) && isset($in)) {
         if (isset($in[email]) && isset($in[name])) {
           $query = "UPDATE users SET name='$in[name]',email='$in[email]'"
                  . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
+                 . ($in[svnpasswd] ? ",svnpasswd='$in[svnpasswd]'" : "")
                  . ((is_admin($user) && $in[username]) ? ",username='$in[username]'" : "")
                  . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
@@ -160,6 +164,7 @@ if (isset($id) && isset($in)) {
         $query = "INSERT users SET name='$in[name]',email='$in[email]'"
                . ($in[username] ? ",username='$in[username]'" : "")
                . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
+               . ($in[svnpasswd] ? ",svnpasswd='$in[svnpasswd]'" : "")
                . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                . ",spamprotect=$spamprotect"
                . ",use_sa=$use_sa"
