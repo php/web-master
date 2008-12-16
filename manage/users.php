@@ -126,6 +126,7 @@ if (isset($id) && isset($in)) {
       if ($in[rawpasswd]) {
         $in[passwd] = crypt($in[rawpasswd],substr(md5(time()),0,2));
         $in[svnpasswd] = gen_svn_pass($in["username"], $in["rawpasswd"]);
+        $in[md5passwd] = md5($in[rawpasswd]);
       }
 
       $cvsaccess = $in[cvsaccess] ? 1 : 0;
@@ -141,6 +142,7 @@ if (isset($id) && isset($in)) {
           $query = "UPDATE users SET name='$in[name]',email='$in[email]'"
                  . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
                  . ($in[svnpasswd] ? ",svnpasswd='$in[svnpasswd]'" : "")
+                 . ($in[md5passwd] ? ",md5passwd='$in[md5passwd]'" : "")
                  . ((is_admin($user) && $in[username]) ? ",username='$in[username]'" : "")
                  . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
@@ -165,6 +167,7 @@ if (isset($id) && isset($in)) {
                . ($in[username] ? ",username='$in[username]'" : "")
                . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
                . ($in[svnpasswd] ? ",svnpasswd='$in[svnpasswd]'" : "")
+               . ($in[md5passwd] ? ",md5passwd='$in[md5passwd]'" : "")
                . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                . ",spamprotect=$spamprotect"
                . ",use_sa=$use_sa"
