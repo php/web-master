@@ -25,6 +25,7 @@
 CREATE TABLE users (
   userid int(11) NOT NULL auto_increment,
   passwd varchar(16) NOT NULL default '',
+  svnpasswd varchar(32) NOT NULL default '',
   name varchar(255) NOT NULL default '',
   email varchar(255) NOT NULL default '',
   username varchar(16) default NULL,
