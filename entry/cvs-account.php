@@ -1,6 +1,7 @@
 <?php
 
 require 'email-validation.inc';
+require dirname(__FILE__) . '/../include/svn-auth.inc';
 
 if (empty($name) || empty($email) || empty($username) || empty($passwd) || empty($note) || empty($group))
   die("missing some parameters");
@@ -61,11 +62,13 @@ if ($res && mysql_num_rows($res))
 # TODO: fail if someone with that email address has an account. right now
 # this goes to the failto address since there's no password recovery
 # mechanism
+$passwd = stripslashes($passwd);
+$cvspasswd = crypt($passwd, substr(md5(time()), 0, 2));
+$md5passwd = md5($passwd);
+$svnpasswd = gen_svn_pass($username, $passwd);
 
-$passwd = crypt(stripslashes($passwd), substr(md5(time()), 0, 2));
-
-$query = "INSERT INTO users (name,email,passwd,username) VALUES ";
-$query .= "('$name','$email','$passwd','$username')";
+$query = "INSERT INTO users (name,email,passwd,svnpasswd,md5passwd,username) VALUES ";
+$query .= "('$name','$email','$cvspasswd','$svnpasswd','$md5passwd','$username')";
 
 //echo "<!--$query-->\n";
 if (@mysql_query($query)) {
@@ -95,7 +98,7 @@ if (@mysql_query($query)) {
       "Full name: $name\n".
       "Email:     $email\n".
       "ID:        $username\n".
-      "Password:  $passwd\n".
+      "Password:  $cvspasswd\n".
       "Purpose:   $note",
        "From: \"CVS Account Request\" <$email>");
 }

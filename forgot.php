@@ -1,5 +1,6 @@
-<?php
+<?php // vim: et ts=2 sw=2
 require 'functions.inc';
+require dirname(__FILE__) . "/include/svn-auth.inc";
 
 function random_password() {
   $alphanum = array_merge(range("a","z"),range("A","Z"),range(0,9));
@@ -11,6 +12,12 @@ function random_password() {
   return $return;
 }
 
+function username_from_forgotten($key, $id) {
+  $res = @mysql_query("SELECT username FROM users WHERE userid='$id' AND forgot='$key'");
+  if ($res && ($row = mysql_fetch_array($res,MYSQL_ASSOC))) {
+    return $row["username"];
+  }
+}
 head("forgotten password");
 
 mysql_connect("localhost","nobody","")
@@ -21,8 +28,11 @@ mysql_select_db("phpmasterdb")
 if ($id && $key) {
   if ($n1 && $n2) {
     if ($n1 == $n2) {
+      $sn1 = stripslashes($n1);
       $passwd = addslashes(crypt(stripslashes($n1), substr(md5(time()), 0, 2)));
-      $res = @mysql_query("UPDATE users SET forgot=NULL,passwd='$passwd' WHERE userid='$id' AND forgot='$key'");
+      $svnpasswd = gen_svn_pass(username_from_forgotten($key, $id), $sn1);
+      $md5passwd = md5($sn1);
+      $res = @mysql_query("UPDATE users SET forgot=NULL,passwd='$passwd',svnpasswd='$svnpasswd',md5passwd='$md5passwd' WHERE userid='$id' AND forgot='$key'");
       if ($res && mysql_affected_rows()) {
         echo '<p>Okay, your password has been changed. It could take as long as an hour before this change makes it to the CVS server and other services. To change your password again, you\'ll have to start this process over to get a new key.</p>';
         foot();
