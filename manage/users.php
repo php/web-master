@@ -211,6 +211,12 @@ table.useredit tr {
   	<input type="checkbox" name="in[enable]"<?php echo $row[enable] ? " checked" : "";?> /> Enable email for my account.
  </td>
 </tr>
+<?php if (!is_admin($user)) {?>
+<tr>
+ <th align="right">CVS username:</th>
+ <td><?php echo htmlspecialchars($row[username]);?></td>
+</tr>
+<?php } ?>
 <tr>
  <td colspan="2">Leave password fields blank to leave password unchanged.</td>
 </tr>
@@ -241,7 +247,7 @@ table.useredit tr {
 <tr>
  <th align="right">Use Challenge/Response spam protection?</th>
  <td><input type="checkbox" name="in[spamprotect]"<?php echo $row[spamprotect] ? " checked" : "";?> />
- <?php if ($username == $user) { ?>
+ <?php if ($row[username] == $user) { ?>
  <br/>
  <a href="challenge-response.php">Show people on my quarantine list</a>
  <?php } ?>
