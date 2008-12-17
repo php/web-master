@@ -125,7 +125,7 @@ if (isset($id) && isset($in)) {
     else {
       if ($in[rawpasswd]) {
         $in[passwd] = crypt($in[rawpasswd],substr(md5(time()),0,2));
-        $in[svnpasswd] = gen_svn_pass($in["username"], $in["rawpasswd"]);
+        $in[svnpasswd] = gen_svn_pass($user, $in["rawpasswd"]);
         $in[md5passwd] = md5($in[rawpasswd]);
       }
 
