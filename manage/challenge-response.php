@@ -11,19 +11,21 @@ head("challenge response anti-spam thingamy");
 
 @mysql_connect("localhost","nobody","")
   or die("unable to connect to database");
-@mysql_select_db("phpmasterdb");
+@mysql_select_db("phpmasterdb")
+  or die("unable to select database");
 
-if (isset($_POST['confirm_them']) && is_array($_POST['confirm'])) {
+if (isset($_POST['confirm_them']) && isset($_POST['confirm']) && is_array($_POST['confirm'])) {
 	foreach ($_POST['confirm'] as $address) {
-		$addr = mysql_escape_string($address);
+		$addr = mysql_real_escape_string($address);
 		db_query("insert into accounts.confirmed (email, ts) values ('$addr', NOW())");
 	}
 }
 
-$res = db_query("select distinct sender from phpmasterdb.users left join accounts.quarantine on users.email = rcpt where username='$user' and not isnull(id)");
+$user_db = mysql_real_escape_string($user);
+$res     = db_query("select distinct sender from phpmasterdb.users left join accounts.quarantine on users.email = rcpt where username='$user_db' and not isnull(id)");
 
 $inmates = array();
-while ($row = mysql_fetch_array($res)) {
+while ($row = mysql_fetch_row($res)) {
 	$inmates[] = $row[0];
 }
 
@@ -43,9 +45,9 @@ usort($inmates, 'sort_by_domain');
 
 ?>
 
-<h1>Addresses in quarantine for <?= $user ?>@php.net</h1>
+<h1>Addresses in quarantine for <?php echo htmlspecialchars($user, ENT_QUOTES); ?>@php.net</h1>
 
-<form method="post">
+<form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES); ?>">
 
 <table>
 	<tr>
@@ -55,13 +57,15 @@ usort($inmates, 'sort_by_domain');
 	</tr>
 
 <?php
+$i = 0;
 foreach ($inmates as $prisoner) {
 	list($localpart, $domain) = explode('@', $prisoner, 2);
+	$bgcolor = ($i & 1) ? '#eeeeee' : '#ffffff';
 ?>
-<tr>
-	<td><input type="checkbox" name="confirm[]" value="<?= htmlentities($prisoner) ?>"/></td>
-	<td align="right"><?= htmlentities($localpart) ?></td>
-	<td align="left">@<?= htmlentities($domain) ?></td>
+<tr bgcolor="<?php echo $bgcolor; ?>">
+	<td><input type="checkbox" name="confirm[]" value="<?php echo htmlspecialchars($prisoner, ENT_QUOTES) ?>"/></td>
+	<td align="right"><?php echo htmlspecialchars($localpart, ENT_QUOTES) ?></td>
+	<td align="left">@ <?php echo htmlspecialchars($domain, ENT_QUOTES) ?></td>
 </tr>
 <?php
 }
@@ -80,8 +84,12 @@ wait that long before the mail is delivered.
 </form>
 
 <?php
-$res = db_query("select count(id) from phpmasterdb.users left join accounts.quarantine on users.email = rcpt where username='$user'");
-$n = @mysql_result($res, 0);
+$res = db_query("select count(id) from phpmasterdb.users left join accounts.quarantine on users.email = rcpt where username='$user_db'");
+
+$n = 0;
+if (mysql_num_rows($res) > 0) {
+	$n = mysql_result($res, 0);
+}
 
 echo "You have <b>$n</b> messages in quarantine<br>";
 
