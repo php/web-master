@@ -172,7 +172,7 @@ function GenerateRSSHeader($headlines, &$RSS, $aboutLink) {
             "\t\t<rdf:Seq>\n";
     
     // Cycle through all the Resources on the RSS
-    foreach ($headlines as $headline) {
+    foreach ((array)$headlines as $headline) {
         $RSS .= "\t\t\t<rdf:li rdf:resource=\"" . $headline['link'] . "\" />\n";
     }
 

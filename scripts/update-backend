@@ -40,7 +40,7 @@ include "ip-to-country";
 fetch_ip_to_country($root);
 
 include "pregen_news";
-pregen_atom("$root/archive/", "$root/feed.atom", "$root/include/pregen-news.inc");
+pregen_atom("$root/archive/archive.atom", "$root/feed.atom", "$root/include/pregen-news.inc");
 include "rss_parser";
 legacy_rss("$root/feed.atom", "$root/news.rss", "$root/conferences/news.rss");
 

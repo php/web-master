@@ -11,58 +11,44 @@ function date_sort($a, $b) {
 $XML_OPTIONS =  LIBXML_COMPACT | LIBXML_NOBLANKS | LIBXML_NOCDATA | LIBXML_NSCLEAN | LIBXML_XINCLUDE;
 
 function pregen_atom($feed, $feedDest, $newsDest) {
-	$entries = format_atom_feed($feed, $y = date("Y"));
-	uasort($entries, "date_sort");
+	$dom = new DOMDocument;
+	$dom->preserveWhiteSpace = false;
+	$dom->formatOutput = true;
+
+	if (!$dom->load($feed, $GLOBALS["XML_OPTIONS"])) {
+		trigger_error("News feed b0rked!", E_USER_WARNING);
+		return;
+	}
+	if (!$dom->xinclude()) {
+		trigger_error("News items b0rked!", E_USER_WARNING);
+		return;
+	}
+
+	$timestamps = array();
+	foreach ($dom->getElementsByTagName("updated") as $node) {
+		$timestamps[] = strtotime($node->nodeValue, $_SERVER["REQUEST_TIME"]);
+	}
+	$updated = max($timestamps);
+	$upnode = $dom->createElement("updated", date(DATE_ATOM, $updated));
+	$dom->documentElement->insertBefore($upnode, $dom->getElementsByTagName("link")->item(0));
+
+	$feed = $dom->saveXML();
+	$entries = format_atom_feed($feed);
 
 	$write = '<?php $NEWS_ENTRIES = ' . var_export($entries, 1) . ';';
 	file_put_contents($newsDest, $write);
-
-	do {
-		$filename = $feed . $y .".xml";
-	} while (!file_exists($filename));
-	copy($filename, $feedDest);
+	file_put_contents($feedDest, $feed);
 }
 
-function format_atom_feed($feed, $year) {
-	static $frontpage = 0;
-	static $conf = 0;
-
-	// Lets only go back one year
-	if ($year < (date("Y")-1)) {
-		$frontpage = $conf = 100;
-		return array();
-	}
-
-	$filename = $feed . $year .".xml";
-
-	// January 1st...
-	if (!file_exists($filename)) {
-		return format_atom_feed($feed, --$year);
-	}
-
+function format_atom_feed($filename) {
 	$r = new XMLReader;
-	$r->open($filename, "UTF-8");
+	$r->XML($filename, "UTF-8");
 
 	$entries = array();
 	while($r->read()) {
 		if ($r->nodeType === XMLReader::ELEMENT && $r->name === "entry") {
 			$entries[] = $current = format_atom_entry($r);
-
-			// Count the frontpage & conference entries
-			foreach($current["category"] as $dog) {
-				if ($dog["term"] == "frontpage") {
-					++$frontpage;
-					break;
-				} else {
-					++$conf;
-				}
-			}
 		}
-	}
-
-	// Make sure we have enough entries to display (shortly after new-year..)
-	if (min($frontpage, $conf) < 5) {
-		$entries = array_merge($entries, format_atom_feed($feed, --$year));
 	}
 
 	return $entries;
