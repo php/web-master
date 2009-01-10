@@ -1,4 +1,4 @@
-<?php
+<?php /* vim: set noet ts=4 sw=4 ft=php: : */
 
 // This script will only work if included from "update-backend"!
 
