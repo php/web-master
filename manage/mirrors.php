@@ -431,8 +431,10 @@ function page_mirror_list()
     $versions = substr($versions, 0, -2);
 
     // Create version specific statistics
-    $stats['version5_percent'] = sprintf('%.1f%%', $stats['phpversion_counts'][5] / $stats['mirrors'] * 100);
-    
+    $stats['version5_percent']   = sprintf('%.1f%%', $stats['phpversion_counts'][5] / $stats['mirrors'] * 100);
+    $stats['has_search_percent'] = sprintf('%.1f%%', $stats['has_search']           / $stats['mirrors'] * 100);
+    $stats['has_stats_percent']  = sprintf('%.1f%%', $stats['has_stats']            / $stats['mirrors'] * 100);
+
     $last_check_time = get_print_date($checktime);
     
     $stats['ok'] = $stats['mirrors'] - $stats['autodisabled'] - $stats['disabled'];
@@ -466,12 +468,12 @@ echo <<<EOS
   <tr>
    <td><img src="/images/mirror_search.png" /></td>
    <td>SQLite:</td>
-   <td>{$stats['has_search']}</td>
+   <td>{$stats['has_search_percent']}</td>
   </tr>
   <tr>
    <td><img src="/images/mirror_stats.png" /></td>
    <td>Stats:</td>
-   <td>{$stats['has_stats']}</td>
+   <td>{$stats['has_stats_percent']}</td>
   </tr>
   <tr>
    <td><img src="/images/mirror_info.png" /></td>
