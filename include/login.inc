@@ -37,7 +37,7 @@ if (!$user || !$pw || !verify_password($user,$pw)) { ?>
 <table>
  <tr>
   <th align="right">Username:</th>
-  <td><input type="text" name="user" value="<?php echo clean($user);?>" />
+  <td><input type="text" name="user" value="<?php echo clean($user);?>" />@php.net
  </tr>
  <tr>
   <th align="right">Password:</th>
