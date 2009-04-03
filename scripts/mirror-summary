@@ -25,7 +25,7 @@ $lct = mysql_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY las
 list($checktime) = mysql_fetch_row($lct);
 
 // Select all mirrors ordered by hostname
-$query = "SELECT maintainer, hostname, id, UNIX_TIMESTAMP(lastupdated) AS lastupdate, " .
+$query = "SELECT maintainer, hostname, id, has_search, UNIX_TIMESTAMP(lastupdated) AS lastupdate, " .
          "phpversion, (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < lastchecked) AS active, " .
          "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < lastupdated) AS current, active AS enabled, acmt, ocmt " .
          "FROM mirrors ORDER BY hostname";
@@ -83,7 +83,7 @@ if (count($disabled)) {
 
 $body .= "\nAnd now for the rest of the mirrors:\n"
        . "----------------------------------------------------------------------------------------\n"
-       . " Host \t\t PHP Version \t\t Last Updated\n"
+       . " Host \t\t PHP Version \t\t SQLite \t\t Last Updated\n"
        . "----------------------------------------------------------------------------------------\n";
 
 /* A note about the padding - given that email readers produce interesting results for spacing,
@@ -108,7 +108,15 @@ function pad($deflen, $item) {
 
 for ($i=0; $i < $total; $i++) {
     if ($hosts[$i]['active'] && $hosts[$i]['current']){
-        $body .= sprintf(" %s%s%s%s%s\n", $hosts[$i]['hostname'], pad(11, "hostname"), $hosts[$i]['phpversion'], pad(5, "phpversion"), date("F j, Y, g:i a", $hosts[$i]['lastupdate']));
+
+        $has_search = empty($hosts[$i]['has_search']) ? 'N' : 'Y';
+
+        $body .= sprintf(" %s%s%s%s%s%s%s\n", 
+                      $hosts[$i]['hostname'],   pad(12,  'hostname'), 
+                      $hosts[$i]['phpversion'], pad(6, 'phpversion'), 
+                      $has_search,              pad(1, 'has_search'), 
+                      date('F j, Y, g:i a', $hosts[$i]['lastupdate'])
+                 );
     }
 }
 
