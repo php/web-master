@@ -174,7 +174,7 @@ function decipher_available_sqlites($avails) {
 	
 	foreach ($all as $bit => $name) {
 		if (($avails & $bit) === $bit) {
-			$mine[$num] = $name;
+			$mine[$bit] = $name;
 		} 
 	}
 	
