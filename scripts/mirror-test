@@ -151,9 +151,9 @@ foreach ($hosts as $index => $host) {
         $hosts[$index]['has_search'] = $info[3];
     }*/
     // Abuse the "has_search" SQL field to check for SQLite availability
-    if (in_array($info[3], array('0', '1'))) {
-        $hosts[$index]['has_search'] = $info[3];
-    }
+    // Currently only sqlite is used (ext/sqlite) but the future may change this
+    $hosts[$index]['has_search'] = (int) $info[3];
+
     // Update stats availability info 
     if (in_array($info[4], array('0', '1'))) {
         $hosts[$index]['has_stats'] = $info[4];

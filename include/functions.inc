@@ -143,3 +143,40 @@ function show_country_options($cc = "")
         echo "<option value=\"{$row['id']}\"", $cc == $row['id'] ? " selected" : "", ">{$row['name']}</option>";
     }
 }
+
+function is_sqlite_type_available($avails, $check) {
+
+	// All possible sqlite types associated with our assigned bitwise values
+	$all = array('sqlite' => 1, 'sqlite3' => 2, 'pdo_sqlite' => 4, 'pdo_sqlite2' => 8);
+	
+	if (!$avails || empty($all[$check])) {
+		return false;
+	}
+
+	$avail  = (int) $all[$check];
+	$avails = (int) $avails;
+	
+	if (($avails & $avail) === $avail) {
+		return true;
+	}
+	return false;
+}
+
+function decipher_available_sqlites($avails) {
+
+	$all    = array(1 => 'sqlite', 2 => 'sqlite3', 4 => 'pdo_sqlite', 8 => 'pdo_sqlite2');
+	$mine   = array();
+	$avails = (int) $avails;
+
+	if (($avails & 15) === 15) {
+		return $all;
+	}
+	
+	foreach ($all as $bit => $name) {
+		if (($avails & $bit) === $bit) {
+			$mine[$num] = $name;
+		} 
+	}
+	
+	return $mine;
+}

@@ -217,7 +217,7 @@ if (intval($id) !== 0) {
 -->
   <tr>
    <th align="right">SQLite available:</th>
-   <td><?php echo $row['has_search'] ? "Yes" : "No"; ?></td>
+   <td><?php echo implode(' : ', decipher_available_sqlites($row['has_search'])); ?></td>
   </tr>
   <tr>
    <th align="right">Local Stats:</th>
@@ -353,8 +353,10 @@ function page_mirror_list()
         */
 
         if ($row['has_search']) {
-            $searchcell = "SQLite";
-            $stats['has_search']++;
+            $searchcell = "SQLite 2";
+            if (is_sqlite_type_available($row['has_search'], 'sqlite')) {
+                $stats['has_search']++;
+            }
         } else {
             $searchcell = "&nbsp;";
         }
