@@ -10,6 +10,7 @@ db_connect();
 // Get boolean values from form
 $active     = isset($active)     ? 1 : 0;
 $has_stats  = isset($has_stats)  ? 1 : 0;
+$moreinfo   = empty($_GET['mi']) ? 0 : 1;
 
 // Select last mirror check time from table
 $lct = db_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY lastchecked DESC LIMIT 1");
@@ -247,14 +248,14 @@ if (intval($id) !== 0) {
     exit();
 }
 
-page_mirror_list();
+page_mirror_list($moreinfo);
 
 foot();
 
 // =============================================================================
 
 // Mirror listing page function
-function page_mirror_list()
+function page_mirror_list($moreinfo = false)
 {
     global $checktime;
     
@@ -419,6 +420,13 @@ function page_mirror_list()
                         "<td colspan=\"7\"><img src=\"/images/mirror_info.png\" /> " .
                         nl2br($errorinfo) . "</td></tr>";
         }
+        // If additional details are desired
+        if ($moreinfo) {
+            $summary .= '<tr><tr bgcolor="#e0e0e0"><td bgcolor="#ffffff">&nbsp;</td>' .
+                        '<td colspan="7">' . 
+                            "Last -- Update: $row[ulastupdated] Check: $row[ulastchecked]" .
+                        '</td></tr>';
+        }
     }
 
     $summary .= '</table></div>';
@@ -438,6 +446,7 @@ function page_mirror_list()
     $stats['has_stats_percent']  = sprintf('%.1f%%', $stats['has_stats']            / $stats['mirrors'] * 100);
 
     $last_check_time = get_print_date($checktime);
+    $current_time    = get_print_date(time());
     
     $stats['ok'] = $stats['mirrors'] - $stats['autodisabled'] - $stats['disabled'];
 
@@ -484,11 +493,14 @@ echo <<<EOS
   </tr>
  </table>
  <h1>Resources</h1>
+ <a href="/manage/mirrors.php?mi=1">See more info</a><br />
  <a href="http://php.net/mirroring.php" target="_blank">Guidelines</a><br />
  <a href="mailto:mirrors@php.net">Mailing list</a><br />
  <a href="http://www.iana.org/cctld/cctld-whois.htm" target="_blank">Country TLDs</a>
  <h1>Last check time</h1>
  {$last_check_time}
+ <h1>Current time</h1>
+ {$current_time} 
 </div>
 
 <p>
