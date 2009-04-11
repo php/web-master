@@ -422,7 +422,7 @@ function page_mirror_list($moreinfo = false)
         if ($moreinfo) {
             $summary .= '<tr><tr bgcolor="#e0e0e0"><td bgcolor="#ffffff">&nbsp;</td>' .
                         '<td colspan="7">' . 
-                            ' Last update: ' . date($row['ulastupdated'], DATE_RSS) . 
+                            ' Last update: ' . date(DATE_RSS, $row['ulastupdated']) . 
                             ' SQLites: '     . implode(' : ', decipher_available_sqlites($row['has_search'])) .
                         '</td></tr>';
         }
