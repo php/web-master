@@ -353,11 +353,9 @@ function page_mirror_list($moreinfo = false)
         if (!$searchcell) { $searchcell = "&nbsp;"; }
         */
 
-        if ($row['has_search']) {
+        if (is_sqlite_type_available($row['has_search'], 'sqlite')) {
             $searchcell = "SQLite 2";
-            if (is_sqlite_type_available($row['has_search'], 'sqlite')) {
-                $stats['has_search']++;
-            }
+            $stats['has_search']++;
         } else {
             $searchcell = "&nbsp;";
         }
@@ -424,7 +422,8 @@ function page_mirror_list($moreinfo = false)
         if ($moreinfo) {
             $summary .= '<tr><tr bgcolor="#e0e0e0"><td bgcolor="#ffffff">&nbsp;</td>' .
                         '<td colspan="7">' . 
-                            "Last -- Update: $row[ulastupdated] Check: $row[ulastchecked]" .
+                            ' Last update: ' . date($row['ulastupdated'], DATE_RSS) . 
+                            ' SQLites: '     . implode(' : ', decipher_available_sqlites($row['has_search'])) .
                         '</td></tr>';
         }
     }
@@ -448,7 +447,8 @@ function page_mirror_list($moreinfo = false)
     $last_check_time = get_print_date($checktime);
     $current_time    = get_print_date(time());
     
-    $stats['ok'] = $stats['mirrors'] - $stats['autodisabled'] - $stats['disabled'];
+    $stats['ok']   = $stats['mirrors'] - $stats['autodisabled'] - $stats['disabled'];
+    $moreinfo_flag = empty($moreinfo) ? 1 : 0;
 
 echo <<<EOS
 <div id="resources">
@@ -493,7 +493,7 @@ echo <<<EOS
   </tr>
  </table>
  <h1>Resources</h1>
- <a href="/manage/mirrors.php?mi=1">See more info</a><br />
+ <a href="/manage/mirrors.php?mi={$moreinfo_flag}">See more info</a><br />
  <a href="http://php.net/mirroring.php" target="_blank">Guidelines</a><br />
  <a href="mailto:mirrors@php.net">Mailing list</a><br />
  <a href="http://www.iana.org/cctld/cctld-whois.htm" target="_blank">Country TLDs</a>
