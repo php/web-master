@@ -21,6 +21,11 @@ function day($in) {
 if (empty($sdesc) || empty($email) || empty($country) || empty($category) || empty($type) || empty($url))
   die("missing some parameters.");
 
+// The answer to the "spam question"
+if ($sane != 3) {
+	die("I feel for you");
+}
+
 @mysql_connect("localhost","nobody", "")
   or die("failed to connect to database");
 @mysql_select_db("phpmasterdb")
