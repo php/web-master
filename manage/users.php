@@ -4,18 +4,16 @@
 # acls
 # handle flipping of the sort views
 
-require_once 'login.inc';
-require_once 'functions.inc';
-require_once 'email-validation.inc';
-require_once dirname(__FILE__) . "/../include/svn-auth.inc";
+require '../include/login.inc';
+require '../include/functions.inc';
+require '../include/email-validation.inc';
+require dirname(__FILE__) . "/../include/svn-auth.inc";
 
 $mailto = "group@php.net";
 
 head("user administration");
 
-@mysql_connect("localhost","nobody","")
-  or die("unable to connect to database");
-@mysql_select_db("phpmasterdb");
+db_connect();
 
 # ?username=whatever will look up 'whatever' by email or cvs username
 if (isset($username) && !isset($id)) {
@@ -342,7 +340,12 @@ if ($searchby)
 $res = db_query($query);
 $total = mysql_result($res,0);
 
-$query = "SELECT DISTINCT users.userid,cvsaccess,username,name,email,note FROM users LEFT JOIN users_note USING (userid) $searchby group by userid $orderby $limit";
+
+if ($searchby) {
+  $query = "SELECT DISTINCT users.userid,cvsaccess,username,name,email,note FROM users LEFT JOIN users_note USING (userid) $searchby group by userid $orderby $limit";
+} else {
+  $query = "SELECT DISTINCT users.userid,cvsaccess,username,name,email FROM users $orderby $limit";
+}
 
 #echo "<pre>$query</pre>";
 $res = db_query($query);
@@ -406,7 +409,7 @@ function invalid_input($in) {
 
 function is_admin($user) {
   #TODO: use acls, once implemented.
-  if (in_array($user,array("jimw","rasmus","andrei","zeev","andi","sas","thies","rubys","ssb", "wez", "philip", "davidc", "helly","derick"))) return true;
+  if (in_array($user,array("jimw","rasmus","andrei","zeev","andi","sas","thies","rubys","ssb", "wez", "philip", "davidc", "helly","derick", "bjori"))) return true;
 }
 
 # returns false if $user is not allowed to modify $userid
