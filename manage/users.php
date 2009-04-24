@@ -6,7 +6,6 @@
 
 require '../include/login.inc';
 require '../include/email-validation.inc';
-require dirname(__FILE__) . "/../include/svn-auth.inc";
 
 $mailto = "group@php.net";
 
