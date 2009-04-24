@@ -18,25 +18,22 @@ function head($title="") {
 ?>
 <html>
 <head>
- <title><?php echo $title;?></title>
- <link rel="stylesheet" type="text/css" href="/style.css" />
- <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+  <title>PHP: <?php echo $title ?></title>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link type="text/css" media="all" rel="stylesheet" href="/style.css" />
+  <link rel="shortcut icon" href="http://php.net/favicon.ico" />
 </head>
+
 <body>
- <div id="header">
-  <div id="logo">
-   <a href="http://www.php.net/">
-    <img src="/include/logo.gif" width="53" height="28" border="0" alt="php" align="absmiddle" />
-   </a>
-  </div>
-  <div id="links">
-   <a href="/manage/event.php">events</a> &bull;
-   <a href="/inventory.php">inventory</a> &bull;
-   <a href="/manage/mirrors.php">mirrors</a> &bull;
-   <a href="/manage/users.php">users</a> &bull;
-   <a href="/manage/user-notes.php">notes</a>
-  </div>
- </div>
+  <h1 id="header"><a href="http://php.net/index.php">PHP: Hypertext Preprocessor</a> - <?php echo $title ?></h1>
+  <ul id="mainmenu">
+    <li><a href="/manage/event.php">Events</a></li>
+    <li><a href="/manage/mirrors.php">Mirrors</a></li>
+    <li><a href="/manage/users.php">Users</a></li>
+    <li><a href="/manage/user-notes.php">Notes</a></li>
+    <li><a href="http://wiki.php.net/">Wiki</a></li>
+    <li><a href="http://bugs.php.net/">Bugsweb</a></li>
+  </ul>
 <?php
 }
 
@@ -74,9 +71,11 @@ function db_connect($dieonerror = TRUE)
 
 function db_query($query)
 {
+	//var_dump($query);
     $res = @mysql_query($query);
     if (!$res) {
-        die(format_warn("Query failed: " . hsc(mysql_error()) . "<tt>\n" . hsc($query) . "</tt>"));
+        $bt = debug_backtrace();
+        die(format_warn("Query failed: " . hsc(mysql_error()) . "<tt>\n" . hsc($query) . "</tt><br />({$bt[0]['file']}:{$bt[0]['line']})"));
     }
     return $res;
 }
