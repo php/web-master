@@ -5,7 +5,6 @@
 # handle flipping of the sort views
 
 require '../include/login.inc';
-require '../include/functions.inc';
 require '../include/email-validation.inc';
 require dirname(__FILE__) . "/../include/svn-auth.inc";
 
