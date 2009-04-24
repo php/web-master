@@ -2,10 +2,9 @@
 // $Id$
 
 // Force login before action can be taken
-include_once 'login.inc';
-include_once 'functions.inc';
-include_once 'email-validation.inc';
-include_once 'note-reasons.inc';
+include '../include/login.inc';
+include '../include/email-validation.inc';
+include '../include/note-reasons.inc';
 //require_once 'alert_lib.inc'; // remove comment if alerts are needed
 
 define("NOTES_MAIL", "php-notes@lists.php.net");
@@ -43,7 +42,7 @@ $id = (isset($_REQUEST['id']) ? intval($_REQUEST['id']) : '');
 
 if (!$action) {
   // search !
-  head();
+  head("user notes");
 
   // someting done before ?
   if ($id) {
@@ -151,7 +150,7 @@ if (preg_match("/^(.+)\\s+(\\d+)\$/", $action, $m)) {
 switch($action) {
 case 'mass':
   if (!allow_mass_change($user)) { die("You are not allowed to take this action!"); }
-  head();
+  head("user notes");
   $step = (isset($_REQUEST["step"]) ? $_REQUEST["step"] : 0);
   $where = array();
   if (!empty($_REQUEST["old_sect"])) {
@@ -289,7 +288,7 @@ case 'edit':
   if ($id) {
     $note = (isset($_POST['note']) ? escape($_POST['note']) : null);
     if (!isset($note) || $action == 'preview') {
-      head();
+      head("user notes");
     }
 
     $row = note_get_by_id($id);
@@ -352,7 +351,7 @@ case 'edit':
   }
   /* falls through */
 default:
-  head();
+  head('user notes');
   echo "<p>'$action' is not a recognized action, or no id was specified.</p>";
   foot();
 }

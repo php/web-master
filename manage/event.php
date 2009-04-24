@@ -1,7 +1,6 @@
 <?php
-require_once 'login.inc';
-require_once 'functions.inc';
-require_once 'email-validation.inc';
+require '../include/login.inc';
+require '../include/email-validation.inc';
 
 $mailto = "php-webmaster@lists.php.net";
 #$mailto = "jimw@apache.org";
@@ -20,10 +19,7 @@ $cat = array("unknown", "User Group Event", "Conference", "Training");
 $type = array(1=>'single',2=>'multi',3=>'recur');
 
 head("event administration");
-
-@mysql_connect("localhost","nobody","")
-  or die("unable to connect to database");
-@mysql_select_db("phpmasterdb");
+db_connect();
 
 if (isset($id)) $id = (int)$id;
 

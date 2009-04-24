@@ -1,7 +1,6 @@
 <?php // vim: et
 // Force login and include common functions
-include_once 'login.inc';
-include_once 'functions.inc';
+include '../include/login.inc';
 
 // This page is for mirror administration
 head("mirror administration");
