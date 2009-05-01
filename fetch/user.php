@@ -1,5 +1,6 @@
 <?php // vim: et ts=4 sw=4
-function error($text, $status) {
+function error($text, $status)
+{
     switch((int)$status) {
     default:
     case 500:
@@ -18,7 +19,7 @@ function error($text, $status) {
     exit;
 }
 
-(!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e") && error("token not correct.", 401);
+(!isset($token) || md5($token) != "d3fbcabfcf3648095037175fdeef322f") && error("token not correct.", 401);
 
 $USERNAME = filter_input(INPUT_GET, "username", FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
 
@@ -27,12 +28,11 @@ $pdo = new PDO("mysql:host=localhost;dbname=phpmasterdb", "nobody", "");
 $stmt = $pdo->prepare("SELECT userid, name, email, username, spamprotect, use_sa, greylist, enable FROM users WHERE username = ? AND cvsaccess LIMIT 1");
 if (!$stmt->execute(array($USERNAME))) {
     error("This error should never happen", 500);
-    exit;
 }
 
 $results = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$results) {
-    echo error(array("error" => "No such user"), 404);
+    error(array("error" => "No such user"), 404);
 }
 
 $stmt = $pdo->prepare("SELECT note, entered FROM users_note WHERE userid = ?");
