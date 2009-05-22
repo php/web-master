@@ -1,8 +1,8 @@
 <?php
 /* $Id$ */
 
-include_once 'cvs-auth.inc';
-include_once 'functions.inc';
+require 'cvs-auth.inc';
+require 'functions.inc';
 
 // User not logged in
 $user = $pw = FALSE;
@@ -14,7 +14,9 @@ if (isset($_POST['save']) && isset($_POST['user']) && isset($_POST['pw'])) {
         base64_encode("{$_POST['user']}:{$_POST['pw']}"),
         time()+3600*24*12,
         '/',
-        '.php.net'
+        '.php.net',
+        false, // Secure
+        true   // HTTP Only
     );
     list($user, $pw) = array($_POST['user'], $_POST['pw']);
 }
