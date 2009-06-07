@@ -32,7 +32,7 @@ if (!$stmt->execute(array($USERNAME))) {
 
 $results = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$results) {
-    error(array("error" => "No such user"), 404);
+    error("No such user", 404);
 }
 
 $stmt = $pdo->prepare("SELECT note, entered FROM users_note WHERE userid = ?");
