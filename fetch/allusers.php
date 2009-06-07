@@ -21,8 +21,6 @@ function error($text, $status)
 
 (!isset($token) || md5($token) != "d3fbcabfcf3648095037175fdeef322f") && error("token not correct.", 401);
 
-$USERNAME = filter_input(INPUT_GET, "username", FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
-
 $pdo = new PDO("mysql:host=localhost;dbname=phpmasterdb", "nobody", "");
 
 $stmt = $pdo->prepare("SELECT name, username FROM users WHERE enable AND cvsaccess");
