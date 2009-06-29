@@ -33,25 +33,46 @@ function pregenerate_version_feed($v, $r, $output) {
 
     $LAST_UPDATED = 0;
     foreach($RELEASES as $major => $release) {
-        list($version, $info) = each($release);
-        $rc = false;
+        for ($i=1; $i<=2; ++$i) {
+            list($version, $info) = each($release);
+            if (!$version) {
+                var_dump("Skipping $version");
+                continue;
+            }
+            $rc = false;
 
-        do {
             $rel = $doc->createElement("entry");
 
             $title = $doc->createElement("title", "PHP $version released!");
             $rel->appendChild($title);
             $rel->appendChild($doc->createElement("php:version", $version));
 
-            $tmp = $rc ? "PHP_{$major}_RC_DATE" : "PHP_{$major}_DATE";
+            $var = null;
+            if ($rc) {
+                $var = "PHP_{$major}_DATE";
+                if (isset($var)) {
+                    $tmp = "PHP_{$major}_DATE";
+                } else {
+                    $minor = round($version, 1);
+                    $tmp = "PHP_{$minor}_DATE";
+                }
+            } else {
+                $var = "PHP_{$major}_RC_DATE";
+                if (isset($var)) {
+                    $tmp = "PHP_{$major}_RC_DATE";
+                } else {
+                    $minor = round($version, 1);
+                    $tmp = "PHP_{$minor}_RC_DATE";
+                }
+            }
 
             $published = $updated = strtotime($$tmp);
             $date = $doc->createElement("published", date(DATE_ATOM, $published));
             $rel->appendChild($date);
 
             $sources = array();
-            if (isset($info["source"], $info["windows"]) && !$rc) {
-                $sources = array_merge($info["source"], $info["windows"]);
+            if (isset($info["source"]) && !$rc) {
+                $sources = $info["source"];
                 $node = $doc->createElement("summary", $ANNOUNCEMENT_TEXT);
                 $node->setAttribute("type", "html");
             } elseif ($rc) {
@@ -102,13 +123,8 @@ function pregenerate_version_feed($v, $r, $output) {
             $nodes[] = $rel;
 
             list($version, $info) = each($release);
-            if ($version) {
-                $rc = true;
-                continue;
-            }
-
-            break;
-        } while(1);
+            $rc = stripos($version, "rc") !== false;
+        }
 
     }
     $feed->appendChild($doc->createElement("updated", date(DATE_ATOM, $LAST_UPDATED)));
