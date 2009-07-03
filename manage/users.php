@@ -302,51 +302,52 @@ table.useredit tr {
   exit;
 }
 ?>
-<table width="100%">
- <tr>
-  <td>
-    <a href="<?php echo "$PHP_SELF?username=$user";?>">edit your entry</a>
-  | <a href="<?php echo "$PHP_SELF?unapproved=1";?>">see outstanding requests</a>
-  </td>
-  <td align="right">
+<div>
+<div style="float:right">
    <form method="GET" action="<?php echo $PHP_SELF;?>">
     <input type="text" name="search" value="<?php echo clean($search);?>" />
-    <input type="submit" value="search">
+    <input type="submit" value="search"><br>
+    <input type="checkbox" name="searchnotes" value="1" <?php echo isset($_GET['searchnotes']) ? 'checked="checked"' : ''?>> Search notes
    </form>
- </tr>
-</table>
+</div>
+<div>
+    <a href="<?php echo "$PHP_SELF?username=$user";?>">edit your entry</a>
+  | <a href="<?php echo "$PHP_SELF?unapproved=1";?>">see outstanding requests</a>
+</div>
+</div>
 <?php
 
 $begin = $begin ? (int)$begin : 0;
 $full = $full ? 1 : (!isset($full) && ($search || $unapproved) ? 1 : 0);
 $max = $max ? (int)$max : 20;
+$searchnotes = !empty($_GET['searchnotes']);
 
-$limit = "LIMIT $begin,$max";
-$orderby = $order ? "ORDER BY $order" : "";
-
-$searchby = $search ? "WHERE (MATCH(name,email,username) AGAINST ('$search') OR MATCH(note) AGAINST ('$search') OR username = '$search')" : "";
-if (!$searchby && $unapproved) {
-  $searchby = 'WHERE (username IS NOT NULL AND NOT cvsaccess)';
-}
-elseif ($unapproved) {
-  $searchby .= ' AND (username IS NOT NULL AND NOT cvsaccess)';
-}
-
-$query = "SELECT DISTINCT COUNT(users.userid) FROM users";
-if ($searchby)
-  $query .= " LEFT JOIN users_note USING(userid) $searchby";
-$res = db_query($query);
-$total = mysql_result($res,0);
-
-
-if ($searchby) {
-  $query = "SELECT DISTINCT users.userid,cvsaccess,username,name,email,note FROM users LEFT JOIN users_note USING (userid) $searchby group by userid $orderby $limit";
+$query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email FROM users ";
+if  ($search) {
+    $where = "WHERE (MATCH(name,email,username) AGAINST ('$search') OR username = '$search') ";
+    if ($searchnotes) {
+        $query .= " LEFT JOIN users_note USING(userid) $where OR MATCH(note) AGAINST ('$search') ";
+    } else {
+        $query .= $where;
+    }
 } else {
-  $query = "SELECT DISTINCT users.userid,cvsaccess,username,name,email FROM users $orderby $limit";
+    $query .= ' WHERE 1=1 ';
 }
 
-#echo "<pre>$query</pre>";
+if ($unapproved) {
+    $query .= ' AND (username IS NOT NULL AND NOT cvsaccess) ';
+}
+
+if ($order) {
+    $query .= " ORDER BY $order ";
+}
+$query .= " LIMIT $begin,$max ";
 $res = db_query($query);
+#echo $query;
+
+$res2 = db_query("SELECT FOUND_ROWS()");
+$total = mysql_result($res2,0);
+
 
 $extra = array(
   "search" => stripslashes($search),
@@ -355,6 +356,7 @@ $extra = array(
   "max" => $max,
   "full" => $full,
   "unapproved" => $unapproved,
+  "searchnotes" => (int)$search_notes,
 );
 
 show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
