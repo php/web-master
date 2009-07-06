@@ -324,11 +324,21 @@ $searchnotes = !empty($_GET['searchnotes']);
 
 $query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email FROM users ";
 if  ($search) {
-    $where = "WHERE (MATCH(name,email,username) AGAINST ('$search') OR username = '$search') ";
+    $query .= "WHERE (MATCH(name,email,username) AGAINST ('$search') OR username = '$search') ";
+
     if ($searchnotes) {
-        $query .= " LEFT JOIN users_note USING(userid) $where OR MATCH(note) AGAINST ('$search') ";
-    } else {
-        $query .= $where;
+        $in = '';
+        $notes_query = "SELECT userid FROM users_note WHERE MATCH(note) AGAINST ('$search')";
+        $res = db_query($notes_query);
+        while ($row = mysql_fetch_array($res)) {
+            if ($in) {
+                $in .= ', ';
+            }
+            $in .= $row[0];
+        }
+        if ($in) {
+            $query .= " OR userid IN ($in) ";
+        }
     }
 } else {
     $query .= ' WHERE 1=1 ';
@@ -356,7 +366,7 @@ $extra = array(
   "max" => $max,
   "full" => $full,
   "unapproved" => $unapproved,
-  "searchnotes" => (int)$search_notes,
+  "searchnotes" => (int)$searchnotes,
 );
 
 show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
