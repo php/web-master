@@ -15,9 +15,6 @@ if (@mysql_connect("localhost","nobody","")) {
       while ($row = @mysql_fetch_array($res)) {
         printf("%s:%s:%s\n", $row["username"], REALM, $row["svnpasswd"]);
       }
-
-      # the read-only svnread account
-      printf("%s:%s:%s\n", "svnread", REALM, gen_svn_pass("svnread", "svnread"));
     }
   }
 }
