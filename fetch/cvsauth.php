@@ -84,7 +84,12 @@ if (md5($token) != "a37f2f560c173675e839b02a89ce8104") {
 	exit_forbidden(E_UNKNOWN);
 }
 
-if (!verify_password($username, $password)) {
+$pass = find_password($username);
+if (strlen($pass) < 1) {
+	exit_forbidden(E_USERNAME);
+}
+
+if (!verify_login($pass, $password)) {
 	exit_forbidden(E_PASSWORD);
 }
 
