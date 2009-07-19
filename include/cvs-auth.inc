@@ -7,20 +7,19 @@ require dirname(__FILE__) . "/svn-auth.inc";
 
 function find_password($user)
 {
-    if (LOGIN_IGNORE_PWD) return " "; // should be at least one char
-    $fp = fopen(LOGIN_PWD_FILE, "r");
-    if (!$fp) {
-        die("ERROR: Unable to open CVS users file!");
+    @mysql_connect("localhost","nobody","")
+        or die("unable to connect to database");
+    @mysql_select_db("phpmasterdb");
+
+    $username = escape($user);
+    $res = @mysql_query("SELECT passwd FROM users WHERE passwd != '' AND cvsaccess AND username = '$username'");
+
+    // Nonexisting?..
+    if ($res && mysql_num_rows($res) == 1) {
+        $row = @mysql_fetch_array($res);
+        return $row["passwd"];
     }
-    while(!feof($fp)) {
-        $line = fgets($fp, 120);
-        list($luser, $passwd, $junk) = explode(":", $line);
-        if ($user == $luser) {
-            fclose($fp);
-            return $passwd;
-        }
-    }
-    fclose($fp);
+
     return "";
 }
 
