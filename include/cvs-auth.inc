@@ -4,7 +4,7 @@
 define("LOGIN_IGNORE_PWD", FALSE);
 define("LOGIN_PWD_FILE",   "/repository/CVSROOT/passwd");
 require dirname(__FILE__) . "/svn-auth.inc";
-require_once dirname(__FILE__) . "/functions.inc";
+//require_once dirname(__FILE__) . "/functions.inc";
 
 function find_password($user)
 {
