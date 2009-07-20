@@ -33,6 +33,7 @@ if (isset($a["errno"])) {
 echo $a["SUCCESS"], "\n";
 */
 
+require 'functions.inc';
 require 'cvs-auth.inc';
 
 # Error constants
