@@ -13,7 +13,7 @@ head("user administration");
 
 db_connect();
 
-# ?username=whatever will look up 'whatever' by email or cvs username
+# ?username=whatever will look up 'whatever' by email or svn username
 if (isset($username) && !isset($id)) {
   $query = "SELECT userid FROM users"
          . " WHERE username='$username' OR email='$username'";
@@ -36,17 +36,17 @@ if (isset($id) && isset($action)) {
      && mysql_affected_rows()) {
       $userinfo = fetch_user($id);
       $message =
-"Your CVS account ($userinfo[username]) was created.
+"Your SVN account ($userinfo[username]) was created.
 
-You should be able to log into the CVS server within the hour, and
+You should be able to log into the SVN server within the hour, and
 your $userinfo[username]@php.net forward to $userinfo[email] should
 be active within the next 24 hours.
 
 Welcome to the PHP development team! If you encounter any problems
-with your CVS account, feel free to send us a note at group@php.net.";
-      mail($userinfo[email],"CVS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
+with your SVN account, feel free to send us a note at group@php.net.";
+      mail($userinfo[email],"SVN Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
 
-      mail($mailto,"CVS Account Request: $userinfo[username] approved by $user","Approved $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
+      mail($mailto,"SVN Account Request: $userinfo[username] approved by $user","Approved $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
         exit;
@@ -54,7 +54,7 @@ with your CVS account, feel free to send us a note at group@php.net.";
       warn("record $id ($userinfo[username]) approved");
     }
     else {
-      warn("wasn't able to grant cvs access to id $id.");
+      warn("wasn't able to grant svn access to id $id.");
     }
     break;
   case 'remove':
@@ -62,18 +62,18 @@ with your CVS account, feel free to send us a note at group@php.net.";
     if (db_query("DELETE FROM users WHERE userid=$id")
      && mysql_affected_rows()) {
       $message = $userinfo[cvsaccess] ? 
-"Your CVS account ($userinfo[username]) was deleted.
+"Your SVN account ($userinfo[username]) was deleted.
 
 Feel free to send us a note at group@php.net to find out why this
 was done."
 :
-"Your CVS account request ($userinfo[username]) was denied.
+"Your SVN account request ($userinfo[username]) was denied.
 
 The most likely reason is that you did not read the reasons for
-which CVS accounts are granted, and your request failed to meet
+which SVN accounts are granted, and your request failed to meet
 the list of acceptable criteria.
 
-We urge you to make another appeal for a CVS account, but first
+We urge you to make another appeal for a SVN account, but first
 it helps to write the appropriate list and:
 
  * Introduce yourself
@@ -92,8 +92,8 @@ PHP accounts are granted to developers who have earned the trust
 of existing PHP developers through patches, and have demonstrated
 the ability to work with others.
 ";
-      mail($userinfo[email],"CVS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
-      mail($mailto,$userinfo[cvsaccess] ? "CVS Account Deleted: $userinfo[username] deleted by $user" : "CVS Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
+      mail($userinfo[email],"SVN Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
+      mail($mailto,$userinfo[cvsaccess] ? "SVN Account Deleted: $userinfo[username] deleted by $user" : "SVN Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
       db_query("DELETE FROM users_note WHERE userid=$id");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
@@ -209,7 +209,7 @@ table.useredit tr {
 </tr>
 <?php if (!is_admin($user)) {?>
 <tr>
- <th align="right">CVS username:</th>
+ <th align="right">SVN username:</th>
  <td><?php echo htmlspecialchars($row[username]);?></td>
 </tr>
 <?php } ?>
@@ -230,13 +230,13 @@ table.useredit tr {
  <td><input type="text" name="in[passwd]" value="<?php echo htmlspecialchars($row[passwd]);?>" size="20" maxlength="20" /></td>
 </tr>
 <tr>
- <th align="right">CVS username:</th>
+ <th align="right">SVN username:</th>
  <td><input type="text" name="in[username]" value="<?php echo htmlspecialchars($row[username]);?>" size="16" maxlength="16" /></td>
 </tr>
 <?php }?>
 <?php if (is_admin($user)) {?>
 <tr>
- <th align="right">CVS access?</th>
+ <th align="right">SVN access?</th>
  <td><input type="checkbox" name="in[cvsaccess]"<?php echo $row[cvsaccess] ? " checked" : "";?> /></td>
 </tr>
 <?php }?>
