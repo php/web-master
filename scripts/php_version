@@ -36,7 +36,6 @@ function pregenerate_version_feed($v, $r, $output) {
         for ($i=1; $i<=2; ++$i) {
             list($version, $info) = each($release);
             if (!$version) {
-                var_dump("Skipping $version");
                 continue;
             }
             $rc = false;
