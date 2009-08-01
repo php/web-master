@@ -239,7 +239,12 @@ table.useredit tr {
  <th align="right">SVN access?</th>
  <td><input type="checkbox" name="in[cvsaccess]"<?php echo $row[cvsaccess] ? " checked" : "";?> /></td>
 </tr>
-<?php }?>
+<?php } else { ?>
+<tr>
+ <th align="right">Has SVN access?</th>
+ <td><?php echo $row[cvsaccess] ? "Yes" : "No";?></td>
+</tr>
+<?php } ?>
 <tr>
  <th align="right">Use Challenge/Response spam protection?</th>
  <td><input type="checkbox" name="in[spamprotect]"<?php echo $row[spamprotect] ? " checked" : "";?> />
