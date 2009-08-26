@@ -57,7 +57,7 @@ if (!is_emailable_address(stripslashes($email)))
 
 $res = @mysql_query("SELECT userid FROM users WHERE username='$username'");
 if ($res && mysql_num_rows($res))
-  die("someone is already using that cvs id");
+  die("someone is already using that svn id");
 
 # TODO: fail if someone with that email address has an account. right now
 # this goes to the failto address since there's no password recovery
@@ -83,7 +83,7 @@ if (@mysql_query($query)) {
 
   // The PEAR guys don't want these requests to their -dev@ list, only -group@
   if ($group != "pear") {
-    mail($mailto,"CVS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id@php.net>", "-fnoreply@php.net");
+    mail($mailto,"SVN Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id@php.net>", "-fnoreply@php.net");
   }
 
   $msg .= "\n-- \n";
@@ -91,14 +91,14 @@ if (@mysql_query($query)) {
   $msg .= "reject:  https://master.php.net/manage/users.php?action=remove&id=$new_id\n";
   $msg .= "view:    https://master.php.net/manage/users.php?id=$new_id\n";
 
-  mail($failto,"CVS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id-admin@php.net>", "-fnoreply@php.net");
+  mail($failto,"SVN Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id-admin@php.net>", "-fnoreply@php.net");
 } else {
-  mail($failto,"CVS Account Request: $username",
+  mail($failto,"SVN Account Request: $username",
       "Failed to insert into database: ".mysql_error()."\n\n".
       "Full name: $name\n".
       "Email:     $email\n".
       "ID:        $username\n".
       "Password:  $cvspasswd\n".
       "Purpose:   $note",
-       "From: \"CVS Account Request\" <$email>");
+       "From: \"SVN Account Request\" <$email>");
 }
