@@ -114,13 +114,6 @@ elseif (isset($id)) {
       );
   }
 
-  // Local search type displays
-  $searchtypes = array(
-      '0' => 'Not supported',
-      '1' => 'Supported',
-      '2' => 'Supported (old method)'
-  );
-
   // Print out mirror data table with or without values
 ?>
 <form method="POST" action="<?php echo $PHP_SELF; ?>">
@@ -209,12 +202,6 @@ if (intval($id) !== 0) {
    <th align="right">PHP version used:</th>
    <td><?php print_version($row['phpversion']); ?></td>
   </tr>
-<!--
-  <tr>
-   <th align="right">Local Search:</th>
-   <td><?php echo $searchtypes[$row['has_search']]; ?></td>
-  </tr>
--->
   <tr>
    <th align="right">SQLite available:</th>
    <td><?php echo implode(' : ', decipher_available_sqlites($row['has_search'])); ?></td>
@@ -352,8 +339,9 @@ function page_mirror_list($moreinfo = false)
         if (!$searchcell) { $searchcell = "&nbsp;"; }
         */
 
-        if (is_sqlite_type_available($row['has_search'], 'sqlite')) {
-            $searchcell = "SQLite 2";
+        $sqlites = decipher_available_sqlites($row['has_search']);
+        if ($sqlites) {
+            $searchcell = implode(", ", $sqlites);
             $stats['has_search']++;
         } else {
             $searchcell = "&nbsp;";
