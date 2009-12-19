@@ -44,8 +44,12 @@ $username = strtolower($username);
 # placed in qmail-smtpd's badmailfrom to block future emails.) some of these
 # latter addresses were used as examples in the documentation at one point,
 # which means they appear on all sorts of spam lists.
-if (in_array($username,array('nse','roys','php','foo','group','core','webmaster','mysql','web','aardvark','zygote','jag','sites','er')))
+if (in_array($username,array('nse','roys','php','foo','group','core','webmaster','web','aardvark','zygote','jag','sites','er','sqlite','cvs2svn')))
   die("that username is not available");
+
+if (!preg_match('@^[a-z0-9_.-]+$@', $username)) {
+  die("that username is invalid, use alphanumeric characters, or more specifically: [a-z0-9_.-]");
+}
 
 @mysql_connect("localhost","nobody", "")
   or die("failed to connect to database");
