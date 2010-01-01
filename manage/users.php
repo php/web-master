@@ -267,8 +267,8 @@ table.useredit tr {
   <input type="checkbox" name="in[greylist]"<?php echo $row[greylist] ? " checked" : "";?> /> Enable greylisting on my account</td>
 </tr>
 <tr>
- <th align="right">Verified? (Note: Do not worry about this value. It's sometimes used to check if old-timers are still around.)</th>
- <td><input type="checkbox" name="in[verified]"<?php echo $row[verified] ? " checked" : "";?> /></td>
+ <th align="right">Verified?</th>
+ <td><input type="checkbox" name="in[verified]"<?php echo $row[verified] ? " checked" : "";?> /> Note: Do not worry about this value. It's sometimes used to check if old-timers are still around.</td>
 </tr>
 <tr>
  <th align="right">Add Note: </th>
