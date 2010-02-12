@@ -181,7 +181,7 @@ if (isset($id)) {
   <th colspan="2" align="left">Long Description</th>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="in[ldesc]" cols="60" rows="10" maxlength="78" wrap="virtual"><?php echo htmlentities($in['ldesc'], ENT_QUOTES, 'UTF-8');?></textarea></td>
+  <td colspan="2"><textarea name="in[ldesc]" cols="60" rows="10" wrap="virtual"><?php echo htmlentities($in['ldesc'], ENT_QUOTES, 'UTF-8');?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
