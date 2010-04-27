@@ -31,7 +31,6 @@ if (isset($id) && isset($hostname)) {
             case "update":
                 $query = "UPDATE mirrors SET hostname='$hostname', active=$active, " .
                          "mirrortype=$mirrortype, cname='$cname', maintainer='$maintainer', " .
-                         "maintainer='$maintainer2', " .
                          "providername='$providername', providerurl='$providerurl', " .
                          "cc='$cc', lang='$lang', has_stats=$has_stats, " .
                          "lastedited=NOW(), acmt='$acmt' WHERE id = $id";
@@ -47,10 +46,10 @@ if (isset($id) && isset($hostname)) {
             // Insert a new mirror site into the database
             case "insert":
                 $query = "INSERT INTO mirrors (hostname, active, mirrortype, " .
-                         "cname, maintainer, maintainer2, providername, providerurl, cc, " .
+                         "cname, maintainer, providername, providerurl, cc, " .
                          "lang, has_stats, created, lastedited, acmt) " .
                          "VALUES ('$hostname', $active, $mirrortype, '$cname', " .
-                         "'$maintainer', '$maintainer2', '$providername', '$providerurl', '$cc', " .
+                         "'$maintainer', '$providername', '$providerurl', '$cc', " .
                          "'$lang', $has_stats, NOW(), NOW(), '$acmt')";
                 $msg = "$hostname added";
             break;
@@ -141,10 +140,6 @@ elseif (isset($id)) {
   <tr>
    <th align="right">Maintainer's Name and Email:</th>
    <td><input type="text" name="maintainer" value="<?php echo hsc($row['maintainer']); ?>" size="40" maxlength="255" /></td>
-  </tr>
-  <tr>
-   <th align="right">Alternate Name and Email:</th>
-   <td><input type="text" name="maintainer2" value="<?php echo hsc($row['maintainer2']); ?>" size="40" maxlength="255" /></td>
   </tr>
   <tr>
    <th align="right">Provider's Name:</th>
@@ -423,15 +418,13 @@ function page_mirror_list($moreinfo = false)
     $summary .= '</table></div>';
 
     // Sort in reverse PHP version order and produce string
-    krsort($stats['phpversion']);
-    $versions = "<ul>\n";
+    arsort($stats['phpversion']);
+    $versions = "";
     foreach($stats['phpversion'] as $version => $amount) {
         if (empty($version)) { $version = "n/a"; }
-        $pct = sprintf('%0.2f%%',(($amount / $stats['mirrors']) * 100));
-        $versions .= "\t<li><strong>$version</strong>: $amount ($pct)</li>\n";
+        $versions .= "<strong>$version</strong>: $amount, ";
     }
-    $versions .= "</ul>\n";
-
+    $versions = substr($versions, 0, -2);
 
     // Create version specific statistics
     $stats['version5_percent']   = sprintf('%.1f%%', $stats['phpversion_counts'][5] / $stats['mirrors'] * 100);
@@ -512,10 +505,7 @@ echo <<<EOS
 </p>
 
 <p>
- The following PHP versions are used on the PHP network of mirrors:<br />
- <blockquote>
-  {$versions}
- </blockquote>
+ The PHP versions used on the sites are {$versions}.
 </p>
 
 <p align="center"><a href="/manage/mirrors.php?id=0">Add a new mirror</a></p>
