@@ -35,6 +35,10 @@ $result = mysql_query($query) or die("unable to get from the database");
 
 // Download data to the $hosts array, and count total number of hosts
 while ($host = mysql_fetch_assoc($result)) {
+    // skips: docs.php.net is not an official mirror (builds own manuals, empty distributions/, ...)
+    if ($host['hostname'] === 'docs.php.net') {
+        continue;
+    }
     $hosts[] = $host;
 }
 $total = count($hosts);
