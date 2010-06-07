@@ -87,7 +87,7 @@ function host_has_error($hostname, $filename, &$data, &$problem) {
 
     // If unable to read that row, skip mirror site
     if ($data === FALSE) {
-        $problem = "Unable to get data for file $filaneme. Probably timeout.";
+        $problem = "Unable to get data for file $filename. Probably timeout. (errno: $errno errstr: $errstr)";
         return TRUE;
     }
     
