@@ -79,7 +79,7 @@ if (@mysql_query($query)) {
   $new_id = mysql_insert_id();
 
   mysql_query("INSERT INTO users_note (userid, note, entered)"
-             ." VALUES ($new_id, '$note', NOW())");
+             ." VALUES ($new_id, '$note [group: $group]', NOW())");
 
   $msg = stripslashes($note);
 
