@@ -267,7 +267,8 @@ function page_mirror_list($moreinfo = false)
     $prevcc = "n/a";
 
     $stats = array(
-        'mirrors' => mysql_num_rows($res)
+        'mirrors'       => mysql_num_rows($res),
+        'sqlite_counts' => array('none' => 0, 'sqlite' => 0, 'pdo_sqlite' => 0, 'pdo_sqlite2' => 0, 'sqlite3' => 0),
     );
 
     // Go through all mirror sites
@@ -342,8 +343,11 @@ function page_mirror_list($moreinfo = false)
         $sqlites = decipher_available_sqlites($row['has_search']);
         if ($sqlites) {
             $searchcell = implode(", ", $sqlites);
-            $stats['has_search']++;
+            foreach ($sqlites as $sqlite_type) {
+                $stats['sqlite_counts'][$sqlite_type]++;
+            }
         } else {
+            $stats['sqlite_counts']['none']++;
             $searchcell = "&nbsp;";
         }
 
@@ -428,7 +432,6 @@ function page_mirror_list($moreinfo = false)
 
     // Create version specific statistics
     $stats['version5_percent']   = sprintf('%.1f%%', $stats['phpversion_counts'][5] / $stats['mirrors'] * 100);
-    $stats['has_search_percent'] = sprintf('%.1f%%', $stats['has_search']           / $stats['mirrors'] * 100);
     $stats['has_stats_percent']  = sprintf('%.1f%%', $stats['has_stats']            / $stats['mirrors'] * 100);
 
     $last_check_time = get_print_date($checktime);
@@ -436,6 +439,11 @@ function page_mirror_list($moreinfo = false)
     
     $stats['ok']   = $stats['mirrors'] - $stats['autodisabled'] - $stats['disabled'];
     $moreinfo_flag = empty($moreinfo) ? 1 : 0;
+    
+    $has_sqlite_counts = '';
+    foreach ($stats['sqlite_counts'] as $stype => $scount) {
+        $has_sqlite_counts .= '<tr><td><img src="/images/mirror_search.png" /></td><td>'. $stype .'</td><td>'. $scount .'</td></tr>';
+    }
 
 echo <<<EOS
 <div id="resources">
@@ -464,11 +472,6 @@ echo <<<EOS
    <td colspan="3"><hr /></td>
   </tr>
   <tr>
-   <td><img src="/images/mirror_search.png" /></td>
-   <td>SQLite:</td>
-   <td>{$stats['has_search_percent']}</td>
-  </tr>
-  <tr>
    <td><img src="/images/mirror_stats.png" /></td>
    <td>Stats:</td>
    <td>{$stats['has_stats_percent']}</td>
@@ -478,6 +481,12 @@ echo <<<EOS
    <td>PHP 5:</td>
    <td>{$stats['version5_percent']}</td>
   </tr>
+  <tr>
+   <td colspan="3"><hr /></td>
+  </tr>
+  
+  {$has_sqlite_counts}
+
  </table>
  <h1>Resources</h1>
  <a href="/manage/mirrors.php?mi={$moreinfo_flag}">See more info</a><br />
