@@ -34,7 +34,7 @@ if ($id && $key) {
       $md5passwd = md5($sn1);
       $res = @mysql_query("UPDATE users SET forgot=NULL,passwd='$passwd',svnpasswd='$svnpasswd',md5passwd='$md5passwd' WHERE userid='$id' AND forgot='$key'");
       if ($res && mysql_affected_rows()) {
-        echo '<p>Okay, your password has been changed. It could take as long as an hour before this change makes it to the CVS server and other services. To change your password again, you\'ll have to start this process over to get a new key.</p>';
+        echo '<p>Okay, your password has been changed. It could take as long as an hour before this change makes it to the VCS server and other services. To change your password again, you\'ll have to start this process over to get a new key.</p>';
         foot();
         exit;
       }
@@ -69,7 +69,7 @@ elseif ($user) {
     $res = @mysql_query($query);
     if ($res) {
       $body =
-"Someone filled out the form that says you forgot your php.net CVS
+"Someone filled out the form that says you forgot your php.net VCS
 password. If it wasn't you, don't worry too much about it. Unless
 someone is reading your mail, there's not much they can do. (But you
 may want to change your password using the instructions below, just to
@@ -101,12 +101,13 @@ group@php.net for help.</p>
   }
 }
 ?>
-<p>Forgot your cvs password, huh? Just fill in your cvs username, and
+<p>Forgot your <acronym title="Version Control System">VCS</acronym> password, huh? Just fill in your VCS username, and
 instructions will be sent to you on how to change your password.</p>
 <form method="post" action="<?php echo $PHP_SELF?>">
- <label for="user">cvs username:</label>
+ <label for="user">username:</label>
  <input type="text" id="user" name="user" value="<?php echo htmlentities(stripslashes($user))?>" />
  <input type="submit" value="send help" />
 </form>
 <?php
 foot();
+
