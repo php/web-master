@@ -46,7 +46,7 @@ function pregenerate_events($csvfile, $outfile, $months = 2)
         // Skip events way in the future
         if (($endy == $y && $endm <= $m) || $endy < $y) { continue; }
 
-        // Fgetcvs() returns an array with a single null element
+        // Fgetcsv() returns an array with a single null element
         // for a blank line, which we need to skip
         if ($d === NULL) { continue; }
 
