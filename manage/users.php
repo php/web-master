@@ -218,11 +218,11 @@ table.useredit tr {
 </tr>
 <tr>
  <th align="right">Password:</th>
- <td><input type="password" name="in[rawpasswd]" value="" size="20" maxlength="20" /></td>
+ <td><input type="password" name="in[rawpasswd]" value="" size="20" maxlength="120" /></td>
 </tr>
 <tr>
  <th align="right">Password (again):</th>
- <td><input type="password" name="in[rawpasswd2]" value="" size="20" maxlength="20" /></td>
+ <td><input type="password" name="in[rawpasswd2]" value="" size="20" maxlength="120" /></td>
 </tr>
 <?php if (is_admin($user)) {?>
 <tr>
