@@ -32,7 +32,6 @@ if (isset($id) && isset($action)) {
       $message = "This event has been approved. It will appear on the PHP website shortly.";
       if ($event['email']) mail($event['email'],"Event #$id Approved: $event[sdesc]",$message,"From: PHP Webmasters <php-webmaster@lists.php.net>", "-fnoreply@php.net");
 
-      mail($mailto,"Event #$id Approved: $event[sdesc]",$message,"From: $user@php.net\nIn-Reply-To: <event-$id@php.net>", "-fnoreply@php.net");
       warn("record $id approved");
     }
     else {
@@ -47,8 +46,6 @@ if (isset($id) && isset($action)) {
       $did = $event['approved'] ? 'Deleted' : 'Rejected';
 
       if ($event['email']) mail($event['email'],"Event #$id $did: $event[sdesc]",$message,"From: PHP Webmasters <php-webmaster@lists.php.net>", "-fnoreply@php.net");
-
-      mail($mailto,"Event #$id $did: $event[sdesc]",$message,"From: $user@php.net\nIn-Reply-To: <event-$id@php.net>", "-fnoreply@php.net");
 
       warn("record $id ".strtolower($did));
 
