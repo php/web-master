@@ -4,6 +4,7 @@
 // We protect the master server with this token, so
 // only who knows the token can fetch data from the server
 $token = getenv("TOKEN");
+if (!$token && file_exists(".token")) $token = file_get_contents(".token");
 if (!$token) die("you have to set the TOKEN environment variable");
 $token = rawurlencode($token);
 
