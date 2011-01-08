@@ -6,8 +6,11 @@
 // Formatting guide see also: http://docutils.sourceforge.net/docs/user/rst/quickref.html
 
 $path = dirname(__FILE__) . "/../include/";
+$curr = error_reporting();
+error_reporting($curr ^ (E_STRICT|E_DEPRECATED));
 require_once $path.'Text/reST.php';
 require_once $path.'Text/reST/Formatter.php';
+error_reporting($curr);
 
 function pregen_rest_files($rest_dir, $urls) {
 	if (!file_exists($rest_dir)) {
@@ -17,11 +20,13 @@ function pregen_rest_files($rest_dir, $urls) {
 		}
 	}
 
-	$base_url = 'http://cvs.php.net/viewvc.cgi/';
+	$base_url = 'http://svn.php.net/repository/php/';
 
+	$curr = error_reporting();
+	error_reporting($curr ^ (E_STRICT|E_DEPRECATED));
 	$filenames = array();
 	foreach ($urls as $rel_path) {
-		$url = $base_url.$rel_path.'?view=co';
+		$url = $base_url.$rel_path;
 		$string = file_get_contents($url);
 		if (!$string) {
 			trigger_error("FAIL. Someone mail systems@ and fix httpd on y1", E_USER_WARNING);
@@ -40,5 +45,7 @@ function pregen_rest_files($rest_dir, $urls) {
 		echo "Removing old reST cache file: $old\n";
 		unlink($old);
 	}
+
+	error_reporting($curr);
 }
 
