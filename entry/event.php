@@ -107,6 +107,3 @@ $msg .= "\n-- \n"
       . "https://master.php.net/manage/event.php?id=$new_id&action=approve\n"
       . "https://master.php.net/manage/event.php?id=$new_id&action=reject\n"
       . "https://master.php.net/manage/event.php?id=$new_id\n";
-
-mail($mailto,"Event #$new_id: ".stripslashes($sdesc),$msg,"From: ".stripslashes($email)."\r\nMessage-ID: <event-$new_id@php.net>\r\nContent-type: text/plain; charset=utf8", "-fnoreply@php.net");
-
