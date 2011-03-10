@@ -3,6 +3,7 @@
 	This checks for unapproved events, and emails php-webmaster@ if they exist. 
 	It should be checked weekly (via cron). 
 */
+require dirname(__FILE__) . '/../include/functions.inc';
 
 $query = 'SELECT COUNT(*) FROM phpcal WHERE NOT approved';
 $count = db_get_one($query);
