@@ -5,13 +5,15 @@
 */
 require dirname(__FILE__) . '/../include/functions.inc';
 
+db_connect();
+
 $query = 'SELECT COUNT(*) FROM phpcal WHERE NOT approved';
 $count = db_get_one($query);
 
 if ($count > 0) {
 
 	$subject = "Pending unapproved events notice";
-	$message = "Greetings PHP Webmasters,\r\n\r\nThere are roughly [$count] unapproved events awaiting moderation. Please check the queue.\r\n";
+	$message = "Greetings PHP Webmasters,\r\n\r\nThere are roughly [$count] unapproved events awaiting moderation.\r\n\r\nPlease check the queue.\r\n";
 	$headers = "From: php-webmaster@lists.php.net";
 
 	mail('php-webmaster@lists.php.net', $subject, $message, $headers);
