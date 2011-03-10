@@ -3,7 +3,7 @@
 	This checks for unapproved events, and emails php-webmaster@ if they exist. 
 	It should be checked weekly (via cron). 
 */
-require dirname(__FILE__) . '/../include/functions.inc';
+require dirname(dirname(__FILE__)).'/include/functions.inc';
 
 db_connect();
 
