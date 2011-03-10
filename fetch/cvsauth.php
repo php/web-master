@@ -63,12 +63,7 @@ function exit_success() {
 	exit;
 }
 
-
-$MQ = false;
-// FC for PHP5.3 && PHP6
-if (function_exists("get_magic_quotes_gpc")) {
-	$MQ = (bool) @get_magic_quotes_gpc();
-}
+$MQ = get_magic_quotes_gpc();
 
 // Create required variables and kill MQ
 $fields = array("token", "username", "password");
