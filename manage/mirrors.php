@@ -480,8 +480,8 @@ function pop(sw) {
 } 
 </script>
 
-<div id="resources">
- <table>
+<div id="resources" class="semirounded">
+ <table class="semirounded">
   <tr>
    <td><img src="/images/mirror_ok.png" /></td>
    <td>Fine:</td>
