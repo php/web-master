@@ -53,16 +53,22 @@ table#mirrors {
 table#mirrors td, table#mirrors th {
   vertical-align: middle;
   font-family: sans-serif;
+  margin-left:15px;
 }
 table#mirrors a {
   text-decoration: none;
 }
 table#mirrors th {
   text-align: left;
+  text-indent:15px;
   font-weight: bold;
-  background-color: #cccccc;
+  background-color:#5a5993;
   font-size: 120%;
+  color:#b5b5e9;
 } 
+.mirrorstatus, .mirrordetails, .mirrorerror {
+  background-color:#e8e8fc;
+}
 
 /* General image style */
 img {
@@ -168,4 +174,10 @@ div.note {
 }
 div.note:last-child {
   border-bottom: 0;
+}
+
+/* Corner-rounding */
+.rounded {
+  -moz-border-radius:3ex;
+  -webkit-border-radius:3ex;
 }
