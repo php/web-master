@@ -181,3 +181,7 @@ div.note:last-child {
   -moz-border-radius:3ex;
   -webkit-border-radius:3ex;
 }
+.semirounded {
+  -moz-border-radius:1ex;
+  -webkit-border-radius:1ex;
+}
