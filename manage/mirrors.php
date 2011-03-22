@@ -373,31 +373,31 @@ function page_mirror_list($moreinfo = false)
 
         // Mirror status information
         $summary .= "<tr class=\"mirrorstatus\">\n" .
-                    "<td bgcolor=\"#ffffff\" align=\"right\">\n" .
+                    "<td bgcolor=\"#ffffff\" align=\"right\" class=\"rounded\">\n" .
                     "<img src=\"/images/mirror_{$siteimage}.png\" /></td>\n";
 
         // Print out mirror site link
-        $summary .= '<td><a href="http://' . $row['hostname'] . '/" target="_blank">' .
+        $summary .= '<td class="rounded"><a href="http://' . $row['hostname'] . '/" target="_blank">' .
                     $row['hostname'] . '</a><br /></td>' . "\n";
 
         // Print out mirror provider information
-        $summary .= '<td><a href="' . $row['providerurl'] . '">' .
+        $summary .= '<td class="rounded"><a href="' . $row['providerurl'] . '">' .
                     $row['providername'] . '</a><br /></td>' . "\n";
 
         // Print out maintainer email cell
-        $summary .= '<td align="right">' . $emailcell . '</td>' . "\n";
+        $summary .= '<td align="right" class="rounded">' . $emailcell . '</td>' . "\n";
 
         // Print out mirror search table cell
-        $summary .= '<td align="center">' . $searchcell . '</td>' . "\n";
+        $summary .= '<td align="center" class="rounded">' . $searchcell . '</td>' . "\n";
 
         // Print out version information for this mirror
-        $summary .= '<td align="center">' . $row['phpversion']. '</td>' . "\n";
+        $summary .= '<td align="center" class="rounded">' . $row['phpversion']. '</td>' . "\n";
 
         // Print out mirror stats table cell
-        $summary .= '<td align="right">' . $statscell . '</td>' . "\n";
+        $summary .= '<td align="right" class="rounded">' . $statscell . '</td>' . "\n";
 
         // Print out mirror edit link
-        $summary .= '<td align="right"><a href="mirrors.php?id=' . $row['id'] .
+        $summary .= '<td align="right" class="rounded"><a href="mirrors.php?id=' . $row['id'] .
                     '"><img src="/images/mirror_edit.png"></a></td>' . "\n";
 
         // End of row
@@ -405,13 +405,13 @@ function page_mirror_list($moreinfo = false)
 
         // If any info on the error of this mirror is available, print it out
         if ($errorinfo) {
-            $summary .= "<tr><tr class=\"mirrorerror\"><td bgcolor=\"#ffffff\"></td>" .
-                        "<td colspan=\"7\"><img src=\"/images/mirror_info.png\" /> " .
+            $summary .= "<tr class=\"mirrorerror\"><td bgcolor=\"#ffffff\"></td>" .
+                        "<td colspan=\"7\" class=\"rounded\"><img src=\"/images/mirror_info.png\" /> " .
                         nl2br($errorinfo) . "</td></tr>";
         }
         // If additional details are desired
         if ($moreinfo) {
-            $summary .= '<tr><tr class=\"mirrordetails\"><td bgcolor="#ffffff">&nbsp;</td>' .
+            $summary .= '<tr class=\"mirrordetails\"><td bgcolor="#ffffff">&nbsp;</td>' .
                         '<td colspan="7">' . 
                             ' Last update: ' . date(DATE_RSS, $row['ulastupdated']) . 
                             ' SQLites: '     . implode(' : ', decipher_available_sqlites($row['has_search'])) .
