@@ -134,7 +134,7 @@ elseif (isset($id)) {
    <td><select name="mirrortype"><?php show_mirrortype_options($row['mirrortype']); ?></select></td>
   </tr>
   <tr>
-   <th align="right">Cname (without http://):</th>
+   <th align="right">CNAME (without http://):</th>
    <td><input type="text" name="cname" value="<?php echo hsc($row['cname']); ?>" size="40" maxlength="80" /></td>
   </tr>
   <tr>
@@ -154,7 +154,7 @@ elseif (isset($id)) {
    <td><select name="cc"><?php show_country_options($row['cc']); ?></select></td>
   </tr>
   <tr>
-   <th align="right">Administration comments:</th>
+   <th align="right">Administrative Comments:</th>
    <td><textarea wrap="virtual" cols="40" rows="12" name="acmt"><?php echo hsc($row['acmt']); ?></textarea></td>
   </tr>
   <tr>
@@ -260,7 +260,7 @@ function page_mirror_list($moreinfo = false)
     );
 
     // Start table
-    $summary = '<div align="center">
+    $summary = '<div align="center" style="float:left;clear:left;position:relative;">
     <table border="0" cellspacing="0" cellpadding="3" id="mirrors">';
 
     // Previous country code
@@ -283,7 +283,7 @@ function page_mirror_list($moreinfo = false)
 
         // Print out a country header, if a new country is found
         if ($prevcc != $row['cc']) {
-            $summary .= '<tr><th colspan="8">' . $row['countryname'] . "</th></tr>\n";
+            $summary .= '<tr><th colspan="8" class="rounded">' . $row['countryname'] . "</th></tr>\n";
         }
         $prevcc = $row['cc'];
 
@@ -372,7 +372,7 @@ function page_mirror_list($moreinfo = false)
         }
 
         // Mirror status information
-        $summary .= "<tr bgcolor=\"#e0e0e0\">\n" .
+        $summary .= "<tr class=\"mirrorstatus\">\n" .
                     "<td bgcolor=\"#ffffff\" align=\"right\">\n" .
                     "<img src=\"/images/mirror_{$siteimage}.png\" /></td>\n";
 
@@ -405,13 +405,13 @@ function page_mirror_list($moreinfo = false)
 
         // If any info on the error of this mirror is available, print it out
         if ($errorinfo) {
-            $summary .= "<tr><tr bgcolor=\"#e0e0e0\"><td bgcolor=\"#ffffff\"></td>" .
+            $summary .= "<tr><tr class=\"mirrorerror\"><td bgcolor=\"#ffffff\"></td>" .
                         "<td colspan=\"7\"><img src=\"/images/mirror_info.png\" /> " .
                         nl2br($errorinfo) . "</td></tr>";
         }
         // If additional details are desired
         if ($moreinfo) {
-            $summary .= '<tr><tr bgcolor="#e0e0e0"><td bgcolor="#ffffff">&nbsp;</td>' .
+            $summary .= '<tr><tr class=\"mirrordetails\"><td bgcolor="#ffffff">&nbsp;</td>' .
                         '<td colspan="7">' . 
                             ' Last update: ' . date(DATE_RSS, $row['ulastupdated']) . 
                             ' SQLites: '     . implode(' : ', decipher_available_sqlites($row['has_search'])) .
@@ -421,14 +421,20 @@ function page_mirror_list($moreinfo = false)
 
     $summary .= '</table></div>';
 
-    // Sort in reverse PHP version order and produce string
-    arsort($stats['phpversion']);
+    // Sort by versions in use, descendingly, and produce the HTML string.
+    uksort($stats['phpversion'],'strnatcmp');
+    $stats['phpversion'] = array_reverse($stats['phpversion']);
     $versions = "";
+    $vcount = count($stats['phpversion']);
+    $vnow = 0;
     foreach($stats['phpversion'] as $version => $amount) {
         if (empty($version)) { $version = "n/a"; }
-        $versions .= "<strong>$version</strong>: $amount, ";
+        $versions .= '<strong>'.$version.'</strong> ('.$amount.')<br/>'.PHP_EOL;
+        if (($vcount / 2) == ++$vnow) {
+            $versions .= '</div>'.PHP_EOL.'<div style="position:relative;float:left;width:120px;">';
+        }
     }
-    $versions = substr($versions, 0, -2);
+    //$versions = substr($versions, 0, -2);
 
     // Create version specific statistics
     $stats['version5_percent']   = sprintf('%.1f%%', $stats['phpversion_counts'][5] / $stats['mirrors'] * 100);
@@ -446,6 +452,34 @@ function page_mirror_list($moreinfo = false)
     }
 
 echo <<<EOS
+<script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript" src="js/curvycorners.js"></script>
+<script type="text/javascript" src="js/animatedcollapse.js">
+/***********************************************
+* Animated Collapsible DIV v2.4- (c) Dynamic Drive DHTML code library (www.dynamicdrive.com)
+* This notice MUST stay intact for legal use
+* Visit Dynamic Drive at http://www.dynamicdrive.com/ for this script and 100s more
+***********************************************/
+</script>
+<script type="text/javascript">
+animatedcollapse.addDiv('phpversions','fade=1');
+animatedcollapse.ontoggle=function($, divobj, state){ //fires each time a DIV is expanded/contracted
+  //$: Access to jQuery
+  //divobj: DOM reference to DIV being expanded/ collapsed. Use "divobj.id" to get its ID
+  //state: "block" or "none", depending on state
+}
+
+animatedcollapse.init();
+
+function pop(sw) {
+  switch(sw) {
+    case 'phpversions':
+      animatedcollapse.toggle(sw);
+      break;
+  }
+} 
+</script>
+
 <div id="resources">
  <table>
   <tr>
@@ -492,34 +526,43 @@ echo <<<EOS
  <a href="/manage/mirrors.php?mi={$moreinfo_flag}">See more info</a><br />
  <a href="http://php.net/mirroring.php" target="_blank">Guidelines</a><br />
  <a href="mailto:mirrors@php.net">Mailing list</a><br />
- <a href="http://www.iana.org/cctld/cctld-whois.htm" target="_blank">Country TLDs</a>
+ <a href="http://www.iana.org/domains/root/db/" target="_blank">Country TLDs</a>
  <h1>Last check time</h1>
  {$last_check_time}
  <h1>Current time</h1>
  {$current_time} 
 </div>
 
+<div style="left:5%;position:relative;width:75%;">
 <p>
- Note, that the DNS table for mirror sites is updated directly from this list, without
+ Note that the DNS table for mirror sites is updated directly from this list, without
  human intervention, so if you add/delete/modify a mirror, it will be reflected in the
  DNS table automatically in a short time.
 </p>
 
 <p>
- An automatically deactivated mirror cannot be activated manually. It will be activated after
- the next run of the automatic check (if the mirror is all right). Deactivated mirror maintainers
- get notices of the deactivation weekly. Manualy disabled mirrors are not checked by the
- bot, so they need some time after reactivated to get listed again. Mirror checks are done
- automatically every hour, there is no direct manual way to start a check.
+ An automatically-deactivated mirror cannot be activated manually. It will be activated after
+ the next run of the automatic check (if the mirror is alright). Deactivated mirror maintainers
+ get notices of the deactivation weekly. Manually-disabled mirrors are not checked by the
+ bot, so they need some time after reactivation to get listed again. Mirror checks are done
+ automatically every hour, and there is no direct manual way to start a check (at this time).
 </p>
 
-<p>
- The PHP versions used on the sites are {$versions}.
-</p>
+<div id="phpversions_off" style="display:block;text-align:center;">
+ <a href="#" onclick="javascript:pop('phpversions');">PHP Version Summary</a>
+ <div id="phpversions" style="display:none;text-align:center;">
+  <div style="float:left;margin-left:40%;">
+  {$versions}
+  </div>
+ <div style="clear:both;height:1px;"></div>
+ </div>
+</div>
 
 <p align="center"><a href="/manage/mirrors.php?id=0">Add a new mirror</a></p>
 
 $summary
+
+</div>
 EOS;
 
 }
