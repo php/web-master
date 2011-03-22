@@ -430,7 +430,7 @@ function page_mirror_list($moreinfo = false)
     foreach($stats['phpversion'] as $version => $amount) {
         if (empty($version)) { $version = "n/a"; }
         $versions .= '<strong>'.$version.'</strong> ('.$amount.')<br/>'.PHP_EOL;
-        if (($vcount / 2) == ++$vnow) {
+        if (round(($vcount / 2)) >= ++$vnow) {
             $versions .= '</div>'.PHP_EOL.'<div style="position:relative;float:left;width:120px;">';
         }
     }
