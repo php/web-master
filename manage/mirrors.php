@@ -430,7 +430,7 @@ function page_mirror_list($moreinfo = false)
     foreach($stats['phpversion'] as $version => $amount) {
         if (empty($version)) { $version = "n/a"; }
         $versions .= '<strong>'.$version.'</strong> ('.$amount.')<br/>'.PHP_EOL;
-        if (round(($vcount / 2)) >= ++$vnow) {
+        if (round(($vcount / 2)) == ++$vnow) {
             $versions .= '</div>'.PHP_EOL.'<div style="position:relative;float:left;width:120px;">';
         }
     }
@@ -489,12 +489,12 @@ function pop(sw) {
   </tr>
   <tr>
    <td><img src="/images/mirror_deactivated.png" /></td>
-   <td>Disabled:</td>
+   <td>Manually-Disabled:</td>
    <td>{$stats['disabled']}</td>
   </tr>
   <tr>
    <td><img src="/images/mirror_error.png" /></td>
-   <td>AutoDisabled:</td>
+   <td>Auto-Disabled:</td>
    <td>{$stats['autodisabled']}</td>
   </tr>
   <tr>
