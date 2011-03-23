@@ -146,7 +146,7 @@ if (isset($id) && isset($in)) {
                  . ",enable=$enable"
                  . ",use_sa=$use_sa"
                  . ",greylist=$greylist"
-                 . ($in[passwd] ? ",pchanged='" . time() : "")
+                 . ($in[passwd] ? ",pchanged=" . time() : "")
                  . " WHERE userid=$id";
           db_query($query);
           if ($in[passwd]) {
