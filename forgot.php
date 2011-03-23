@@ -78,7 +78,7 @@ be safe.)
 To change your password, simply use the URL below and choose a new
 password.
 
-  http://master.php.net/forgot.php?id=$row[userid]&key=$newpass
+  https://master.php.net/forgot.php?id=$row[userid]&key=$newpass
 
 Let us know if you have any further problems.
 -- 

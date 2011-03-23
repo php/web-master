@@ -18,7 +18,7 @@ if ($count > 0) {
 
 		There are roughly [$count] unapproved events awaiting moderation.  Please check the queue:
 
-			http://master.php.net/manage/event.php?unapproved=1
+			https://master.php.net/manage/event.php?unapproved=1
 
 		Thanks!";
 
