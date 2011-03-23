@@ -148,11 +148,19 @@ if (isset($id) && isset($in)) {
                  . ",greylist=$greylist"
                  . ($in[passwd] ? ",pchanged=" . time() : "")
                  . " WHERE userid=$id";
-          db_query($query);
           if ($in[passwd]) {
-            // Kill the session data after updates :)
-            $_SERVER["credentials"] = array();
+            if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
+              warn("Did you actually try to change your password without using https? - Thats not gonna fly");
+            }
+            else {
+              // Kill the session data after updates :)
+              $_SERVER["credentials"] = array();
+              db_query($query);
+            }
+          } else {
+            db_query($query);
           }
+
           if(strlen($in['purpose'])) {
               $purpose = addslashes($in['purpose']);
               $query = "INSERT INTO users_note (userid, note, entered) VALUES ($id, '$purpose', NOW())";
