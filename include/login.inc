@@ -10,7 +10,7 @@ $user = $pw = FALSE;
 
 if (isset($_POST["user"], $_POST["pw"])) {
     list($user, $pw) = array($_POST['user'], $_POST['pw']);
-} elseif (isset($_SESSION["credentials"])) {
+} elseif (isset($_SESSION["credentials"]) && count($_SESSION["credentials"]) == 2) {
     list($user, $pw) = $_SESSION["credentials"];
 } elseif (isset($_COOKIE['MAGIC_COOKIE'])) {
     list($user, $pw) = explode(":", base64_decode($_COOKIE['MAGIC_COOKIE']), 2);

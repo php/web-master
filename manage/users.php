@@ -149,6 +149,10 @@ if (isset($id) && isset($in)) {
                  . ($in[passwd] ? ",pchanged='" . time() : "")
                  . " WHERE userid=$id";
           db_query($query);
+          if ($in[passwd]) {
+            // Kill the session data after updates :)
+            $_SERVER["credentials"] = array();
+          }
           if(strlen($in['purpose'])) {
               $purpose = addslashes($in['purpose']);
               $query = "INSERT INTO users_note (userid, note, entered) VALUES ($id, '$purpose', NOW())";
