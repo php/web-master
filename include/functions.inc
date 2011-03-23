@@ -34,7 +34,13 @@ function head($title="") {
     <li><a href="http://wiki.php.net/">Wiki</a></li>
     <li><a href="http://bugs.php.net/">Bugsweb</a></li>
   </ul>
-  <h2>Have you changed your password yet?</h2>
+<?php
+if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
+  warn("Why are you not using https?");
+} else {
+  warn("Have you changed your password yet?");
+}
+?>
 <?php
 }
 
