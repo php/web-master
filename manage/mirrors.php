@@ -431,7 +431,7 @@ function page_mirror_list($moreinfo = false)
         if (empty($version)) { $version = "n/a"; }
         $versions .= '<strong>'.$version.'</strong> ('.$amount.')<br/>'.PHP_EOL;
         if (round(($vcount / 2)) == ++$vnow) {
-            $versions .= '</div>'.PHP_EOL.'<div style="position:relative;float:left;width:120px;">';
+            $versions .= '</div>'.PHP_EOL.'<div style="float:right;margin-right:35%;">';//width:120px;">';
         }
     }
     //$versions = substr($versions, 0, -2);
@@ -454,31 +454,6 @@ function page_mirror_list($moreinfo = false)
 echo <<<EOS
 <script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/curvycorners.js"></script>
-<script type="text/javascript" src="js/animatedcollapse.js">
-/***********************************************
-* Animated Collapsible DIV v2.4- (c) Dynamic Drive DHTML code library (www.dynamicdrive.com)
-* This notice MUST stay intact for legal use
-* Visit Dynamic Drive at http://www.dynamicdrive.com/ for this script and 100s more
-***********************************************/
-</script>
-<script type="text/javascript">
-animatedcollapse.addDiv('phpversions','fade=1');
-animatedcollapse.ontoggle=function($, divobj, state){ //fires each time a DIV is expanded/contracted
-  //$: Access to jQuery
-  //divobj: DOM reference to DIV being expanded/ collapsed. Use "divobj.id" to get its ID
-  //state: "block" or "none", depending on state
-}
-
-animatedcollapse.init();
-
-function pop(sw) {
-  switch(sw) {
-    case 'phpversions':
-      animatedcollapse.toggle(sw);
-      break;
-  }
-} 
-</script>
 
 <div id="resources" class="semirounded">
  <table class="semirounded">
@@ -548,13 +523,14 @@ function pop(sw) {
  automatically every hour, and there is no direct manual way to start a check (at this time).
 </p>
 
-<div id="phpversions_off" style="display:block;text-align:center;">
- <a href="#" onclick="javascript:pop('phpversions');">PHP Version Summary</a>
- <div id="phpversions" style="display:none;text-align:center;">
-  <div style="float:left;margin-left:40%;">
+<div id="phpversions_off" style="display:block;text-align:center;width:100%;">
+ <!--<a href="#" onclick="javascript:pop('phpversions');">PHP Version Summary</a>-->
+ <a href="#" onclick="$('#phpversions').toggle('slow');">PHP Version Summary</a>
+ <div id="phpversions" style="display:none;text-align:center;width:100%;">
+  <div style="float:left;margin-left:35%;">
   {$versions}
   </div>
- <div style="clear:both;height:1px;"></div>
+ <div style="clear:left;height:1px;"></div>
  </div>
 </div>
 
