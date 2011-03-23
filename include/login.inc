@@ -1,4 +1,5 @@
 <?php
+session_start();
 /* $Id$ */
 
 require 'cvs-auth.inc';
@@ -7,27 +8,20 @@ require 'functions.inc';
 // User not logged in
 $user = $pw = FALSE;
 
-// Set magic cookie if login information is available
-if (isset($_POST['save']) && isset($_POST['user']) && isset($_POST['pw'])) {
-    setcookie(
-        "MAGIC_COOKIE",
-        base64_encode("{$_POST['user']}:{$_POST['pw']}"),
-        time()+3600*24*12,
-        '/',
-        '.php.net',
-        false, // Secure
-        true   // HTTP Only
-    );
+if (isset($_POST["user"], $_POST["pw"])) {
     list($user, $pw) = array($_POST['user'], $_POST['pw']);
-}
-
-// Preserve information previously set in magic cookie if available
-if (isset($_COOKIE['MAGIC_COOKIE']) && !isset($_POST['user']) && !isset($_POST['pw'])) {
+} elseif (isset($_SESSION["credentials"])) {
+    list($user, $pw) = $_SERVER["credentials"];
+} elseif (isset($_COOKIE['MAGIC_COOKIE'])) {
     list($user, $pw) = explode(":", base64_decode($_COOKIE['MAGIC_COOKIE']), 2);
 }
 
 // Login form, if the user is not yet logged in
-if (!$user || !$pw || !verify_password($user,$pw)) { ?>
+if (!$user || !$pw || !verify_password($user,$pw)) {
+    $_SESSION["credentials"] = array();
+    session_destroy();
+?>
+
 <html>
 <head>
  <title>You must log in!</title>
@@ -55,6 +49,18 @@ if (!$user || !$pw || !verify_password($user,$pw)) { ?>
 <?php
   exit;
 }
+
+// At this point, we have logged in successfully
+$_SESSION["credentials"] = array($user, $pw);
+
+// Killing magic cookie
+setcookie("MAGIC_COOKIE","",time()-3600,'/','.php.net');
+setcookie("MAGIC_COOKIE","",time()-3600,'/');
+
+// Set a cookie to tell various .php.net services that the user is probably loggedin
+setcookie("IS_DEV", 1, time()+3600*24*12, '/', '.php.net', false, true);
+
+
 
 // ----------------------------------------------------------------------------------
 
