@@ -64,7 +64,7 @@ if (isset($id) && isset($hostname)) {
             }
             
             // In case a of a mirror is deleted, mail a notice to the
-            // php-mirrors list, so any malicios deletions can be tracked
+            // php-mirrors list, so any malicious deletions can be tracked
             if ($mode == "delete" || $mode == "insert") {
                 $body = "The mirrors list was updated, and $hostname was " .
                         ($mode == "delete" ? "deleted." : "added.");
@@ -79,6 +79,13 @@ if (isset($id) && isset($hostname)) {
                     $body,
                     "From: php-mirrors@lists.php.net"
                 );
+
+            // If a mirror has been modified, send information safe for public eyes to the
+            // list: active status, hostname.
+            } elseif ($mode == 'update') {
+                $body  = 'The mirror '.$hostname.' has been modified by '.$user.'.  It\'s status is ';
+                $body .= isset($active) && $active == true ? 'active.' : 'inactive, and DNS will be disabled.';
+		@mail('php-mirrors@lists.php.net','[mirrors] Status change for '.$hostname,$body,"From: php-mirrors@lists.php.net\r\n");
             }
         }
     } else {
@@ -429,7 +436,7 @@ function page_mirror_list($moreinfo = false)
     $vnow = 0;
     foreach($stats['phpversion'] as $version => $amount) {
         if (empty($version)) { $version = "n/a"; }
-        $versions .= '<strong>'.$version.'</strong> ('.$amount.')<br/>'.PHP_EOL;
+        $versions .= '<span style="font-weight:bold;">'.$version.'</span> ('.$amount.')<br/>'.PHP_EOL;
         if (round(($vcount / 2)) == ++$vnow) {
             $versions .= '</div>'.PHP_EOL.'<div style="float:right;margin-right:35%;">';//width:120px;">';
         }
