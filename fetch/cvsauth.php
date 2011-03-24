@@ -76,7 +76,7 @@ foreach($fields as $field) {
 }
 
 # token required since this should only get accessed from .php.net sites
-if (md5($token) != "585ae1060f9b881490d1a1e3c7353e89") {
+if (md5($token) != "73864a7c89d97a13368fc213075036d1") {
 	exit_forbidden(E_UNKNOWN);
 }
 
