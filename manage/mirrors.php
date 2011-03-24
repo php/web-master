@@ -60,7 +60,7 @@ if (isset($id) && isset($hostname)) {
         
             // Try to execute query, and provide information if successfull
             if (db_query($query)) {
-                echo '<span class="warning">'.$msg.'</span>';
+                echo '<h2>'.$msg.'</h2>';
             }
             
             // In case a of a mirror is deleted, mail a notice to the
@@ -526,9 +526,10 @@ echo <<<EOS
 <p>
  An automatically-deactivated mirror cannot be activated manually. It will be activated after
  the next run of the automatic check (if the mirror is alright). Deactivated mirror maintainers
- get notices of the deactivation weekly. Manually-disabled mirrors are not checked by the
+ get notices of the deactivation weekly. Manually-deactivated mirrors are not checked by the
  bot, so they need some time after reactivation to get listed again. Mirror checks are done
  automatically every hour, and there is no direct manual way to start a check (at this time).
+ <strong>NOTE</strong>: Manual deactivation of a mirror will now also disable its DNS.
 </p>
 
 <div id="phpversions_off" style="display:block;text-align:center;width:100%;">
