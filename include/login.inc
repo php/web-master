@@ -12,14 +12,16 @@ if (isset($_POST["user"], $_POST["pw"])) {
     list($user, $pw) = array($_POST['user'], $_POST['pw']);
 } elseif (isset($_SESSION["credentials"]) && count($_SESSION["credentials"]) == 2) {
     list($user, $pw) = $_SESSION["credentials"];
-} elseif (isset($_COOKIE['MAGIC_COOKIE'])) {
-    list($user, $pw) = explode(":", base64_decode($_COOKIE['MAGIC_COOKIE']), 2);
 }
 
 // Login form, if the user is not yet logged in
 if (!$user || !$pw || !verify_password($user,$pw)) {
     $_SESSION["credentials"] = array();
     session_destroy();
+
+    if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
+        header("https://master.php.net/manage/" . basename($_SERVER["SCRIPT_NAME"]));
+    }
 ?>
 
 <html>
@@ -51,6 +53,10 @@ if (!$user || !$pw || !verify_password($user,$pw)) {
 }
 
 // At this point, we have logged in successfully
+if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
+    exit("Bad puppy. Use https.");
+}
+
 $_SESSION["credentials"] = array($user, $pw);
 
 // Killing magic cookie

@@ -149,14 +149,9 @@ if (isset($id) && isset($in)) {
                  . ($in[passwd] ? ",pchanged=" . time() : "")
                  . " WHERE userid=$id";
           if ($in[passwd]) {
-            if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
-              warn("Did you actually try to change your password without using https? - Thats not gonna fly");
-            }
-            else {
-              // Kill the session data after updates :)
-              $_SERVER["credentials"] = array();
-              db_query($query);
-            }
+            // Kill the session data after updates :)
+            $_SERVER["credentials"] = array();
+            db_query($query);
           } else {
             db_query($query);
           }
