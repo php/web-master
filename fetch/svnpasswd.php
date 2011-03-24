@@ -1,7 +1,7 @@
 <?php // vim: et ts=2 sw=2
 
-# token required, since this should only get accessed from cvs.php.net
-if (!isset($token) || md5($token) != "585ae1060f9b881490d1a1e3c7353e89") {
+# token required, since this should only get accessed from svn.php.net
+if (!isset($token) || md5($token) != "eba62217cacbf19cfe919d637188f40d") {
   die("token not correct.");
 }
 
