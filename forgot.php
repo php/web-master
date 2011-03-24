@@ -50,7 +50,7 @@ if ($id && $key) {
 <p>You're in the home stretch now. Just choose a new password
 (typing it twice, to avoid typos and another trip around this
 merry-go-round).</p>
-<form method="post" action="<?php echo $PHP_SELF?>">
+<form method="post" action="<?php echo htmlentities($_SERVER['PHP_SELF']) ?>">
 password: <input type="password" name="n1" value="<?php echo htmlentities(stripslashes($n1))?>" />
 <br />again: <input type="password" name="n2" value="<?php echo htmlentities(stripslashes($n1))?>" />
 <br /><input type="submit" value="do it!" />
@@ -103,7 +103,7 @@ group@php.net for help.</p>
 ?>
 <p>Forgot your <acronym title="Version Control System">VCS</acronym> password, huh? Just fill in your VCS username, and
 instructions will be sent to you on how to change your password.</p>
-<form method="post" action="<?php echo $PHP_SELF?>">
+<form method="post" action="<?php echo htmlentities($_SERVER['PHP_SELF']) ?>">
  <label for="user">username:</label>
  <input type="text" id="user" name="user" value="<?php echo htmlentities(stripslashes($user))?>" />
  <input type="submit" value="send help" />
