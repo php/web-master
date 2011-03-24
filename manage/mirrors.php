@@ -60,7 +60,7 @@ if (isset($id) && isset($hostname)) {
         
             // Try to execute query, and provide information if successfull
             if (db_query($query)) {
-                $msg_formatted = '<span class="warning">'.$msg.'</span>';
+                echo '<span class="warning">'.$msg.'</span>';
             }
             
             // In case a of a mirror is deleted, mail a notice to the
@@ -516,9 +516,6 @@ echo <<<EOS
 </div>
 
 <div style="left:5%;position:relative;width:75%;">
-
-{$msg_formatted}<br/>
-<br/>
 
 <p>
  Note that the DNS table for mirror sites is updated directly from this list, without
