@@ -39,7 +39,7 @@ if ($id && $key) {
         exit;
       }
       else {
-        echo '<p class="warning">Naughty you, the key you used to access this page doesn\'t match what we have on file for that userid. You\'ll need to <a href="',$PHP_SELF,'">start this process over</a>.</p>';
+        echo '<p class="warning">Naughty you, the key you used to access this page doesn\'t match what we have on file for that userid.</p>';
       }
     }
     else {
