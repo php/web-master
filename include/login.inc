@@ -55,7 +55,8 @@ if (!$user || !$pw || !verify_password($user,$pw)) {
 
 // At this point, we have logged in successfully
 if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
-    exit("Bad puppy. Use https.");
+    echo '<meta http-equiv="refresh" content="2;https://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'">'.PHP_EOL;
+    exit('Bad puppy. Use <a href="https://'.$_SERVER['HTTP_HOST'].'/'.$_SERVER['PHP_SELF'].'">HTTPS</a>.');
 }
 
 $_SESSION["credentials"] = array($user, $pw);
