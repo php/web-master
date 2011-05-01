@@ -432,7 +432,7 @@ function invalid_input($in) {
 
 function is_admin($user) {
   #TODO: use acls, once implemented.
-  if (in_array($user,array("jimw","rasmus","andrei","zeev","andi","sas","thies","rubys","ssb", "wez", "philip", "davidc", "helly","derick", ))) return true;
+  if (in_array($user,array("jimw","rasmus","andrei","zeev","andi","sas","thies","rubys","ssb", "wez", "philip", "davidc", "helly","derick","bjori" ))) return true;
 }
 
 # returns false if $user is not allowed to modify $userid
