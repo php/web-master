@@ -529,6 +529,9 @@ echo <<<EOS
  get notices of the deactivation weekly. Manually-deactivated mirrors are not checked by the
  bot, so they need some time after reactivation to get listed again. Mirror checks are done
  automatically every hour, and there is no direct manual way to start a check (at this time).
+</p>
+
+<p>
  <strong>NOTE</strong>: Manual deactivation of a mirror will now also disable its DNS.
 </p>
 

@@ -6,6 +6,7 @@ $spamassassin_path = '/opt/ecelerity/3rdParty/bin/spamassassin';
 
 // List of usual SPAM words
 $words_blacklist = array(
+	'000webhost',
 	'adipex',
 	'alprazolam',
 	'arimidex',

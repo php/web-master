@@ -1,4 +1,4 @@
-#!/local/php5/bin/php -q
+#!/usr/bin/php -q
 <?php # vim: ft=php et
 // This script is executed on master
 
@@ -19,24 +19,45 @@
 set_time_limit(30 * 60);
 
 // Connect to local MySQL database
-mysql_connect("localhost", "nobody", "") or die("unable to connect to database");
+mysql_connect("localhost", "root", "") or die("unable to connect to database");
 mysql_select_db("phpmasterdb");
 
-// Get mirror information for all active mirrors (regardless of their type!)
-$query = "SELECT maintainer, hostname, id, has_search, has_stats, lang,
-          UNIX_TIMESTAMP(lastchecked) as lastchecked,
-          UNIX_TIMESTAMP(lastupdated) AS lastupdated
-          FROM mirrors WHERE active = 1";
-$result = mysql_query($query) or die("unable to get from the database: " . mysql_error());
+// Allow for single-mirror testing so that we can manually test mirrors.
+if (!isset($argv[1])) {
 
-// Get all mirror site data to the $hosts array
-$hosts = array();
-while ($row = mysql_fetch_array($result)) {
-    $hosts[] = $row;
+	// Get mirror information for all active mirrors (regardless of their type!)
+	$query = "SELECT maintainer, hostname, id, has_search, has_stats, lang,
+	          UNIX_TIMESTAMP(lastchecked) as lastchecked,
+	          UNIX_TIMESTAMP(lastupdated) AS lastupdated
+	          FROM mirrors WHERE active = 1";
+	$result = mysql_query($query) or die("unable to get from the database: " . mysql_error());
+
+	// Get all mirror site data to the $hosts array
+	$hosts = array();
+	while ($row = mysql_fetch_array($result)) {
+	    $hosts[] = $row;
+	}
+
+	// Free up the result to get more memory
+	mysql_free_result($result);
+
+} else {
+
+	// Get the data for just a single mirror, by request.
+	$query = "SELECT maintainer, hostname, id, has_search, has_stats, lang,
+                  UNIX_TIMESTAMP(lastchecked) as lastchecked,
+                  UNIX_TIMESTAMP(lastupdated) AS lastupdated
+                  FROM mirrors WHERE hostname='".mysql_real_escape_string($argv[1])."' LIMIT 0,1";
+
+	$result = mysql_query($query) or die("Unable to access mirror record.  Perhaps '".$argv[1]."' does not exist.  Error: ".mysql_error().PHP_EOL."SQL Query: ".$query.PHP_EOL);
+
+	// Get the data and populate the $hosts array, which will interface with the rest of the legacy code.
+	$hosts[] = mysql_fetch_array($result);
+
+	// And, again like above, free up the memory by killing the MySQL connection.
+	mysql_free_result($result);
+
 }
-
-// Free up the result to get more memory
-mysql_free_result($result);
 
 // Check host for errors, inject data into $data and $problem
 function host_has_error($hostname, $filename, &$data, &$problem) {
@@ -105,6 +126,8 @@ $context  = stream_context_get_default(array("http" => $opts));
 // Get all mirror sites, and count the index of them
 foreach ($hosts as $index => $host) {
 
+	echo 'Testing '.$host['hostname'].'.'.PHP_EOL;
+
     // Request the exact file on www.php.net as it redirects
     // shortcut requests to a mirror site, and we would not handle
     // that properly. Otherwise on a mirror site we need to check
@@ -145,7 +168,7 @@ foreach ($hosts as $index => $host) {
         $hosts[$index]['disable'] = true;
         $hosts[$index]['problem'] = "Invalid last update time.";
     }
-    
+
     // If new search information is available, override previous one
     /*if (in_array($info[3], array('0', '1', '2'))) {
         $hosts[$index]['has_search'] = $info[3];
@@ -308,8 +331,8 @@ foreach ($hosts as $host) {
                  "lang = '"       . $host['lang']                   . "', " .
                  "ocmt = '' " .
                  "WHERE hostname = '" . $host['hostname'] . "'";
-                  
-        $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
+
+        $result = mysql_query($query) or die("Unable to update the database: $query: " . mysql_error().PHP_EOL);
         if ($result) { $mirrorsupdated++; }
         else { $problems .= $host['hostname'] . "\t- cannot be updated in database\n"; }
     }
@@ -327,7 +350,7 @@ foreach ($hosts as $host) {
                      "lastupdated = FROM_UNIXTIME(" . $host['lastupdated'] . ") " .
                      "WHERE hostname = '" . $host['hostname'] . "'";
         }
-        $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
+        $result = mysql_query($query) or die("Unable to update the database: $query: " . mysql_error());
         $problems .= $host['hostname'] . "\t- " . $host['problem'] . "\n";
     }
 
@@ -336,7 +359,7 @@ foreach ($hosts as $host) {
 // Send a debug mail at midnight with current details
 if (intval(date("H")) == 0) {
     @mail(
-        "bjori@php.net",
+        "bjori@php.net,danbrown@php.net",
         "Mirror site updates done",
         "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
     );
@@ -344,9 +367,8 @@ if (intval(date("H")) == 0) {
 // If less then 70 mirrors updated there is something severly wrong. mail it.
 if ($mirrorsupdated < 70) {
     @mail(
-        "php-webmaster@lists.php.net",
+        "php-webmaster@lists.php.net,danbrown@php.net",
         "[CRITICAL] Mirror site updates failure",
         "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
     );
 }
-

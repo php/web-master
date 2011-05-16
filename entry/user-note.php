@@ -9,7 +9,7 @@ include_once 'note-reasons.inc';
 include_once 'spam-lib.inc';
 
 $mailto = 'php-notes@lists.php.net';
-$failto = 'jimw@php.net, alindeman@php.net';
+$failto = 'jimw@php.net, alindeman@php.net, danbrown@php.net';
 
 function validateUser($user) {
     $ret     = filter_var($user,    FILTER_VALIDATE_EMAIL);
