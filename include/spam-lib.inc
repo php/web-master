@@ -91,7 +91,6 @@ function is_spam_ip ($ip) {
 
     // spammers lists
     // [0] => dns server, [1] => exclude ip
-    $lists[] = array('list.dsbl.org');
     $lists[] = array('bl.spamcop.net');
     $lists[] = array('dnsbl.sorbs.net', '127.0.0.10'); // exclude dynamic ips list
 
