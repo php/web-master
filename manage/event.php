@@ -2,6 +2,8 @@
 require '../include/login.inc';
 require '../include/email-validation.inc';
 
+define('PHP_SELF', htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'));
+
 $mailto = "php-webmaster@lists.php.net";
 #$mailto = "jimw@apache.org";
 
@@ -111,7 +113,7 @@ elseif ($in) {
 
 if (isset($id)) {
 ?>
-<form action="<?php echo $PHP_SELF?>" method="post">
+<form action="<?php echo PHP_SELF?>" method="post">
 <input type="hidden" name="id" value="<?php echo $id?>" />
 <table bgcolor="#eeeeee" border="0" cellspacing="0" cellpadding="3" width="100%">
  <tr>
@@ -189,7 +191,7 @@ if (isset($id)) {
 </form>
 <table>
 <tr>
- <form method="get" action="<?php echo $PHP_SELF;?>">
+ <form method="get" action="<?php echo PHP_SELF;?>">
   <input type="hidden" name="action" value="reject" />
   <input type="hidden" name="id" value="<?php echo $id?>" />
 <?php if ($in['approved']) {?>
@@ -199,7 +201,7 @@ if (isset($id)) {
 <?php }?>
  </form>
 <?php if (!$in['approved']) {?>
- <form method="get" action="<?php echo $PHP_SELF;?>">
+ <form method="get" action="<?php echo PHP_SELF;?>">
   <input type="hidden" name="action" value="approve" />
   <input type="hidden" name="id" value="<?php echo $id?>" />
   <td><input type="submit" value="Approve" />
@@ -215,11 +217,11 @@ if (isset($id)) {
 <table width="100%">
  <tr>
   <td>
-   <a href="<?php echo "$PHP_SELF";?>">see upcoming events</a>
-   | <a href="<?php echo "$PHP_SELF?unapproved=1";?>">see unapproved events</a>
+   <a href="<?php echo PHP_SELF?>">see upcoming events</a>
+   | <a href="<?php echo PHP_SELF . "?unapproved=1"?>">see unapproved events</a>
   </td>
   <td align="right">
-   <form method="GET" action="<?php echo $PHP_SELF;?>">
+   <form method="GET" action="<?php echo PHP_SELF;?>">
     <input type="text" name="search" value="<?php echo clean($search);?>" />
     <input type="submit" value="search">
    </form>
@@ -266,19 +268,19 @@ show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
 ?>
 <table border="0" cellspacing="1" width="100%">
 <tr bgcolor="#aaaaaa">
- <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("full" => $full ? 0 : 1));?>"><?php echo $full ? "&otimes;" : "&oplus;";?></a></th>
- <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"sdato"));?>">date</a></th>
- <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"sdesc"));?>">summary</a></th>
- <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"email"));?>">email</a></th>
- <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"country"));?>">country</a></th>
- <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"category"));?>">category</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("full" => $full ? 0 : 1));?>"><?php echo $full ? "&otimes;" : "&oplus;";?></a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"sdato"));?>">date</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"sdesc"));?>">summary</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"email"));?>">email</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"country"));?>">country</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"category"));?>">category</a></th>
 </tr>
 <?php
 $color = '#dddddd';
 while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
 ?>
 <tr bgcolor="<?php echo $color;?>">
- <td align="center"><a href="<?php echo "$PHP_SELF?id=$row[id]";?>">edit</a></td>
+ <td align="center"><a href="<?php echo PHP_SELF . "?id=$row[id]";?>">edit</a></td>
  <td><?php echo htmlspecialchars($row['sdato']);?></td>
  <td><?php echo htmlspecialchars($row['sdesc']);?></td>
  <td><?php echo htmlspecialchars($row['email']);?></td>

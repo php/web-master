@@ -2,6 +2,8 @@
 // Force login and include common functions
 include '../include/login.inc';
 
+define('PHP_SELF', htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'));
+
 // This page is for mirror administration
 head("mirror administration");
 db_connect();
@@ -123,7 +125,7 @@ elseif (isset($id)) {
 
   // Print out mirror data table with or without values
 ?>
-<form method="POST" action="<?php echo $PHP_SELF; ?>">
+<form method="POST" action="<?php echo PHP_SELF; ?>">
  <input type="hidden" name="id" value="<?php echo $row['id']; ?>" />
  <input type="hidden" name="mode" value="<?php echo $id ? 'update' : 'insert'; ?>" />
 
@@ -227,7 +229,7 @@ if (intval($id) !== 0) {
 <hr />
 
 <?php if ($row['mirrortype'] == 1 && $id !== 0) {  // only allow standard mirror deletions ?>
-<form method="POST" action="<?php echo $PHP_SELF; ?>">
+<form method="POST" action="<?php echo PHP_SELF; ?>">
  <input type="hidden" name="id" value="<?php echo $row['id']; ?>" />
  <input type="hidden" name="hostname" value="<?php echo $row['hostname']; ?>" />
  Delete mirror for this reason:<br />

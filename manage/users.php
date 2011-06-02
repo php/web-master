@@ -7,6 +7,8 @@
 require '../include/login.inc';
 require '../include/email-validation.inc';
 
+define('PHP_SELF', htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'));
+
 $mailto = "group@php.net";
 
 head("user administration");
@@ -203,7 +205,7 @@ table.useredit tr {
 }
 </style>
 <table class="useredit">
-<form method="post" action="<?php echo $PHP_SELF;?>">
+<form method="post" action="<?php echo PHP_SELF;?>">
 <input type="hidden" name="id" value="<?php echo $row[userid];?>" />
 <tr>
  <th align="right">Name:</th>
@@ -288,13 +290,13 @@ table.useredit tr {
 </form>
 <?php if (is_admin($user) && !$row[cvsaccess]) {?>
 <tr>
- <form method="get" action="<?php echo $PHP_SELF;?>">
+ <form method="get" action="<?php echo PHP_SELF;?>">
   <input type="hidden" name="action" value="remove" />
   <input type="hidden" name="noclose" value="1" />
   <input type="hidden" name="id" value="<?php echo $id?>" />
   <td><input type="submit" value="Reject" />
  </form>
- <form method="get" action="<?php echo $PHP_SELF;?>">
+ <form method="get" action="<?php echo PHP_SELF;?>">
   <input type="hidden" name="action" value="approve" />
   <input type="hidden" name="noclose" value="1" />
   <input type="hidden" name="id" value="<?php echo $id?>" />
@@ -317,15 +319,15 @@ table.useredit tr {
 ?>
 <div>
 <div style="float:right">
-   <form method="GET" action="<?php echo $PHP_SELF;?>">
+   <form method="GET" action="<?php echo PHP_SELF;?>">
     <input type="text" name="search" value="<?php echo clean($search);?>" />
     <input type="submit" value="search"><br>
     <input type="checkbox" name="searchnotes" value="1" <?php echo isset($_GET['searchnotes']) ? 'checked="checked"' : ''?>> Search notes
    </form>
 </div>
 <div>
-    <a href="<?php echo "$PHP_SELF?username=$user";?>">edit your entry</a>
-  | <a href="<?php echo "$PHP_SELF?unapproved=1";?>">see outstanding requests</a>
+    <a href="<?php echo PHP_SELF . "?username=$user";?>">edit your entry</a>
+  | <a href="<?php echo PHP_SELF . "?unapproved=1";?>">see outstanding requests</a>
 </div>
 </div>
 <?php
@@ -386,20 +388,20 @@ show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
 ?>
 <table border="0" cellspacing="1" width="100%">
 <tr bgcolor="#aaaaaa">
- <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("full" => $full ? 0 : 1));?>"><?php echo $full ? "&otimes;" : "&oplus;";?></a></th>
- <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"name"));?>">name</a></th>
- <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"email"));?>">email</a></th>
- <th><a href="<?php echo "$PHP_SELF?",array_to_url($extra,array("order"=>"username"));?>">username</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("full" => $full ? 0 : 1));?>"><?php echo $full ? "&otimes;" : "&oplus;";?></a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"name"));?>">name</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"email"));?>">email</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"username"));?>">username</a></th>
 </tr>
 <?php
 $color = '#dddddd';
 while ($row = mysql_fetch_array($res)) {
 ?>
 <tr bgcolor="<?php echo $color;?>">
- <td align="center"><a href="<?php echo "$PHP_SELF?id=$row[userid]";?>">edit</a></td>
+ <td align="center"><a href="<?php echo PHP_SELF . "?id=$row[userid]";?>">edit</a></td>
  <td><?php echo htmlspecialchars($row[name]);?></td>
  <td><?php echo htmlspecialchars($row[email]);?></td>
- <td<?php if ($row[username] && !$row[cvsaccess]) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row[username]);?><?php if ($row[username] && is_admin($user)) { if (!$row[cvsaccess]) echo " <a href=\"$PHP_SELF?action=approve&amp;noclose=1&amp;id=$row[userid]\" title=\"approve\">+</a>"; echo " <a href=\"$PHP_SELF?action=remove&amp;noclose=1&amp;id=$row[userid]\" title=\"remove\">&times;</a>"; }?></td>
+ <td<?php if ($row[username] && !$row[cvsaccess]) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row[username]);?><?php if ($row[username] && is_admin($user)) { if (!$row[cvsaccess]) echo ' <a href="'. PHP_SELF . "?action=approve&amp;noclose=1&amp;id=$row[userid]\" title=\"approve\">+</a>"; echo ' <a href="'.PHP_SELF."?action=remove&amp;noclose=1&amp;id=$row[userid]\" title=\"remove\">&times;</a>"; }?></td>
 </tr>
 <?php
   if ($full && $row[note]) {?>
@@ -413,7 +415,7 @@ while ($row = mysql_fetch_array($res)) {
 ?>
 </table>
 <?php show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra); ?>
-<p><a href="<?php echo $PHP_SELF;?>?id=0">add a new user</a></p>
+<p><a href="<?php echo PHP_SELF;?>?id=0">add a new user</a></p>
 <?php
 foot();
 
