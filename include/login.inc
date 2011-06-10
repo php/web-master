@@ -20,7 +20,12 @@ if (!$user || !$pw || !verify_password($user,$pw)) {
     session_destroy();
 
     if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
-        header("Location: https://master.php.net/manage/" . basename($_SERVER["SCRIPT_NAME"]));
+        $name = basename($_SERVER["SCRIPT_NAME"]);
+        if ($name = 'login.php') {
+            header("Location: https://master.php.net/" . $name);
+        } else {
+            header("Location: https://master.php.net/manage/" . $name);
+        }
         exit;
     }
 ?>
