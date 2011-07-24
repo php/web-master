@@ -70,6 +70,7 @@ $passwd = stripslashes($passwd);
 $cvspasswd = crypt($passwd, substr(md5(time()), 0, 2));
 $md5passwd = md5($passwd);
 $svnpasswd = gen_svn_pass($username, $passwd);
+$note = htmlspecialchars($note, ENT_QUOTES, 'UTF-8');
 
 $query = "INSERT INTO users (name,email,passwd,svnpasswd,md5passwd,username) VALUES ";
 $query .= "('$name','$email','$cvspasswd','$svnpasswd','$md5passwd','$username')";
