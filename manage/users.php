@@ -159,7 +159,7 @@ if (isset($id) && isset($in)) {
           }
 
           if(strlen($in['purpose'])) {
-              $purpose = addslashes($in['purpose']);
+              $purpose = htmlspecialchars($in['purpose'], ENT_QUOTES, 'UTF-8');
               $query = "INSERT INTO users_note (userid, note, entered) VALUES ($id, '$purpose', NOW())";
               db_query($query);
           }
@@ -310,7 +310,7 @@ table.useredit tr {
     $res = db_query("SELECT note, UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=$id");
     echo "<b>notes</b>";
     while ($res && $row = mysql_fetch_assoc($res)) {
-      echo "<div>", date("r",$row['ts']), "<br />{$row['note']}</div>";
+      echo "<div>", date("r",$row['ts']), "<br />".htmlspecialchars($row['note'], ENT_QUOTES, 'UTF-8')."</div>";
     }
   }
   foot();
