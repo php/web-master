@@ -13,6 +13,12 @@ if (!isset($cy)) $cy = (int)strftime('%Y');
 if (!isset($cd)) $cd = (int)strftime('%d');
 if (!isset($nm)) $nm = 3;
 
+// Fix sql injection. args must be integer
+$cm = (int) $cm;
+$cy = (int) $cy;
+$cd = (int) $cd;
+$nm = (int) $nm;
+
 // Collect events for $nm number of months
 while ($nm) {
 	for($cat=1; $cat<=3; $cat++) {
