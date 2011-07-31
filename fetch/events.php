@@ -1,8 +1,8 @@
 <?php
 
 # token required, since this should only get accessed from rsync.php.net
-#if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e")
-#  die("token not correct.");
+if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e")
+  die("token not correct.");
 
 @mysql_connect('localhost','nobody','') or exit;
 @mysql_select_db('phpmasterdb') or exit;
