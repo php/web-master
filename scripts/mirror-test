@@ -333,14 +333,6 @@ foreach ($hosts as $host) {
 
 }
 
-// Send a debug mail at midnight with current details
-if (intval(date("H")) == 0) {
-    @mail(
-        "bjori@php.net",
-        "Mirror site updates done",
-        "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
-    );
-}
 // If less then 70 mirrors updated there is something severly wrong. mail it.
 if ($mirrorsupdated < 70) {
     @mail(
