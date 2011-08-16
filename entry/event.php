@@ -26,6 +26,9 @@ if ($sane != 3) {
 	die("I feel for you");
 }
 
+// utf8 safe truncate, while php not compile with mb_string
+$l = 32; while (strlen($sdesc) > 32) { $sdesc = iconv_substr($sdesc, 0, $l--, 'UTF-8'); }
+
 @mysql_connect("localhost","nobody", "")
   or die("failed to connect to database");
 @mysql_select_db("phpmasterdb")
