@@ -71,9 +71,6 @@ function fetch_ip_to_country($root)
                 if (trim($line) == "#Directi IP-to-Country Db: End") {
                     $state = 'lastline';
                 } elseif (!preg_match("!\\d{20}\\w{3}\n!", $line)) {
-                    /* pretend it was the last line, seems to be a temp failure in the data */
-                    $state = "lastline";
-                    break;
                     $fileok = FALSE;
                     break 2;
                 } else {
