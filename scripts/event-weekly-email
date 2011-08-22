@@ -14,13 +14,13 @@ if ($count > 0) {
 
 	$subject = "Pending unapproved events notice";
 	$message = "
-		Greetings PHP Webmasters;
+Greetings PHP Webmasters;
 
-		There are roughly [$count] unapproved events awaiting moderation.  Please check the queue:
+There are roughly [$count] unapproved events awaiting moderation.  Please check the queue:
 
-			https://master.php.net/manage/event.php?unapproved=1
+	https://master.php.net/manage/event.php?unapproved=1
 
-		Thanks!";
+Thanks!";
 
 	$headers = "From: php-webmaster@lists.php.net";
 
