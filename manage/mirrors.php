@@ -22,7 +22,8 @@ if (isset($id)) $id = (int)$id;
 // We have something to update in the database
 if (isset($id) && isset($hostname)) {
 
-    if (is_mirror_site_admin($user)) {
+    // Allow everyone to disable a mirror, but only elite few to make other changes
+    if (is_mirror_site_admin($user) || ($mode == "update" && !$active)) {
         // No query need to be made
         $query = FALSE;
         
