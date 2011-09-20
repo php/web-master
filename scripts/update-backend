@@ -64,6 +64,13 @@ $urls = array(
 );
 pregen_rest_files("$root/reST/cache/", $urls);
 
+// Pregenerate elephpant image pool from flickr.
+include "pregen_flickr";
+pregen_flickr(
+    '6eb412bf7e360e695852fa4acc932375', 
+    $root . '/images/elephpants',
+    100
+);
 
 // Compress mirrorkit dir in backend to mirrorkit.tgz, and
 // then move it to the webspace in case it is properly done

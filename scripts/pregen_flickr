@@ -1,0 +1,99 @@
+<?php /* vim: set noet ts=4 sw=4 ft=php: : */
+
+define('FLICKR_GROUP_ID',    '610963@N20');
+define('FLICKR_REST_URL',    'http://api.flickr.com/services/rest/');
+define('FLICKR_REST_METHOD', 'flickr.groups.pools.getPhotos');
+define('FLICKR_REST_FORMAT', 'json');
+define('FLICKR_FILE_PREFIX', 'flickr-');
+
+function pregen_flickr($apiKey, $outputPath, $limit = 100)
+{
+    // ensure caller specified a place to write to.
+    $outputPath = rtrim($outputPath, '/');
+    if (!$outputPath) {
+        trigger_error("No flickr output directory specified.", E_USER_WARNING);
+        return;
+    }
+
+    // ensure path exists and is writable.
+    if (!is_dir($outputPath)) {
+        if (!@mkdir($outputPath, 0755)) {
+            trigger_error("Can't create flickr output directory: $outputPath", E_USER_WARNING);
+            return;
+        }
+    }
+    if (!is_writable($outputPath)) {
+        if (!@chmod($outputPath, 0755)) {
+            trigger_error("Can't make flickr output directory writable: $outputPath", E_USER_WARNING);
+            return;
+        }
+    }
+
+    // construct flickr api call
+    // extras is set to 'url_sq' to get the href of the square thumbnail.
+    // see http://www.flickr.com/services/api/flickr.groups.pools.getPhotos.html
+    $url = FLICKR_REST_URL . '?' . http_build_query(array(
+        'api_key'        => $apiKey,
+        'per_page'       => $limit,
+        'extras'         => 'url_sq',
+        'group_id'       => FLICKR_GROUP_ID,
+        'method'         => FLICKR_REST_METHOD,
+        'format'         => FLICKR_REST_FORMAT,
+        'nojsoncallback' => 1
+    ));
+
+    // fetch photo info
+    $response = file_get_contents($url);
+    $decoded  = json_decode($response, true);
+
+    // ensure photo info decoded successfully.
+    if (!isset($decoded['photos']['photo'])) {
+        trigger_error("Failed to decode flickr service response.", E_USER_WARNING);
+        return;
+    }
+
+    // fetch all of the photos
+    $fresh  = array();
+    $photos = $decoded['photos']['photo'];
+    foreach ($photos as $key => &$photo) {
+        
+        // sanitize url_sq for use as the image filename.
+        $imageFile          = $outputPath . '/' . FLICKR_FILE_PREFIX
+                            . preg_replace('/[^a-z0-9_\.]/i', '', basename($photo['url_sq']));
+        $photo['filename']  = basename($imageFile);
+        $fresh[]            = $photo['filename'];
+        
+        // skip photo if we've already got it.
+        if (file_exists($imageFile)) {
+            continue;
+        }
+        
+        // attempt to fetch the file from flickr.        
+        $imageData = file_get_contents($photo['url_sq']);
+        
+        // if image downloaded successfully, write it out;
+        // otherwise, remove it from the list of photos.
+        if ($imageData) {
+            file_put_contents($imageFile, $imageData);
+        } else {
+            unset($photos[$key]);
+        }
+    }
+
+    // if we failed to download any images, don't commit photo info.
+    if (!count($photos)) {
+        trigger_error("Failed to download any flickr photos.", E_USER_WARNING);
+        return;
+    }
+    
+    // write out the photo info.
+    file_put_contents($outputPath . '/flickr.json', json_encode($photos));
+    
+    // remove stale flickr images.
+    $files = scandir($outputPath);
+    foreach ($files as $file) {
+        if (strpos($file, FLICKR_FILE_PREFIX) === 0 && !in_array($file, $fresh)) {
+            unlink($outputPath . '/' . $file);
+        }
+    }
+}
