@@ -66,8 +66,11 @@ pregen_rest_files("$root/reST/cache/", $urls);
 
 // Pregenerate elephpant image pool from flickr.
 include "pregen_flickr";
+$flickr_api_key = getenv("TOKEN_FLICKR");
+if (!$flickr_api_key && file_exists(".token_flickr")) $flickr_api_key = file_get_contents(".token_flickr");
+if (!$flickr_api_key) die("you have to set the TOKEN_FLICKR environment variable or create a .token_flickr file");
 pregen_flickr(
-    '6eb412bf7e360e695852fa4acc932375', 
+    $flickr_api_key, 
     $root . '/images/elephpants',
     100
 );
