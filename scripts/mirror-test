@@ -78,20 +78,62 @@ function host_has_error($hostname, $filename, &$data, &$problem) {
         $problem = "Unable to get past HTTP response headers for file $filename. Probably timeout.";
         return TRUE;
     }
-        
+
     // Get data row from socket
     $data = fgets($fp);
 
     // Close socket
     fclose($fp);
 
-    // If unable to read that row, skip mirror site
+    // If unable to read that row, skip mirror site....
     if ($data === FALSE) {
+
+        // .... but let us slide if we get a 302 on /manual/noalias.txt, which is a semi-common occurrence.
+        $_headers = get_headers('http://'.$hostname.'/manual/noalias.txt');
+        if (preg_match('/302 Found$/',trim($_headers[0]))) {
+                $data = 'HTTP Response code: 302';
+                return false;
+        }
+
         $problem = "Unable to get data for file $filename. Probably timeout. (errno: $errno errstr: $errstr)";
         return TRUE;
     }
     
     return FALSE;
+}
+
+// Since we don't have it on master.php.net as if 27-SEP-2011....
+if (!function_exists('get_headers')) {
+    function get_headers($url,$format=0) {
+        $headers = array();
+        $url = parse_url($url);
+        $host = isset($url['host']) ? $url['host'] : '';
+        $port = isset($url['port']) ? $url['port'] : 80;
+        $path = (isset($url['path']) ? $url['path'] : '/') . (isset($url['query']) ? '?' . $url['query'] : '');
+        $fp = fsockopen($host,$port,$errno,$errstr,3);
+        if (is_resource($fp)) {
+            $hdr  = "GET ".$path." HTTP/1.1\r\n";
+            $hdr .= "Host: ".$host." \r\n";
+            $hdr .= "Connection: Close\r\n\r\n";
+            fwrite($fp,$hdr);
+            while (!feof($fp) && $line = trim(fgets($fp,1024))) {
+                if ($line == "\r\n") break;
+                list($key,$val) = explode(': ',$line,2);
+                if (isset($format) && $format !== 0) {
+                    if (isset($val)) {
+                        $headers[$key] = $val;
+                    } else {
+                        $headers[] = $key;
+                    }
+                } else {
+                    $headers[] = $line;
+                }
+            }
+            fclose($fp);
+            return $headers;
+        }
+        return false;
+    }
 }
 
 // Set default context options
