@@ -102,7 +102,7 @@ function host_has_error($hostname, $filename, &$data, &$problem) {
     return FALSE;
 }
 
-// Since we don't have it on master.php.net as if 27-SEP-2011....
+// In case we don't have get_headers() available....
 if (!function_exists('get_headers')) {
     function get_headers($url,$format=0) {
         $headers = array();
