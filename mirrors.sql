@@ -22,6 +22,7 @@ CREATE TABLE mirrors (
   phpversion varchar(16) NOT NULL default '',
   acmt text,
   ocmt text,
+  maintainer2 varchar(255) NOT NULL default '',
   PRIMARY KEY  (id),
   UNIQUE KEY hostname (hostname)
 ) TYPE=MyISAM;

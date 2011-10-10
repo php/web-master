@@ -3,19 +3,19 @@
 #
 
 CREATE TABLE phpcal (
-  id INT(8) NOT NULL AUTO_INCREMENT,
-  sdato DATE DEFAULT NULL,
-  edato DATE DEFAULT NULL,
-  recur VARCHAR(12) DEFAULT NULL,
-  sdesc VARCHAR(32) NOT NULL DEFAULT '',
-  url VARCHAR(128) DEFAULT NULL,
-  email VARCHAR(128) DEFAULT NULL,
-  ldesc TEXT,
-  tipo INT(1) NOT NULL DEFAULT '0',
-  approved INT(1) NOT NULL DEFAULT '0',
-  app_by VARCHAR(16) DEFAULT NULL,
-  country CHAR(3) NOT NULL DEFAULT '',
-  category TINYINT(4) NOT NULL DEFAULT '0',
+  id int(8) NOT NULL auto_increment,
+  sdato date default NULL,
+  edato date default NULL,
+  recur varchar(12) default NULL,
+  sdesc varchar(32) NOT NULL default '',
+  url varchar(128) default NULL,
+  email varchar(128) NOT NULL default '',
+  ldesc text,
+  tipo int(1) NOT NULL default '0',
+  approved int(1) NOT NULL default '0',
+  app_by varchar(16) default NULL,
+  country char(3) NOT NULL default '',
+  category tinyint(4) NOT NULL default '0',
   PRIMARY KEY  (id),
   KEY sdato (sdato),
   KEY edato (edato),
@@ -23,3 +23,4 @@ CREATE TABLE phpcal (
   KEY category (category),
   FULLTEXT KEY sdesc (sdesc,ldesc,email)
 ) TYPE=MyISAM;
+
