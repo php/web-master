@@ -41,6 +41,8 @@ CREATE TABLE users (
   verified int(1) NOT NULL default '0',
   use_sa int(11) default '5',
   greylist int(11) NOT NULL default '0',
+  enable int(1) NOT NULL default '0',
+  pchanged int(11) default '0',
   PRIMARY KEY  (userid),
   UNIQUE KEY email (email),
   UNIQUE KEY username (username),
