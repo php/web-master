@@ -37,7 +37,7 @@ Your note has been removed from the online manual.';
 
 db_connect();
 
-$action = (isset($_REQUEST['action']) ? $_REQUEST['action'] : '');
+$action = (isset($_REQUEST['action']) ? preg_replace('/[^\w\d_]/', '', $_REQUEST['action']) : '');
 $id = (isset($_REQUEST['id']) ? intval($_REQUEST['id']) : '');
 
 if (!$action) {
@@ -122,7 +122,7 @@ if (!$action) {
 <table>
  <tr>   
   <th align="right">Keyword or ID:</th>
-  <td><input type="text" name="keyword" value="<?php echo (isset($_REQUEST['keyword']) ? $_REQUEST['keyword'] : ''); ?>" size="10" maxlength="32" /></td>
+  <td><input type="text" name="keyword" value="<?php echo (isset($_REQUEST['keyword']) ? clean($_REQUEST['keyword']) : ''); ?>" size="10" maxlength="32" /></td>
  </tr>
  <tr> 
   <td align="center" colspan="2">
@@ -176,16 +176,16 @@ case 'mass':
       } else {
         $step = 2;
         $msg = "Are you sure to change section of <b>$count note(s)</b>";
-        $msg .= (!empty($_REQUEST["ids"]) ? " with IDs <b>$_REQUEST[ids]</b>" : "");
-        $msg .= (!empty($_REQUEST["old_sect"]) ? " from section <b>$_REQUEST[old_sect]</b>" : "");
-        $msg .= " to section <b>$_REQUEST[new_sect]</b>?";
+        $msg .= (!empty($_REQUEST["ids"]) ? " with IDs <b>" . clean($_REQUEST['ids']) . "</b>" : "");
+        $msg .= (!empty($_REQUEST["old_sect"]) ? " from section <b>" . clean($_REQUEST['old_sect']) . "</b>" : "");
+        $msg .= " to section <b>" . clean($_REQUEST['new_sect']) . "</b>?";
         echo "<p>$msg</p>\n";
 ?>
 <form action="<?php echo PHP_SELF; ?>?action=mass" method="post">
 <input type="hidden" name="step" value="2">
-<input type="hidden" name="old_sect" value="<?php echo $_REQUEST["old_sect"]; ?>">
-<input type="hidden" name="ids" value="<?php echo $_REQUEST["ids"]; ?>">
-<input type="hidden" name="new_sect" value="<?php echo $_REQUEST["new_sect"]; ?>">
+<input type="hidden" name="old_sect" value="<?php echo clean($_REQUEST["old_sect"]); ?>">
+<input type="hidden" name="ids" value="<?php echo clean($_REQUEST["ids"]); ?>">
+<input type="hidden" name="new_sect" value="<?php echo clean($_REQUEST["new_sect"]); ?>">
 <input type="submit" value="Change">
 </form>
 <?php
@@ -207,15 +207,15 @@ case 'mass':
 <table>
  <tr>
   <th align="right">Current section:</th>
-  <td><input type="text" name="old_sect" value="<?php echo $_REQUEST["old_sect"]; ?>" size="30" maxlength="80" /> (filename without extension)</td>
+  <td><input type="text" name="old_sect" value="<?php echo clean($_REQUEST["old_sect"]); ?>" size="30" maxlength="80" /> (filename without extension)</td>
  </tr>
  <tr>
   <th align="right">Notes IDs:</th>
-  <td><input type="text" name="ids" value="<?php echo $_REQUEST["ids"]; ?>" size="30" maxlength="80" /> (comma separated list)</td>
+  <td><input type="text" name="ids" value="<?php echo clean($_REQUEST["ids"]); ?>" size="30" maxlength="80" /> (comma separated list)</td>
  </tr>
  <tr>
   <th align="right">Move to section:</th>
-  <td><input type="text" name="new_sect" value="<?php echo $_REQUEST["new_sect"]; ?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="new_sect" value="<?php echo clean($_REQUEST["new_sect"]); ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr> 
   <td align="center" colspan="2">
