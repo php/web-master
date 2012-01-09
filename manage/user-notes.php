@@ -426,7 +426,7 @@ function note_mail_user($mailto, $subject, $message)
             $subject,
             $message,
             "From: ". NOTES_MAIL,
-            "-fbounces-ignored@php.net"
+            "-fbounces-ignored@php.net -O DeliveryMode=b"
         );
     }
 }
@@ -447,7 +447,7 @@ function note_get_by_id($id)
 // some action is performed on a user note.
 function note_mail_on_action($user, $id, $subject, $body)
 {
-    mail(NOTES_MAIL, $subject, $body, "From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>");
+    mail(NOTES_MAIL, $subject, $body, "From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>", '-f'.$user.'@php.net -O DeliveryMode=b');
 }
 
 // Allow some users to mass change IDs in the manual
