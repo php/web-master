@@ -37,7 +37,7 @@ Your note has been removed from the online manual.';
 
 db_connect();
 
-$action = (isset($_REQUEST['action']) ? preg_replace('/[^\w\d_]/', '', $_REQUEST['action']) : '');
+$action = (isset($_REQUEST['action']) ? preg_replace('/[^\w\d\s_]/', '', $_REQUEST['action']) : '');
 $id = (isset($_REQUEST['id']) ? intval($_REQUEST['id']) : '');
 
 if (!$action) {
