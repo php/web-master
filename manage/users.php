@@ -141,6 +141,7 @@ if (isset($id) && isset($in)) {
                  . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
                  . ($in[svnpasswd] ? ",svnpasswd='$in[svnpasswd]'" : "")
                  . ($in[md5passwd] ? ",md5passwd='$in[md5passwd]'" : "")
+                 . ($in[sshkey] ? ",ssh_keys='$in[sshkey]'" : "")
                  . ((is_admin($user) && $in[username]) ? ",username='$in[username]'" : "")
                  . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
@@ -174,6 +175,7 @@ if (isset($id) && isset($in)) {
                . ($in[passwd] ? ",passwd='$in[passwd]'" : "")
                . ($in[svnpasswd] ? ",svnpasswd='$in[svnpasswd]'" : "")
                . ($in[md5passwd] ? ",md5passwd='$in[md5passwd]'" : "")
+               . ($in[sshkey] ? ",ssh_keys='$in[sshkey]'" : "")
                . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                . ",spamprotect=$spamprotect"
                . ",use_sa=$use_sa"
@@ -279,6 +281,10 @@ table.useredit tr {
 <tr>
  <th align="right">Verified?</th>
  <td><input type="checkbox" name="in[verified]"<?php echo $row[verified] ? " checked" : "";?> /> Note: Do not worry about this value. It's sometimes used to check if old-timers are still around.</td>
+</tr>
+<tr>
+ <th align="right">SSH Key</th>
+ <td><textarea cols="50" rows="5" name="in[sshkey]"><?php echo htmlspecialchars($row[ssh_keys]) ?></textarea></td>
 </tr>
 <tr>
  <th align="right">Add Note: </th>
@@ -429,6 +435,10 @@ function invalid_input($in) {
   if ($in[rawpasswd] && $in[rawpasswd] != $in[rawpasswd2]) {
     return "the passwords you specified did not match!";
   }
+  if (isset($in[sshkey]) && !verify_ssh_keys($in[sshkey])) {
+    return "not a valid ssh key!";
+  }
+
   return false;
 }
 

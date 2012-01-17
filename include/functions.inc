@@ -183,3 +183,19 @@ function decipher_available_sqlites($avails) {
 	
 	return $mine;
 }
+
+function verify_ssh_keys($string) {
+    return count(get_ssh_keys($string)) > 0;
+}
+
+function get_ssh_keys($string) {
+    $results = array();
+    if (preg_match_all('@(ssh-(?:rsa|dsa) ([^\s]+) ([^\s]*))@', $string, $matches, PREG_SET_ORDER)) {
+        foreach ($matches as $match) {
+            $results[] = array('key'  => $match[1],
+                               'name' => $match[3]);
+        }
+    }
+
+    return $results;
+}

@@ -43,6 +43,7 @@ CREATE TABLE users (
   greylist int(11) NOT NULL default '0',
   enable int(1) NOT NULL default '0',
   pchanged int(11) default '0',
+  ssh_keys TEXT default NULL,
   PRIMARY KEY  (userid),
   UNIQUE KEY email (email),
   UNIQUE KEY username (username),
