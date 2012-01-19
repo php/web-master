@@ -23,7 +23,9 @@ $type = array(1=>'single',2=>'multi',3=>'recur');
 head("event administration");
 db_connect();
 
-if (isset($id)) $id = (int)$id;
+if (isset($_REQUEST['id'])) $id = (int)$_REQUEST['id'];
+if (isset($_REQUEST['action'])) $action = $_REQUEST['action'];
+if (isset($_REQUEST['in'])) $in = $_REQUEST['in'];
 
 if (isset($id) && isset($action)) {
   switch ($action) {

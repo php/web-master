@@ -17,7 +17,13 @@ $moreinfo   = empty($_GET['mi']) ? 0 : 1;
 $lct = db_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY lastchecked DESC LIMIT 1");
 list($checktime) = mysql_fetch_row($lct);
 
-if (isset($id)) $id = (int)$id;
+if (isset($_REQUEST['id'])) $id = (int)$_REQUEST['id'];
+
+$valid_fields = array('hostname', 'mode', 'active', 'mirrortype', 'cname', 'maintainer', 'providername', 'providerurl', 'cc', 'lang', 'has_stats', 'acmt', 'reason');
+
+foreach($valid_fields as $k) {
+    if (isset($_REQUEST[$k])) $$k = $_REQUEST[$k];
+}
 
 // We have something to update in the database
 if (isset($id) && isset($hostname)) {

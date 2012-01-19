@@ -8,6 +8,10 @@ require '../include/login.inc';
 require '../include/email-validation.inc';
 
 define('PHP_SELF', htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'));
+if(!empty($_GET['search'])) $search = $_GET['search'];
+else $search = false;
+if(!empty($username)) $username = $_GET['username'];
+if(!empty($id)) $username = $_GET['username'];
 
 $mailto = "group@php.net";
 
