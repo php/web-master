@@ -23,16 +23,13 @@ $type = array(1=>'single',2=>'multi',3=>'recur');
 head("event administration");
 db_connect();
 
-if (isset($_REQUEST['id'])) $id = (int)$_REQUEST['id'];
-if (isset($_REQUEST['action'])) $action = $_REQUEST['action'];
-if (isset($_REQUEST['in'])) $in = $_REQUEST['in'];
-if (isset($_REQUEST['begin'])) $begin = $_REQUEST['begin'];
-if (isset($_REQUEST['max'])) $max = $_REQUEST['max'];
-if (isset($_REQUEST['search'])) $search = $_REQUEST['search'];
-if (isset($_REQUEST['order'])) $order = $_REQUEST['order'];
-if (isset($_REQUEST['full'])) $full = $_REQUEST['full'];
+$id = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : false;
+$valid_vars = array('action','in','begin','max','search','order','full');
+foreach($valid_vars as $k) {
+    $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
+}
 
-if (isset($id) && isset($action)) {
+if ($id && $action) {
   switch ($action) {
   case 'approve':
     if (db_query("UPDATE phpcal SET approved=1,app_by='$user' WHERE id=$id")
@@ -69,7 +66,7 @@ if (isset($id) && isset($action)) {
   }
 }
 
-if (isset($id) && isset($in)) {
+if ($id && $in) {
   if ($error = invalid_input($in)) {
     warn($error);
   }
@@ -118,7 +115,7 @@ elseif ($in) {
   }
 }
 
-if (isset($id)) {
+if ($id) {
 ?>
 <form action="<?php echo PHP_SELF?>" method="post">
 <input type="hidden" name="id" value="<?php echo $id?>" />
@@ -237,7 +234,7 @@ if (isset($id)) {
 <?php
 
 $begin = $begin ? (int)$begin : 0;
-$full = $full ? 1 : (!isset($full) && ($search || $unapproved) ? 1 : 0);
+$full = $full ? 1 : (!$full && ($search || $unapproved) ? 1 : 0);
 $max = $max ? (int)$max : 20;
 
 $limit = "LIMIT $begin,$max";
