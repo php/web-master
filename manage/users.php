@@ -441,7 +441,7 @@ function invalid_input($in) {
     return "the passwords you specified did not match!";
   }
   if (isset($in['sshkey']) && !verify_ssh_keys($in['sshkey'])) {
-    return "not a valid ssh key!";
+    return "the ssh key doesn't seem to have the necessary format";
   }
 
   return false;
