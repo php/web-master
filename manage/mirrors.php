@@ -133,17 +133,17 @@ elseif (isset($id)) {
   // Print out mirror data table with or without values
 ?>
 <form method="POST" action="<?php echo PHP_SELF; ?>">
- <input type="hidden" name="id" value="<?php echo $row['id']; ?>" />
- <input type="hidden" name="mode" value="<?php echo $id ? 'update' : 'insert'; ?>" />
+ <input type="hidden" name="id" value="<?php echo isset($row['id']) ? $row['id'] : ''; ?>" />
+ <input type="hidden" name="mode" value="<?php echo empty($id) ? 'insert' : 'update'; ?>" />
 
  <table>
   <tr>
    <th align="right">Hostname (without http://):</th>
-   <td><input type="text" name="hostname" value="<?php echo hsc($row['hostname']); ?>" size="40" maxlength="40" /></td>
+   <td><input type="text" name="hostname" value="<?php echo empty($row['hostname']) ? '':hsc($row['hostname']); ?>" size="40" maxlength="40" /></td>
   </tr>
   <tr>
    <th align="right">Active?</th>
-   <td><input type="checkbox" name="active"<?php echo $row['active'] ? " checked" : ""; ?> /></td>
+   <td><input type="checkbox" name="active"<?php echo empty($row['active']) ? '' : " checked"; ?> /></td>
   </tr>
   <tr>
    <th align="right">Type:</th>
@@ -151,30 +151,30 @@ elseif (isset($id)) {
   </tr>
   <tr>
    <th align="right">CNAME (without http://):</th>
-   <td><input type="text" name="cname" value="<?php echo hsc($row['cname']); ?>" size="40" maxlength="80" /></td>
+   <td><input type="text" name="cname" value="<?php echo empty($row['cname']) ? '' : hsc($row['cname']); ?>" size="40" maxlength="80" /></td>
   </tr>
   <tr>
    <th align="right">Maintainer's Name and Email:</th>
-   <td><input type="text" name="maintainer" value="<?php echo hsc($row['maintainer']); ?>" size="40" maxlength="255" /></td>
+   <td><input type="text" name="maintainer" value="<?php echo empty($row['maintainer']) ? '' : hsc($row['maintainer']); ?>" size="40" maxlength="255" /></td>
   </tr>
   <tr>
    <th align="right">Provider's Name:</th>
-   <td><input type="text" name="providername" value="<?php echo hsc($row['providername']); ?>" size="40" maxlength="255" /></td>
+   <td><input type="text" name="providername" value="<?php echo empty($row['providername']) ? '' : hsc($row['providername']); ?>" size="40" maxlength="255" /></td>
   </tr>
   <tr>
    <th align="right">Provider URL (with http://):</th>
-   <td><input type="text" name="providerurl" value="<?php echo hsc($row['providerurl']); ?>" size="40" maxlength="255" /></td>
+   <td><input type="text" name="providerurl" value="<?php echo empty($row['providerurl']) ? '' : hsc($row['providerurl']); ?>" size="40" maxlength="255" /></td>
   </tr>
   <tr>
    <th align="right">Country:</th>
-   <td><select name="cc"><?php show_country_options($row['cc']); ?></select></td>
+   <td><select name="cc"><?php empty($row['cc']) ? '' : show_country_options($row['cc']); ?></select></td>
   </tr>
   <tr>
    <th align="right">Administrative Comments:</th>
-   <td><textarea wrap="virtual" cols="40" rows="12" name="acmt"><?php echo hsc($row['acmt']); ?></textarea></td>
+   <td><textarea wrap="virtual" cols="40" rows="12" name="acmt"><?php echo empty($row['acmt']) ? '' : hsc($row['acmt']); ?></textarea></td>
   </tr>
   <tr>
-   <td colspan="2" align="center"><input type="submit" value="<?php echo $id ? "Change" : "Add"; ?>" />
+   <td colspan="2" align="center"><input type="submit" value="<?php echo empty($id) ? "Add" : "Change"; ?>" />
   </tr>
  </table>
  <hr />
