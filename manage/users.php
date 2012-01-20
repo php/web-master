@@ -196,7 +196,7 @@ if ($id && $in) {
   }
 }
 
-if ($id) {
+if (isset($id)) {
   $query = "SELECT * FROM users"
          . " WHERE users.userid=$id";
   $res = db_query($query);
@@ -204,7 +204,7 @@ if ($id) {
   if (!$row) unset($id);
 }
 
-if ($id) {
+if (isset($id)) {
 ?>
 <style>
 table.useredit tr {
