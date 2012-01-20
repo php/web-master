@@ -316,7 +316,8 @@ function page_mirror_list($moreinfo = false)
             else {
                 // Not up to date or not current
                 if (!$row['up'] || !$row['current']) {
-                    $stats['autodisabled']++;
+                    if(empty($stats['autodisabled'])) $stats['autodisabled'] = 1;
+                    else $stats['autodisabled']++;
                     $siteimage = "error";
                     if (!empty($row['ocmt'])) {
                         $errorinfo = $row['ocmt'] . " (problem since: " .
@@ -372,7 +373,8 @@ function page_mirror_list($moreinfo = false)
         if ($row['has_stats'] == "1") {
             $statscell = "<a href=\"http://$row[hostname]/stats/\" target=\"_blank\">" .
                          "<img src=\"/images/mirror_stats.png\" /></a>";
-            $stats['has_stats']++;
+            if(empty($stats['has_stats'])) $stats['has_stats'] = 1;
+            else $stats['has_stats']++;
         }
 
         // Maintainer contact information cell
@@ -458,7 +460,8 @@ function page_mirror_list($moreinfo = false)
 
     $last_check_time = get_print_date($checktime);
     $current_time    = get_print_date(time());
-    
+   
+    if(empty($stats['disabled'])) $stats['disabled'] = 0;
     $stats['ok']   = $stats['mirrors'] - $stats['autodisabled'] - $stats['disabled'];
     $moreinfo_flag = empty($moreinfo) ? 1 : 0;
     
