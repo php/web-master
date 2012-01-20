@@ -19,7 +19,7 @@ function error($text, $status)
     exit;
 }
 
-(!isset($token) || md5($token) != "d3fbcabfcf3648095037175fdeef322f") && error("token not correct.", 401);
+(!isset($_GET['token']) || md5($_GET['token']) != "d3fbcabfcf3648095037175fdeef322f") && error("token not correct.", 401);
 
 $pdo = new PDO("mysql:host=localhost;dbname=phpmasterdb", "nobody", "");
 
