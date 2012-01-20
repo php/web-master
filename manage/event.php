@@ -23,11 +23,11 @@ $type = array(1=>'single',2=>'multi',3=>'recur');
 head("event administration");
 db_connect();
 
-$id = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : false;
-$valid_vars = array('action','in','begin','max','search','order','full','unapproved');
+$valid_vars = array('id', 'action','in','begin','max','search','order','full','unapproved');
 foreach($valid_vars as $k) {
     $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
+if($id) $id = (int)$id;
 
 if ($id && $action) {
   switch ($action) {
