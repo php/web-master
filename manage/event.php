@@ -24,7 +24,7 @@ head("event administration");
 db_connect();
 
 $id = isset($_REQUEST['id']) ? (int)$_REQUEST['id'] : false;
-$valid_vars = array('action','in','begin','max','search','order','full');
+$valid_vars = array('action','in','begin','max','search','order','full','unapproved');
 foreach($valid_vars as $k) {
     $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
