@@ -172,7 +172,7 @@ if ($id && $in) {
         }
 
         warn("record $id updated");
-        unset($id);
+        $id = false;
       }
       else {
         $query = "INSERT users SET name='$in[name]',email='$in[email]'"
@@ -201,7 +201,7 @@ if ($id) {
          . " WHERE users.userid=$id";
   $res = db_query($query);
   $row = mysql_fetch_array($res);
-  if (!$row) unset($id);
+  if (!$row) $id = false;
 }
 
 if ($id) {
