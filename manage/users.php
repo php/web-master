@@ -8,7 +8,7 @@ require '../include/login.inc';
 require '../include/email-validation.inc';
 
 define('PHP_SELF', htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'));
-$valid_vars = array('search','username','id','in','unapproved','begin','max','order','full', 'action');
+$valid_vars = array('search','username','id','in','unapproved','begin','max','order','full', 'action', 'noclose');
 foreach($valid_vars as $k) {
     $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
@@ -50,7 +50,7 @@ be active within the next 24 hours.
 
 Welcome to the PHP development team! If you encounter any problems
 with your SVN account, feel free to send us a note at group@php.net.";
-      mail($userinfo[email],"SVN Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
+      mail($userinfo['email'],"SVN Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
 
       mail($mailto,"SVN Account Request: $userinfo[username] approved by $user","Approved $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
       if (!$noclose) {
