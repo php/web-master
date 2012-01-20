@@ -289,7 +289,7 @@ table.useredit tr {
 </tr>
 <tr>
  <th align="right">SSH Key</th>
- <td><textarea cols="50" rows="5" name="in[sshkey]"><?php echo htmlspecialchars($row['ssh_keys']) ?></textarea></td>
+ <td><textarea cols="50" rows="5" name="in[sshkey]"><?php echo htmlspecialchars($row['ssh_keys']) ?></textarea><p>Note: Adding/editing the SSH key takes a few minutes to propagate to the server.</p></td>
 </tr>
 <tr>
  <th align="right">Add Note: </th>
