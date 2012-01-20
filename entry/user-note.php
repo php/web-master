@@ -137,16 +137,16 @@ if (@mysql_query($query)) {
 //  $msg .= "\n----\n";
 
   $msg .= "Manual Page -- http://www.php.net/manual/en/$sect.php\n";
-  $msg .= "Edit        -- https://master.php.net/note/edit/$new_id\n";
-  //$msg .= "Approve     -- https://master.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
+  $msg .= "Edit        -- https://master2.php.net/note/edit/$new_id\n";
+  //$msg .= "Approve     -- https://master2.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
   foreach ($note_del_reasons AS $reason) {
     $msg .= "Del: "
       . str_pad($reason, $note_del_reasons_pad)
-      . "-- https://master.php.net/note/delete/$new_id/" . urlencode($reason) ."\n";
+      . "-- https://master2.php.net/note/delete/$new_id/" . urlencode($reason) ."\n";
   }
-  $msg .= str_pad('Del: other reasons', $note_del_reasons_pad) . "-- https://master.php.net/note/delete/$new_id\n";
-  $msg .= "Reject      -- https://master.php.net/note/reject/$new_id\n";
-  $msg .= "Search      -- https://master.php.net/manage/user-notes.php\n";
+  $msg .= str_pad('Del: other reasons', $note_del_reasons_pad) . "-- https://master2.php.net/note/delete/$new_id\n";
+  $msg .= "Reject      -- https://master2.php.net/note/reject/$new_id\n";
+  $msg .= "Search      -- https://master2.php.net/manage/user-notes.php\n";
   # make sure we have a return address.
   if (!$user) $user = "php-general@lists.php.net";
   # strip spaces in email address, or will get a bad To: field

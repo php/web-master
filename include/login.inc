@@ -22,9 +22,9 @@ if (!$user || !$pw || !verify_password($user,$pw)) {
     if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
         $name = basename($_SERVER["SCRIPT_NAME"]);
         if ($name === 'login.php') {
-            header("Location: https://master.php.net/" . $name);
+            header("Location: https://master2.php.net/" . $name);
         } else {
-            header("Location: https://master.php.net/manage/" . $name);
+            header("Location: https://master2.php.net/manage/" . $name);
         }
         exit;
     }

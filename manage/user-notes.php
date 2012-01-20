@@ -98,12 +98,12 @@ if (!$action) {
             hsc($row['user']),"</span><br />",
 	    "Note id: $id<br />\n",
 	    "<a href=\"http://www.php.net/manual/en/{$row['sect']}.php\" target=\"_blank\">http://www.php.net/manual/en/{$row['sect']}.php</a><br />\n",
-            "<a href=\"https://master.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
+            "<a href=\"https://master2.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
 	  foreach ($note_del_reasons AS $reason => $text) {
-	    echo '<a href="https://master.php.net/note/delete/', $id, '/', urlencode($reason), '" target=\"_blank\">', 'Delete Note: ', htmlspecialchars($text), "</a><br />\n";
+	    echo '<a href="https://master2.php.net/note/delete/', $id, '/', urlencode($reason), '" target=\"_blank\">', 'Delete Note: ', htmlspecialchars($text), "</a><br />\n";
 	  }
-          echo "<a href=\"https://master.php.net/note/delete/$id\" target=\"_blank\">Delete Note: other reason</a><br />",
-            "<a href=\"https://master.php.net/note/reject/$id\" target=\"_blank\">Reject Note</a>",
+          echo "<a href=\"https://master2.php.net/note/delete/$id\" target=\"_blank\">Delete Note: other reason</a><br />",
+            "<a href=\"https://master2.php.net/note/reject/$id\" target=\"_blank\">Reject Note</a>",
             "</p>",
 	    "<hr />";
 		}
