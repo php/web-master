@@ -34,7 +34,7 @@ define('MIRROR_DOESNOTWORK', 3);
 ";
 
 // A token is required, since this should only get accessed from rsync.php.net
-if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e") {
+if (!isset($_GET['token']) || md5($_GET['token']) != "19a3ec370affe2d899755f005e5cd90e") {
     die("token not correct.");
 }
 
