@@ -434,10 +434,10 @@ function invalid_input($in) {
   if (isset($in['email']) && strlen($in['email']) && !is_emailable_address($in['email'])) {
     return "'".clean($in['email'])."' does not look like a valid email address";
   }
-  if ($in['username'] && !preg_match("/^[-\w]+\$/",$in['username'])) {
+  if (isset($in['username']) && !preg_match("/^[-\w]+\$/",$in['username'])) {
     return "'".clean($in['username'])."' is not a valid username";
   }
-  if ($in['rawpasswd'] && $in['rawpasswd'] != $in['rawpasswd2']) {
+  if (isset($in['rawpasswd']) && $in['rawpasswd'] != $in['rawpasswd2']) {
     return "the passwords you specified did not match!";
   }
   if (isset($in['sshkey']) && !verify_ssh_keys($in['sshkey'])) {
