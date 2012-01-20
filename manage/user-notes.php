@@ -71,7 +71,7 @@ if (!$action) {
       $sql .= 'note LIKE "%' . escape($_REQUEST['keyword']) . '%" LiMIT 20';
     }
    } else {
-     $page = (int)$_REQUEST["page"];     
+     $page = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
      $type = isset($_REQUEST["type"]) ? intval($_REQUEST["type"]) : 0;
      
      if($page < 0) { $page = 0; }
