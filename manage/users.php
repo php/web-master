@@ -67,7 +67,7 @@ with your SVN account, feel free to send us a note at group@php.net.";
     $userinfo = fetch_user($id);
     if (db_query("DELETE FROM users WHERE userid=$id")
      && mysql_affected_rows()) {
-      $message = $userinfo[cvsaccess] ? 
+      $message = $userinfo['cvsaccess'] ? 
 "Your SVN account ($userinfo[username]) was deleted.
 
 Feel free to send us a note at group@php.net to find out why this
@@ -98,8 +98,8 @@ PHP accounts are granted to developers who have earned the trust
 of existing PHP developers through patches, and have demonstrated
 the ability to work with others.
 ";
-      mail($userinfo[email],"SVN Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
-      mail($mailto,$userinfo[cvsaccess] ? "SVN Account Deleted: $userinfo[username] deleted by $user" : "SVN Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
+      mail($userinfo['email'],"SVN Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
+      mail($mailto,$userinfo['cvsaccess'] ? "SVN Account Deleted: $userinfo[username] deleted by $user" : "SVN Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
       db_query("DELETE FROM users_note WHERE userid=$id");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
