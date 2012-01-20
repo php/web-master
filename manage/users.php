@@ -8,7 +8,7 @@ require '../include/login.inc';
 require '../include/email-validation.inc';
 
 define('PHP_SELF', htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'));
-$valid_vars = array('search','username','id','in','unapproved','begin','max','order','full');
+$valid_vars = array('search','username','id','in','unapproved','begin','max','order','full', 'action');
 foreach($valid_vars as $k) {
     $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
@@ -299,7 +299,7 @@ table.useredit tr {
  <td><input type="submit" value="<?php echo $id ? "Update" : "Add";?>" />
 </tr>
 </form>
-<?php if (is_admin($user) && !$row[cvsaccess]) {?>
+<?php if (is_admin($user) && !$row['cvsaccess']) {?>
 <tr>
  <form method="get" action="<?php echo PHP_SELF;?>">
   <input type="hidden" name="action" value="remove" />
@@ -415,7 +415,7 @@ while ($row = mysql_fetch_array($res)) {
  <td<?php if ($row['username'] && !$row['cvsaccess']) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row['username']);?><?php if ($row['username'] && is_admin($user)) { if (!$row['cvsaccess']) echo ' <a href="'. PHP_SELF . "?action=approve&amp;noclose=1&amp;id=$row[userid]\" title=\"approve\">+</a>"; echo ' <a href="'.PHP_SELF."?action=remove&amp;noclose=1&amp;id=$row[userid]\" title=\"remove\">&times;</a>"; }?></td>
 </tr>
 <?php
-  if ($full && $row['note']) {?>
+  if ($full && !empty($row['note'])) {?>
 <tr bgcolor="<?php echo $color;?>">
  <td></td><td colspan="3"><?php echo htmlspecialchars($row['note']);?></td>
 </tr>
