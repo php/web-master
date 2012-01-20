@@ -105,7 +105,7 @@ if ($id && !$in) {
   else {
     list($in['syear'],$in['smonth'],$in['sday']) = explode("-",$in['sdato']);
     list($in['eyear'],$in['emonth'],$in['eday']) = explode("-",$in['edato']);
-    list($in['recur'],$in['recur_day']) = explode(':',$in['recur']);
+    list($in['recur'],$in['recur_day']) = @explode(':',$in['recur']);
     $in['type'] = $type[$in['tipo']];
   }
 }
