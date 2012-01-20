@@ -13,6 +13,10 @@ else $search = false;
 if(!empty($_GET['username'])) $username = $_GET['username'];
 if(!empty($_GET['id'])) $id = $_GET['id'];
 if(!empty($_GET['unapproved'])) $id = $_GET['unapproved'];
+if (isset($_REQUEST['begin'])) $begin = $_REQUEST['begin'];
+if (isset($_REQUEST['max'])) $max = $_REQUEST['max'];
+if (isset($_REQUEST['order'])) $order = $_REQUEST['order'];
+if (isset($_REQUEST['full'])) $full = $_REQUEST['full'];
 
 $mailto = "group@php.net";
 

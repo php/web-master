@@ -26,6 +26,11 @@ db_connect();
 if (isset($_REQUEST['id'])) $id = (int)$_REQUEST['id'];
 if (isset($_REQUEST['action'])) $action = $_REQUEST['action'];
 if (isset($_REQUEST['in'])) $in = $_REQUEST['in'];
+if (isset($_REQUEST['begin'])) $begin = $_REQUEST['begin'];
+if (isset($_REQUEST['max'])) $max = $_REQUEST['max'];
+if (isset($_REQUEST['search'])) $search = $_REQUEST['search'];
+if (isset($_REQUEST['order'])) $order = $_REQUEST['order'];
+if (isset($_REQUEST['full'])) $full = $_REQUEST['full'];
 
 if (isset($id) && isset($action)) {
   switch ($action) {
