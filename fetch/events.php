@@ -1,5 +1,10 @@
 <?php
 
+$valid_vars = array('token','cm','cy','cd','nm');
+foreach($valid_vars as $k) {
+    if(isset($_GET[$k])) $$k = $_GET[$k];
+}
+
 # token required, since this should only get accessed from rsync.php.net
 if (!isset($token) || md5($token) != "19a3ec370affe2d899755f005e5cd90e")
   die("token not correct.");
