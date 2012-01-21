@@ -30,7 +30,7 @@ while ($nm) {
         $entries = load_month($cy, $cm, $cat);
         $last    = strftime('%e', mktime(12, 0, 0, $cm+1, 0, $cy));
         for ($i = $cd; $i <= $last; $i++) {
-            if (is_array($entries[$i])) {
+            if (isset($entries[$i]) && is_array($entries[$i])) {
                 foreach($entries[$i] as $row) {
                     echo "$i,$cm,$cy," . '"' . $row['country'].'","' .
                         addslashes($row['sdesc']) . '",' .
