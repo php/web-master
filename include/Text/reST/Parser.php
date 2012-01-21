@@ -55,7 +55,7 @@ class Text_reST_Parser {
 
         require_once dirname(__FILE__) . '/../reST.php';
 
-        $this->_document = &new Text_reST('Document');
+        $this->_document = new Text_reST('Document');
         $this->_pushState($this->_document, 'Section', 0);
 
         while ($this->_next()) {
@@ -192,7 +192,7 @@ class Text_reST_Parser {
 
     function &_makeNode(&$parent, $type, $props = array(), $childText = null)
     {
-        $node = &new Text_reST($type);
+        $node = new Text_reST($type);
         foreach ($props as $name => $value) {
             $node->setProperty($name, $value);
         }
@@ -416,7 +416,7 @@ class Text_reST_Parser {
             //
             // Anonymous link definition
             //
-            $defn = &new Text_reST('Link');
+            $defn = new Text_reST('Link');
             if (preg_match('/^[a-z0-9-]+@[a-z0-9-\.]+\.[a-z0-9-]+$/i', $m[1])) {
                 $m[1] = 'mailto:' . $m[1];
             }
@@ -426,7 +426,7 @@ class Text_reST_Parser {
             //
             // Named link definition
             //
-            $defn = &new Text_reST('Link');
+            $defn = new Text_reST('Link');
             $defn->setProperty('name', $this->_normalizeName($m[1]));
             if (preg_match('/^[a-z0-9-]+@[a-z0-9-\.]+\.[a-z0-9-]+$/i', $m[2])) {
                 $m[2] = 'mailto:' . $m[2];
@@ -713,7 +713,7 @@ class Text_reST_Parser {
 
     function _pushState(&$node, $stateType, $level)
     {
-        $state = &new Text_reST_Parser_state($node, $stateType, $level);
+        $state = new Text_reST_Parser_state($node, $stateType, $level);
         $this->_stateStack[] = &$state;
         $this->_currentNode = &$node;
     }

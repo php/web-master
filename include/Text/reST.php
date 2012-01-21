@@ -135,7 +135,7 @@ class Text_reST {
     function &parse($text)
     {
         require_once dirname(__FILE__) . '/reST/Parser.php';
-        $parser = &new Text_reST_Parser();
+        $parser = new Text_reST_Parser();
         return $parser->parse($text);
     }
 

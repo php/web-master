@@ -51,7 +51,7 @@ class Text_reST_Formatter {
         }
         $class = 'Text_reST_Formatter_' . $driver;
         require_once $path . $driver . '.php';
-        $formatter = &new $class($args);
+        $formatter = new $class($args);
         return $formatter;
     }
 
