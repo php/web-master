@@ -67,11 +67,11 @@ if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
 $_SESSION["credentials"] = array($user, $pw);
 
 // Killing magic cookie
-setcookie("MAGIC_COOKIE","",time()-3600,'/','.php.net');
-setcookie("MAGIC_COOKIE","",time()-3600,'/');
+setcookie("MAGIC_COOKIE","",$ts-3600,'/','.php.net');
+setcookie("MAGIC_COOKIE","",$ts-3600,'/');
 
 // Set a cookie to tell various .php.net services that the user is probably loggedin
-setcookie("IS_DEV", 1, time()+3600*24*12, '/', '.php.net', false, true);
+setcookie("IS_DEV", 1, $ts+3600*24*12, '/', '.php.net', false, true);
 
 
 
@@ -80,7 +80,7 @@ setcookie("IS_DEV", 1, time()+3600*24*12, '/', '.php.net', false, true);
 function query_string()
 {
     if (!empty($_SERVER['QUERY_STRING'])) {
-        return htmlspecialchars("?{$_SERVER['QUERY_STRING']}");
+        return hsc("?{$_SERVER['QUERY_STRING']}");
     }
 }
 
@@ -88,8 +88,8 @@ function preserve_form_fields()
 {
     if (isset($_POST['in']) && is_array($_POST['in'])) {
         while (list($k, $v) = each($_POST['in'])) {
-            echo "<input type=\"hidden\" name=\"in[", htmlspecialchars($k),
-                 "]\" value=\"", htmlspecialchars($v), "\" />\n";
+            echo "<input type=\"hidden\" name=\"in[", hsc($k),
+                 "]\" value=\"", hsc($v), "\" />\n";
         }
     }
 }

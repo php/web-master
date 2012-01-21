@@ -7,6 +7,7 @@
 //require_once 'alert_lib.inc';
 include_once 'note-reasons.inc';
 include_once 'spam-lib.inc';
+include_once 'functions.inc';
 
 $mailto = 'php-notes@lists.php.net';
 $failto = 'jimw@php.net, alindeman@php.net, danbrown@php.net';
@@ -123,10 +124,10 @@ if (@mysql_query($query)) {
   if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) || isset($_SERVER['HTTP_VIA'])) {
     $msg .= " (proxied:";
     if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-      $msg .= " " . htmlspecialchars($_SERVER['HTTP_X_FORWARDED_FOR']);
+      $msg .= " " . hsc($_SERVER['HTTP_X_FORWARDED_FOR']);
     }
     if (isset($_SERVER['HTTP_VIA'])) {
-      $msg .= " " . htmlspecialchars($_SERVER['HTTP_VIA']);
+      $msg .= " " . hsc($_SERVER['HTTP_VIA']);
     }
     $msg .= ")";
   }

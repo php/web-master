@@ -2,7 +2,7 @@
 // Force login and include common functions
 include '../include/login.inc';
 
-define('PHP_SELF', htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'));
+define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
 
 // This page is for mirror administration
 head("mirror administration");
@@ -139,7 +139,7 @@ elseif (isset($id)) {
  <table>
   <tr>
    <th align="right">Hostname (without http://):</th>
-   <td><input type="text" name="hostname" value="<?php echo empty($row['hostname']) ? '':hsc($row['hostname']); ?>" size="40" maxlength="40" /></td>
+   <td><input type="text" name="hostname" value="<?php echo empty($row['hostname']) ? '':hscr($row['hostname']); ?>" size="40" maxlength="40" /></td>
   </tr>
   <tr>
    <th align="right">Active?</th>
@@ -151,19 +151,19 @@ elseif (isset($id)) {
   </tr>
   <tr>
    <th align="right">CNAME (without http://):</th>
-   <td><input type="text" name="cname" value="<?php echo empty($row['cname']) ? '' : hsc($row['cname']); ?>" size="40" maxlength="80" /></td>
+   <td><input type="text" name="cname" value="<?php echo empty($row['cname']) ? '' : hscr($row['cname']); ?>" size="40" maxlength="80" /></td>
   </tr>
   <tr>
    <th align="right">Maintainer's Name and Email:</th>
-   <td><input type="text" name="maintainer" value="<?php echo empty($row['maintainer']) ? '' : hsc($row['maintainer']); ?>" size="40" maxlength="255" /></td>
+   <td><input type="text" name="maintainer" value="<?php echo empty($row['maintainer']) ? '' : hscr($row['maintainer']); ?>" size="40" maxlength="255" /></td>
   </tr>
   <tr>
    <th align="right">Provider's Name:</th>
-   <td><input type="text" name="providername" value="<?php echo empty($row['providername']) ? '' : hsc($row['providername']); ?>" size="40" maxlength="255" /></td>
+   <td><input type="text" name="providername" value="<?php echo empty($row['providername']) ? '' : hscr($row['providername']); ?>" size="40" maxlength="255" /></td>
   </tr>
   <tr>
    <th align="right">Provider URL (with http://):</th>
-   <td><input type="text" name="providerurl" value="<?php echo empty($row['providerurl']) ? '' : hsc($row['providerurl']); ?>" size="40" maxlength="255" /></td>
+   <td><input type="text" name="providerurl" value="<?php echo empty($row['providerurl']) ? '' : hscr($row['providerurl']); ?>" size="40" maxlength="255" /></td>
   </tr>
   <tr>
    <th align="right">Country:</th>
@@ -171,7 +171,7 @@ elseif (isset($id)) {
   </tr>
   <tr>
    <th align="right">Administrative Comments:</th>
-   <td><textarea wrap="virtual" cols="40" rows="12" name="acmt"><?php echo empty($row['acmt']) ? '' : hsc($row['acmt']); ?></textarea></td>
+   <td><textarea wrap="virtual" cols="40" rows="12" name="acmt"><?php echo empty($row['acmt']) ? '' : hscr($row['acmt']); ?></textarea></td>
   </tr>
   <tr>
    <td colspan="2" align="center"><input type="submit" value="<?php echo empty($id) ? "Add" : "Change"; ?>" />

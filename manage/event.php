@@ -1,8 +1,8 @@
 <?php
-require '../include/login.inc';
-require '../include/email-validation.inc';
+require 'login.inc';
+require 'email-validation.inc';
 
-define('PHP_SELF', htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'));
+define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
 
 $mailto = "php-webmaster@lists.php.net";
 #$mailto = "jimw@apache.org";
@@ -111,7 +111,7 @@ if ($id && !$in) {
 }
 elseif ($in) {
   foreach ($in as $k => $v) {
-    $in[$k] = stripslashes($v);
+    $in[$k] = strip($v);
   }
 }
 
@@ -124,8 +124,8 @@ if ($id) {
   <th>Start Date</th>
   <td>
    <select name="in[smonth]"><option></option><?php display_options($months,$in['smonth'])?></select>
-   <input type="text" name="in[sday]" size="2" maxlength="2" value="<?php echo htmlentities($in['sday'], ENT_QUOTES, 'UTF-8')?>" />
-   <input type="text" name="in[syear]" size="4" maxlength="4" value="<?php echo $in['syear'] ? htmlentities($in['syear'], ENT_QUOTES, 'UTF-8') : date("Y")?>" />
+   <input type="text" name="in[sday]" size="2" maxlength="2" value="<?php echo hsc($in['sday'])?>" />
+   <input type="text" name="in[syear]" size="4" maxlength="4" value="<?php echo $in['syear'] ? hsc($in['syear']) : date("Y")?>" />
    <input type="radio" id="single" name="in[type]" value="single"<?php if ($in['type'] == 'single' || !$in['type']) echo ' checked="checked"';?> />
    <label for="single">One day (no end-date required)</label>
   </td>
@@ -134,8 +134,8 @@ if ($id) {
   <th>End Date</th>
   <td>
    <select name="in[emonth]"><option></option><?php display_options($months,$in['emonth'])?></select>
-   <input type="text" name="in[eday]" size="2" maxlength="2" value="<?php echo htmlentities($in['eday'], ENT_QUOTES, 'UTF-8')?>" />
-   <input type="text" name="in[eyear]" size="4" maxlength="4" value="<?php echo $in['eyear'] ? htmlentities($in['eyear'], ENT_QUOTES, 'UTF-8') : date("Y")?>" />
+   <input type="text" name="in[eday]" size="2" maxlength="2" value="<?php echo hsc($in['eday'])?>" />
+   <input type="text" name="in[eyear]" size="4" maxlength="4" value="<?php echo $in['eyear'] ? hsc($in['eyear']) : date("Y")?>" />
    <input type="radio" id="multi" name="in[type]" value="multi"<?php if ($in['type'] == 'multi') echo ' checked="checked"';?> />
    <label for="multi">Multi-day event</label>
   </td>
@@ -151,7 +151,7 @@ if ($id) {
  </tr>
  <tr>
   <th>Short<br>Description</th>
-  <td><input type="text" name="in[sdesc]" value="<?php echo htmlentities($in['sdesc'], ENT_QUOTES, 'UTF-8')?>" size="32" maxlength="32" /></td>
+  <td><input type="text" name="in[sdesc]" value="<?php echo hsc($in['sdesc'])?>" size="32" maxlength="32" /></td>
  </tr>
  <tr>
   <th>Country</th>
@@ -174,17 +174,17 @@ if ($id) {
  </tr>
  <tr>
   <th>Email</th>
-  <td><input type="text" name="in[email]" size="40" maxlength="128" value="<?php echo htmlentities($in['email'], ENT_QUOTES, 'UTF-8')?>" /></td>
+  <td><input type="text" name="in[email]" size="40" maxlength="128" value="<?php echo hsc($in['email'])?>" /></td>
  </tr>
  <tr>
   <th>URL</th>
-  <td><input type="text" name="in[url]" size="40" maxlength="128" value="<?php echo htmlentities($in['url'], ENT_QUOTES, 'UTF-8')?>" /></td>
+  <td><input type="text" name="in[url]" size="40" maxlength="128" value="<?php echo hsc($in['url'])?>" /></td>
  </tr>
  <tr>
   <th colspan="2" align="left">Long Description</th>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="in[ldesc]" cols="60" rows="10" wrap="virtual"><?php echo htmlentities($in['ldesc'], ENT_QUOTES, 'UTF-8');?></textarea></td>
+  <td colspan="2"><textarea name="in[ldesc]" cols="60" rows="10" wrap="virtual"><?php echo hsc($in['ldesc']);?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
@@ -285,16 +285,16 @@ while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
 ?>
 <tr bgcolor="<?php echo $color;?>">
  <td align="center"><a href="<?php echo PHP_SELF . "?id=$row[id]";?>">edit</a></td>
- <td><?php echo htmlspecialchars($row['sdato']);?></td>
- <td><?php echo htmlspecialchars($row['sdesc']);?></td>
- <td><?php echo htmlspecialchars($row['email']);?></td>
- <td><?php echo htmlspecialchars($row['cname']);?></td>
+ <td><?php echo hscr($row['sdato']);?></td>
+ <td><?php echo hscr($row['sdesc']);?></td>
+ <td><?php echo hscr($row['email']);?></td>
+ <td><?php echo hscr($row['cname']);?></td>
  <td><?php echo $cat[$row['category']];?></td>
 </tr>
 <?php
   if ($full && $row['ldesc']) {?>
 <tr bgcolor="<?php echo $color;?>">
- <td></td><td colspan="3"><?php echo htmlspecialchars($row['ldesc']);?></td>
+ <td></td><td colspan="3"><?php echo hscr($row['ldesc']);?></td>
 </tr>
 <?php
   }
@@ -324,6 +324,6 @@ function display_options($options,$current) {
   foreach ($options as $k => $v) {
     echo '<option value="', $k, '"',
          ($k == $current ? ' selected="selected"' : ''),
-         '>', htmlentities($v), "</option>\n";
+         '>', hscr($v), "</option>\n";
   }
 }

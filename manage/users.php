@@ -7,7 +7,7 @@
 require '../include/login.inc';
 require '../include/email-validation.inc';
 
-define('PHP_SELF', htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'));
+define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
 $valid_vars = array('search','username','id','in','unapproved','begin','max','order','full', 'action', 'noclose');
 foreach($valid_vars as $k) {
     $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
@@ -165,7 +165,7 @@ if ($id && $in) {
           }
 
           if(!empty($in['purpose'])) {
-              $purpose = htmlspecialchars($in['purpose'], ENT_QUOTES, 'UTF-8');
+              $purpose = hsc($in['purpose']);
               $query = "INSERT INTO users_note (userid, note, entered) VALUES ($id, '$purpose', NOW())";
               db_query($query);
           }
@@ -216,18 +216,18 @@ table.useredit tr {
 <input type="hidden" name="id" value="<?php echo $row['userid'];?>" />
 <tr>
  <th align="right">Name:</th>
- <td><input type="text" name="in[name]" value="<?php echo htmlspecialchars($row['name']);?>" size="40" maxlength="255" /></td>
+ <td><input type="text" name="in[name]" value="<?php echo hscr($row['name']);?>" size="40" maxlength="255" /></td>
 </tr>
 <tr>
  <th align="right">Email:</th>
- <td><input type="text" name="in[email]" value="<?php echo htmlspecialchars($row['email']);?>" size="40" maxlength="255" /><br/>
+ <td><input type="text" name="in[email]" value="<?php echo hscr($row['email']);?>" size="40" maxlength="255" /><br/>
   	<input type="checkbox" name="in[enable]"<?php echo $row['enable'] ? " checked" : "";?> /> Enable email for my account.
  </td>
 </tr>
 <?php if (!is_admin($user)) {?>
 <tr>
  <th align="right">SVN username:</th>
- <td><?php echo htmlspecialchars($row['username']);?></td>
+ <td><?php echo hscr($row['username']);?></td>
 </tr>
 <?php } ?>
 <tr>
@@ -244,11 +244,11 @@ table.useredit tr {
 <?php if (is_admin($user)) {?>
 <tr>
  <th align="right">Password (crypted):</th>
- <td><input type="text" name="in[passwd]" value="<?php echo htmlspecialchars($row['passwd']);?>" size="20" maxlength="20" /></td>
+ <td><input type="text" name="in[passwd]" value="<?php echo hscr($row['passwd']);?>" size="20" maxlength="20" /></td>
 </tr>
 <tr>
  <th align="right">SVN username:</th>
- <td><input type="text" name="in[username]" value="<?php echo htmlspecialchars($row['username']);?>" size="16" maxlength="16" /></td>
+ <td><input type="text" name="in[username]" value="<?php echo hscr($row['username']);?>" size="16" maxlength="16" /></td>
 </tr>
 <?php }?>
 <?php if (is_admin($user)) {?>
@@ -289,7 +289,7 @@ table.useredit tr {
 </tr>
 <tr>
  <th align="right">SSH Key</th>
- <td><textarea cols="50" rows="5" name="in[sshkey]"><?php echo htmlspecialchars($row['ssh_keys']) ?></textarea><p>Note: Adding/editing the SSH key takes a few minutes to propagate to the server.</p></td>
+ <td><textarea cols="50" rows="5" name="in[sshkey]"><?php echo hscr($row['ssh_keys']) ?></textarea><p>Note: Adding/editing the SSH key takes a few minutes to propagate to the server.</p></td>
 </tr>
 <tr>
  <th align="right">Add Note: </th>
@@ -321,7 +321,7 @@ table.useredit tr {
     $res = db_query("SELECT note, UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=$id");
     echo "<b>notes</b>";
     while ($res && $row = mysql_fetch_assoc($res)) {
-      echo "<div>", date("r",$row['ts']), "<br />".htmlspecialchars($row['note'], ENT_QUOTES, 'UTF-8')."</div>";
+      echo "<div>", date("r",$row['ts']), "<br />".hscr($row['note'])."</div>";
     }
   }
   foot();
@@ -410,14 +410,14 @@ while ($row = mysql_fetch_array($res)) {
 ?>
 <tr bgcolor="<?php echo $color;?>">
  <td align="center"><a href="<?php echo PHP_SELF . "?id=$row[userid]";?>">edit</a></td>
- <td><?php echo htmlspecialchars($row['name']);?></td>
- <td><?php echo htmlspecialchars($row['email']);?></td>
- <td<?php if ($row['username'] && !$row['cvsaccess']) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo htmlspecialchars($row['username']);?><?php if ($row['username'] && is_admin($user)) { if (!$row['cvsaccess']) echo ' <a href="'. PHP_SELF . "?action=approve&amp;noclose=1&amp;id=$row[userid]\" title=\"approve\">+</a>"; echo ' <a href="'.PHP_SELF."?action=remove&amp;noclose=1&amp;id=$row[userid]\" title=\"remove\">&times;</a>"; }?></td>
+ <td><?php echo hscr($row['name']);?></td>
+ <td><?php echo hscr($row['email']);?></td>
+ <td<?php if ($row['username'] && !$row['cvsaccess']) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo hscr($row['username']);?><?php if ($row['username'] && is_admin($user)) { if (!$row['cvsaccess']) echo ' <a href="'. PHP_SELF . "?action=approve&amp;noclose=1&amp;id=$row[userid]\" title=\"approve\">+</a>"; echo ' <a href="'.PHP_SELF."?action=remove&amp;noclose=1&amp;id=$row[userid]\" title=\"remove\">&times;</a>"; }?></td>
 </tr>
 <?php
   if ($full && !empty($row['note'])) {?>
 <tr bgcolor="<?php echo $color;?>">
- <td></td><td colspan="3"><?php echo htmlspecialchars($row['note']);?></td>
+ <td></td><td colspan="3"><?php echo hsc($row['note']);?></td>
 </tr>
 <?php
   }

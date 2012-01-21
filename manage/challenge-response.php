@@ -45,9 +45,9 @@ usort($inmates, 'sort_by_domain');
 
 ?>
 
-<h1>Addresses in quarantine for <?php echo htmlspecialchars($user, ENT_QUOTES); ?>@php.net</h1>
+<h1>Addresses in quarantine for <?php echo hsc($user); ?>@php.net</h1>
 
-<form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES); ?>">
+<form method="post" action="<?php echo hsc($_SERVER['PHP_SELF']); ?>">
 
 <table>
 	<tr>
@@ -63,9 +63,9 @@ foreach ($inmates as $prisoner) {
 	$bgcolor = ($i & 1) ? '#eeeeee' : '#ffffff';
 ?>
 <tr bgcolor="<?php echo $bgcolor; ?>">
-	<td><input type="checkbox" name="confirm[]" value="<?php echo htmlspecialchars($prisoner, ENT_QUOTES) ?>"/></td>
-	<td align="right"><?php echo htmlspecialchars($localpart, ENT_QUOTES) ?></td>
-	<td align="left">@ <?php echo htmlspecialchars($domain, ENT_QUOTES) ?></td>
+	<td><input type="checkbox" name="confirm[]" value="<?php echo hscr($prisoner) ?>"/></td>
+	<td align="right"><?php echo hscr($localpart) ?></td>
+	<td align="left">@ <?php echo hscr($domain) ?></td>
 </tr>
 <?php
 }

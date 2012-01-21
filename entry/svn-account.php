@@ -2,6 +2,12 @@
 
 require 'email-validation.inc';
 require dirname(__FILE__) . '/../include/svn-auth.inc';
+require 'functions.inc';
+
+$valid_vars = array('name','email','username','passwd','note','group');
+foreach($valid_vars as $k) {
+    if(isset($_REQUEST[$k])) $$k = $_REQUEST[$k];
+}
 
 if (empty($name) || empty($email) || empty($username) || empty($passwd) || empty($note) || empty($group))
   die("missing some parameters");
@@ -44,7 +50,7 @@ $username = strtolower($username);
 # placed in qmail-smtpd's badmailfrom to block future emails.) some of these
 # latter addresses were used as examples in the documentation at one point,
 # which means they appear on all sorts of spam lists.
-if (in_array($username,array('nse','roys','php','foo','group','core','webmaster','web','aardvark','zygote','jag','sites','er','sqlite','cvs2svn')))
+if (in_array($username,array('nse','roys','php','foo','group','core','webmaster','web','aardvark','zygote','jag','sites','er','sqlite','cvs2svn','nobody','svn','git','root')))
   die("that username is not available");
 
 if (!preg_match('@^[a-z0-9_.-]+$@', $username)) {
@@ -56,7 +62,7 @@ if (!preg_match('@^[a-z0-9_.-]+$@', $username)) {
 @mysql_select_db("phpmasterdb")
   or die("failed to select database");
 
-if (!is_emailable_address(stripslashes($email)))
+if (!is_emailable_address(strip($email)))
   die("that email address does not appear to be valid");
 
 $res = @mysql_query("SELECT userid FROM users WHERE username='$username'");
@@ -66,11 +72,11 @@ if ($res && mysql_num_rows($res))
 # TODO: fail if someone with that email address has an account. right now
 # this goes to the failto address since there's no password recovery
 # mechanism
-$passwd = stripslashes($passwd);
+$passwd = strip($passwd);
 $cvspasswd = crypt($passwd, substr(md5(time()), 0, 2));
 $md5passwd = md5($passwd);
 $svnpasswd = gen_svn_pass($username, $passwd);
-$note = htmlspecialchars($note, ENT_QUOTES, 'UTF-8');
+$note = hsc($note);
 
 $query = "INSERT INTO users (name,email,passwd,svnpasswd,md5passwd,username) VALUES ";
 $query .= "('$name','$email','$cvspasswd','$svnpasswd','$md5passwd','$username')";
@@ -82,9 +88,8 @@ if (@mysql_query($query)) {
   mysql_query("INSERT INTO users_note (userid, note, entered)"
              ." VALUES ($new_id, '$note [group: $group]', NOW())");
 
-  $msg = stripslashes($note);
-
-  $from = '"'.stripslashes($name).'" <'.stripslashes($email).">";
+  $msg = $note;
+  $from = "\"$name)\" <$email>";
 
   // The PEAR guys don't want these requests to their -dev@ list, only -group@
   if ($group != "pear") {

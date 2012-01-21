@@ -8,7 +8,7 @@ include '../include/note-reasons.inc';
 //require_once 'alert_lib.inc'; // remove comment if alerts are needed
 
 define("NOTES_MAIL", "php-notes@lists.php.net");
-define("PHP_SELF", htmlentities($_SERVER['PHP_SELF'], ENT_QUOTES));
+define("PHP_SELF", hsc($_SERVER['PHP_SELF']));
 
 $reject_text =
 'You are receiving this email because your note posted
@@ -95,12 +95,12 @@ if (!$action) {
           $id = $row['id'];
           echo "<p class=\"notepreview\">",clean_note($row['note']),
             "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
-            hsc($row['user']),"</span><br />",
+            hscr($row['user']),"</span><br />",
 	    "Note id: $id<br />\n",
 	    "<a href=\"http://www.php.net/manual/en/{$row['sect']}.php\" target=\"_blank\">http://www.php.net/manual/en/{$row['sect']}.php</a><br />\n",
             "<a href=\"https://master2.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
 	  foreach ($note_del_reasons AS $reason => $text) {
-	    echo '<a href="https://master2.php.net/note/delete/', $id, '/', urlencode($reason), '" target=\"_blank\">', 'Delete Note: ', htmlspecialchars($text), "</a><br />\n";
+	    echo '<a href="https://master2.php.net/note/delete/', $id, '/', urlencode($reason), '" target=\"_blank\">', 'Delete Note: ', hscr($text), "</a><br />\n";
 	  }
           echo "<a href=\"https://master2.php.net/note/delete/$id\" target=\"_blank\">Delete Note: other reason</a><br />",
             "<a href=\"https://master2.php.net/note/reject/$id\" target=\"_blank\">Reject Note</a>",
