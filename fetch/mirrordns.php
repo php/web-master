@@ -10,7 +10,7 @@
 
 // A token is required, since this should only get
 // accessed from an authorized requester
-if (!isset($_GET['token']) || md5($_GET['token']) != "19a3ec370affe2d899755f005e5cd90e") {
+if (!isset($_REQUEST['token']) || md5($_REQUEST['token']) != "19a3ec370affe2d899755f005e5cd90e") {
     die("token not correct.");
 }
 
