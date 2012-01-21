@@ -29,7 +29,7 @@ if ($id && $key) {
   if ($n1 && $n2) {
     if ($n1 == $n2) {
       $sn1 = stripslashes($n1);
-      $passwd = addslashes(crypt(stripslashes($n1), substr(md5(time()), 0, 2)));
+      $passwd = addslashes(crypt(stripslashes($n1), substr(md5($ts), 0, 2)));
       $svnpasswd = gen_svn_pass(username_from_forgotten($key, $id), $sn1);
       $md5passwd = md5($sn1);
       $res = @mysql_query("UPDATE users SET forgot=NULL,passwd='$passwd',svnpasswd='$svnpasswd',md5passwd='$md5passwd' WHERE userid='$id' AND forgot='$key'");

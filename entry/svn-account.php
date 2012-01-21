@@ -73,7 +73,7 @@ if ($res && mysql_num_rows($res))
 # this goes to the failto address since there's no password recovery
 # mechanism
 $passwd = strip($passwd);
-$cvspasswd = crypt($passwd, substr(md5(time()), 0, 2));
+$cvspasswd = crypt($passwd, substr(md5($ts), 0, 2));
 $md5passwd = md5($passwd);
 $svnpasswd = gen_svn_pass($username, $passwd);
 $note = hsc($note);

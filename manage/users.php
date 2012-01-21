@@ -127,7 +127,7 @@ if ($id && $in) {
     else {
       if (!empty($in['rawpasswd'])) {
         // need to get rid of these
-        $in['passwd'] = crypt($in['rawpasswd'],substr(md5(time()),0,2));
+        $in['passwd'] = crypt($in['rawpasswd'],substr(md5($ts),0,2));
         $in['svnpasswd'] = gen_svn_pass($user, $in['rawpasswd']);
         $in['md5passwd'] = md5($in['rawpasswd']);
       }
@@ -154,7 +154,7 @@ if ($id && $in) {
                  . ",enable=$enable"
                  . ",use_sa=$use_sa"
                  . ",greylist=$greylist"
-                 . (!empty($in['passwd']) ? ",pchanged=" . time() : "")
+                 . (!empty($in['passwd']) ? ",pchanged=" . $ts : "")
                  . " WHERE userid=$id";
           if (!empty($in['passwd'])) {
             // Kill the session data after updates :)
