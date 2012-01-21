@@ -321,7 +321,7 @@ table.useredit tr {
     $res = db_query("SELECT note, UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=$id");
     echo "<b>notes</b>";
     while ($res && $row = mysql_fetch_assoc($res)) {
-      echo "<div>", date("r",$row['ts']), "<br />".hscr($row['note'])."</div>";
+      echo "<div>", date("r",$row['ts']), "<br />".$row['note']."</div>";
     }
   }
   foot();
