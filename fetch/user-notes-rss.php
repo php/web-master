@@ -48,13 +48,13 @@ header('Content-type: text/xml');
 >
   <channel rdf:about="http://www.php.net/">
   <title>PHP Manual User Notes</title>
-  <link>https://master2.php.net/manage/user-notes.php</link>
+  <link>https://master.php.net/manage/user-notes.php</link>
   <description/>
   <items>
     <?php if ($notes) { ?>
     <rdf:Seq>
-      <rdf:li rdf:resource="https://master2.php.net/note/edit/<?php
-      echo implode('"/> <rdf:li rdf:resource="https://master2.php.net/note/edit/',
+      <rdf:li rdf:resource="https://master.php.net/note/edit/<?php
+      echo implode('"/> <rdf:li rdf:resource="https://master.php.net/note/edit/',
         array_keys($notes));?>"/>
     </rdf:Seq>
     <?php } ?>
@@ -63,7 +63,7 @@ header('Content-type: text/xml');
   <image rdf:about="http://www.php.net/images/php.gif">
     <title>PHP Manual User Notes</title>
     <url>http://www.php.net/images/php.gif</url>
-    <link>https://master2.php.net/manage/user-notes.php</link>
+    <link>https://master.php.net/manage/user-notes.php</link>
   </image>
 <?php
 foreach ($notes as $note) {
@@ -71,7 +71,7 @@ foreach ($notes as $note) {
   <item>
     <title><?php echo htmlspecialchars(substr($note['note'], 0, 40));
       echo strlen($note['note']) < 40 ? '...' : ''; ?></title>
-    <link>https://master2.php.net/note/edit/<?php echo $note['id']; ?></link>
+    <link>https://master.php.net/note/edit/<?php echo $note['id']; ?></link>
     <description>
       <![CDATA[
       <?php echo htmlspecialchars($note['note']); ?>

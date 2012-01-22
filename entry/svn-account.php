@@ -97,9 +97,9 @@ if (@mysql_query($query)) {
   }
 
   $msg .= "\n-- \n";
-  $msg .= "approve: https://master2.php.net/manage/users.php?action=approve&id=$new_id\n";
-  $msg .= "reject:  https://master2.php.net/manage/users.php?action=remove&id=$new_id\n";
-  $msg .= "view:    https://master2.php.net/manage/users.php?id=$new_id\n";
+  $msg .= "approve: https://master.php.net/manage/users.php?action=approve&id=$new_id\n";
+  $msg .= "reject:  https://master.php.net/manage/users.php?action=remove&id=$new_id\n";
+  $msg .= "view:    https://master.php.net/manage/users.php?id=$new_id\n";
 
   mail($failto,"SVN Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id-admin@php.net>", "-fnoreply@php.net");
 } else {

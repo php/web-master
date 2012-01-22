@@ -107,6 +107,6 @@ $msg .= "Country: ".stripslashes($country)."\n"
 
 # add signature/actions
 $msg .= "\n-- \n"
-      . "https://master2.php.net/manage/event.php?id=$new_id&action=approve\n"
-      . "https://master2.php.net/manage/event.php?id=$new_id&action=reject\n"
-      . "https://master2.php.net/manage/event.php?id=$new_id\n";
+      . "https://master.php.net/manage/event.php?id=$new_id&action=approve\n"
+      . "https://master.php.net/manage/event.php?id=$new_id&action=reject\n"
+      . "https://master.php.net/manage/event.php?id=$new_id\n";
