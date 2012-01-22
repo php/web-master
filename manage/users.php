@@ -216,11 +216,11 @@ table.useredit tr {
 <input type="hidden" name="id" value="<?php echo $row['userid'];?>" />
 <tr>
  <th align="right">Name:</th>
- <td><input type="text" name="in[name]" value="<?php echo hscr($row['name']);?>" size="40" maxlength="255" /></td>
+ <td><input type="text" name="in[name]" value="<?php echo $row['name'];?>" size="40" maxlength="255" /></td>
 </tr>
 <tr>
  <th align="right">Email:</th>
- <td><input type="text" name="in[email]" value="<?php echo hscr($row['email']);?>" size="40" maxlength="255" /><br/>
+ <td><input type="text" name="in[email]" value="<?php echo $row['email'];?>" size="40" maxlength="255" /><br/>
   	<input type="checkbox" name="in[enable]"<?php echo $row['enable'] ? " checked" : "";?> /> Enable email for my account.
  </td>
 </tr>
@@ -410,8 +410,8 @@ while ($row = mysql_fetch_array($res)) {
 ?>
 <tr bgcolor="<?php echo $color;?>">
  <td align="center"><a href="<?php echo PHP_SELF . "?id=$row[userid]";?>">edit</a></td>
- <td><?php echo hscr($row['name']);?></td>
- <td><?php echo hscr($row['email']);?></td>
+ <td><?php echo $row['name'];?></td>
+ <td><?php echo $row['email'];?></td>
  <td<?php if ($row['username'] && !$row['cvsaccess']) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo hscr($row['username']);?><?php if ($row['username'] && is_admin($user)) { if (!$row['cvsaccess']) echo ' <a href="'. PHP_SELF . "?action=approve&amp;noclose=1&amp;id=$row[userid]\" title=\"approve\">+</a>"; echo ' <a href="'.PHP_SELF."?action=remove&amp;noclose=1&amp;id=$row[userid]\" title=\"remove\">&times;</a>"; }?></td>
 </tr>
 <?php
