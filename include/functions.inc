@@ -194,7 +194,7 @@ function verify_ssh_keys($string) {
 
 function get_ssh_keys($string) {
     $results = array();
-    if (preg_match_all('@(ssh-(?:rsa|dsa) ([^\s]+) ([^\s]*))@', $string, $matches, PREG_SET_ORDER)) {
+    if (preg_match_all('@(ssh-(?:rsa|dss) ([^\s]+) ([^\s]*))@', $string, $matches, PREG_SET_ORDER)) {
         foreach ($matches as $match) {
             $results[] = array('key'  => $match[1],
                                'name' => $match[3]);
