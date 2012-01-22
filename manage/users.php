@@ -136,18 +136,18 @@ if ($id && $in) {
       $enable = empty($in['enable']) ? 0 : 1;
       $spamprotect = empty($in['spamprotect']) ? 0 : 1;
       $verified = empty($in['verified']) ? 0 : 1;
-      $use_sa = isset($in['use_sa']) ? (int)$in['use_sa'] : 0;
+      $use_sa = empty($in['use_sa']) ? 0 : (int)$in['use_sa'];
       $greylist = empty($in['greylist']) ? 0 : 1;
 
       if ($id) {
         # update main table data
-        if (isset($in['email']) && isset($in['name'])) {
+        if (!empty($in['email']) && !empty($in['name'])) {
           $query = "UPDATE users SET name='$in[name]',email='$in[email]'"
                  . (!empty($in['passwd']) ? ",passwd='$in[passwd]'" : "")
                  . (!empty($in['svnpasswd']) ? ",svnpasswd='$in[svnpasswd]'" : "")
                  . (!empty($in['md5passwd']) ? ",md5passwd='$in[md5passwd]'" : "")
                  . (!empty($in['sshkey']) ? ",ssh_keys='$in[sshkey]'" : "")
-                 . ((is_admin($user) && isset($in['username'])) ? ",username='$in[username]'" : "")
+                 . ((is_admin($user) && !empty($in['username'])) ? ",username='$in[username]'" : "")
                  . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
                  . ",verified=$verified"
@@ -431,16 +431,16 @@ while ($row = mysql_fetch_array($res)) {
 foot();
 
 function invalid_input($in) {
-  if (isset($in['email']) && strlen($in['email']) && !is_emailable_address($in['email'])) {
+  if (!empty($in['email']) && strlen($in['email']) && !is_emailable_address($in['email'])) {
     return "'".clean($in['email'])."' does not look like a valid email address";
   }
-  if (isset($in['username']) && !preg_match("/^[-\w]+\$/",$in['username'])) {
+  if (!empty($in['username']) && !preg_match("/^[-\w]+\$/",$in['username'])) {
     return "'".clean($in['username'])."' is not a valid username";
   }
-  if (isset($in['rawpasswd']) && $in['rawpasswd'] != $in['rawpasswd2']) {
+  if (!empty($in['rawpasswd']) && $in['rawpasswd'] != $in['rawpasswd2']) {
     return "the passwords you specified did not match!";
   }
-  if (isset($in['sshkey']) && !verify_ssh_keys($in['sshkey'])) {
+  if (!empty($in['sshkey']) && !verify_ssh_keys($in['sshkey'])) {
     return "the ssh key doesn't seem to have the necessary format";
   }
 
