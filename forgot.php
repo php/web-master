@@ -2,6 +2,12 @@
 require 'functions.inc';
 require dirname(__FILE__) . "/include/svn-auth.inc";
 
+$valid_vars = array('id','user','key','n1','n2');
+foreach($valid_vars as $k) {
+  $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
+}
+
+
 function random_password() {
   $alphanum = array_merge(range("a","z"),range("A","Z"),range(0,9));
 
@@ -28,8 +34,8 @@ mysql_select_db("phpmasterdb")
 if ($id && $key) {
   if ($n1 && $n2) {
     if ($n1 == $n2) {
-      $sn1 = stripslashes($n1);
-      $passwd = addslashes(crypt(stripslashes($n1), substr(md5($ts), 0, 2)));
+      $sn1 = strip($n1);
+      $passwd = mysql_real_escape_string(crypt($n1, substr(md5($ts), 0, 2)));
       $svnpasswd = gen_svn_pass(username_from_forgotten($key, $id), $sn1);
       $md5passwd = md5($sn1);
       $res = @mysql_query("UPDATE users SET forgot=NULL,passwd='$passwd',svnpasswd='$svnpasswd',md5passwd='$md5passwd' WHERE userid='$id' AND forgot='$key'");
@@ -51,11 +57,11 @@ if ($id && $key) {
 (typing it twice, to avoid typos and another trip around this
 merry-go-round).</p>
 <form method="post" action="<?php echo htmlentities($_SERVER['PHP_SELF']) ?>">
-password: <input type="password" name="n1" value="<?php echo htmlentities(stripslashes($n1))?>" />
-<br />again: <input type="password" name="n2" value="<?php echo htmlentities(stripslashes($n1))?>" />
+password: <input type="password" name="n1" value="<?= hsc($n1)?>" />
+<br />again: <input type="password" name="n2" value="<?= hsc($n1)?>" />
 <br /><input type="submit" value="do it!" />
-<input type="hidden" name="id" value="<?php echo htmlentities(stripslashes($id))?>" />
-<input type="hidden" name="key" value="<?php echo htmlentities(stripslashes($key))?>" />
+<input type="hidden" name="id" value="<?= hsc($id)?>" />
+<input type="hidden" name="key" value="<?= hsc($key)?>" />
 </form>
 <?php
   foot();
@@ -94,8 +100,7 @@ group@php.net
     }
   }
   else {?>
-<p class="warning">There's nobody named <?php echo
-htmlentities(stripslashes($user))?> around here. Perhaps you need to contact
+<p class="warning">There's nobody named <?php echo hsc($user)?> around here. Perhaps you need to contact
 group@php.net for help.</p>
 <?php
   }
@@ -103,9 +108,9 @@ group@php.net for help.</p>
 ?>
 <p>Forgot your <acronym title="Version Control System">VCS</acronym> password, huh? Just fill in your VCS username, and
 instructions will be sent to you on how to change your password.</p>
-<form method="post" action="<?php echo htmlentities($_SERVER['PHP_SELF']) ?>">
+<form method="post" action="<?= $_SERVER['PHP_SELF'] ?>">
  <label for="user">username:</label>
- <input type="text" id="user" name="user" value="<?php echo htmlentities(stripslashes($user))?>" />
+ <input type="text" id="user" name="user" value="<?php echo hsc($user)?>" />
  <input type="submit" value="send help" />
 </form>
 <?php
