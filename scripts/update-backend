@@ -88,10 +88,19 @@ if (@file_exists('mirrorkit.tgz')) {
 // overwrite the real file with the new data
 function fetch_into_file($url, $file)
 {
+    $SSL_fopen = false;
+    if(in_array('https', stream_get_wrappers())) {
+        $SSL_fopen = true;
+    }
+
     // Open URL for reading
-    $source = @fopen($url, "r");
-    if (!$source) {
-        return;
+    if($SSL_fopen) {
+        $source = @fopen($url, "r");
+        if (!$source) {
+            return;
+        }
+    } else {
+        $source = popen("curl -s $url", 'r');
     }
 
     // Open temporary file for writing
