@@ -1,4 +1,4 @@
-#!/local/php5/bin/php -q
+#!/usr/local/bin/php -q
 <?php # vim: ft=php et
 // This script is executed on master
 
