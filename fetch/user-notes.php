@@ -32,5 +32,5 @@ while ($row = mysql_fetch_array($res, MYSQL_ASSOC)) {
         $user = '';
     }
     echo "$row[id]|$row[sect]|$row[rate]|$row[ts]|$user|",
-         base64_encode(gzcompress($row[note],3)),"\n";
+         base64_encode(gzcompress($row['note'],3)),"\n";
 }
