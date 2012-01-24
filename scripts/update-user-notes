@@ -20,11 +20,22 @@ if (substr($root,-1) != '/') {
 }
 $since = $argv[2];
 
+$SSL_fopen = false;
+if(in_array('https', stream_get_wrappers())) {
+    $SSL_fopen = true;
+}
+
 /* get user notes */
-$fp = @fopen(
-    "https://master.php.net/fetch/user-notes.php?token=$token".($since?"&since=$since":""),
-    "r"
-);
+if($SSL_fopen) {
+    $fp = @fopen(
+        "https://master.php.net/fetch/user-notes.php?token=$token".($since?"&since=$since":""),
+        "r"
+    );
+} else {
+    $url = escapeshellarg("https://master.php.net/fetch/user-notes.php?token=$token".($since?"&since=$since":""));
+    $fp = popen("curl -s $url",'r');
+}
+
 if (!$fp) {
     exit(1);
 }
