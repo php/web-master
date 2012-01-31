@@ -89,7 +89,7 @@ if (@mysql_query($query)) {
              ." VALUES ($new_id, '$note [group: $group]', NOW())");
 
   $msg = $note;
-  $from = "\"$name)\" <$email>";
+  $from = "\"$name\" <$email>";
 
   // The PEAR guys don't want these requests to their -dev@ list, only -group@
   if ($group != "pear") {
