@@ -8,6 +8,13 @@ define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
 head("mirror administration");
 db_connect();
 
+$valid_fields = array('hostname', 'mode', 'active', 'mirrortype', 'cname', 'maintainer', 'providername', 'providerurl', 'cc', 'lang', 'has_stats', 'acmt', 'reason');
+
+foreach($valid_fields as $k) {
+    if (isset($_REQUEST[$k])) $$k = $_REQUEST[$k];
+}
+
+
 // Get boolean values from form
 $active     = isset($active)     ? 1 : 0;
 $has_stats  = isset($has_stats)  ? 1 : 0;
@@ -19,11 +26,6 @@ list($checktime) = mysql_fetch_row($lct);
 
 if (isset($_REQUEST['id'])) $id = (int)$_REQUEST['id'];
 
-$valid_fields = array('hostname', 'mode', 'active', 'mirrortype', 'cname', 'maintainer', 'providername', 'providerurl', 'cc', 'lang', 'has_stats', 'acmt', 'reason');
-
-foreach($valid_fields as $k) {
-    if (isset($_REQUEST[$k])) $$k = $_REQUEST[$k];
-}
 
 // We have something to update in the database
 if (isset($id) && isset($hostname)) {
