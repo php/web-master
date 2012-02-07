@@ -18,7 +18,7 @@ function day($in) {
   return strftime('%A',mktime(12,0,0,4,$in,2001));
 }
 
-$valid_vars = array('sdesc','email','country','category','type','url','sane','smonth','sday','syear','emonth','eday','eyear','recur','recur_day');
+$valid_vars = array('sdesc','ldesc','email','country','category','type','url','sane','smonth','sday','syear','emonth','eday','eyear','recur','recur_day');
 foreach($valid_vars as $k) {
   $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
