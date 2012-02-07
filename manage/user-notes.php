@@ -118,7 +118,7 @@ if (!$action) {
 
 ?>
 <p>Search the notes table.</p>
-<form method="post" action="<?php echo PHP_SELF; ?>">
+<form method="post" action="<?= PHP_SELF ?>">
 <table>
  <tr>   
   <th align="right">Keyword or ID:</th>
@@ -132,10 +132,10 @@ if (!$action) {
 </table>
 </form>
 
-<p><a href="<?php echo PHP_SELF; ?>?action=mass">Mass change of sections</a></p>
-<p><a href="<?php echo PHP_SELF; ?>?view=notes&type=0">View last 10 notes</a></p>
-<p><a href="<?php echo PHP_SELF; ?>?view=notes&type=1">View first 10 notes</a></p>
-<p><a href="<?php echo PHP_SELF; ?>?view=notes&type=2">View minor 10 notes</a></p>
+<p><a href="<?= PHP_SELF ?>?action=mass">Mass change of sections</a></p>
+<p><a href="<?= PHP_SELF ?>?view=notes&type=0">View last 10 notes</a></p>
+<p><a href="<?= PHP_SELF ?>?view=notes&type=1">View first 10 notes</a></p>
+<p><a href="<?= PHP_SELF ?>?view=notes&type=2">View minor 10 notes</a></p>
 <?php
 foot();
 exit;
@@ -181,11 +181,11 @@ case 'mass':
         $msg .= " to section <b>" . clean($_REQUEST['new_sect']) . "</b>?";
         echo "<p>$msg</p>\n";
 ?>
-<form action="<?php echo PHP_SELF; ?>?action=mass" method="post">
+<form action="<?= PHP_SELF; ?>?action=mass" method="post">
 <input type="hidden" name="step" value="2">
-<input type="hidden" name="old_sect" value="<?php echo clean($_REQUEST["old_sect"]); ?>">
-<input type="hidden" name="ids" value="<?php echo clean($_REQUEST["ids"]); ?>">
-<input type="hidden" name="new_sect" value="<?php echo clean($_REQUEST["new_sect"]); ?>">
+<input type="hidden" name="old_sect" value="<?= clean($_REQUEST["old_sect"]); ?>">
+<input type="hidden" name="ids" value="<?= clean($_REQUEST["ids"]); ?>">
+<input type="hidden" name="new_sect" value="<?= clean($_REQUEST["new_sect"]); ?>">
 <input type="submit" value="Change">
 </form>
 <?php
@@ -201,21 +201,21 @@ case 'mass':
   }
   if ($step < 2) {
 ?>
-<form action="<?php echo PHP_SELF; ?>?action=mass" method="post">
+<form action="<?= PHP_SELF; ?>?action=mass" method="post">
 <input type="hidden" name="step" value="1">
 <p>Change section of notes which fit these criteria:</p>
 <table>
  <tr>
   <th align="right">Current section:</th>
-  <td><input type="text" name="old_sect" value="<?php echo clean($_REQUEST["old_sect"]); ?>" size="30" maxlength="80" /> (filename without extension)</td>
+  <td><input type="text" name="old_sect" value="<?= clean($_REQUEST["old_sect"]); ?>" size="30" maxlength="80" /> (filename without extension)</td>
  </tr>
  <tr>
   <th align="right">Notes IDs:</th>
-  <td><input type="text" name="ids" value="<?php echo clean($_REQUEST["ids"]); ?>" size="30" maxlength="80" /> (comma separated list)</td>
+  <td><input type="text" name="ids" value="<?= clean($_REQUEST["ids"]); ?>" size="30" maxlength="80" /> (comma separated list)</td>
  </tr>
  <tr>
   <th align="right">Move to section:</th>
-  <td><input type="text" name="new_sect" value="<?php echo clean($_REQUEST["new_sect"]); ?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="new_sect" value="<?= clean($_REQUEST["new_sect"]); ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr> 
   <td align="center" colspan="2">
@@ -323,19 +323,19 @@ case 'edit':
            stripslashes($email),"</span></p>";
     }
 ?>
-<form method="post" action="<?php echo PHP_SELF; ?>">
-<input type="hidden" name="id" value="<?php echo $id;?>" />
+<form method="post" action="<?= PHP_SELF ?>">
+<input type="hidden" name="id" value="<?= $id ?>" />
 <table>
  <tr>
   <th align="right">Section:</th>
-  <td><input type="text" name="sect" value="<?php echo clean($sect);?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="sect" value="<?= clean($sect) ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
   <th align="right">email:</th>
-  <td><input type="text" name="email" value="<?php echo clean($email);?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="email" value="<?= clean($email) ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="note" cols="70" rows="15"><?php echo clean($note);?></textarea></td>
+  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= clean($note) ?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
@@ -447,7 +447,7 @@ function note_get_by_id($id)
 // some action is performed on a user note.
 function note_mail_on_action($user, $id, $subject, $body)
 {
-    mail(NOTES_MAIL, $subject, $body, "From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>", '-f'.$user.'@php.net -O DeliveryMode=b');
+    mail(NOTES_MAIL, $subject, $body, "From: $user@php.net\r\nIn-Reply-To: <note-$id@php.net>", "-f{$user}@php.net");
 }
 
 // Allow some users to mass change IDs in the manual
