@@ -57,6 +57,7 @@ function escape($var)          { return (get_magic_quotes_gpc() ? $var : addslas
 function clean($var)           { return $GLOBALS['default_filter']?$var:hsc(strip($var)); }
 function format_warn($message) { return "<p class=\"warning\">$message</p>"; }
 function warn($message)        { echo format_warn($message); }
+function real_clean($var)      { return mysql_real_escape_string($var); }
 
 // -----------------------------------------------------------------------------------
 
