@@ -79,17 +79,17 @@ if ($id && $in) {
     if ($in['recur'] && $in['recur_day'])
       $recur = "$in[recur]:$in[recur_day]";
     $query = "UPDATE phpcal SET "
-           . "tipo=$tipo,"
-           . ($sdato ? "sdato='$sdato'," : "")
-           . ($edato ? "edato='$edato'," : "")
-           . ($recur ? "recur='$recur'," : "")
-           . "ldesc='$in[ldesc]',"
-           . "sdesc='$in[sdesc]',"
-           . "email='$in[email]',"
-           . "url='$in[url]',"
-           . "country='$in[country]',"
-           . "category='$in[category]'"
-           . " WHERE id=$id";
+           . "tipo=".real_clean($tipo).","
+           . ($sdato ? "sdato='".real_clean($sdato)."'," : "")
+           . ($edato ? "edato='".real_clean($edato)."'," : "")
+           . ($recur ? "recur='".real_clean($recur)."'," : "")
+           . "ldesc='".real_clean($in[ldesc])."',"
+           . "sdesc='".real_clean($in[sdesc])."',"
+           . "email='".real_clean($in[email])."',"
+           . "url='".real_clean($in[url])."',"
+           . "country='".real_clean($in[country])."',"
+           . "category='".real_clean($in[category])."'"
+           . " WHERE id=".real_clean($id);
     db_query($query);
 
     warn("record $id updated");
