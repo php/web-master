@@ -70,8 +70,9 @@ $_SESSION["credentials"] = array($user, $pw);
 setcookie("MAGIC_COOKIE","",$ts-3600,'/','.php.net');
 setcookie("MAGIC_COOKIE","",$ts-3600,'/');
 
-// Set a cookie to tell various .php.net services that the user is probably loggedin
-setcookie("IS_DEV", 1, $ts+3600*24*12, '/', '.php.net', false, true);
+// Set a cookie to tell various .php.net services that the user is probably logged in
+// The username is saved here so we can automagically fill it in during login prompts
+setcookie("IS_DEV", $user, $ts+3600*24*12, '/', '.php.net', false, true);
 
 
 
