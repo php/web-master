@@ -146,7 +146,7 @@ if ($id && $in) {
                  . (!empty($in['passwd']) ? ",passwd='$in[passwd]'" : "")
                  . (!empty($in['svnpasswd']) ? ",svnpasswd='$in[svnpasswd]'" : "")
                  . (!empty($in['md5passwd']) ? ",md5passwd='$in[md5passwd]'" : "")
-                 . (!empty($in['sshkey']) ? ",ssh_keys='$in[sshkey]'" : "")
+                 . (!empty($in['sshkey']) ? ",ssh_keys='$in[sshkey]'" : ",ssh_keys=''")
                  . ((is_admin($user) && !empty($in['username'])) ? ",username='$in[username]'" : "")
                  . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
