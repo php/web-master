@@ -169,7 +169,7 @@ elseif (isset($id)) {
   </tr>
   <tr>
    <th align="right">Country:</th>
-   <td><select name="cc"><?php empty($row['cc']) ? '' : show_country_options($row['cc']); ?></select></td>
+   <td><select name="cc"><?php show_country_options($row['cc']); ?></select></td>
   </tr>
   <tr>
    <th align="right">Administrative Comments:</th>
