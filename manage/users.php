@@ -7,6 +7,29 @@
 require '../include/login.inc';
 require '../include/email-validation.inc';
 
+function find_group_address_from_notes_for($id) {
+    $res = db_query("SELECT note FROM users_note WHERE userid=$id LIMIT 1");
+    $row = mysql_fetch_assoc($res);
+    $cc = "";
+    if (preg_match("/\[group: (\w+)\]/", $row["note"], $matches)) {
+      switch($matches[1]) {
+      case "php":
+        $cc = "internals@lists.php.net";
+        break;
+      case "pear":
+        $cc = "pear-group@lists.php.net";
+        break;
+      case "pecl":
+        $cc = "pecl-dev@lists.php.net";
+        break;
+      case "doc":
+        $cc = "phpdoc@lists.php.net";
+        break;
+      }
+    }
+    return $cc;
+}
+
 define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
 $valid_vars = array('search','username','id','in','unapproved','begin','max','order','full', 'action', 'noclose');
 foreach($valid_vars as $k) {
@@ -40,6 +63,7 @@ if ($id && $action) {
   case 'approve':
     if (db_query("UPDATE users SET cvsaccess=1, enable=1 WHERE userid=$id")
      && mysql_affected_rows()) {
+      $cc = find_group_address_from_notes_for($id);
       $userinfo = fetch_user($id);
       $message =
 "Your SVN account ($userinfo[username]) was created.
@@ -52,7 +76,7 @@ Welcome to the PHP development team! If you encounter any problems
 with your SVN account, feel free to send us a note at group@php.net.";
       mail($userinfo['email'],"SVN Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
 
-      mail($mailto,"SVN Account Request: $userinfo[username] approved by $user","Approved $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
+      mail($mailto . ($cc ? ",$cc" : ""),"SVN Account Request: $userinfo[username] approved by $user","Approved $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
         exit;
@@ -67,6 +91,7 @@ with your SVN account, feel free to send us a note at group@php.net.";
     $userinfo = fetch_user($id);
     if (db_query("DELETE FROM users WHERE userid=$id")
      && mysql_affected_rows()) {
+      $cc = find_group_address_from_notes_for($id);
       $message = $userinfo['cvsaccess'] ? 
 "Your SVN account ($userinfo[username]) was deleted.
 
@@ -99,7 +124,7 @@ of existing PHP developers through patches, and have demonstrated
 the ability to work with others.
 ";
       mail($userinfo['email'],"SVN Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
-      mail($mailto,$userinfo['cvsaccess'] ? "SVN Account Deleted: $userinfo[username] deleted by $user" : "SVN Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
+      mail($mailto . ($cc ? ",$cc" : ""),$userinfo['cvsaccess'] ? "SVN Account Deleted: $userinfo[username] deleted by $user" : "SVN Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
       db_query("DELETE FROM users_note WHERE userid=$id");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
