@@ -43,7 +43,7 @@ head("user administration");
 
 db_connect();
 
-# ?username=whatever will look up 'whatever' by email or svn username
+# ?username=whatever will look up 'whatever' by email or username
 if ($username && !$id) {
   $query = "SELECT userid FROM users"
          . " WHERE username='$username' OR email='$username'";
@@ -66,17 +66,17 @@ if ($id && $action) {
       $cc = find_group_address_from_notes_for($id);
       $userinfo = fetch_user($id);
       $message =
-"Your SVN account ($userinfo[username]) was created.
+"Your VCS account ($userinfo[username]) was created.
 
-You should be able to log into the SVN server within the hour, and
+You should be able to log into the VCS server within the hour, and
 your $userinfo[username]@php.net forward to $userinfo[email] should
 be active within the next 24 hours.
 
 Welcome to the PHP development team! If you encounter any problems
-with your SVN account, feel free to send us a note at group@php.net.";
-      mail($userinfo['email'],"SVN Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
+with your VCS account, feel free to send us a note at group@php.net.";
+      mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
 
-      mail($mailto . ($cc ? ",$cc" : ""),"SVN Account Request: $userinfo[username] approved by $user","Approved $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
+      mail($mailto . ($cc ? ",$cc" : ""),"VCS Account Request: $userinfo[username] approved by $user","Approved $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
         exit;
@@ -84,7 +84,7 @@ with your SVN account, feel free to send us a note at group@php.net.";
       warn("record $id ($userinfo[username]) approved");
     }
     else {
-      warn("wasn't able to grant svn access to id $id.");
+      warn("wasn't able to grant access to id $id.");
     }
     break;
   case 'remove':
@@ -93,18 +93,18 @@ with your SVN account, feel free to send us a note at group@php.net.";
      && mysql_affected_rows()) {
       $cc = find_group_address_from_notes_for($id);
       $message = $userinfo['cvsaccess'] ? 
-"Your SVN account ($userinfo[username]) was deleted.
+"Your VCS account ($userinfo[username]) was deleted.
 
 Feel free to send us a note at group@php.net to find out why this
 was done."
 :
-"Your SVN account request ($userinfo[username]) was denied.
+"Your VCS account request ($userinfo[username]) was denied.
 
 The most likely reason is that you did not read the reasons for
-which SVN accounts are granted, and your request failed to meet
+which VCS accounts are granted, and your request failed to meet
 the list of acceptable criteria.
 
-We urge you to make another appeal for a SVN account, but first
+We urge you to make another appeal for a VCS account, but first
 it helps to write the appropriate list and:
 
  * Introduce yourself
@@ -123,8 +123,8 @@ PHP accounts are granted to developers who have earned the trust
 of existing PHP developers through patches, and have demonstrated
 the ability to work with others.
 ";
-      mail($userinfo['email'],"SVN Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
-      mail($mailto . ($cc ? ",$cc" : ""),$userinfo['cvsaccess'] ? "SVN Account Deleted: $userinfo[username] deleted by $user" : "SVN Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
+      mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
+      mail($mailto . ($cc ? ",$cc" : ""),$userinfo['cvsaccess'] ? "VCS Account Deleted: $userinfo[username] deleted by $user" : "VCS Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
       db_query("DELETE FROM users_note WHERE userid=$id");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
@@ -251,7 +251,7 @@ table.useredit tr {
 </tr>
 <?php if (!is_admin($user)) {?>
 <tr>
- <th align="right">SVN username:</th>
+ <th align="right">VCS username:</th>
  <td><?php echo hscr($row['username']);?></td>
 </tr>
 <?php } ?>
@@ -272,18 +272,18 @@ table.useredit tr {
  <td><input type="text" name="in[passwd]" value="<?php echo hscr($row['passwd']);?>" size="20" maxlength="20" /></td>
 </tr>
 <tr>
- <th align="right">SVN username:</th>
+ <th align="right">VCS username:</th>
  <td><input type="text" name="in[username]" value="<?php echo hscr($row['username']);?>" size="16" maxlength="16" /></td>
 </tr>
 <?php }?>
 <?php if (is_admin($user)) {?>
 <tr>
- <th align="right">SVN access?</th>
+ <th align="right">VCS access?</th>
  <td><input type="checkbox" name="in[cvsaccess]"<?php echo $row['cvsaccess'] ? " checked" : "";?> /></td>
 </tr>
 <?php } else { ?>
 <tr>
- <th align="right">Has SVN access?</th>
+ <th align="right">Has VCS access?</th>
  <td><?php echo $row['cvsaccess'] ? "Yes" : "No";?></td>
 </tr>
 <?php } ?>
