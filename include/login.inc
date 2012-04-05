@@ -28,6 +28,16 @@ if (!$user || !$pw || !verify_password($user,$pw)) {
         }
         exit;
     }
+
+    // IS_DEV was 1 or 0 until 22 Feb 2012. It's now a @php.net username hint.
+    $username = '';
+    if (isset($_COOKIE['IS_DEV']) && !is_numeric($_COOKIE['IS_DEV'])) {
+        $username = clean($_COOKIE['IS_DEV']);
+    } else {
+        if (!empty($_POST['user'])) {
+            $username = clean($_POST['user']);
+        }
+    }
 ?>
 
 <html>
@@ -41,7 +51,7 @@ if (!$user || !$pw || !verify_password($user,$pw)) {
 <table>
  <tr>
   <th align="right">Username:</th>
-  <td><input type="text" name="user" value="<?php echo clean($user);?>" />@php.net
+  <td><input type="text" name="user" value="<?php echo $username;?>" />@php.net
  </tr>
  <tr>
   <th align="right">Password:</th>
