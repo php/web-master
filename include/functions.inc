@@ -204,3 +204,7 @@ function get_ssh_keys($string) {
 
     return $results;
 }
+
+function unmangle($str) {
+        return str_replace(['&lt;','&gt;','&amp;','&uuml;',],['<','>','&','ü',],$str);
+}
