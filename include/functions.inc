@@ -205,6 +205,10 @@ function get_ssh_keys($string) {
     return $results;
 }
 
-function unmangle($str) {
+function unmangle($str,$unmangle_quotes=0) {
+	// If permitting quotes, remember to sanitize.
+	if ($unmangle_quotes) {
+		return str_replace(['&lt;','&gt;','&amp;','&uuml;','&quot;',],['<','>','&','ü','"',],$str);
+	}
         return str_replace(['&lt;','&gt;','&amp;','&uuml;',],['<','>','&','ü',],$str);
 }
