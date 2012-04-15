@@ -88,7 +88,8 @@ if (isset($id) && isset($hostname)) {
                     "php-mirrors@lists.php.net",
                     "[mirrors] Update by $user.",
                     $body,
-                    "From: php-mirrors@lists.php.net"
+                    "From: php-mirrors@lists.php.net",
+                    "-fnoreply@php.net"
                 );
 
             // If a mirror has been modified, send information safe for public eyes to the
@@ -96,7 +97,7 @@ if (isset($id) && isset($hostname)) {
             } elseif ($mode == 'update') {
                 $body  = 'The mirror '.$hostname.' has been modified by '.$user.'.  It\'s status is ';
                 $body .= isset($active) && $active == true ? 'active.' : 'inactive, and DNS will be disabled.';
-		@mail('php-mirrors@lists.php.net','[mirrors] Status change for '.$hostname,$body,"From: php-mirrors@lists.php.net\r\n");
+		@mail('php-mirrors@lists.php.net','[mirrors] Status change for '.$hostname,$body,"From: php-mirrors@lists.php.net\r\n", "-fnoreply@php.net");
             }
         }
     } else {
