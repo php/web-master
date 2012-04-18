@@ -34,7 +34,6 @@ function head($title="") {
     <li><a href="/manage/mirrors.php">Mirrors</a></li>
     <li><a href="/manage/users.php">Users</a></li>
     <li><a href="/manage/user-notes.php">Notes</a></li>
-    <li><a href="/manage/pinfo.php">phpinfo()</a></li>
     <li><a href="http://wiki.php.net/">Wiki</a></li>
     <li><a href="http://bugs.php.net/">Bugsweb</a></li>
     <?php if (isset($_SESSION['user'])) { ?>
