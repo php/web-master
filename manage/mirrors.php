@@ -41,10 +41,10 @@ if (isset($id) && isset($hostname)) {
             // Perform a full data update on a mirror
             case "update":
                 $query = "UPDATE mirrors SET hostname='$hostname', active=$active, " .
-                         "mirrortype=$mirrortype, cname='$cname', maintainer='".unmangle($maintainer)."', " .
-                         "providername='".unmangle($providername)."', providerurl='$providerurl', " .
+                         "mirrortype=$mirrortype, cname='$cname', maintainer='".unmangle('maintainer')."', " .
+                         "providername='".unmangle('providername')."', providerurl='$providerurl', " .
                          "cc='$cc', lang='$lang', has_stats=$has_stats, " .
-                         "lastedited=NOW(), acmt='".real_clean(unmangle($acmt,1))."' WHERE id = $id";
+                         "lastedited=NOW(), acmt='".unmangle('acmt')."' WHERE id = $id";
                 $msg = "$hostname updated";
             break;
 
@@ -60,8 +60,8 @@ if (isset($id) && isset($hostname)) {
                          "cname, maintainer, providername, providerurl, cc, " .
                          "lang, has_stats, created, lastedited, acmt) " .
                          "VALUES ('$hostname', $active, $mirrortype, '$cname', " .
-                         "'".unmangle($maintainer)."', '".unmangle($providername)."', '$providerurl', '$cc', " .
-                         "'$lang', $has_stats, NOW(), NOW(), '".real_clean(unmangle($acmt,1))."')";
+                         "'".unmangle('maintainer')."', '".unmangle('providername')."', '$providerurl', '$cc', " .
+                         "'$lang', $has_stats, NOW(), NOW(), '".unmangle('acmt')."')";
                 $msg = "$hostname added";
             break;
         }
