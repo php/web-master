@@ -297,7 +297,7 @@ case 'edit':
     $sect = (isset($_POST['sect']) ? escape($_POST['sect']) : addslashes($row['sect']));
 
     if (isset($note) && $action == "edit") {
-      if (db_query("UPDATE note SET note='$note',user='$email',sect='$sect',updated=NOW() WHERE id=$id")) {
+      if (db_query("UPDATE note SET note='".html_entity_decode($note)."',user='$email',sect='$sect',updated=NOW() WHERE id=$id")) {
 
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
