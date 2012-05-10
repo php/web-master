@@ -297,7 +297,7 @@ case 'edit':
     $sect = (isset($_POST['sect']) ? escape($_POST['sect']) : addslashes($row['sect']));
 
     if (isset($note) && $action == "edit") {
-      if (db_query("UPDATE note SET note='".html_entity_decode($note)."',user='$email',sect='$sect',updated=NOW() WHERE id=$id")) {
+      if (db_query("UPDATE note SET note='".escape(html_entity_decode($note,ENT_QUOTES))."',user='$email',sect='$sect',updated=NOW() WHERE id=$id")) {
 
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
@@ -315,7 +315,7 @@ case 'edit':
       }
     }
 
-    $note = isset($note) ? $note : addslashes($row['note']);
+    $note = isset($note) ? $note : $row['note'];
 
     if ($action == "preview") {
       echo "<p class=\"notepreview\">",strip($note),
@@ -335,7 +335,7 @@ case 'edit':
   <td><input type="text" name="email" value="<?= escape($email) ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= strip(strip(escape($note))) ?></textarea></td>
+  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= $note ?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
