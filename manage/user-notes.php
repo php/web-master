@@ -318,7 +318,7 @@ case 'edit':
     $note = isset($note) ? $note : addslashes($row['note']);
 
     if ($action == "preview") {
-      echo "<p class=\"notepreview\">",clean_note(stripslashes($note)),
+      echo "<p class=\"notepreview\">",stripslashes($note),
            "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
            stripslashes($email),"</span></p>";
     }
@@ -332,10 +332,10 @@ case 'edit':
  </tr>
  <tr>
   <th align="right">email:</th>
-  <td><input type="text" name="email" value="<?= clean($email) ?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="email" value="<?= escape($email) ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= clean($note) ?></textarea></td>
+  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= escape($note) ?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
