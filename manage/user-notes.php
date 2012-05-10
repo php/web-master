@@ -305,10 +305,10 @@ case 'edit':
             $user,
             $id,
             "note {$row['id']} modified in {$row['sect']} by $user",
-            stripslashes($note)."\n\n--was--\n{$row['note']}\n\nhttp://php.net/manual/en/{$row['sect']}.php"
+            strip($note)."\n\n--was--\n{$row['note']}\n\nhttp://php.net/manual/en/{$row['sect']}.php"
         );
         if (addslashes($row["sect"]) != $sect) {
-          note_mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $user", "----- Copy of your note below -----\n\n".stripslashes($note));
+          note_mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $user", "----- Copy of your note below -----\n\n".strip($note));
         }
         header('Location: user-notes.php?id=' . $id . '&was=' . $action);
         exit;
@@ -318,9 +318,9 @@ case 'edit':
     $note = isset($note) ? $note : addslashes($row['note']);
 
     if ($action == "preview") {
-      echo "<p class=\"notepreview\">",stripslashes($note),
+      echo "<p class=\"notepreview\">",strip($note),
            "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
-           stripslashes($email),"</span></p>";
+           strip($email),"</span></p>";
     }
 ?>
 <form method="post" action="<?= PHP_SELF ?>">
@@ -335,7 +335,7 @@ case 'edit':
   <td><input type="text" name="email" value="<?= escape($email) ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= stripslashes(clean($note)) ?></textarea></td>
+  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= strip(strip(escape($note))) ?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
