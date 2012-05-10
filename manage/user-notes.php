@@ -335,7 +335,7 @@ case 'edit':
   <td><input type="text" name="email" value="<?= escape($email) ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= escape($note) ?></textarea></td>
+  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= stripslashes(clean($note)) ?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
