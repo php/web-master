@@ -151,7 +151,7 @@ if ($id) {
  </tr>
  <tr>
   <th>Short<br>Description</th>
-  <td><input type="text" name="in[sdesc]" value="<?php echo hsc($in['sdesc'])?>" size="32" maxlength="32" /></td>
+  <td><input type="text" name="in[sdesc]" value="<?php echo escape(html_entity_decode($in['sdesc'],ENT_QUOTES))?>" size="32" maxlength="32" /></td>
  </tr>
  <tr>
   <th>Country</th>
@@ -174,17 +174,17 @@ if ($id) {
  </tr>
  <tr>
   <th>Email</th>
-  <td><input type="text" name="in[email]" size="40" maxlength="128" value="<?php echo hsc($in['email'])?>" /></td>
+  <td><input type="text" name="in[email]" size="40" maxlength="128" value="<?php echo escape(html_entity_decode($in['email'],ENT_QUOTES))?>" /></td>
  </tr>
  <tr>
   <th>URL</th>
-  <td><input type="text" name="in[url]" size="40" maxlength="128" value="<?php echo hsc($in['url'])?>" /></td>
+  <td><input type="text" name="in[url]" size="40" maxlength="128" value="<?php echo escape(html_entity_decode($in['url'],ENT_QUOTES))?>" /></td>
  </tr>
  <tr>
   <th colspan="2" align="left">Long Description</th>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="in[ldesc]" cols="60" rows="10" wrap="virtual"><?php echo hsc($in['ldesc']);?></textarea></td>
+  <td colspan="2"><textarea name="in[ldesc]" cols="60" rows="10" wrap="virtual"><?php echo escape(html_entity_decode($in['ldesc'],ENT_QUOTES));?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
