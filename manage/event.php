@@ -285,16 +285,16 @@ while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
 ?>
 <tr bgcolor="<?php echo $color;?>">
  <td align="center"><a href="<?php echo PHP_SELF . "?id=$row[id]";?>">edit</a></td>
- <td><?php echo escape(html_entity_decode($row['sdato'],ENT_QUOTES));?></td>
- <td><?php echo escape(html_entity_decode($row['sdesc'],ENT_QUOTES));?></td>
- <td><?php echo escape(html_entity_decode($row['email'],ENT_QUOTES));?></td>
- <td><?php echo escape(html_entity_decode($row['cname'],ENT_QUOTES));?></td>
- <td><?php echo escape(html_entity_decode($cat[$row['category']],ENT_QUOTES));?></td>
+ <td><?php echo html_entity_decode($row['sdato'],ENT_QUOTES);?></td>
+ <td><?php echo html_entity_decode($row['sdesc'],ENT_QUOTES);?></td>
+ <td><?php echo html_entity_decode($row['email'],ENT_QUOTES);?></td>
+ <td><?php echo html_entity_decode($row['cname'],ENT_QUOTES);?></td>
+ <td><?php echo html_entity_decode($cat[$row['category']],ENT_QUOTES);?></td>
 </tr>
 <?php
   if ($full && $row['ldesc']) {?>
 <tr bgcolor="<?php echo $color;?>">
- <td></td><td colspan="3"><?php echo escape(html_entity_decode($row['ldesc'],ENT_QUOTES));?></td>
+ <td></td><td colspan="3"><?php echo html_entity_decode($row['ldesc'],ENT_QUOTES);?></td>
 </tr>
 <?php
   }
@@ -324,6 +324,6 @@ function display_options($options,$current) {
   foreach ($options as $k => $v) {
     echo '<option value="', $k, '"',
          ($k == $current ? ' selected="selected"' : ''),
-         '>', escape(html_entity_decode($v,ENT_QUOTES)), "</option>\n";
+         '>', html_entity_decode($v,ENT_QUOTES), "</option>\n";
   }
 }
