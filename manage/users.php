@@ -171,7 +171,7 @@ if ($id && $in) {
                  . (!empty($in['passwd']) ? ",passwd='$in[passwd]'" : "")
                  . (!empty($in['svnpasswd']) ? ",svnpasswd='$in[svnpasswd]'" : "")
                  . (!empty($in['md5passwd']) ? ",md5passwd='$in[md5passwd]'" : "")
-                 . (!empty($in['sshkey']) ? ",ssh_keys='$in[sshkey]'" : ",ssh_keys=''")
+                 . (!empty($in['sshkey']) ? ",ssh_keys='".escape(html_entity_decode($in[sshkey],ENT_QUOTES))."'" : ",ssh_keys=''")
                  . ((is_admin($user) && !empty($in['username'])) ? ",username='$in[username]'" : "")
                  . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
@@ -205,7 +205,7 @@ if ($id && $in) {
                . (!empty($in['passwd']) ? ",passwd='$in[passwd]'" : "")
                . (!empty($in['svnpasswd']) ? ",svnpasswd='$in[svnpasswd]'" : "")
                . (!empty($in['md5passwd']) ? ",md5passwd='$in[md5passwd]'" : "")
-               . (!empty($in['sshkey']) ? ",ssh_keys='$in[sshkey]'" : "")
+               . (!empty($in['sshkey']) ? ",ssh_keys='".escape(html_entity_decode($in[sshkey],ENT_QUOTES))."'" : "")
                . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
                . ",spamprotect=$spamprotect"
                . ",use_sa=$use_sa"
@@ -314,7 +314,7 @@ table.useredit tr {
 </tr>
 <tr>
  <th align="right">SSH Key</th>
- <td><textarea cols="50" rows="5" name="in[sshkey]"><?php echo hscr($row['ssh_keys']) ?></textarea>
+ <td><textarea cols="50" rows="5" name="in[sshkey]"><?php echo escape(html_entity_decode($row['ssh_keys'],ENT_QUOTES)); ?></textarea>
   <p>Adding/editing the SSH key takes a few minutes to propagate to the server.<br>
   Multiple keys are allowed, separated using a newline.</p></td>
 </tr>
@@ -476,7 +476,7 @@ function invalid_input($in) {
 
 function is_admin($user) {
   #TODO: use acls, once implemented.
-  if (in_array($user,array("jimw","rasmus","andrei","zeev","andi","sas","thies","rubys","ssb", "wez", "philip", "davidc", "helly","derick","bjori", "pajoye" ))) return true;
+  if (in_array($user,array("jimw","rasmus","andrei","zeev","andi","sas","thies","rubys","ssb", "wez", "philip", "davidc", "helly","derick","bjori", "pajoye", "danbrown" ))) re
 }
 
 # returns false if $user is not allowed to modify $userid
