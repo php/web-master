@@ -82,7 +82,7 @@ if (isset($id) && isset($hostname)) {
                 
                 // Also include the reason if it is provided
                 if (!empty($reason)) {
-                    $body .= "\n\nReason:\n" . wordwrap($reason, 70);
+                    $body .= "\n\nReason:\n" . wordwrap(unmangle($reason), 70);
                 }
                 @mail(
                     "php-mirrors@lists.php.net",
