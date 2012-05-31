@@ -427,8 +427,13 @@ function page_mirror_list($moreinfo = false)
         // If any info on the error of this mirror is available, print it out
         if ($errorinfo) {
             $summary .= "<tr class=\"mirrorerror\"><td bgcolor=\"#ffffff\"></td>" .
-                        "<td colspan=\"7\" class=\"rounded\"><img src=\"/images/mirror_info.png\" /> " .
-                        nl2br($errorinfo) . "</td></tr>";
+                        "<td colspan=\"7\" class=\"rounded\"><img src=\"/images/mirror_info.png\" /> ";
+                       if (($errorblock = preg_split('/==\r?\n/',$errorinfo)) != 0) {
+                               $summary .= nl2br($errorblock[(count($errorblock)-1)]);
+                       } else {
+                               $summary .= nl2br($errorinfo);
+                       }
+           $summary .= '</td></tr>';
         }
         // If additional details are desired
         if ($moreinfo) {
