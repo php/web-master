@@ -470,7 +470,8 @@ function page_mirror_list($moreinfo = false)
     
     $has_sqlite_counts = '';
     foreach ($stats['sqlite_counts'] as $stype => $scount) {
-        $has_sqlite_counts .= '<tr><td><img src="/images/mirror_search.png" /></td><td>'. $stype .'</td><td>'. $scount .'</td></tr>';
+        $has_sqlite_counts .= '<tr><td><img src="/images/mirror_search.png" /></td><td>'.$stype.'</td>';
+       $has_sqlite_counts .= '<td>'. $scount .' <small>('.round(($scount / $stats['mirrors']) * 100).'%)</small></td></tr>';
     }
 
 echo <<<EOS
