@@ -8,7 +8,7 @@ define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
 head("mirror administration");
 db_connect();
 
-$valid_fields = array('hostname', 'mode', 'active', 'mirrortype', 'cname', 'maintainer', 'providername', 'providerurl', 'cc', 'lang', 'has_stats', 'acmt', 'reason');
+$valid_fields = array('hostname', 'mode', 'active', 'mirrortype', 'cname', 'maintainer', 'providername', 'providerurl', 'cc', 'lang', 'has_stats', 'acmt_prev', 'acmt', 'reason');
 
 foreach($valid_fields as $k) {
     if (isset($_REQUEST[$k])) $$k = $_REQUEST[$k];
@@ -40,11 +40,13 @@ if (isset($id) && isset($hostname)) {
 
             // Perform a full data update on a mirror
             case "update":
+		$mod_by_time = '<b>'.strtoupper(date('d-M-Y H:i:s T')).'</b> ['.$user.'] Mirror updated';
                 $query = "UPDATE mirrors SET hostname='$hostname', active=$active, " .
                          "mirrortype=$mirrortype, cname='$cname', maintainer='".unmangle('maintainer')."', " .
                          "providername='".unmangle('providername')."', providerurl='$providerurl', " .
                          "cc='$cc', lang='$lang', has_stats=$has_stats, " .
-                         "lastedited=NOW(), acmt='".unmangle('acmt')."' WHERE id = $id";
+                         "lastedited=NOW(), acmt='".unmangle('acmt_prev')."==\n" .
+                         $mod_by_time.(isset($acmt) && !empty($acmt) ? ": ".unmangle('acmt') : ".")."' WHERE id = $id";
                 $msg = "$hostname updated";
             break;
 
@@ -97,6 +99,7 @@ if (isset($id) && isset($hostname)) {
             } elseif ($mode == 'update') {
                 $body  = 'The mirror '.$hostname.' has been modified by '.$user.'.  It\'s status is ';
                 $body .= isset($active) && $active == true ? 'active.' : 'inactive, and DNS will be disabled.';
+		$body .= isset($acmt) && !empty($acmt) ? '  Notes were added to the mirror\'s file.' : '';
 		@mail('php-mirrors@lists.php.net','[mirrors] Status change for '.$hostname,$body,"From: php-mirrors@lists.php.net\r\n", "-fnoreply@php.net");
             }
         }
@@ -141,43 +144,65 @@ elseif (isset($id)) {
 
  <table>
   <tr>
-   <th align="right">Hostname (without http://):</th>
-   <td><input type="text" name="hostname" value="<?php echo empty($row['hostname']) ? '':hscr($row['hostname']); ?>" size="40" maxlength="40" /></td>
-  </tr>
-  <tr>
-   <th align="right">Active?</th>
-   <td><input type="checkbox" name="active"<?php echo empty($row['active']) ? '' : " checked"; ?> /></td>
-  </tr>
-  <tr>
-   <th align="right">Type:</th>
-   <td><select name="mirrortype"><?php show_mirrortype_options($row['mirrortype']); ?></select></td>
-  </tr>
-  <tr>
-   <th align="right">CNAME (without http://):</th>
-   <td><input type="text" name="cname" value="<?php echo empty($row['cname']) ? '' : hscr($row['cname']); ?>" size="40" maxlength="80" /></td>
-  </tr>
-  <tr>
-   <th align="right">Maintainer's Name and Email:</th>
-   <td><input type="text" name="maintainer" value="<?php echo empty($row['maintainer']) ? '' : hscr($row['maintainer']); ?>" size="40" maxlength="255" /></td>
-  </tr>
-  <tr>
-   <th align="right">Provider's Name:</th>
-   <td><input type="text" name="providername" value="<?php echo empty($row['providername']) ? '' : hscr($row['providername']); ?>" size="40" maxlength="255" /></td>
-  </tr>
-  <tr>
-   <th align="right">Provider URL (with http://):</th>
-   <td><input type="text" name="providerurl" value="<?php echo empty($row['providerurl']) ? '' : hscr($row['providerurl']); ?>" size="40" maxlength="255" /></td>
-  </tr>
-  <tr>
-   <th align="right">Country:</th>
-   <td><select name="cc"><?php show_country_options($row['cc']); ?></select></td>
-  </tr>
-  <tr>
-   <th align="right">Administrative Comments:</th>
-   <td><textarea wrap="virtual" cols="40" rows="12" name="acmt"><?php echo empty($row['acmt']) ? '' : hscr($row['acmt']); ?></textarea></td>
-  </tr>
-  <tr>
-   <td colspan="2" align="center"><input type="submit" value="<?php echo empty($id) ? "Add" : "Change"; ?>" />
+   <td style="vertical-align:top;">
+    <table>
+     <tr>
+      <th align="right">Hostname (without http://):</th>
+      <td><input type="text" name="hostname" value="<?php echo empty($row['hostname']) ? '':hscr($row['hostname']); ?>" size="40" maxlength="40" /></td>
+     </tr>
+     <tr>
+      <th align="right">Active?</th>
+      <td><input type="checkbox" name="active"<?php echo empty($row['active']) ? '' : " checked"; ?> /></td>
+     </tr>
+     <tr>
+      <th align="right">Type:</th>
+      <td><select name="mirrortype"><?php show_mirrortype_options($row['mirrortype']); ?></select></td>
+     </tr>
+     <tr>
+      <th align="right">CNAME (without http://):</th>
+      <td><input type="text" name="cname" value="<?php echo empty($row['cname']) ? '' : hscr($row['cname']); ?>" size="40" maxlength="80" /></td>
+     </tr>
+     <tr>
+      <th align="right">Maintainer's Name and Email:</th>
+      <td><input type="text" name="maintainer" value="<?php echo empty($row['maintainer']) ? '' : hscr($row['maintainer']); ?>" size="40" maxlength="255" /></td>
+     </tr>
+     <tr>
+      <th align="right">Provider's Name:</th>
+      <td><input type="text" name="providername" value="<?php echo empty($row['providername']) ? '' : hscr($row['providername']); ?>" size="40" maxlength="255" /></td>
+     </tr>
+     <tr>
+      <th align="right">Provider URL (with http://):</th>
+      <td><input type="text" name="providerurl" value="<?php echo empty($row['providerurl']) ? '' : hscr($row['providerurl']); ?>" size="40" maxlength="255" /></td>
+     </tr>
+     <tr>
+      <th align="right">Country:</th>
+      <td><select name="cc"><?php show_country_options($row['cc']); ?></select></td>
+     </tr>
+     <tr>
+      <th align="right">
+       Administrative Comments:<br/>
+       <small>NOTE: <i>Username and timestamp will be automatically recorded.</i></small>
+      </th>
+      <td><textarea wrap="virtual" cols="40" rows="12" name="acmt"></textarea></td>
+     </tr>
+     <tr>
+      <td colspan="2" align="center"><input type="submit" value="<?php echo empty($id) ? "Add" : "Change"; ?>" />
+     </tr>
+    </table>
+   </td>
+   <td style="vertical-align:top;overflow:auto;">
+    <input type="hidden" name="acmt_prev" value="<?php echo empty($row['acmt']) ? '' : hscr($row['acmt']); ?>"/>
+    <b>Administration Comment History:</b><br/>
+    <?php
+      if (($_acmt = preg_split('/==\r?\n/',$row['acmt'])) != 0) {
+        foreach ($_acmt as $_c) {
+		echo '<small>'.$_c.'</small><br/>'.PHP_EOL.'<hr/><br/>'.PHP_EOL;
+        }
+      } else {
+        echo 'N/A';
+      }
+    ?>
+   </td>
   </tr>
  </table>
  <hr />
@@ -427,13 +452,13 @@ function page_mirror_list($moreinfo = false)
         // If any info on the error of this mirror is available, print it out
         if ($errorinfo) {
             $summary .= "<tr class=\"mirrorerror\"><td bgcolor=\"#ffffff\"></td>" .
-                        "<td colspan=\"7\" class=\"rounded\"><img src=\"/images/mirror_info.png\" /> ";
+                        "<td colspan=\"7\" class=\"rounded\"><img src=\"/images/mirror_info.png\" /> <small>";
                        if (($errorblock = preg_split('/==\r?\n/',$errorinfo)) != 0) {
                                $summary .= nl2br($errorblock[(count($errorblock)-1)]);
                        } else {
                                $summary .= nl2br($errorinfo);
                        }
-           $summary .= '</td></tr>';
+           $summary .= '</small></td></tr>';
         }
         // If additional details are desired
         if ($moreinfo) {
