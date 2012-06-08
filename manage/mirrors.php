@@ -275,7 +275,7 @@ if (intval($id) !== 0) {
  <small>Administrative comments will automatically append.</small><br/>
  <textarea name="reason" wrap="virtual" cols="40" rows="12"></textarea>
  <input type="hidden" name="original_log" value="<?php echo empty($row['acmt']) ? '' : hscr($row['acmt']); ?>"/>
- <input type="submit" name="mode" value="Delete"/>
+ <input type="submit" name="mode" value="delete"/>
 </form>
 <?php }
     
