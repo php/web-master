@@ -8,7 +8,23 @@ define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
 head("mirror administration");
 db_connect();
 
-$valid_fields = array('hostname', 'mode', 'active', 'mirrortype', 'cname', 'maintainer', 'providername', 'providerurl', 'cc', 'lang', 'has_stats', 'acmt_prev', 'acmt', 'reason');
+$valid_fields = array(
+	'hostname',
+	'mode',
+	'active',
+	'mirrortype',
+	'cname',
+	'maintainer',
+	'providername',
+	'providerurl',
+	'cc',
+	'lang',
+	'has_stats',
+	'acmt_prev',
+	'acmt',
+	'reason',
+	'original_log',
+);
 
 foreach($valid_fields as $k) {
     if (isset($_REQUEST[$k])) $$k = $_REQUEST[$k];
