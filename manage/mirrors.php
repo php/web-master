@@ -76,7 +76,7 @@ if (isset($id) && isset($hostname)) {
                 echo '<h2>'.$msg.'</h2>';
             }
             
-            // In case a of a mirror is deleted, mail a notice to the
+            // In case a mirror is deleted, mail a notice to the
             // php-mirrors list, so any malicious deletions can be tracked
             if ($mode == "delete" || $mode == "insert") {
                 $body = "The mirrors list was updated, and $hostname was " .
@@ -84,7 +84,9 @@ if (isset($id) && isset($hostname)) {
                 
                 // Also include the reason if it is provided
                 if (!empty($reason)) {
-                    $body .= "\n\nReason:\n" . wordwrap(unmangle($reason), 70);
+                    $body .= "\n\nReason:\n".wordwrap(unmangle($reason),70);
+		    $body .= PHP_EOL.'=='.PHP_EOL.'Original log follows.'.PHP_EOL.'===='.PHP_EOL;
+		    $body .= wordwrap(unmangle($original_log),70);
                 }
                 @mail(
                     "php-mirrors@lists.php.net",
@@ -181,7 +183,8 @@ elseif (isset($id)) {
      <tr>
       <th align="right">
        Administrative Comments:<br/>
-       <small>NOTE: <i>Username and timestamp will be automatically recorded.</i></small>
+       <small>NOTE: <i>Username and timestamp will be automatically recorded.</i></small><br/>
+       <i>To italicize, enclose text in ""double-double quotes"".</i><small>
       </th>
       <td><textarea wrap="virtual" cols="40" rows="12" name="acmt"></textarea></td>
      </tr>
@@ -196,6 +199,7 @@ elseif (isset($id)) {
     <?php
       if (($_acmt = preg_split('/==\r?\n/',$row['acmt'])) != 0) {
         foreach ($_acmt as $_c) {
+		$_c = preg_replace('/""(.*)""/Us','<i>$1</i>',$_c);
 		echo '<small>'.$_c.'</small><br/>'.PHP_EOL.'<hr/><br/>'.PHP_EOL;
         }
       } else {
@@ -268,8 +272,10 @@ if (intval($id) !== 0) {
  <input type="hidden" name="id" value="<?php echo $row['id']; ?>" />
  <input type="hidden" name="hostname" value="<?php echo $row['hostname']; ?>" />
  Delete mirror for this reason:<br />
+ <small>Administrative comments will automatically append.</small><br/>
  <textarea name="reason" wrap="virtual" cols="40" rows="12"></textarea>
- <input type="submit" name="mode" value="delete">
+ <input type="hidden" name="original_log" value="<?php echo empty($row['acmt']) ? '' : hscr($row['acmt']); ?>"/>
+ <input type="submit" name="mode" value="Delete"/>
 </form>
 <?php }
     
