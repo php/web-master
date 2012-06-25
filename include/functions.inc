@@ -16,7 +16,7 @@ function require_token()
 
 // -----------------------------------------------------------------------------------
 
-function head($title="") {
+function head($title="",$private=1) { // Default to $private == true to permit no-menu headers
   header("Content-type: text/html; charset=utf-8");
 ?>
 <html>
@@ -28,7 +28,9 @@ function head($title="") {
 </head>
 
 <body>
-  <h1 id="header"><a href="http://php.net/index.php">PHP: Hypertext Preprocessor</a> - <?php echo $title ?></h1>
+  <h1 id="header"><a href="http://php.net/index.php">PHP: Hypertext Preprocessor</a><?php echo !empty($title) ? ' - '.$title : ''; ?></h1>
+<?php
+ if ($private) { ?>
   <ul id="mainmenu">
     <li><a href="/manage/event.php">Events</a></li>
     <li><a href="/manage/mirrors.php">Mirrors</a></li>
@@ -40,8 +42,9 @@ function head($title="") {
     <li><a href="/manage/users.php?username=<?php echo $_SESSION['user']; ?>">My php.net Profile</a></li>
     <?php } ?>
   </ul>
-<?php warn("Have you changed your password yet?"); ?>
 <?php
+  warn("Have you changed your password yet?");
+ } // End if ($private)
 }
 
 function foot() {
