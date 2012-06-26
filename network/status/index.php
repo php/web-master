@@ -164,44 +164,43 @@ function page_mirror_list($moreinfo = false)
 	}
 
         // Mirror status information
-        $summary .= "<tr class=\"mirrorstatus\">\n" .
-                    "<td bgcolor=\"#ffffff\" align=\"right\">\n" .
-                    "<img src=\"images/{$siteimage}.gif\" /></td>\n";
+        $summary .= "<tr class=\"mirrorstatus\" onclick=\"$('#".str_replace('.','_',$row['hostname'])."_info').toggle();".
+		    "$('#".str_replace('.','_',$row['hostname'])."_realtime').load('".$row['hostname']."');".
+		    "$('#".str_replace('.','_',$row['hostname'])."_realtime').focus();\">".
+                    "<td bgcolor=\"#ffffff\" align=\"right\">".PHP_EOL.
+                    "<img src=\"images/{$siteimage}.gif\" /></td>".PHP_EOL;
 
         // Print out mirror site link
-        $summary .= '<td style="background-color:#ffdddd;"><a href="http://'.$row['hostname'].'/" target="_blank">' .
-                    $row['hostname'] . '</a><br /></td>' . "\n";
+        $summary .= '<td style="background-color:#ffdddd;"><a href="http://'.$row['hostname'].'/" target="_blank">'.
+                    $row['hostname'].'</a><br /></td>'.PHP_EOL;
 
         // Print out mirror provider information
-        $summary .= '<td style="background-color:#ffdddd;"><a href="'.$row['providerurl'].'">' .
-                    $row['providername'] . '</a><br /></td>' . "\n";
+        $summary .= '<td style="background-color:#ffdddd;"><a href="'.$row['providerurl'].'">'.
+                    $row['providername'].'</a><br /></td>'.PHP_EOL;
 
         // Print out the sync status of the mirror
-        $summary .= '<td align="center" style="background-color:#ddddff;width:80px;">'.$synchrony_icon.'</td>' . "\n";
+        $summary .= '<td align="center" style="background-color:#ddddff;width:80px;">'.$synchrony_icon.'</td>'.PHP_EOL;
 
-        // Print out mirror search table cell
-        $summary .= '<td align="center" style="background-color:#ddddff;width:80px;">'.$sqlite_icon. '</td>' . "\n";
+        // Print out SQLite compliance information
+        $summary .= '<td align="center" style="background-color:#ddddff;width:80px;">'.$sqlite_icon.'</td>'.PHP_EOL;
 
-        // Print out version information for this mirror
-        $summary .= '<td align="center" style="background-color:#ddddff;width:80px;">'.$php_icon.'</td>' . "\n";
+        // Print out PHP version compliance information
+        $summary .= '<td align="center" style="background-color:#ddddff;width:80px;">'.$php_icon.'</td>'.PHP_EOL;
 
-        // Print out mirror stats table cell
+        // AS-YET UNUSED CELL
         $summary .= '<td align="right" style="background-color:#ddddff;">&nbsp;</td>' . "\n";
 
-        // Print out mirror edit link
+        // AS-YET UNUSED CELL
         $summary .= '<td align="right" style="background-color:#ddddff;">&nbsp;</td>' . "\n";
 
         // End of row
         $summary .= '</tr>';
 
-        // If additional details are desired
-        if ($moreinfo) {
-            $summary .= '<tr class=\"mirrordetails\"><td bgcolor="#ffffff">&nbsp;</td>' .
-                        '<td colspan="7">' . 
-                            ' Last update: ' . date(DATE_RSS, $row['ulastupdated']) . 
-                            ' SQLites: '     . implode(' : ', decipher_available_sqlites($row['has_search'])) .
-                        '</td></tr>';
-        }
+	// To show real-time info, if the row is clicked
+	$summary .= '<tr style="display:none;" id="'.str_replace('.','_',$row['hostname']).'_info">'.PHP_EOL;
+	$summary .= '<td colspan="8" id="'.str_replace('.','_',$row['hostname']).'_realtime">Hang on a sec....</td>'.PHP_EOL;
+	$summary .= '</tr>'.PHP_EOL;
+
     }
 
     $summary .= '</table></div>';
@@ -219,10 +218,6 @@ function page_mirror_list($moreinfo = false)
             $versions .= '</div>'.PHP_EOL.'<div style="float:right;margin-right:35%;">';//width:120px;">';
         }
     }
-
-    // Create version specific statistics
-    $stats['version5_percent']   = sprintf('%.1f%%', $stats['phpversion_counts'][5] / $stats['mirrors'] * 100);
-    $stats['has_stats_percent']  = sprintf('%.1f%%', $stats['has_stats']            / $stats['mirrors'] * 100);
 
     $last_check_time = get_print_date($checktime);
     $current_time    = get_print_date(time());
@@ -258,12 +253,19 @@ $('.selector').qtip({
 <br/>
 
 <b>In each node's compliance entries, you can place your
-mouse over the icon to get additional details.</b><br/>
+mouse over the icon to get additional details.  Or, for
+more than you ever wanted to know about the mirror, click
+anywhere in its respective row.</b><br/>
 <br/>
 
 <h2>Key:</h2>
-<img src="images/green.gif"/> Node Active
+<br/>
+
+&nbsp;<img src="images/green.gif"/> Node Active
 <img src="images/pulsing_red.gif"/> Node Inactive
+<img src="images/special.gif"/> Special Node<br/>
+<br/>
+
 <img src="images/ok.gif"/> Node Is Fully Compliant
 <img src="images/warn.gif"/> Node Is Partially Compliant
 <img src="images/fail.gif"/> Node Is Non-Compliant<br/>
