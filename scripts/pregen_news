@@ -123,7 +123,7 @@ function format_atom_entry($r) {
 					}
 
 					if ($count > 2) {
-						$permanentLink = get_link($retval, "alternate");
+						$permanentLink = get_link($retval, "via");
 						$content .= "<p class='fullArticleLink'><a href='$permanentLink' class>&hellip; read full article</a></p>";
 					}
 
