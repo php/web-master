@@ -105,6 +105,33 @@ function format_atom_entry($r) {
 				} else {
 					$retval[$name] = $r->readString();
 				}
+
+				$dom = new DOMDocument();
+				@$dom->loadHTML($retval[$name]);
+
+				$xpath = new DomXPath($dom);
+				$nodes = $xpath->query('//body/div/*');
+
+				if ($nodes !== FALSE) {
+					$content = '<div>';
+
+					$count = 0;
+					foreach ($nodes as $node) {
+						if ($count++ < 2) {
+							$content .= $dom->saveXML($node);
+						}
+					}
+
+					if ($count > 2) {
+						$permanentLink = get_link($retval, "alternate");
+						$content .= "<p class='fullArticleLink'><a href='$permanentLink' class>&hellip; read full article</a></p>";
+					}
+
+					$content .= '</div>';
+				} else {
+					$content = $retval[$name];
+				}
+				$retval["intro"] = $content;
 				break;
 			}
 		} elseif ($r->namespaceURI === XMLNS_PHP) {
@@ -140,6 +167,15 @@ function format_attributes($r) {
 
 	return $retval;
 } // }}}
+
+function get_link($data, $rel = "alternate") {
+	foreach($data["link"] as $link) {
+		if ($link["rel"] == $rel) {
+			return $link["href"];
+		}
+	}
+	return "";
+}
 
 function legacy_rss($atom, $newsDest, $confDest) {
 	$sxe = new SimpleXMLElement($atom, $GLOBALS["XML_OPTIONS"], true);
