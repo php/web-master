@@ -65,6 +65,7 @@ if ($id && $action) {
      && mysql_affected_rows()) {
       $cc = find_group_address_from_notes_for($id);
       $userinfo = fetch_user($id);
+      $mailtext = $cc ? $cc : $mailto;
       $message =
 "Your VCS account ($userinfo[username]) was created.
 
@@ -72,8 +73,15 @@ You should be able to log into the VCS server within the hour, and
 your $userinfo[username]@php.net forward to $userinfo[email] should
 be active within the next 24 hours.
 
+If you ever forget your password, you can reset it at:
+    https://master.php.net/forgot.php
+
+To change your password, or other information about you please login on:
+    https://master.php.net/manage/users.php?username=$userinfo[username]
+
 Welcome to the PHP development team! If you encounter any problems
-with your VCS account, feel free to send us a note at group@php.net.";
+with your VCS account, feel free to send us a note at $mailtext.
+";
       mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
 
       mail($mailto . ($cc ? ",$cc" : ""),"VCS Account Request: $userinfo[username]","$user approved $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
