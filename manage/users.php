@@ -76,7 +76,7 @@ Welcome to the PHP development team! If you encounter any problems
 with your VCS account, feel free to send us a note at group@php.net.";
       mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
 
-      mail($mailto . ($cc ? ",$cc" : ""),"VCS Account Request: $userinfo[username] approved by $user","Approved $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
+      mail($mailto . ($cc ? ",$cc" : ""),"VCS Account Request: $userinfo[username]","$user approved $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
         exit;
