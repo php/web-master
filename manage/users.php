@@ -84,7 +84,7 @@ with your VCS account, feel free to send us a note at $mailtext.
 ";
       mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
 
-      mail($mailto . ($cc ? ",$cc" : ""),"VCS Account Request: $userinfo[username]","$user approved $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
+      mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]","$user approved $userinfo[username] account request \o/","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
         exit;
