@@ -20,7 +20,7 @@ function pregen_rest_files($rest_dir, $urls) {
 		}
 	}
 
-	$base_url = 'http://svn.php.net/repository/php/';
+	$base_url = 'http://git.php.net/?p=php-src.git;a=blob_plain;f=';
 
 	$curr = error_reporting();
 	error_reporting($curr ^ (E_STRICT|E_DEPRECATED));

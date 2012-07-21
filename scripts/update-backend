@@ -57,10 +57,10 @@ pregenerate_version_feed("$root/include/version.inc", "$root/include/releases.in
 include "rest_render";
 /* URLs to parse/render */
 $urls = array(
-	'php-src/trunk/CODING_STANDARDS',
-	'php-src/trunk/README.SVN-RULES',
-	'php-src/trunk/README.MAILINGLIST_RULES',
-	'php-src/trunk/README.RELEASE_PROCESS',
+	'CODING_STANDARDS',
+	'README.GIT-RULES',
+	'README.MAILINGLIST_RULES',
+	'README.RELEASE_PROCESS',
 );
 pregen_rest_files("$root/reST/cache/", $urls);
 
