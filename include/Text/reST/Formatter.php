@@ -42,7 +42,7 @@ class Text_reST_Formatter {
      *
      * @return Text_reST_Formatter  The formatter
      */
-    function &factory($driver, $args = array())
+    static function &factory($driver, $args = array())
     {
         if (is_array($driver)) {
             list($path, $driver) = $driver;

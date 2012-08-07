@@ -469,7 +469,8 @@ class Text_reST_Parser {
         }
 
         $l = &$this->_makeNode($this->_currentNode, 'Literal-Block', array());
-        $l->appendChild(preg_replace('/\s+$/s', '', $text));
+        $stripped_text = preg_replace('/\s+$/s', '', $text);
+        $l->appendChild($stripped_text);
 
         // XXX: Dirty hack!
         array_unshift($this->_lineBuffer, '');

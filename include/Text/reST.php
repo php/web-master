@@ -132,7 +132,7 @@ class Text_reST {
      *
      * @return Text_reST  The parsed document or PEAR_Error on failure.
      */
-    function &parse($text)
+    static function &parse($text)
     {
         require_once dirname(__FILE__) . '/reST/Parser.php';
         $parser = new Text_reST_Parser();
