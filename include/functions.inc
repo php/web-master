@@ -208,6 +208,6 @@ function get_ssh_keys($string) {
     return $results;
 }
 
-function unmangle($var_name,$filter_type=INPUT_POST,$filter_id=FILTER_UNSAFE_RAW) {
-	return real_clean(filter_input($filter_type,$var_name,$filter_id));
+function unmangle($var_name,$filter_id=FILTER_UNSAFE_RAW) {
+	return real_clean(filter_var($var_name,$filter_id));
 }
