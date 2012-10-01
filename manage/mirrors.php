@@ -310,7 +310,13 @@ foot();
 function page_mirror_list($moreinfo = false)
 {
     global $checktime;
-    
+
+    // For counting versions and building a statistical analysis
+    $php_versions = array(
+        '53' => 0,
+        '54' => 0,
+        'other' => 0,
+    );    
     // Query the whole mirror list and display all mirrors. The query is
     // similar to the one in the mirror fetch script. We need to get mirror
     // status data to show proper icons and need to order by country too
@@ -461,6 +467,15 @@ function page_mirror_list($moreinfo = false)
         // Print out version information for this mirror
         $summary .= '<td align="center" class="rounded">' . $row['phpversion']. '</td>' . "\n";
 
+	// Increment the appropriate version for our statistical overview
+	if (preg_match('/^5\.3/',$row['phpversion'])) {
+                $php_versions['53']++;
+        } elseif (preg_match('/^5.4/',$row['phpversion'])) {
+                $php_versions['54']++;
+        } else {
+                $php_versions['other']++;
+        }
+
         // Print out mirror stats table cell
         $summary .= '<td align="right" class="rounded">' . $statscell . '</td>' . "\n";
 
@@ -511,6 +526,10 @@ function page_mirror_list($moreinfo = false)
 
     // Create version specific statistics
     $stats['version5_percent']   = sprintf('%.1f%%', $stats['phpversion_counts'][5] / $stats['mirrors'] * 100);
+    $php53_percent = sprintf('%.1f%%',($php_versions['53'] / $stats['mirrors']) * 100);
+    $php54_percent = sprintf('%.1f%%',($php_versions['54'] / $stats['mirrors']) * 100);
+    $php_other_versions = sprintf('%.1f%%',($php_versions['other'] / $stats['mirrors']) * 100);
+    
     $stats['has_stats_percent']  = sprintf('%.1f%%', $stats['has_stats']            / $stats['mirrors'] * 100);
 
     $last_check_time = get_print_date($checktime);
@@ -562,8 +581,16 @@ echo <<<EOS
   </tr>
   <tr>
    <td><img src="/images/mirror_info.png" /></td>
-   <td>PHP 5:</td>
-   <td>{$stats['version5_percent']}</td>
+   <td>
+    PHP 5.3:<br/>
+    PHP 5.4:<br/>
+    Other:
+   </td>
+   <td>
+    {$php53_percent}<br/>
+    {$php54_percent}<br/>
+    {$php_other_versions}
+   </td>
   </tr>
   <tr>
    <td colspan="3"><hr /></td>
