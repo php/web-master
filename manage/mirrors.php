@@ -24,6 +24,7 @@ $valid_fields = array(
 	'acmt',
 	'reason',
 	'original_log',
+	'load_balanced',
 );
 
 foreach($valid_fields as $k) {
@@ -60,7 +61,7 @@ if (isset($id) && isset($hostname)) {
                 $query = "UPDATE mirrors SET hostname='$hostname', active=$active, " .
                          "mirrortype=$mirrortype, cname='$cname', maintainer='".unmangle($maintainer)."', " .
                          "providername='".unmangle($providername)."', providerurl='$providerurl', " .
-                         "cc='$cc', lang='$lang', has_stats=$has_stats, " .
+                         "cc='$cc', lang='$lang', has_stats=$has_stats, load_balanced='$load_balanced', " .
                          "lastedited=NOW(), acmt='".unmangle($acmt_prev)."==\n" .
                          $mod_by_time.(isset($acmt) && !empty($acmt) ? ": ".unmangle($acmt) : ".")."' WHERE id = $id";
                 $msg = "$hostname updated";
@@ -76,10 +77,10 @@ if (isset($id) && isset($hostname)) {
             case "insert":
                 $query = "INSERT INTO mirrors (hostname, active, mirrortype, " .
                          "cname, maintainer, providername, providerurl, cc, " .
-                         "lang, has_stats, created, lastedited, acmt) " .
+                         "lang, has_stats, created, lastedited, acmt, load_balanced) " .
                          "VALUES ('$hostname', $active, $mirrortype, '$cname', " .
                          "'".unmangle($maintainer)."', '".unmangle($providername)."', '$providerurl', '$cc', " .
-                         "'$lang', $has_stats, NOW(), NOW(), '".unmangle($acmt)."')";
+                         "'$lang', $has_stats, NOW(), NOW(), '".unmangle($acmt)."', '$load_balanced')";
                 $msg = "$hostname added";
             break;
         }
@@ -171,6 +172,20 @@ elseif (isset($id)) {
      <tr>
       <th align="right">Active?</th>
       <td><input type="checkbox" name="active"<?php echo empty($row['active']) ? '' : " checked"; ?> /></td>
+     </tr>
+     <tr>
+     <?php if (!empty($row['hostname'])) { ?>
+      <th align="right">Round-Robin?</th>
+      <td>
+       <input type="checkbox" name="load_balanced" value="<?php echo substr($row['hostname'],0,2).(preg_match('/\w+/',$row['load_balanced']) ? ' checked="checked"' : ''); ?>"/>
+      </td>
+     <?php } else { ?>
+      <th align="right">Round-Robin Country Code</th>
+      <td>
+       <input type="text" name="load_balanced" size="2" maxlength="4"/><br/>
+       <small>Should be the first two letters from the hostname entered above.</small>
+      </td>
+     <?php } ?>
      </tr>
      <tr>
       <th align="right">Type:</th>
@@ -351,11 +366,11 @@ function page_mirror_list($moreinfo = false)
         @$stats['phpversion_counts'][$row['phpversion'][0]]++;
 
         // Print separator row
-        $summary .= '<tr><td colspan="8"></td></tr>' . "\n";
+        $summary .= '<tr><td colspan="9"></td></tr>' . "\n";
 
         // Print out a country header, if a new country is found
         if ($prevcc != $row['cc']) {
-            $summary .= '<tr><th colspan="8" class="rounded">' . $row['countryname'] . "</th></tr>\n";
+            $summary .= '<tr><th colspan="9" class="rounded">' . $row['countryname'] . "</th></tr>\n";
         }
         $prevcc = $row['cc'];
 
@@ -475,6 +490,10 @@ function page_mirror_list($moreinfo = false)
         } else {
                 $php_versions['other']++;
         }
+
+	$summary .= '<td align="right" class="rounded">';
+	$summary .= preg_match('/\w{2}/',$row['load_balanced']) ? '<img src="/images/Robin.ico" height="16" width="16"/>' : '';
+	$summary .= '</td>'.PHP_EOL;
 
         // Print out mirror stats table cell
         $summary .= '<td align="right" class="rounded">' . $statscell . '</td>' . "\n";
@@ -693,4 +712,3 @@ function is_mirror_site_admin($user) {
         return TRUE;
     } else { return FALSE; }
 }
-
