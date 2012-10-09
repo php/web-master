@@ -177,7 +177,7 @@ elseif (isset($id)) {
      <?php if (!empty($row['hostname'])) { ?>
       <th align="right">Round-Robin?</th>
       <td>
-       <input type="checkbox" name="load_balanced" value="<?php echo substr($row['hostname'],0,2).(preg_match('/\w+/',$row['load_balanced']) ? ' checked="checked"' : ''); ?>"/>
+       <input type="checkbox" name="load_balanced" value="<?php echo substr($row['hostname'],0,2); ?>" <?php preg_match('/\w+/',$row['load_balanced']) ? ' checked="checked"' : ''; ?>/>
       </td>
      <?php } else { ?>
       <th align="right">Round-Robin Country Code</th>
