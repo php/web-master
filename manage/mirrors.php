@@ -467,7 +467,8 @@ function page_mirror_list($moreinfo = false)
 
         // Print out mirror site link
         $summary .= '<td class="rounded"><a href="http://' . $row['hostname'] . '/" target="_blank">' .
-                    $row['hostname'] . '</a><br /></td>' . "\n";
+                    $row['hostname'] . '</a>'.PHP_EOL .
+		    ' <a href="http://'.$row['hostname'].'/mirror-info" target="_blank"><img src="/images/mirror_info.png"/></a><br /></td>' . "\n";
 
         // Print out mirror provider information
         $summary .= '<td class="rounded"><a href="' . $row['providerurl'] . '">' .
@@ -508,7 +509,7 @@ function page_mirror_list($moreinfo = false)
         // If any info on the error of this mirror is available, print it out
         if ($errorinfo) {
             $summary .= "<tr class=\"mirrorerror\"><td bgcolor=\"#ffffff\"></td>" .
-                        "<td colspan=\"7\" class=\"rounded\"><img src=\"/images/mirror_info.png\" /> <small>";
+                        "<td colspan=\"7\" class=\"rounded\"><img src=\"/images/mirror_notice.png\" /> <small>";
                        if (($errorblock = preg_split('/==\r?\n/',$errorinfo)) != 0) {
                                $summary .= nl2br($errorblock[(count($errorblock)-1)]);
                        } else {
