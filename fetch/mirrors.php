@@ -94,6 +94,13 @@ if (@mysql_connect("localhost","nobody","")) {
                      "        \"$row[cc]\", \"$row[providername]\", $row[has_stats],\n" .
                      "        \"$row[providerurl]\", $row[mirrortype], $row[has_search],\n" .
                      "        \"$row[lang]\", $status),\n";
+
+                // Do the same with the IPv4 address as the hostname, for round-robin CC base hosts
+                echo '    "'.$row['ipv4_addr'].'" => array('.PHP_EOL .
+                     '        "'.$row['cc'].'", "'.$row['providername'].'", '.$row['has_stats'].','.PHP_EOL .
+                     '        "'.$row['providerurl'].'", '.$row['mirrortype'].', '.$row['has_search'].','.PHP_EOL .
+                     '        "'.$row['lang'].'", '.$status.'),'.PHP_EOL;
+
             }
             echo ");\n";
         }
