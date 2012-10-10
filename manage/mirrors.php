@@ -287,7 +287,7 @@ if (intval($id) !== 0) {
   </tr>
   <tr>
    <th align="right">Available extensions:</th>
-   <td><?php echo get_extension_info($row['hostname']); ?></td>
+   <td><div style="height:48px;width:400px;overflow:auto;"><?php echo str_replace(',',' ',get_extension_info($row['hostname'])); ?></div></td>
   </tr>
   <tr>
    <th align="right">Local Stats:</th>
