@@ -286,6 +286,10 @@ if (intval($id) !== 0) {
    <td><?php echo implode(' : ', decipher_available_sqlites($row['has_search'])); ?></td>
   </tr>
   <tr>
+   <th align="right">Available extensions:</th>
+   <td><?php echo get_extension_info($row['hostname']); ?></td>
+  </tr>
+  <tr>
    <th align="right">Local Stats:</th>
    <td><?php echo ($row['has_stats'] ? "" : "<strong>not</strong> "); ?>supported</td>
   </tr>

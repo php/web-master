@@ -211,3 +211,19 @@ function get_ssh_keys($string) {
 function unmangle($var_name,$filter_id=FILTER_UNSAFE_RAW) {
 	return real_clean(filter_var($var_name,$filter_id));
 }
+
+/**
+ * If $ext is defined, return TRUE if available, FALSE if not.
+ * If $ext is not defined, return a string of all available extensions.
+ */
+function get_extension_info($mirror_hostname,$ext=null) {
+	$exts = db_get_one("SELECT ext_avail FROM mirrors WHERE hostname='".real_clean($mirror_hostname)."'");
+	if (!is_null($ext)) {
+		if (preg_match('/\b'.$ext.'\b/Ui',$exts)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	return $exts;
+}
