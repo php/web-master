@@ -99,7 +99,7 @@ if (@mysql_connect("localhost","nobody","")) {
                 // round-robin CC base hosts - if the IPv4 is available.
                 // Note that this will also accept IPv4-mapped IPv6
                 // addresses like so: 123:4:56:789::abc:def:127.0.0.1
-                if (strlen($row['ipv4_addr']) >= 15) {
+                if (strlen($row['ipv4_addr']) >= 7) {
                     echo '    "'.$row['ipv4_addr'].'" => array('.PHP_EOL .
                          '        "'.$row['cc'].'", "'.$row['providername'].'", '.$row['has_stats'].','.PHP_EOL .
                          '        "'.$row['providerurl'].'", '.$row['mirrortype'].', '.$row['has_search'].','.PHP_EOL .
