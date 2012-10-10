@@ -95,12 +95,16 @@ if (@mysql_connect("localhost","nobody","")) {
                      "        \"$row[providerurl]\", $row[mirrortype], $row[has_search],\n" .
                      "        \"$row[lang]\", $status),\n";
 
-                // Do the same with the IPv4 address as the hostname, for round-robin CC base hosts
-                echo '    "'.$row['ipv4_addr'].'" => array('.PHP_EOL .
-                     '        "'.$row['cc'].'", "'.$row['providername'].'", '.$row['has_stats'].','.PHP_EOL .
-                     '        "'.$row['providerurl'].'", '.$row['mirrortype'].', '.$row['has_search'].','.PHP_EOL .
-                     '        "'.$row['lang'].'", '.$status.'),'.PHP_EOL;
-
+                // Do the same with the IPv4 address as the hostname, for
+                // round-robin CC base hosts - if the IPv4 is available.
+                // Note that this will also accept IPv4-mapped IPv6
+                // addresses like so: 123:4:56:789::abc:def:127.0.0.1
+                if (strlen($row['ipv4_addr']) >= 15) {
+                    echo '    "'.$row['ipv4_addr'].'" => array('.PHP_EOL .
+                         '        "'.$row['cc'].'", "'.$row['providername'].'", '.$row['has_stats'].','.PHP_EOL .
+                         '        "'.$row['providerurl'].'", '.$row['mirrortype'].', '.$row['has_search'].','.PHP_EOL .
+                         '        "'.$row['lang'].'", '.$status.'),'.PHP_EOL;
+                }
             }
             echo ");\n";
         }
