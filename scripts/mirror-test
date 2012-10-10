@@ -221,6 +221,13 @@ foreach ($hosts as $index => $host) {
       continue;
     }
 
+    // Get the list of available extensions on the mirror
+    if (isset($info[8])) {
+      $hosts[$index]['ext_avail'] = $info[8];
+    } else {
+      $hosts[$index]['ext_avail'] = 'N/A';
+    }
+
     // Check if mirror has correct ServerName/ServerAlias entries
     // Most likely cause is unofficial hostname as ServerName instead of ServerAlias
     // Important to keep my php.net cookie around
@@ -348,7 +355,8 @@ foreach ($hosts as $host) {
                  "has_stats = '"  . ((int) $host['has_stats'])      . "', " .
                  "phpversion = '" . addslashes($host['phpversion']) . "', " .
                  "lang = '"       . $host['lang']                   . "', " .
-                 "ocmt = '' " .
+                 "ocmt = '', " .
+		 "ext_avail = '" . mysql_real_escape_string($host['ext_avail']) . "' " .
                  "WHERE hostname = '" . $host['hostname'] . "'";
                   
         $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
@@ -383,4 +391,3 @@ if ($mirrorsupdated < 70) {
         "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
     );
 }
-
