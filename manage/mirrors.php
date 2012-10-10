@@ -561,7 +561,13 @@ function page_mirror_list($moreinfo = false)
    
     if(empty($stats['disabled'])) $stats['disabled'] = 0;
     $stats['ok']   = $stats['mirrors'] - $stats['autodisabled'] - $stats['disabled'];
-    $moreinfo_flag = empty($moreinfo) ? 1 : 0;
+    if (empty($moreinfo)) {
+	$moreinfo_flag = 1;
+	$moreinfo_text = 'See more info';
+    } else {
+	$moreinfo_flag = 0;
+	$moreinfo_text = 'See less info';
+    }
     
     $has_sqlite_counts = '';
     foreach ($stats['sqlite_counts'] as $stype => $scount) {
@@ -624,7 +630,7 @@ echo <<<EOS
 
  </table>
  <h1>Resources</h1>
- <a href="/manage/mirrors.php?mi={$moreinfo_flag}">See more info</a><br />
+ <a href="/manage/mirrors.php?mi={$moreinfo_flag}">{$moreinfo_text}</a><br />
  <a href="http://php.net/mirroring.php" target="_blank">Guidelines</a><br />
  <a href="mailto:mirrors@php.net">Mailing list</a><br />
  <a href="http://www.iana.org/domains/root/db/" target="_blank">Country TLDs</a>
