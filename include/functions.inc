@@ -24,7 +24,7 @@ function head($title="",$private=1) { // Default to $private == true to permit n
   <title>PHP: <?php echo $title ?></title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" media="all" rel="stylesheet" href="/style.css" />
-  <link rel="shortcut icon" href="http://php.net/favicon.ico" />
+  <link rel="shortcut icon" href="//php.net/favicon.ico" />
 </head>
 
 <body>
