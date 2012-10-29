@@ -7,7 +7,6 @@ foreach($valid_vars as $k) {
   $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
 
-
 function random_password() {
   $alphanum = array_merge(range("a","z"),range("A","Z"),range(0,9));
 
