@@ -134,6 +134,7 @@ the ability to work with others.
       mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
       mail($mailto . ($cc ? ",$cc" : ""),$userinfo['cvsaccess'] ? "VCS Account Deleted: $userinfo[username] deleted by $user" : "VCS Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
       db_query("DELETE FROM users_note WHERE userid=$id");
+      db_query("DELETE FROM users_profile WHERE userid=$id");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
         exit;
@@ -201,6 +202,16 @@ if ($id && $in) {
               $purpose = hsc($in['purpose']);
               $query = "INSERT INTO users_note (userid, note, entered) VALUES ($id, '$purpose', NOW())";
               db_query($query);
+          }
+
+          if(!empty($in['profile_markdown'])) {
+            $profile_markdown = $in['profile_markdown'];
+            $profile_html = Markdown($profile_markdown);
+            $profile_markdown = mysql_real_escape_string($profile_markdown);
+            $profile_html = mysql_real_escape_string($profile_html);
+            $query = "INSERT INTO users_profile (userid, markdown, html) VALUES ($id, '$profile_markdown', '$profile_html')
+                      ON DUPLICATE KEY UPDATE markdown='$profile_markdown', html='$profile_html'";
+            db_query($query);
           }
         }
 
@@ -326,6 +337,24 @@ table.useredit tr {
   <p>Adding/editing the SSH key takes a few minutes to propagate to the server.<br>
   Multiple keys are allowed, separated using a newline.</p></td>
 </tr>
+<?php
+  if ($id) {
+    $res = db_query("SELECT markdown FROM users_profile WHERE userid=$id");
+    $row['profile_markdown'] = '';
+    if ($profile_row = mysql_fetch_assoc($res)) {
+        $row['profile_markdown'] = $profile_row['markdown'];
+    }
+?>
+<tr>
+ <th align="right">People Profile<br>(<a href="http://people.php.net/user.php?username=<?php echo urlencode($row['username']);?>"><?php echo hscr($row['username']);?>'s page</a>)</th>
+ <td>
+     <p>Use <a href="http://michelf.ca/projects/php-markdown/dingus/" title="PHP Markdown: Dingus">Markdown</a>. Type as much as you like.</p>
+     <div><textarea cols="100" rows="20" name="in[profile_markdown]"><?php echo escape(html_entity_decode($row['profile_markdown'], ENT_QUOTES)); ?></textarea></div>
+ </td>
+</tr>
+<?php
+  }
+?>
 <tr>
  <th align="right">Add Note: </th>
  <td><textarea cols="50" rows="5" name="in[purpose]"></textarea></td>
