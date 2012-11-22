@@ -68,7 +68,7 @@ if (!$action) {
     if (is_numeric($_REQUEST['keyword'])) {
       $sql .= 'id = ' . (int) $_REQUEST['keyword'];
     } else {
-      $sql .= 'note LIKE "%' . escape($_REQUEST['keyword']) . '%" LiMIT 20';
+      $sql .= 'note LIKE "%' . real_clean($_REQUEST['keyword']) . '%" LiMIT 20';
     }
    } else {
      $page = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
@@ -154,7 +154,7 @@ case 'mass':
   $step = (isset($_REQUEST["step"]) ? $_REQUEST["step"] : 0);
   $where = array();
   if (!empty($_REQUEST["old_sect"])) {
-    $where[] = "sect = '". escape($_REQUEST["old_sect"]) ."'";
+    $where[] = "sect = '". real_clean($_REQUEST["old_sect"]) ."'";
   }
   if (!empty($_REQUEST["ids"])) {
     if (preg_match('~^([0-9]+, *)*[0-9]+$~i', $_REQUEST["ids"])) {
@@ -166,7 +166,7 @@ case 'mass':
   }
   
   if ($step == 2) {
-    db_query("UPDATE note SET sect = '". escape($_REQUEST["new_sect"]) ."' WHERE " . implode(" AND ", $where));
+    db_query("UPDATE note SET sect = '". real_clean($_REQUEST["new_sect"]) ."' WHERE " . implode(" AND ", $where));
     echo "<p>Mass change succeeded.</p>\n";
   } elseif ($step == 1) {
     if (!empty($_REQUEST["new_sect"]) && $where) {
@@ -286,18 +286,18 @@ case 'delete':
 case 'preview':
 case 'edit':
   if ($id) {
-    $note = (isset($_POST['note']) ? escape($_POST['note']) : null);
+    $note = (isset($_POST['note']) ? $_POST['note'] : null);
     if (!isset($note) || $action == 'preview') {
       head("user notes");
     }
 
     $row = note_get_by_id($id);
 
-    $email = (isset($_POST['email']) ? escape($_POST['email']) : addslashes($row['user']));
-    $sect = (isset($_POST['sect']) ? escape($_POST['sect']) : addslashes($row['sect']));
+    $email = (isset($_POST['email']) ? real_clean(html_entityt_decode($_POST['email'],ENT_QUOTES)) : real_clean($row['user']));
+    $sect = (isset($_POST['sect']) ? real_clean($_POST['sect']) : real_clean($row['sect']));
 
     if (isset($note) && $action == "edit") {
-      if (db_query("UPDATE note SET note='".escape(html_entity_decode($note,ENT_QUOTES))."',user='$email',sect='$sect',updated=NOW() WHERE id=$id")) {
+      if (db_query("UPDATE note SET note='".real_clean(html_entity_decode($note,ENT_QUOTES))."',user='$email',sect='$sect',updated=NOW() WHERE id=$id")) {
 
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
@@ -307,7 +307,7 @@ case 'edit':
             "note {$row['id']} modified in {$row['sect']} by $user",
             strip($note)."\n\n--was--\n{$row['note']}\n\nhttp://php.net/manual/en/{$row['sect']}.php"
         );
-        if (addslashes($row["sect"]) != $sect) {
+        if (real_clean($row["sect"]) != $sect) {
           note_mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $user", "----- Copy of your note below -----\n\n".strip($note));
         }
         header('Location: user-notes.php?id=' . $id . '&was=' . $action);
@@ -332,7 +332,7 @@ case 'edit':
  </tr>
  <tr>
   <th align="right">email:</th>
-  <td><input type="text" name="email" value="<?= escape($email) ?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="email" value="<?= clean($email) ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
   <td colspan="2"><textarea name="note" cols="70" rows="15"><?= $note ?></textarea></td>
