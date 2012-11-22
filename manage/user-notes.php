@@ -293,7 +293,7 @@ case 'edit':
 
     $row = note_get_by_id($id);
 
-    $email = (isset($_POST['email']) ? real_clean(html_entityt_decode($_POST['email'],ENT_QUOTES)) : real_clean($row['user']));
+    $email = (isset($_POST['email']) ? real_clean(html_entity_decode($_POST['email'],ENT_QUOTES)) : real_clean($row['user']));
     $sect = (isset($_POST['sect']) ? real_clean($_POST['sect']) : real_clean($row['sect']));
 
     if (isset($note) && $action == "edit") {
