@@ -294,7 +294,7 @@ case 'edit':
     $row = note_get_by_id($id);
 
     $email = (isset($_POST['email']) ? real_clean(html_entity_decode($_POST['email'],ENT_QUOTES)) : real_clean($row['user']));
-    $sect = (isset($_POST['sect']) ? real_clean($_POST['sect']) : real_clean($row['sect']));
+    $sect = (isset($_POST['sect']) ? real_clean(html_entity_decode($_POST['sect'],ENT_QUOTES)) : real_clean($row['sect']));
 
     if (isset($note) && $action == "edit") {
       if (db_query("UPDATE note SET note='".real_clean(html_entity_decode($note,ENT_QUOTES))."',user='$email',sect='$sect',updated=NOW() WHERE id=$id")) {
@@ -318,9 +318,9 @@ case 'edit':
     $note = isset($note) ? $note : $row['note'];
 
     if ($action == "preview") {
-      echo "<p class=\"notepreview\">",strip($note),
+      echo "<p class=\"notepreview\">",clean_note(strip($note)),
            "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
-           strip($email),"</span></p>";
+           clean(strip($email)),"</span></p>";
     }
 ?>
 <form method="post" action="<?= PHP_SELF ?>">
@@ -335,7 +335,7 @@ case 'edit':
   <td><input type="text" name="email" value="<?= clean($email) ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= $note ?></textarea></td>
+  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= clean($note) ?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
