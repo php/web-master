@@ -60,3 +60,10 @@ CREATE TABLE users_note (
   FULLTEXT KEY note (note)
 ) TYPE=MyISAM;
 
+/* the users_profile table contains up to one profile row for each user */
+CREATE TABLE users_profile (
+  userid int(11) NOT NULL,
+  markdown TEXT NOT NULL default '',
+  html TEXT NOT NULL default '',
+  PRIMARY KEY (userid)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;

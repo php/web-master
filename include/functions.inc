@@ -227,3 +227,6 @@ function get_extension_info($mirror_hostname,$ext=null) {
 	}
 	return $exts;
 }
+
+// We use markdown for people profiles
+include_once dirname(__FILE__) . '/../vendor/michelf/php-markdown-extra/markdown.php';
