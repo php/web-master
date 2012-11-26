@@ -349,7 +349,7 @@ table.useredit tr {
  <th align="right">People Profile<br>(<a href="http://people.php.net/user.php?username=<?php echo urlencode($row['username']);?>"><?php echo hscr($row['username']);?>'s page</a>)</th>
  <td>
      <p>Use <a href="http://michelf.ca/projects/php-markdown/dingus/" title="PHP Markdown: Dingus">Markdown</a>. Type as much as you like.</p>
-     <div><textarea cols="100" rows="20" name="in[profile_markdown]"><?php echo escape(html_entity_decode($row['profile_markdown'], ENT_QUOTES)); ?></textarea></div>
+     <div><textarea cols="100" rows="20" name="in[profile_markdown]"><?php echo clean($row['profile_markdown']); ?></textarea></div>
  </td>
 </tr>
 <?php
