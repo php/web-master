@@ -43,6 +43,8 @@ head("user administration");
 
 db_connect();
 
+define('FEATURE_PROFILE_ENABLED', (bool) db_get_one('SELECT 1 FROM users_profile LIMIT 1'));
+
 # ?username=whatever will look up 'whatever' by email or username
 if ($username && !$id) {
   $query = "SELECT userid FROM users"
@@ -134,7 +136,9 @@ the ability to work with others.
       mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
       mail($mailto . ($cc ? ",$cc" : ""),$userinfo['cvsaccess'] ? "VCS Account Deleted: $userinfo[username] deleted by $user" : "VCS Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id-admin@php.net>", "-fnoreply@php.net");
       db_query("DELETE FROM users_note WHERE userid=$id");
-      db_query("DELETE FROM users_profile WHERE userid=$id");
+      if (FEATURE_PROFILE_ENABLED) {
+          db_query("DELETE FROM users_profile WHERE userid=$id");
+      }
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
         exit;
@@ -204,7 +208,7 @@ if ($id && $in) {
               db_query($query);
           }
 
-          if(!empty($in['profile_markdown'])) {
+          if(FEATURE_PROFILE_ENABLED && !empty($in['profile_markdown'])) {
             $profile_markdown = $in['profile_markdown'];
             $profile_html = Markdown($profile_markdown);
             $profile_markdown = mysql_real_escape_string($profile_markdown);
@@ -338,7 +342,7 @@ table.useredit tr {
   Multiple keys are allowed, separated using a newline.</p></td>
 </tr>
 <?php
-  if ($id) {
+  if (FEATURE_PROFILE_ENABLED && $id) {
     $res = db_query("SELECT markdown FROM users_profile WHERE userid=$id");
     $row['profile_markdown'] = '';
     if ($profile_row = mysql_fetch_assoc($res)) {
