@@ -200,8 +200,8 @@ function legacy_rss($atom, $newsDest, $confDest) {
 			$NEWS_ITEMS .= $item;
 		}
 	}
-	GenerateRSSHeader($links["conf"], $CONF, "http://www.php.net/conferences/");
-	GenerateRSSHeader($links["news"], $NEWS, "http://www.php.net/");
+	GenerateRSSHeader($links["conf"], $CONF, "http://php.net/conferences/");
+	GenerateRSSHeader($links["news"], $NEWS, "http://php.net/");
 
 	$CONF .= $CONF_ITEMS;
 	$NEWS .= $NEWS_ITEMS;

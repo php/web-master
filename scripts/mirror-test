@@ -151,7 +151,7 @@ foreach ($hosts as $index => $host) {
     // shortcut requests to a mirror site, and we would not handle
     // that properly. Otherwise on a mirror site we need to check
     // the shortcut functionality too.
-    $filename = ($host['hostname'] == 'www.php.net') ? '/mirror-info.php' : '/mirror-info';
+    $filename = ($host['hostname'] == 'www.php.net' || $host['hostname'] == 'php.net') ? '/mirror-info.php' : '/mirror-info';
 
     // -------------------------------------------------------------------------
     // First HTTP request for the mirror-info file

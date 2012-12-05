@@ -137,7 +137,7 @@ if (@mysql_query($query)) {
 //  $msg .= $spam_data;
 //  $msg .= "\n----\n";
 
-  $msg .= "Manual Page -- http://www.php.net/manual/en/$sect.php\n";
+  $msg .= "Manual Page -- http://php.net/manual/en/$sect.php\n";
   $msg .= "Edit        -- https://master.php.net/note/edit/$new_id\n";
   //$msg .= "Approve     -- https://master.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
   foreach ($note_del_reasons AS $reason) {

@@ -231,7 +231,7 @@ GenerateRSSFooter($RSS);
 return $RSS;
 }
 
-#$RSSNews = GenerateRSSFile($root, "http://www.php.net/");
-#$RSSConf = GenerateRSSFile("$root/conferences", "http://www.php.net/conferences/");
+#$RSSNews = GenerateRSSFile($root, "http://php.net/");
+#$RSSConf = GenerateRSSFile("$root/conferences", "http://php.net/conferences/");
 
 ?>

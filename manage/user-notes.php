@@ -97,7 +97,7 @@ if (!$action) {
             "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
             hscr($row['user']),"</span><br />",
 	    "Note id: $id<br />\n",
-	    "<a href=\"http://www.php.net/manual/en/{$row['sect']}.php\" target=\"_blank\">http://www.php.net/manual/en/{$row['sect']}.php</a><br />\n",
+	    "<a href=\"http://php.net/manual/en/{$row['sect']}.php\" target=\"_blank\">http://php.net/manual/en/{$row['sect']}.php</a><br />\n",
             "<a href=\"https://master.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
 	  foreach ($note_del_reasons AS $reason => $text) {
 	    echo '<a href="https://master.php.net/note/delete/', $id, '/', urlencode($reason), '" target=\"_blank\">', 'Delete Note: ', hscr($text), "</a><br />\n";

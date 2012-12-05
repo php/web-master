@@ -46,7 +46,7 @@ header('Content-type: text/xml');
   xmlns="http://purl.org/rss/1.0/"
   xmlns:dc="http://purl.org/dc/elements/1.1/"
 >
-  <channel rdf:about="http://www.php.net/">
+  <channel rdf:about="http://php.net/">
   <title>PHP Manual User Notes</title>
   <link>https://master.php.net/manage/user-notes.php</link>
   <description/>
@@ -60,9 +60,9 @@ header('Content-type: text/xml');
     <?php } ?>
   </items>
   </channel>
-  <image rdf:about="http://www.php.net/images/php.gif">
+  <image rdf:about="http://php.net/images/php.gif">
     <title>PHP Manual User Notes</title>
-    <url>http://www.php.net/images/php.gif</url>
+    <url>http://php.net/images/php.gif</url>
     <link>https://master.php.net/manage/user-notes.php</link>
   </image>
 <?php
