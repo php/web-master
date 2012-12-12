@@ -44,7 +44,7 @@ foreach ($resultset as $row) {
     }
     // Calculate the votes for each note here
     try {
-        $getvotes->exucute(array($row['id']));
+        $getvotes->execute(array($row['id']));
         $votes = $getvotes->fetch(PDO::FETCH_ASSOC);
         if ($votes === false) {
             $votes = array('up' => 0, 'down' => 0);
