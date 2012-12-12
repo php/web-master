@@ -8,6 +8,7 @@
 
 /* used by:
    master.php.net/entry/user-note.php
+   master.php.net/entry/user-notes-vote.php
    master.php.net/fetch/user-notes.php
    master.php.net/manage/user-notes.php
 */
@@ -32,3 +33,16 @@ CREATE TABLE IF NOT EXISTS alerts (
   sect VARCHAR(80) not NULL default '',
   updated TIMESTAMP(14) NOT NULL
 ) TYPE=MyISAM;
+
+-- New votes table added for keeping track of user notes ratings 
+CREATE TABLE IF NOT EXISTS `votes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `note_id` mediumint(9) NOT NULL,
+  `ip` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `hostip` bigint(20) unsigned NOT NULL DEFAULT '0',
+  `ts` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
+  `vote` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `note_id` (`note_id`,`ip`,`vote`),
+  KEY `hostip` (`hostip`)
+) TYPE=MyISAM AUTO_INCREMENT=1;
