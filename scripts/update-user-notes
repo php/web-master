@@ -53,7 +53,7 @@ while (!feof($fp)) {
         continue; # skip invalid lines
     }
 
-    list($id,$sect,$rate,$ts,$user,$note) = explode("|",$line);
+    @list($id,$sect,$rate,$ts,$user,$note,$up,$down) = explode("|",$line);
 
     $hash = substr(md5($sect),0,16);
     @mkdir($root.substr($hash,0,2),0755);
@@ -74,7 +74,7 @@ while (!feof($fp)) {
         $note = gzuncompress(base64_decode($note)) or die ("$id failed\n");
         fputs($nf, "$id|$sect|$rate|$ts|$user|" . base64_encode($note) . "\n");
         if (BUILD_COMPLETE_FILE) {
-            fputs($bz, "$id|$sect|$rate|$ts|$user|" . base64_encode($note) . "\n");
+            fputs($bz, "$id|$sect|$rate|$ts|$user|" . base64_encode($note) . "|$up|$down\n");
         }
         fclose($nf);
     }
