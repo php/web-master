@@ -35,7 +35,8 @@ function vote_validate_request(PDO $dbh) {
   {
       $ip = sprintf("%u", ip2long($_POST['ip']));      
   } else {
-      return false;
+      // If the IP can't be validated use a non routable IP for loose validation (i.e. IPv6 and clients that couldn't send back proper IPs)
+      $ip = 0; 
   }
   
   if (isset($_SERVER['REMOTE_ADDR']) &&
@@ -45,7 +46,9 @@ function vote_validate_request(PDO $dbh) {
   {
       $hostip = sprintf("%u", ip2long($_SERVER['REMOTE_ADDR']));      
   } else {
-      return false;
+      // If the IP can't be validated use a non routable IP for loose validation (i.e. IPv6 and clients that couldn't send back proper IPs)
+      $ip = 0;
+
   }
   
   if (!empty($_POST['noteid']) && filter_var($_POST['noteid'], FILTER_VALIDATE_INT))
