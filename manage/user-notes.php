@@ -77,15 +77,25 @@ if (!$action) {
      if($page < 0) { $page = 0; }
      $limit = $page * 10; $page++;
      
+      /* Added new voting information to be included in note from votes table. */
      /* First notes */
      if ($type == 1) {
-     	$sql = "SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note ORDER BY id ASC LIMIT $limit, 10";
+     	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts".
+     	       "FROM note".
+     	       "JOIN(votes) ON (note.id = votes.note_id)".
+     	       "GROUP BY note.id ORDER BY note.id ASC LIMIT $limit, 10";
      /* Minor notes */
      } else if ($type == 2) {
-      $sql = "SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note ORDER BY LENGTH(note) ASC LIMIT $limit, 10"; 
+     	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts".
+     	       "FROM note".
+     	       "JOIN(votes) ON (note.id = votes.note_id)".
+     	       "GROUP BY note.id ORDER BY LENGTH(note.note) ASC LIMIT $limit, 10";
      /* Last notes */
      } else {
-     	$sql = "SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note ORDER BY id DESC LIMIT $limit, 10";
+     	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts".
+     	       "FROM note".
+     	       "JOIN(votes) ON (note.id = votes.note_id)".
+     	       "GROUP BY note.id ORDER BY note.id DESC LIMIT $limit, 10";
      }
    }
 
@@ -93,6 +103,23 @@ if (!$action) {
       if (mysql_num_rows($result) != 0) {
         while ($row = mysql_fetch_assoc($result)) {
           $id = $row['id'];
+          /* This div is only available in cases where the query includes the voting info */
+          if (isset($row['up']) && isset($row['down'])) {
+            $rating = $row['up'] - $row['down'];
+            if ($rating < 0) {
+              $rating = '<span style="color: red;">$rating</span>';
+            } elseif ($rating > 0) {
+              $rating = '<span style="color: green;">$rating</span>';
+            } else {
+              $rating = '<span style="color: blue;">$rating</span>';
+            }
+            $percentage = sprintf('%d%%',((($row['up'] + $row['down']) ? $row['up'] / ($row['up'] + $row['down']) : 0) * 100));
+            echo "<div style=\"float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: lightgray;\">\n".
+                 "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Up votes</strong>: {$row['up']}</div>\n".
+                 "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Down votes</strong>: {$row['down']}</div>\n".
+                 "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Rating</strong>: $rating (<em>$percentage like this</em>)</div>\n".
+                 "</div>\n";
+          }
           echo "<p class=\"notepreview\">",clean_note($row['note']),
             "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
             hscr($row['user']),"</span><br />",
