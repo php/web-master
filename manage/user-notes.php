@@ -107,11 +107,11 @@ if (!$action) {
           if (isset($row['up']) && isset($row['down'])) {
             $rating = $row['up'] - $row['down'];
             if ($rating < 0) {
-              $rating = '<span style="color: red;">$rating</span>';
+              $rating = "<span style=\"color: red;\">$rating</span>";
             } elseif ($rating > 0) {
-              $rating = '<span style="color: green;">$rating</span>';
+              $rating = "<span style=\"color: green;\">$rating</span>";
             } else {
-              $rating = '<span style="color: blue;">$rating</span>';
+              $rating = "<span style=\"color: blue;\">$rating</span>";
             }
             $percentage = sprintf('%d%%',((($row['up'] + $row['down']) ? $row['up'] / ($row['up'] + $row['down']) : 0) * 100));
             echo "<div style=\"float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: lightgray;\">\n".
