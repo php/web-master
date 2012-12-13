@@ -85,13 +85,13 @@ if (!$action) {
      if ($type == 1) {
      	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
      	       "FROM note ".
-     	       "JOIN(votes) ON (note.id = votes.note_id) ".
+     	       "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
      	       "GROUP BY note.id ORDER BY note.id ASC LIMIT $limit, 10";
      /* Minor notes */
      } else if ($type == 2) {
      	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
      	       "FROM note ".
-     	       "JOIN(votes) ON (note.id = votes.note_id) ".
+     	       "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
      	       "GROUP BY note.id ORDER BY LENGTH(note.note) ASC LIMIT $limit, 10";
      /* Top rated notes */
      } else if ($type == 3) {
@@ -111,7 +111,7 @@ if (!$action) {
      } else {
      	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
      	       "FROM note ".
-     	       "JOIN(votes) ON (note.id = votes.note_id) ".
+     	       "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
      	       "GROUP BY note.id ORDER BY note.id DESC LIMIT $limit, 10";
      }     
    }
