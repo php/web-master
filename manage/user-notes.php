@@ -99,14 +99,14 @@ if (!$action) {
      	       "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
      	       "FROM note ".
      	       "JOIN(votes) ON (note.id = votes.note_id) ".
-     	       "GROUP BY note.id ORDER BY rating ASC LIMIT $limit, 10";
+     	       "GROUP BY note.id ORDER BY rating DESC LIMIT $limit, 10";
      /* Bottom rated notes */
      } else if ($type == 4) {
      	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
      	       "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
      	       "FROM note ".
      	       "JOIN(votes) ON (note.id = votes.note_id) ".
-     	       "GROUP BY note.id ORDER BY rating DESC LIMIT $limit, 10";
+     	       "GROUP BY note.id ORDER BY rating ASC LIMIT $limit, 10";
      /* Last notes */
      } else {
      	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
