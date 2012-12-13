@@ -64,11 +64,14 @@ if (!$action) {
 
   if (isset($_REQUEST['keyword']) || isset($_REQUEST["view"])) {
    if(isset($_REQUEST['keyword'])) {
-    $sql = 'SELECT *,UNIX_TIMESTAMP(ts) AS ts FROM note WHERE ';
+    $sql = 'SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts '.
+            'FROM note '.
+            'JOIN(votes) ON (note.id = votes.note_id) '.
+            'WHERE ';
     if (is_numeric($_REQUEST['keyword'])) {
-      $sql .= 'id = ' . (int) $_REQUEST['keyword'];
+      $sql .= 'note.id = ' . (int) $_REQUEST['keyword'];
     } else {
-      $sql .= 'note LIKE "%' . real_clean($_REQUEST['keyword']) . '%" LiMIT 20';
+      $sql .= 'note.note LIKE "%' . real_clean($_REQUEST['keyword']) . '%" LiMIT 20';
     }
    } else {
      $page = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
@@ -90,13 +93,27 @@ if (!$action) {
      	       "FROM note ".
      	       "JOIN(votes) ON (note.id = votes.note_id) ".
      	       "GROUP BY note.id ORDER BY LENGTH(note.note) ASC LIMIT $limit, 10";
+     /* Top rated notes */
+     } else if ($type == 3) {
+     	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
+     	       "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+     	       "FROM note ".
+     	       "JOIN(votes) ON (note.id = votes.note_id) ".
+     	       "GROUP BY note.id ORDER BY rating ASC LIMIT $limit, 10";
+     /* Bottom rated notes */
+     } else if ($type == 4) {
+     	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
+     	       "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+     	       "FROM note ".
+     	       "JOIN(votes) ON (note.id = votes.note_id) ".
+     	       "GROUP BY note.id ORDER BY rating DESC LIMIT $limit, 10";
      /* Last notes */
      } else {
      	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
      	       "FROM note ".
      	       "JOIN(votes) ON (note.id = votes.note_id) ".
      	       "GROUP BY note.id ORDER BY note.id DESC LIMIT $limit, 10";
-     }
+     }     
    }
 
     if ($result = db_query($sql)) {
@@ -163,6 +180,8 @@ if (!$action) {
 <p><a href="<?= PHP_SELF ?>?view=notes&type=0">View last 10 notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=1">View first 10 notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=2">View minor 10 notes</a></p>
+<p><a href="<?= PHP_SELF ?>?view=notes&type=3">View top 10 rated notes</a></p>
+<p><a href="<?= PHP_SELF ?>?view=notes&type=4">View bottom 10 rated notes</a></p>
 <?php
 foot();
 exit;
