@@ -161,6 +161,32 @@ if (!$action) {
   }
 
 ?>
+<?php if (empty($_SERVER['QUERY_STRING'])) { ?>
+<?php
+  /* Calculate dates */
+  $today = strtotime('midnight');
+  $week = !date('w') ? strtotime('midnight') : strtotime('Last Sunday');
+  $month = strtotime('First Day of ' . date('F') . ' ' . date('Y'));
+  /* Handle stats queries for voting here */
+  $stats_sql = $stats = array();
+  $stats_sql['Total']       = "SELECT COUNT(votes.id) AS total FROM votes";
+  $stats_sql['Today']       = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($today);
+  $stats_sql['This Week']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($week);
+  $stats_sql['This Month']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($month);
+  foreach ($stats_sql as $key => $sql_code) {
+      $result = db_query($sql_code);
+      $row = mysql_fetch_assoc($result);
+      $stats[$key] = $row['total'];
+  }
+  /* Display the stats on the front page only */
+?>
+<div style="float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: lightgray;">
+  <p>User Contributed Voting Statistics</p>
+  <?php foreach ($stats as $figure => $stat) { ?>
+  <div style="display: inline-block; float: left; padding: 15px;"><strong><?= $figure ?></strong>: <?= $stat ?></div>
+  <?php } ?>
+</div>
+<?php } ?>
 <p>Search the notes table.</p>
 <form method="post" action="<?= PHP_SELF ?>">
 <table>
