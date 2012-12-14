@@ -494,7 +494,7 @@ case 'resetdown':
                 "  <input type=\"submit\" value\"Yes Reset!\" name=\"resetdwon\" />\n".
                 "</form>\n";
         }
-              
+        echo $out;
       } else {
         echo "<p>Note ".hscr($id)." does not exist!</p>";
       }
