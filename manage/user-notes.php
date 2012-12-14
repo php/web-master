@@ -442,8 +442,12 @@ case 'edit':
 case 'resetall':
 case 'resetup':
 case 'resetdown':
+  /* Only those with privileges in allow_mass_change may use these options */
+  if (!allow_mass_change($user)) {
+    die("You do not have access to use this feature!");
+  }
   /* Reset votes for user note -- effectively deletes votes found for that note_id in the votes table:  up/down/both */
-  header('user notes');
+  head('user notes');
   if ($id) {
     if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
       if ($action == 'resetall') {
@@ -607,7 +611,7 @@ function allow_mass_change($user)
     if (in_array(
             $user,
             array(
-                "vrana", "goba", "nlopess", "didou", "bjori", "philip", "bobby", "danbrown", "mgdm",
+                "vrana", "goba", "nlopess", "didou", "bjori", "philip", "bobby", "danbrown", "mgdm", "googleguy",
             )
         )
     ) {
