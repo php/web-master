@@ -450,13 +450,13 @@ case 'resetdown':
   head('user notes');
   if ($id) {
     if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
-      if ($action == 'resetall') {
+      if ($action == 'resetall' && isset($_POST['resetall'])) {
         $sql = 'DELETE FROM votes WHERE votes.note_id = ' . real_clean($id);
       /* 1 for up votes */
-      } elseif ($action == 'resetup') {
+      } elseif ($action == 'resetup' && isset($_POST['resetup'])) {
         $sql = 'DELETE FROM votes WHERE votes.note_id = ' . real_clean($id) . ' AND votes.vote = 1';
       /* 0 for down votes */
-      } elseif ($action == 'resetdown') {
+      } elseif ($action == 'resetdown' && isset($_POST['resetdown'])) {
         $sql = 'DELETE FROM votes WHERE votes.note_id = ' . real_clean($id) . ' AND votes.vote = 0';
       }
       /* Make sure the note has votes before we attempt to delete them */
@@ -482,17 +482,15 @@ case 'resetdown':
                   "  <input type=\"submit\" value\"Yes Reset!\" name=\"resetall\" />\n".
                   "</form>\n";
         } elseif ($action == 'resetup') {
-          $out .= "<p>\nAre you sure you want to reset all up votes for <strong>Note #".hscr($row['id'])."</strong>? ".
-                "This will permanently delete all <em>".hscr($row['up'])."</em> up votes for this note.\n</p>\n".
-                "<form method=\"POST\" action=\"\">\n".
-                "  <input type=\"submit\" value\"Yes Reset!\" name=\"resetup\" />\n".
-                "</form>\n";
+          $out .= "This will permanently delete all <em>".hscr($row['up'])."</em> up votes for this note.\n</p>\n".
+                  "<form method=\"POST\" action=\"\">\n".
+                  "  <input type=\"submit\" value\"Yes Reset!\" name=\"resetup\" />\n".
+                  "</form>\n";
         } elseif ($action == 'resetdown') {
-          $out .= "<p>\nAre you sure you want to reset all down votes for <strong>Note #".hscr($row['id'])."</strong>? ".
-                "This will permanently delete all <em>".hscr($row['down'])."</em> down votes for this note.\n</p>\n".
-                "<form method=\"POST\" action=\"\">\n".
-                "  <input type=\"submit\" value\"Yes Reset!\" name=\"resetdwon\" />\n".
-                "</form>\n";
+          $out .= "This will permanently delete all <em>".hscr($row['down'])."</em> down votes for this note.\n</p>\n".
+                  "<form method=\"POST\" action=\"\">\n".
+                  "  <input type=\"submit\" value\"Yes Reset!\" name=\"resetdown\" />\n".
+                  "</form>\n";
         }
         echo $out;
       } else {
