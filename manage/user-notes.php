@@ -48,14 +48,23 @@ if (!$action) {
   if ($id) {
     $str = 'Note #' . $id . ' has been ';
     switch ($_GET['was']) {
-      case 'delete' :
-      case 'reject' :
+      case 'delete'    :
+      case 'reject'    :
         $str .= ($_GET['was'] == 'delete') ? 'deleted' : 'rejected';
         $str .= ' and removed from the manual';
         break;
 	
-      case 'edit' :
+      case 'edit'      :
         $str .= ' edited';
+        break;
+      case 'resetall'  :
+        $str .= ' reset to 0 votes.';
+        break;
+      case 'resetup'   :
+        $str .= ' reset to 0 up votes.';
+        break;
+      case 'resetdown' :
+        $str .= ' reset to 0 down votes.';
         break;
     }
 
@@ -135,13 +144,18 @@ if (!$action) {
                  "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Up votes</strong>: {$row['up']}</div>\n".
                  "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Down votes</strong>: {$row['down']}</div>\n".
                  "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Rating</strong>: $rating (<em>$percentage like this</em>)</div>\n".
+                 " <div style=\"padding: 15px;\">\n".
+                 "  <a href=\"?action=resetall&id={$id}\">Reset all votes</a> |".
+                 "  <a href=\"?action=resetup&id={$id}\">Reset up votes</a> |".
+                 "  <a href=\"?action=resetdown&id={$id}\">Reset down votes</a>\n".
+                 " </div>\n".
                  "</div>\n";
           }
           echo "<p class=\"notepreview\">",clean_note($row['note']),
             "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
             hscr($row['user']),"</span><br />",
 	    "Note id: $id<br />\n",
-	    "<a href=\"http://php.net/manual/en/{$row['sect']}.php\" target=\"_blank\">http://php.net/manual/en/{$row['sect']}.php</a><br />\n",
+	    "<a href=\"http://php.net/manual/en/{$row['sect']}.php#{$id}\" target=\"_blank\">http://php.net/manual/en/{$row['sect']}.php#{$id}</a><br />\n",
             "<a href=\"https://master.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
 	  foreach ($note_del_reasons AS $reason => $text) {
 	    echo '<a href="https://master.php.net/note/delete/', $id, '/', urlencode($reason), '" target=\"_blank\">', 'Delete Note: ', hscr($text), "</a><br />\n";
@@ -161,7 +175,7 @@ if (!$action) {
   }
 
 ?>
-<?php if (empty($_SERVER['QUERY_STRING'])) { ?>
+<?php if (empty($_SERVER['QUERY_STRING']) && strtoupper($_SERVER['REQUEST_METHOD']) == 'GET') { ?>
 <?php
   /* Calculate dates */
   $today = strtotime('midnight');
@@ -217,6 +231,11 @@ exit;
 
 if (preg_match("/^(.+)\\s+(\\d+)\$/", $action, $m)) {
   $action = $m[1]; $id = $m[2];
+}
+/* hack around the rewrite rules */
+if (isset($_GET['action']) && ($_GET['action'] == 'resetall' || $_GET['action'] == 'resetup' || $_GET['action'] == 'resetdown')) {
+  $action = $_GET['action'];
+  $id = isset($_GET['id']) ? $_GET['id'] : null;
 }
 
 switch($action) {
@@ -326,8 +345,7 @@ case 'reject':
 case 'delete':
   if ($id) {
     if ($row = note_get_by_id($id)) {
-      
-      if ($row['id'] && db_query("DELETE FROM note WHERE id=$id")) {
+      if ($row['id'] && db_query("DELETE note,votes FROM note INNER JOIN votes WHERE note.id = votes.note_id AND note.id = $id")) {
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
         $action_taken = ($action == "reject" ? "rejected" : "deleted");
@@ -421,6 +439,67 @@ case 'edit':
     foot();
     exit;
   }
+case 'resetall':
+case 'resetup':
+case 'resetdown':
+  /* Reset votes for user note -- effectively deletes votes found for that note_id in the votes table:  up/down/both */
+  header('user notes');
+  if ($id) {
+    if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
+      if ($action == 'resetall') {
+        $sql = 'DELETE FROM votes WHERE votes.note_id = ' . real_clean($id);
+      /* 1 for up votes */
+      } elseif ($action == 'resetup') {
+        $sql = 'DELETE FROM votes WHERE votes.note_id = ' . real_clean($id) . ' AND votes.vote = 1';
+      /* 0 for down votes */
+      } elseif ($action == 'resetdown') {
+        $sql = 'DELETE FROM votes WHERE votes.note_id = ' . real_clean($id) . ' AND votes.vote = 0';
+      }
+      /* Make sure the note has votes before we attempt to delete them */
+      $result = db_query("SELECT COUNT(id) AS id FROM votes WHERE note_id = " . real_clean($id));
+      $rows = mysql_fetch_assoc($result);
+      if (!$rows['id']) {
+        echo "<p>No votes exist for Note ID ".hscr($id)."!</p>";
+      } elseif (db_query($sql)) {
+        header('Location: user-notes.php?id=' . urlencode($id) . '&was=' . urlencode($action));
+      }
+    } else {
+      $sql = 'SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts '.
+             'FROM note '.
+             'JOIN(votes) ON (note.id = votes.note_id) '.
+             'WHERE note.id = ' . real_clean($id);
+      $result = db_query($sql);
+      if (mysql_num_rows($result)) {
+        $row = mysql_fetch_assoc($result);
+        $out = "<p>\nAre you sure you want to reset all votes for <strong>Note #".hscr($row['id'])."</strong>? ";
+        if ($action == 'resetall') {
+          $out .= "This will permanently delete all <em>".hscr($row['up'])."</em> up votes and <em>".hscr($row['down'])."</em> down votes for this note.\n</p>\n".
+                  "<form method=\"POST\" action=\"\">\n".
+                  "  <input type=\"submit\" value\"Yes Reset!\" name=\"resetall\" />\n".
+                  "</form>\n";
+        } elseif ($action == 'resetup') {
+          $out .= "<p>\nAre you sure you want to reset all up votes for <strong>Note #".hscr($row['id'])."</strong>? ".
+                "This will permanently delete all <em>".hscr($row['up'])."</em> up votes for this note.\n</p>\n".
+                "<form method=\"POST\" action=\"\">\n".
+                "  <input type=\"submit\" value\"Yes Reset!\" name=\"resetup\" />\n".
+                "</form>\n";
+        } elseif ($action == 'resetdown') {
+          $out .= "<p>\nAre you sure you want to reset all down votes for <strong>Note #".hscr($row['id'])."</strong>? ".
+                "This will permanently delete all <em>".hscr($row['down'])."</em> down votes for this note.\n</p>\n".
+                "<form method=\"POST\" action=\"\">\n".
+                "  <input type=\"submit\" value\"Yes Reset!\" name=\"resetdwon\" />\n".
+                "</form>\n";
+        }
+              
+      } else {
+        echo "<p>Note ".hscr($id)." does not exist!</p>";
+      }
+    }
+  } else {
+    echo "<p>Note id not supplied...</p>";
+  }
+  foot();
+  exit;
   /* falls through */
 default:
   head('user notes');
