@@ -75,7 +75,7 @@ if (!$action) {
     if(isset($_REQUEST['keyword'])) {
       $sql = 'SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts '.
              'FROM note '.
-             'JOIN(votes) ON (note.id = votes.note_id) '.
+             'LEFT JOIN(votes) ON (note.id = votes.note_id) '.
              'WHERE ';
       if (is_numeric($_REQUEST['keyword'])) {
         $sql .= 'note.id = ' . (int) $_REQUEST['keyword'];
