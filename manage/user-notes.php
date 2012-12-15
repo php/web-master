@@ -345,7 +345,7 @@ case 'reject':
 case 'delete':
   if ($id) {
     if ($row = note_get_by_id($id)) {
-      if ($row['id'] && db_query("DELETE note,votes FROM note INNER JOIN votes WHERE note.id = votes.note_id AND note.id = $id")) {
+      if ($row['id'] && db_query("DELETE note,votes FROM note LEFT JOIN (votes) ON (note.id = votes.note_id) WHERE note.id = $id")) {
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
         $action_taken = ($action == "reject" ? "rejected" : "deleted");
