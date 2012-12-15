@@ -127,7 +127,7 @@ if (!$action) {
                  "WHERE hostip = $searchip OR ip = $searchip ".
                  "ORDER BY votes.id DESC LIMIT $limit, 10";
         } else {
-          $sql = "SELECT votes.id, UNIX_TIMESTAMP(note.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
+          $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
                  "FROM votes ".
                  "JOIN(note) ON (votes.note_id = note.id) ".
                  "ORDER BY votes.id DESC LIMIT $limit, 10";
@@ -235,10 +235,12 @@ if (!$action) {
                "</table>\n".
                "<input type=\"submit\" name=\"deletevotes\" value=\"Delete Selected Votes\" />\n".
                "</form>\n".
-               "<form method=\"GET\" action=\"" . PHP_SELF . "?view=notes&type=" . (isset($_GET['type']) ? urlencode($_GET['type']) : 5) . "\">\n".
+               "<form method=\"GET\" action=\"" . PHP_SELF . "\">\n".
                "  <strong>Search for votes by IP address</strong>: <input type=\"text\" name=\"votesip\" value=\"" .
                   (isset($_GET['votesip']) ? hscr($_GET['votesip']) : '') .
                   "\" /> <input type=\"submit\" value=\"Search\" />\n".
+                  "<input type=\"hidden\" name=\"view\" value=\"notes\" />\n".
+                  "<input type=\"hidden\" name=\"type\" value=\"" . (isset($_GET['type']) ? hscr($_GET['type']) : 5) . "\" />\n".
                "</form>";
       }
       if(isset($_REQUEST["view"])) {
@@ -590,7 +592,7 @@ case 'deletevotes':
   }
   $ids = implode(',',$ids);
   if (db_query("DELETE FROM votes WHERE id IN ($ids)")) {
-    header('Location: user-notes.php?id=1&was=' . urlencode($action) . (isset($_GET['type']) ? '&type=' . urlencode($_GET['type']) : null));
+    header('Location: user-notes.php?id=1&view=notes&was=' . urlencode($action) . (isset($_GET['type']) ? '&type=' . urlencode($_GET['type']) : null));
   }
   exit;
   /* falls through */
