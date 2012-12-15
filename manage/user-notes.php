@@ -92,6 +92,7 @@ if (!$action) {
       $limit = $page * 10; $page++;
       $limitVotes = $NextPage * 25; $NextPage++;
       $PrevPage = ($NextPage - 2) > -1 ? $NextPage - 2 : 0;
+      if ($NextPage == 2) $PrevPage = 1;
       
       /* Added new voting information to be included in note from votes table. */
       /* First notes */
@@ -651,8 +652,8 @@ case 'deletevotes':
   $ids = implode(',',$ids);
   if (db_query("DELETE FROM votes WHERE id IN ($ids)")) {
     header('Location: user-notes.php?id=1&view=notes&was=' . urlencode($action) .
-           (isset($_GET['type']) ? ('&type=' . urlencode($_GET['type'])) : null) .
-           (isset($_GET['votessearch']) ? '&votessearch=' . urlencode($_GET['votessearch']) : null)
+           (isset($_REQUEST['type']) ? ('&type=' . urlencode($_REQUEST['type'])) : null) .
+           (isset($_REQUEST['votessearch']) ? '&votessearch=' . urlencode($_REQUEST['votessearch']) : null)
           );
   }
   exit;
