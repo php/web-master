@@ -91,7 +91,7 @@ if (!$action) {
       if($NextPage < 0) { $NextPage = 0; }
       $limit = $page * 10; $page++;
       $limitVotes = $NextPage * 25; $NextPage++;
-      $PrevPage = ($NextPage - 1) > -1 ? $NextPage - 1 : 0;
+      $PrevPage = ($NextPage - 2) > -1 ? $NextPage - 2 : 0;
       
       /* Added new voting information to be included in note from votes table. */
       /* First notes */
@@ -268,11 +268,14 @@ if (!$action) {
           echo "  </tbody>\n".
                "</table>\n".
                "<input type=\"submit\" name=\"deletevotes\" value=\"Delete Selected Votes\" />\n".
+               "<input type=\"hidden\" name=\"votessearch\" value=\"".
+               (isset($_GET['votessearch']) ? hscr($_GET['votessearch']) : '').
+               "\" />".
                "</form>\n";
         }
         echo "<form method=\"GET\" action=\"" . PHP_SELF . "\">\n".
-             "  <strong>Search for votes by IP address or Note ID</strong>: <input type=\"text\" name=\"votessearch\" value=\"" .
-             (isset($_GET['votessearch']) ? hscr($_GET['votessearch']) : '') .
+             "  <strong>Search for votes by IP address or Note ID</strong>: <input type=\"text\" name=\"votessearch\" value=\"".
+             (isset($_GET['votessearch']) ? hscr($_GET['votessearch']) : '').
              "\" /> <input type=\"submit\" value=\"Search\" />\n".
              "<input type=\"hidden\" name=\"view\" value=\"notes\" />\n".
              "<input type=\"hidden\" name=\"type\" value=\"" . (isset($_GET['type']) ? hscr($_GET['type']) : 5) . "\" />\n".
@@ -319,7 +322,7 @@ if (!$action) {
     /* Display the stats on the front page only */
 ?>
 <div style="float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: #C8C8C0;">
-  <p><span style="color: #8A2BE2; font-size: 18px;"><strong>User Contributed Voting Statistics</strong></span></p>
+  <center><p><span style="color: #8A2BE2; font-size: 18px;"><strong>User Contributed Voting Statistics</strong></span></p></center>
   <?php foreach (array_chunk($stats, 3, true) as $statset) { ?>
   <?php foreach ($statset as $figure => $stat) { ?>
   <div style="display: inline-block; float: left; padding: 15px; border-bottom: 1px solid white; color: #483D8B;"><strong><?= $figure ?></strong>: <?= $stat ?></div>
