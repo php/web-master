@@ -85,13 +85,13 @@ if (!$action) {
     } else {
       $page = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
       $NextPage = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
-      $PrevPage = ($NextPage - 1) > -1 ? $NextPage - 1 : 0;
       $type = isset($_REQUEST["type"]) ? intval($_REQUEST["type"]) : 0;
       
       if($page < 0) { $page = 0; }
       if($NextPage < 0) { $NextPage = 0; }
       $limit = $page * 10; $page++;
       $limitVotes = $NextPage * 25; $NextPage++;
+      $PrevPage = ($NextPage - 1) > -1 ? $NextPage - 1 : 0;
       
       /* Added new voting information to be included in note from votes table. */
       /* First notes */
@@ -318,13 +318,13 @@ if (!$action) {
     }
     /* Display the stats on the front page only */
 ?>
-<div style="float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: lightgray;">
-  <p><span style="color: white;"><strong>User Contributed Voting Statistics</strong></span></p>
+<div style="float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: #C8C8C0;">
+  <p><span style="color: #8A2BE2; font-size: 18px;"><strong>User Contributed Voting Statistics</strong></span></p>
   <?php foreach (array_chunk($stats, 3, true) as $statset) { ?>
   <?php foreach ($statset as $figure => $stat) { ?>
-  <div style="display: inline-block; float: left; padding: 15px;"><strong><?= $figure ?></strong>: <?= $stat ?></div>
+  <div style="display: inline-block; float: left; padding: 15px; border-bottom: 1px solid white; color: #483D8B;"><strong><?= $figure ?></strong>: <?= $stat ?></div>
   <?php } ?>
-  <hr>
+  <p>&nbsp;</p>
   <?php } ?>
 </div>
 <?php
@@ -647,8 +647,8 @@ case 'deletevotes':
   }
   $ids = implode(',',$ids);
   if (db_query("DELETE FROM votes WHERE id IN ($ids)")) {
-    header('Location: user-notes.php?id=1&view=notes&was=' . urlencode($action) . (isset($_GET['type']) ? '&type=' .
-           urlencode($_GET['type']) : null) .
+    header('Location: user-notes.php?id=1&view=notes&was=' . urlencode($action) .
+           (isset($_GET['type']) ? ('&type=' . urlencode($_GET['type'])) : null) .
            (isset($_GET['votessearch']) ? '&votessearch=' . urlencode($_GET['votessearch']) : null)
           );
   }
