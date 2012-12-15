@@ -119,10 +119,19 @@ if (!$action) {
       /* Most recent votes */
       } else if ($type == 5) {
         $search_votes = true; // set this only to change the output between votes table and notes table
-        $sql = "SELECT votes.id, UNIX_TIMESTAMP(note.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
-               "FROM votes ".
-               "JOIN(note) ON (votes.note_id = note.id) ".
-               "ORDER BY votes.id DESC LIMIT $limit, 10";
+        if (!empty($_GET['votesip'])) {
+          $searchip = (int) ip2long(filter_var(html_entity_decode($_GET['votesip'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP));
+          $sql = "SELECT votes.id, UNIX_TIMESTAMP(note.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
+                 "FROM votes ".
+                 "JOIN(note) ON (votes.note_id = note.id) ".
+                 "WHERE hostip = $searchip OR ip = $searchip ".
+                 "ORDER BY votes.id DESC LIMIT $limit, 10";
+        } else {
+          $sql = "SELECT votes.id, UNIX_TIMESTAMP(note.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
+                 "FROM votes ".
+                 "JOIN(note) ON (votes.note_id = note.id) ".
+                 "ORDER BY votes.id DESC LIMIT $limit, 10";
+        }
       /* Last notes */
       } else {
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
@@ -190,6 +199,8 @@ if (!$action) {
         if (!empty($search_votes)) {
           $row['ts'] = date('Y-m-d H:i:s', $row['ts']);
           $row['vote'] = '<span style="color: ' . ($row['vote'] ? 'green;">+1' : 'red;">-1') . '</span>';
+          $row['hostip'] = long2ip($row['hostip']);
+          $row['ip'] = long2ip($row['ip']);
           $notelink = "http://php.net/{$row['sect']}#{$row['note_id']}";
           $sectlink = "http://php.net/{$row['sect']}";
           echo "    <tr style=\"background-color: #F0F0F0;\">\n".
@@ -223,7 +234,12 @@ if (!$action) {
           echo "  </tbody>\n".
                "</table>\n".
                "<input type=\"submit\" name=\"deletevotes\" value=\"Delete Selected Votes\" />\n".
-               "</form>\n";
+               "</form>\n".
+               "<form method=\"GET\" action=\"" . PHP_SELF . "?view=notes&type=" . (isset($_GET['type']) ? urlencode($_GET['type']) : 5) . "\">\n".
+               "  <strong>Search for votes by IP address</strong>: <input type=\"text\" name=\"votesip\" value=\"" .
+                  (isset($_GET['votesip']) ? hscr($_GET['votesip']) : '') .
+                  "\" /> <input type=\"submit\" value=\"Search\" />\n".
+               "</form>";
       }
       if(isset($_REQUEST["view"])) {
         echo "<p><a href=\"?view=1&page=$page&type=$type\">Next 10</a>";
