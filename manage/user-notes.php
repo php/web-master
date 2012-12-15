@@ -120,22 +120,35 @@ if (!$action) {
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
                "GROUP BY note.id ORDER BY rating ASC LIMIT $limit, 10";
-      /* Most recent votes */
+      /* Votes table view */
       } else if ($type == 5) {
         $search_votes = true; // set this only to change the output between votes table and notes table
-        if (!empty($_GET['votesip'])) {
-          $searchip = (int) ip2long(filter_var(html_entity_decode($_GET['votesip'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP));
-          $resultCount = db_query("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE hostip = $searchip OR ip = $searchip");
-          $resultCount = mysql_fetch_assoc($resultCount);
-          $resultCount = $resultCount['total_votes'];
-          $isSearchIP = '&votesip=' . hscr(long2ip($searchip));
-          $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
-                 "FROM votes ".
-                 "JOIN(note) ON (votes.note_id = note.id) ".
-                 "WHERE hostip = $searchip OR ip = $searchip ".
-                 "ORDER BY votes.id DESC LIMIT $limitVotes, 25";
+        if (!empty($_GET['votessearch'])) {
+          if (filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP)) {
+            $searchip = (int) ip2long(filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP));
+            $resultCount = db_query("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE hostip = $searchip OR ip = $searchip");
+            $resultCount = mysql_fetch_assoc($resultCount);
+            $resultCount = $resultCount['total_votes'];
+            $isSearch = '&votessearch=' . hscr(long2ip($searchip));
+            $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
+                   "FROM votes ".
+                   "JOIN(note) ON (votes.note_id = note.id) ".
+                   "WHERE hostip = $searchip OR ip = $searchip ".
+                   "ORDER BY votes.id DESC LIMIT $limitVotes, 25";
+          } else {
+            $search = (int) html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8');
+            $resultCount = db_query("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE votes.note_id = $search");
+            $resultCount = mysql_fetch_assoc($resultCount);
+            $resultCount = $resultCount['total_votes'];
+            $isSearch = '&votessearch=' . hscr($search);
+            $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
+                   "FROM votes ".
+                   "JOIN(note) ON (votes.note_id = note.id) ".
+                   "WHERE votes.note_id = $search ".
+                   "ORDER BY votes.id DESC LIMIT $limitVotes, 25";
+          }
         } else {
-          $isSearchIP = null;
+          $isSearch = null;
           $resultCount = db_query("SELECT COUNT(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id)");
           $resultCount = mysql_fetch_assoc($resultCount);
           $resultCount = $resultCount['total_votes'];
@@ -159,24 +172,29 @@ if (!$action) {
         $t = (isset($_GET['type']) ? '&type=' . $_GET['type'] : null);
         $from = $limitVotes + 1;
         $to = $NextPage * 25;
-        echo "<p><strong>Showing $from - $to of $resultCount results.</strong></p>";
-        echo "<form method=\"POST\" action=\"" . PHP_SELF . "?action=deletevotes{$t}\" id=\"votesdeleteform\">".
-             "<table width=\"100%\">".
-             "  <thead>".
-             "    <tr style=\"text-align: center; background-color: #99C; font-size: 18px;\">\n".
-             "      <td  colspan=\"7\" width=\"100%\" style=\"padding: 5px;\"><strong>Most Recent Votes</strong></td>\n".
-             "    </tr>\n".
-             "    <tr style=\"background-color: #99C; 18px;\">\n".
-             "      <td style=\"padding: 5px;\"><input type=\"checkbox\" id=\"votesselectall\" /></td>
-                    <td style=\"padding: 5px;\"><strong>Date</strong></td>
-                    <td style=\"padding: 5px;\"><strong>Vote</strong></td>
-                    <td style=\"padding: 5px;\"><strong>Note ID</strong></td>
-                    <td style=\"padding: 5px;\"><strong>Note Section</strong></td>
-                    <td style=\"padding: 5px;\"><strong>Host IP</strong></td>
-                    <td style=\"padding: 5px;\"><strong>Client IP</strong></td>\n".
-             "    </tr>\n".
-             "  </thead>\n".
-             "  <tbody>\n";
+        $to = $to > $resultCount ? $resultCount : $to;
+        if ($resultCount) {
+          echo "<p><strong>Showing $from - $to of $resultCount results.</strong></p>";
+          echo "<form method=\"POST\" action=\"" . PHP_SELF . "?action=deletevotes{$t}\" id=\"votesdeleteform\">".
+               "<table width=\"100%\">".
+               "  <thead>".
+               "    <tr style=\"text-align: center; background-color: #99C; font-size: 18px;\">\n".
+               "      <td  colspan=\"7\" width=\"100%\" style=\"padding: 5px;\"><strong>Most Recent Votes</strong></td>\n".
+               "    </tr>\n".
+               "    <tr style=\"background-color: #99C; 18px;\">\n".
+               "      <td style=\"padding: 5px;\"><input type=\"checkbox\" id=\"votesselectall\" /></td>
+                      <td style=\"padding: 5px;\"><strong>Date</strong></td>
+                      <td style=\"padding: 5px;\"><strong>Vote</strong></td>
+                      <td style=\"padding: 5px;\"><strong>Note ID</strong></td>
+                      <td style=\"padding: 5px;\"><strong>Note Section</strong></td>
+                      <td style=\"padding: 5px;\"><strong>Host IP</strong></td>
+                      <td style=\"padding: 5px;\"><strong>Client IP</strong></td>\n".
+               "    </tr>\n".
+               "  </thead>\n".
+               "  <tbody>\n";
+        } else {
+          echo "<p><strong>No results found...</strong></p>";
+        }
       }
       while ($row = mysql_fetch_assoc($result)) {
         /*
@@ -246,23 +264,31 @@ if (!$action) {
       }
       /* This is a special table only used for viewing the most recent votes */
       if (!empty($search_votes)) {
+        if ($resultCount) {
           echo "  </tbody>\n".
                "</table>\n".
                "<input type=\"submit\" name=\"deletevotes\" value=\"Delete Selected Votes\" />\n".
-               "</form>\n".
-               "<form method=\"GET\" action=\"" . PHP_SELF . "\">\n".
-               "  <strong>Search for votes by IP address</strong>: <input type=\"text\" name=\"votesip\" value=\"" .
-                  (isset($_GET['votesip']) ? hscr($_GET['votesip']) : '') .
-                  "\" /> <input type=\"submit\" value=\"Search\" />\n".
-                  "<input type=\"hidden\" name=\"view\" value=\"notes\" />\n".
-                  "<input type=\"hidden\" name=\"type\" value=\"" . (isset($_GET['type']) ? hscr($_GET['type']) : 5) . "\" />\n".
-               "</form>";
+               "</form>\n";
+        }
+        echo "<form method=\"GET\" action=\"" . PHP_SELF . "\">\n".
+             "  <strong>Search for votes by IP address or Note ID</strong>: <input type=\"text\" name=\"votessearch\" value=\"" .
+             (isset($_GET['votessearch']) ? hscr($_GET['votessearch']) : '') .
+             "\" /> <input type=\"submit\" value=\"Search\" />\n".
+             "<input type=\"hidden\" name=\"view\" value=\"notes\" />\n".
+             "<input type=\"hidden\" name=\"type\" value=\"" . (isset($_GET['type']) ? hscr($_GET['type']) : 5) . "\" />\n".
+             "</form>\n";
       }
       if(isset($_REQUEST["view"]) && empty($search_votes)) {
         echo "<p><a href=\"?view=1&page=$page&type=$type\">Next 10</a>";
       } elseif (isset($_REQUEST["view"]) && !empty($search_votes)) {
-        echo "<p><a href=\"?view=1&page=$PrevPage&type=$type{$isSearchIP}\">Prev 25</a> - ";
-        echo "<a href=\"?view=1&page=$NextPage&type=$type{$isSearchIP}\">Next 25</a></p>";
+        echo "<p>";
+        if (isset($PrevPage) && $PrevPage) {
+          echo "<a href=\"?view=1&page=$PrevPage&type=$type{$isSearch}\">&lt; Prev 25</a> ";
+        }
+        if (isset($to) && isset($resultCount) && $to < $resultCount) {
+          echo " <a href=\"?view=1&page=$NextPage&type=$type{$isSearch}\">Next 25 &gt;</a>";
+        }
+        echo "</p>";
       }
     }
   }
@@ -271,12 +297,20 @@ if (!$action) {
     $today = strtotime('midnight');
     $week = !date('w') ? strtotime('midnight') : strtotime('Last Sunday');
     $month = strtotime('First Day of ' . date('F') . ' ' . date('Y'));
+    $yesterday = strtotime('midnight yesterday');
+    $lastweek = !date('w') ? strtotime('midnight -1 week') : strtotime('Last Sunday -1 week');
+    $lastmonth = strtotime('First Day of last month');
     /* Handle stats queries for voting here */
     $stats_sql = $stats = array();
     $stats_sql['Total']       = "SELECT COUNT(votes.id) AS total FROM votes";
+    $stats_sql['Total Up']    = "SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 1";
+    $stats_sql['Total Down']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 0";
     $stats_sql['Today']       = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($today);
     $stats_sql['This Week']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($week);
     $stats_sql['This Month']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($month);
+    $stats_sql['Yesterday']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($yesterday) . " AND UNIX_TIMESTAMP(votes.ts) < " . real_clean($today);
+    $stats_sql['Last Week']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($lastweek) . " AND UNIX_TIMESTAMP(votes.ts) < " . real_clean($week);
+    $stats_sql['Last Month']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($lastmonth) . " AND UNIX_TIMESTAMP(votes.ts) < " . real_clean($month);
     foreach ($stats_sql as $key => $sql_code) {
       $result = db_query($sql_code);
       $row = mysql_fetch_assoc($result);
@@ -285,9 +319,12 @@ if (!$action) {
     /* Display the stats on the front page only */
 ?>
 <div style="float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: lightgray;">
-  <p>User Contributed Voting Statistics</p>
-  <?php foreach ($stats as $figure => $stat) { ?>
+  <p><span style="color: white;"><strong>User Contributed Voting Statistics</strong></span></p>
+  <?php foreach (array_chunk($stats, 3, true) as $statset) { ?>
+  <?php foreach ($statset as $figure => $stat) { ?>
   <div style="display: inline-block; float: left; padding: 15px;"><strong><?= $figure ?></strong>: <?= $stat ?></div>
+  <?php } ?>
+  <hr>
   <?php } ?>
 </div>
 <?php
@@ -314,7 +351,7 @@ if (!$action) {
 <p><a href="<?= PHP_SELF ?>?view=notes&type=2">View minor 10 notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=3">View top 10 rated notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=4">View bottom 10 rated notes</a></p>
-<p><a href="<?= PHP_SELF ?>?view=notes&type=5">View most recent votes</a></p>
+<p><a href="<?= PHP_SELF ?>?view=notes&type=5">View votes table</a></p>
 <?php
   foot();
   exit;
@@ -610,7 +647,10 @@ case 'deletevotes':
   }
   $ids = implode(',',$ids);
   if (db_query("DELETE FROM votes WHERE id IN ($ids)")) {
-    header('Location: user-notes.php?id=1&view=notes&was=' . urlencode($action) . (isset($_GET['type']) ? '&type=' . urlencode($_GET['type']) : null));
+    header('Location: user-notes.php?id=1&view=notes&was=' . urlencode($action) . (isset($_GET['type']) ? '&type=' .
+           urlencode($_GET['type']) : null) .
+           (isset($_GET['votessearch']) ? '&votessearch=' . urlencode($_GET['votessearch']) : null)
+          );
   }
   exit;
   /* falls through */
