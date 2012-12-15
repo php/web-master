@@ -25,6 +25,28 @@ function head($title="",$private=1) { // Default to $private == true to permit n
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link type="text/css" media="all" rel="stylesheet" href="/style.css" />
   <link rel="shortcut icon" href="//php.net/favicon.ico" />
+  <script type="text/javascript" src="js/jquery.min.js"></script>
+  <script type="text/javascript" >
+  $(document).ready(function() {
+    $('#votesdeleteform').submit(function() {
+      if (confirm("Are you sure you want to delete these votes? This will permanently delete these votes from the votes table!"))
+        return true;
+      else
+        return false;
+    });
+    $('#votesselectall').click(function() {
+      if (this.checked) {
+        $('input:checkbox.vdelids').each(function () {
+             this.checked = true;
+        });
+      } else {
+        $('input:checkbox.vdelids').each(function () {
+             this.checked = false;
+        });
+      }
+    });
+  });
+  </script>
 </head>
 
 <body>

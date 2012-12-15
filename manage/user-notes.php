@@ -53,18 +53,20 @@ if (!$action) {
         $str .= ($_GET['was'] == 'delete') ? 'deleted' : 'rejected';
         $str .= ' and removed from the manual';
         break;
-      case 'edit'      :
+      case 'edit'        :
         $str .= ' edited';
         break;
-      case 'resetall'  :
+      case 'resetall'    :
         $str .= ' reset to 0 votes.';
         break;
-      case 'resetup'   :
+      case 'resetup'     :
         $str .= ' reset to 0 up votes.';
         break;
-      case 'resetdown' :
+      case 'resetdown'   :
         $str .= ' reset to 0 down votes.';
         break;
+      case 'deletevotes' :
+        $str = 'The selected votes have been deleted!'; // INTENTIONALLY missing the concat operator
     }
     echo $str . '<br />';
   }
@@ -78,7 +80,7 @@ if (!$action) {
       if (is_numeric($_REQUEST['keyword'])) {
         $sql .= 'note.id = ' . (int) $_REQUEST['keyword'];
       } else {
-        $sql .= 'note.note LIKE "%' . real_clean($_REQUEST['keyword']) . '%" LiMIT 20';
+        $sql .= 'note.note LIKE "%' . real_clean($_REQUEST['keyword']) . '%" GROUP BY note.id LIMIT 20';
       }
     } else {
       $page = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
@@ -114,6 +116,13 @@ if (!$action) {
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
                "GROUP BY note.id ORDER BY rating ASC LIMIT $limit, 10";
+      /* Most recent votes */
+      } else if ($type == 5) {
+        $search_votes = true; // set this only to change the output between votes table and notes table
+        $sql = "SELECT votes.id, UNIX_TIMESTAMP(note.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
+               "FROM votes ".
+               "JOIN(note) ON (votes.note_id = note.id) ".
+               "ORDER BY votes.id DESC LIMIT $limit, 10";
       /* Last notes */
       } else {
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
@@ -124,31 +133,76 @@ if (!$action) {
     }
     
     if ($result = db_query($sql)) {
-      if (mysql_num_rows($result) != 0) {
-        while ($row = mysql_fetch_assoc($result)) {
-          $id = $row['id'];
-          /* This div is only available in cases where the query includes the voting info */
-          if (isset($row['up']) && isset($row['down'])) {
-            $rating = $row['up'] - $row['down'];
-            if ($rating < 0) {
-              $rating = "<span style=\"color: red;\">$rating</span>";
-            } elseif ($rating > 0) {
-              $rating = "<span style=\"color: green;\">$rating</span>";
-            } else {
-              $rating = "<span style=\"color: blue;\">$rating</span>";
-            }
-            $percentage = sprintf('%d%%',((($row['up'] + $row['down']) ? $row['up'] / ($row['up'] + $row['down']) : 0) * 100));
-            echo "<div style=\"float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: lightgray;\">\n".
-                 "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Up votes</strong>: {$row['up']}</div>\n".
-                 "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Down votes</strong>: {$row['down']}</div>\n".
-                 "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Rating</strong>: $rating (<em>$percentage like this</em>)</div>\n".
-                 " <div style=\"padding: 15px;\">\n".
-                 "  <a href=\"?action=resetall&id={$id}\">Reset all votes</a> |".
-                 "  <a href=\"?action=resetup&id={$id}\">Reset up votes</a> |".
-                 "  <a href=\"?action=resetdown&id={$id}\">Reset down votes</a>\n".
-                 " </div>\n".
-                 "</div>\n";
+      /* This is a special table only used for viewing the most recent votes */
+      if (!empty($search_votes)) {
+        $t = (isset($_GET['type']) ? '&type=' . $_GET['type'] : null);
+        echo "<form method=\"POST\" action=\"" . PHP_SELF . "?action=deletevotes{$t}\" id=\"votesdeleteform\">".
+             "<table width=\"100%\">".
+             "  <thead>".
+             "    <tr style=\"text-align: center; background-color: #99C; font-size: 18px;\">\n".
+             "      <td  colspan=\"7\" width=\"100%\" style=\"padding: 5px;\"><strong>Most Recent Votes</strong></td>\n".
+             "    </tr>\n".
+             "    <tr style=\"background-color: #99C; 18px;\">\n".
+             "      <td style=\"padding: 5px;\"><input type=\"checkbox\" id=\"votesselectall\" /></td>
+                    <td style=\"padding: 5px;\"><strong>Date</strong></td>
+                    <td style=\"padding: 5px;\"><strong>Vote</strong></td>
+                    <td style=\"padding: 5px;\"><strong>Note ID</strong></td>
+                    <td style=\"padding: 5px;\"><strong>Note Section</strong></td>
+                    <td style=\"padding: 5px;\"><strong>Host IP</strong></td>
+                    <td style=\"padding: 5px;\"><strong>Client IP</strong></td>\n".
+             "    </tr>\n".
+             "  </thead>\n".
+             "  <tbody>\n";
+      }
+      while ($row = mysql_fetch_assoc($result)) {
+        /*
+           I had to do this because the JOIN queries will return a single row of NULL values even when no rows match.
+           So the `if (mysql_num_rows($result))` check earlier becomes useless and as such I had to replace it with this.
+        */
+        if (mysql_num_rows($result) == 1 && !array_filter($row)) {
+          echo "<p>No results found...</p>";
+          continue;
+        }
+        $id = $row['id'];
+        /* This div is only available in cases where the query includes the voting info */
+        if (isset($row['up']) && isset($row['down'])) {
+          $rating = $row['up'] - $row['down'];
+          if ($rating < 0) {
+            $rating = "<span style=\"color: red;\">$rating</span>";
+          } elseif ($rating > 0) {
+            $rating = "<span style=\"color: green;\">$rating</span>";
+          } else {
+            $rating = "<span style=\"color: blue;\">$rating</span>";
           }
+          $percentage = sprintf('%d%%',((($row['up'] + $row['down']) ? $row['up'] / ($row['up'] + $row['down']) : 0) * 100));
+          echo "<div style=\"float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: lightgray;\">\n".
+               "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Up votes</strong>: {$row['up']}</div>\n".
+               "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Down votes</strong>: {$row['down']}</div>\n".
+               "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Rating</strong>: $rating (<em>$percentage like this</em>)</div>\n".
+               " <div style=\"padding: 15px;\">\n".
+               "  <a href=\"?action=resetall&id={$id}\">Reset all votes</a> |".
+               "  <a href=\"?action=resetup&id={$id}\">Reset up votes</a> |".
+               "  <a href=\"?action=resetdown&id={$id}\">Reset down votes</a>\n".
+               " </div>\n".
+               "</div>\n";
+        }
+        /* This is a special table only used for viewing the most recent votes */
+        if (!empty($search_votes)) {
+          $row['ts'] = date('Y-m-d H:i:s', $row['ts']);
+          $row['vote'] = '<span style="color: ' . ($row['vote'] ? 'green;">+1' : 'red;">-1') . '</span>';
+          $notelink = "http://php.net/{$row['sect']}#{$row['note_id']}";
+          $sectlink = "http://php.net/{$row['sect']}";
+          echo "    <tr style=\"background-color: #F0F0F0;\">\n".
+               "      <td style=\"padding: 5px;\"><input type=\"checkbox\" name=\"deletevote[]\" class=\"vdelids\" value=\"{$row['id']}\" /></td>\n".
+               "      <td style=\"padding: 5px;\">{$row['ts']}</td>\n".
+               "      <td style=\"padding: 5px;\">{$row['vote']}</td>\n".
+               "      <td style=\"padding: 5px;\"><a href=\"$notelink\" target=\"_blank\">{$row['note_id']}</a></td>\n".
+               "      <td style=\"padding: 5px;\"><a href=\"$sectlink\" target=\"_blank\">{$row['sect']}</a></td>\n".
+               "      <td style=\"padding: 5px;\">{$row['hostip']}</td>\n".
+               "      <td style=\"padding: 5px;\">{$row['ip']}</td>\n".
+               "    </tr>\n";
+        /* Everything else in search should fall through here */
+        } else {
           echo "<p class=\"notepreview\">",clean_note($row['note']),
                "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
                hscr($row['user']),"</span><br />",
@@ -163,11 +217,16 @@ if (!$action) {
                "</p>",
                "<hr />";
         }
-        if(isset($_REQUEST["view"])) {
-          echo "<p><a href=\"?view=1&page=$page&type=$type\">Next 10</a>";
-        }
-      } else {
-        echo "no results<br />";
+      }
+      /* This is a special table only used for viewing the most recent votes */
+      if (!empty($search_votes)) {
+          echo "  </tbody>\n".
+               "</table>\n".
+               "<input type=\"submit\" name=\"deletevotes\" value=\"Delete Selected Votes\" />\n".
+               "</form>\n";
+      }
+      if(isset($_REQUEST["view"])) {
+        echo "<p><a href=\"?view=1&page=$page&type=$type\">Next 10</a>";
       }
     }
   }
@@ -219,6 +278,7 @@ if (!$action) {
 <p><a href="<?= PHP_SELF ?>?view=notes&type=2">View minor 10 notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=3">View top 10 rated notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=4">View bottom 10 rated notes</a></p>
+<p><a href="<?= PHP_SELF ?>?view=notes&type=5">View most recent votes</a></p>
 <?php
   foot();
   exit;
@@ -230,7 +290,7 @@ if (preg_match("/^(.+)\\s+(\\d+)\$/", $action, $m)) {
   $action = $m[1]; $id = $m[2];
 }
 /* hack around the rewrite rules */
-if (isset($_GET['action']) && ($_GET['action'] == 'resetall' || $_GET['action'] == 'resetup' || $_GET['action'] == 'resetdown')) {
+if (isset($_GET['action']) && ($_GET['action'] == 'resetall' || $_GET['action'] == 'resetup' || $_GET['action'] == 'resetdown' || $_GET['action'] == 'deletevotes')) {
   $action = $_GET['action'];
   $id = isset($_GET['id']) ? $_GET['id'] : null;
 }
@@ -498,6 +558,24 @@ case 'resetdown':
     echo "<p>Note id not supplied...</p>";
   }
   foot();
+  exit;
+case 'deletevotes':
+  /* Only those with privileges in allow_mass_change may use these options */
+  if (!allow_mass_change($user)) {
+    die("You do not have access to use this feature!");
+  }
+  /* Delete votes -- effectively deletes votes found in the votes table matching all supplied ids */
+  if (empty($_POST['deletevote']) || !is_array($_POST['deletevote'])) {
+    die("No vote ids supplied!");
+  }
+  $ids = array();
+  foreach ($_POST['deletevote'] as $id) {
+    $ids[] = (int) $id;
+  }
+  $ids = implode(',',$ids);
+  if (db_query("DELETE FROM votes WHERE id IN ($ids)")) {
+    header('Location: user-notes.php?id=1&was=' . urlencode($action) . (isset($_GET['type']) ? '&type=' . urlencode($_GET['type']) : null));
+  }
   exit;
   /* falls through */
 default:
