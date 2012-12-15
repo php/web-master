@@ -121,7 +121,7 @@ if (!$action) {
         $search_votes = true; // set this only to change the output between votes table and notes table
         if (!empty($_GET['votesip'])) {
           $searchip = (int) ip2long(filter_var(html_entity_decode($_GET['votesip'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP));
-          $sql = "SELECT votes.id, UNIX_TIMESTAMP(note.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
+          $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
                  "FROM votes ".
                  "JOIN(note) ON (votes.note_id = note.id) ".
                  "WHERE hostip = $searchip OR ip = $searchip ".
