@@ -84,10 +84,14 @@ if (!$action) {
       }
     } else {
       $page = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
+      $NextPage = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
+      $PrevPage = ($NextPage - 1) > -1 ? $NextPage - 1 : 0;
       $type = isset($_REQUEST["type"]) ? intval($_REQUEST["type"]) : 0;
       
       if($page < 0) { $page = 0; }
+      if($NextPage < 0) { $NextPage = 0; }
       $limit = $page * 10; $page++;
+      $limitVotes = $NextPage * 25; $NextPage++;
       
       /* Added new voting information to be included in note from votes table. */
       /* First notes */
@@ -121,16 +125,24 @@ if (!$action) {
         $search_votes = true; // set this only to change the output between votes table and notes table
         if (!empty($_GET['votesip'])) {
           $searchip = (int) ip2long(filter_var(html_entity_decode($_GET['votesip'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP));
+          $resultCount = db_query("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE hostip = $searchip OR ip = $searchip");
+          $resultCount = mysql_fetch_assoc($resultCount);
+          $resultCount = $resultCount['total_votes'];
+          $isSearchIP = '&votesip=' . hscr(long2ip($searchip));
           $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
                  "FROM votes ".
                  "JOIN(note) ON (votes.note_id = note.id) ".
                  "WHERE hostip = $searchip OR ip = $searchip ".
-                 "ORDER BY votes.id DESC LIMIT $limit, 10";
+                 "ORDER BY votes.id DESC LIMIT $limitVotes, 25";
         } else {
+          $isSearchIP = null;
+          $resultCount = db_query("SELECT COUNT(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id)");
+          $resultCount = mysql_fetch_assoc($resultCount);
+          $resultCount = $resultCount['total_votes'];
           $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
                  "FROM votes ".
                  "JOIN(note) ON (votes.note_id = note.id) ".
-                 "ORDER BY votes.id DESC LIMIT $limit, 10";
+                 "ORDER BY votes.id DESC LIMIT $limitVotes, 25";
         }
       /* Last notes */
       } else {
@@ -145,6 +157,9 @@ if (!$action) {
       /* This is a special table only used for viewing the most recent votes */
       if (!empty($search_votes)) {
         $t = (isset($_GET['type']) ? '&type=' . $_GET['type'] : null);
+        $from = $limitVotes + 1;
+        $to = $NextPage * 25;
+        echo "<p><strong>Showing $from - $to of $resultCount results.</strong></p>";
         echo "<form method=\"POST\" action=\"" . PHP_SELF . "?action=deletevotes{$t}\" id=\"votesdeleteform\">".
              "<table width=\"100%\">".
              "  <thead>".
@@ -243,8 +258,11 @@ if (!$action) {
                   "<input type=\"hidden\" name=\"type\" value=\"" . (isset($_GET['type']) ? hscr($_GET['type']) : 5) . "\" />\n".
                "</form>";
       }
-      if(isset($_REQUEST["view"])) {
+      if(isset($_REQUEST["view"]) && empty($search_votes)) {
         echo "<p><a href=\"?view=1&page=$page&type=$type\">Next 10</a>";
+      } elseif (isset($_REQUEST["view"]) && !empty($search_votes)) {
+        echo "<p><a href=\"?view=1&page=$PrevPage&type=$type{$isSearchIP}\">Prev 25</a> - ";
+        echo "<a href=\"?view=1&page=$NextPage&type=$type{$isSearchIP}\">Next 25</a></p>";
       }
     }
   }
