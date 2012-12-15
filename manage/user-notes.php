@@ -92,7 +92,6 @@ if (!$action) {
       $limit = $page * 10; $page++;
       $limitVotes = $NextPage * 25; $NextPage++;
       $PrevPage = ($NextPage - 2) > -1 ? $NextPage - 2 : 0;
-      if ($NextPage == 2) $PrevPage = 1;
       
       /* Added new voting information to be included in note from votes table. */
       /* First notes */
@@ -286,7 +285,7 @@ if (!$action) {
         echo "<p><a href=\"?view=1&page=$page&type=$type\">Next 10</a>";
       } elseif (isset($_REQUEST["view"]) && !empty($search_votes)) {
         echo "<p>";
-        if (isset($PrevPage) && $PrevPage) {
+        if (isset($NextPage) && $NextPage > 0) {
           echo "<a href=\"?view=1&page=$PrevPage&type=$type{$isSearch}\">&lt; Prev 25</a> ";
         }
         if (isset($to) && isset($resultCount) && $to < $resultCount) {
