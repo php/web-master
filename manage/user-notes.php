@@ -40,10 +40,10 @@ db_connect();
 $action = (isset($_REQUEST['action']) ? preg_replace('/[^\w\d\s_]/', '', $_REQUEST['action']) : '');
 $id = (isset($_REQUEST['id']) ? intval($_REQUEST['id']) : '');
 
+/*------ BEGIN SEARCH ------*/
 if (!$action) {
-  // search !
   head("user notes");
-
+  
   // someting done before ?
   if ($id) {
     $str = 'Note #' . $id . ' has been ';
@@ -53,7 +53,6 @@ if (!$action) {
         $str .= ($_GET['was'] == 'delete') ? 'deleted' : 'rejected';
         $str .= ' and removed from the manual';
         break;
-	
       case 'edit'      :
         $str .= ' edited';
         break;
@@ -67,64 +66,63 @@ if (!$action) {
         $str .= ' reset to 0 down votes.';
         break;
     }
-
     echo $str . '<br />';
   }
-
+  
   if (isset($_REQUEST['keyword']) || isset($_REQUEST["view"])) {
-   if(isset($_REQUEST['keyword'])) {
-    $sql = 'SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts '.
-            'FROM note '.
-            'JOIN(votes) ON (note.id = votes.note_id) '.
-            'WHERE ';
-    if (is_numeric($_REQUEST['keyword'])) {
-      $sql .= 'note.id = ' . (int) $_REQUEST['keyword'];
+    if(isset($_REQUEST['keyword'])) {
+      $sql = 'SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts '.
+             'FROM note '.
+             'JOIN(votes) ON (note.id = votes.note_id) '.
+             'WHERE ';
+      if (is_numeric($_REQUEST['keyword'])) {
+        $sql .= 'note.id = ' . (int) $_REQUEST['keyword'];
+      } else {
+        $sql .= 'note.note LIKE "%' . real_clean($_REQUEST['keyword']) . '%" LiMIT 20';
+      }
     } else {
-      $sql .= 'note.note LIKE "%' . real_clean($_REQUEST['keyword']) . '%" LiMIT 20';
-    }
-   } else {
-     $page = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
-     $type = isset($_REQUEST["type"]) ? intval($_REQUEST["type"]) : 0;
-     
-     if($page < 0) { $page = 0; }
-     $limit = $page * 10; $page++;
-     
+      $page = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
+      $type = isset($_REQUEST["type"]) ? intval($_REQUEST["type"]) : 0;
+      
+      if($page < 0) { $page = 0; }
+      $limit = $page * 10; $page++;
+      
       /* Added new voting information to be included in note from votes table. */
-     /* First notes */
-     if ($type == 1) {
-     	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
-     	       "FROM note ".
-     	       "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
-     	       "GROUP BY note.id ORDER BY note.id ASC LIMIT $limit, 10";
-     /* Minor notes */
-     } else if ($type == 2) {
-     	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
-     	       "FROM note ".
-     	       "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
-     	       "GROUP BY note.id ORDER BY LENGTH(note.note) ASC LIMIT $limit, 10";
-     /* Top rated notes */
-     } else if ($type == 3) {
-     	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
-     	       "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
-     	       "FROM note ".
-     	       "JOIN(votes) ON (note.id = votes.note_id) ".
-     	       "GROUP BY note.id ORDER BY rating DESC LIMIT $limit, 10";
-     /* Bottom rated notes */
-     } else if ($type == 4) {
-     	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
-     	       "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
-     	       "FROM note ".
-     	       "JOIN(votes) ON (note.id = votes.note_id) ".
-     	       "GROUP BY note.id ORDER BY rating ASC LIMIT $limit, 10";
-     /* Last notes */
-     } else {
-     	$sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
-     	       "FROM note ".
-     	       "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
-     	       "GROUP BY note.id ORDER BY note.id DESC LIMIT $limit, 10";
-     }     
-   }
-
+      /* First notes */
+      if ($type == 1) {
+        $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+               "FROM note ".
+               "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
+               "GROUP BY note.id ORDER BY note.id ASC LIMIT $limit, 10";
+      /* Minor notes */
+      } else if ($type == 2) {
+        $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+               "FROM note ".
+               "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
+               "GROUP BY note.id ORDER BY LENGTH(note.note) ASC LIMIT $limit, 10";
+      /* Top rated notes */
+      } else if ($type == 3) {
+        $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
+               "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+               "FROM note ".
+               "JOIN(votes) ON (note.id = votes.note_id) ".
+               "GROUP BY note.id ORDER BY rating DESC LIMIT $limit, 10";
+      /* Bottom rated notes */
+      } else if ($type == 4) {
+        $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
+               "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+               "FROM note ".
+               "JOIN(votes) ON (note.id = votes.note_id) ".
+               "GROUP BY note.id ORDER BY rating ASC LIMIT $limit, 10";
+      /* Last notes */
+      } else {
+        $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+               "FROM note ".
+               "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
+               "GROUP BY note.id ORDER BY note.id DESC LIMIT $limit, 10";
+      }
+    }
+    
     if ($result = db_query($sql)) {
       if (mysql_num_rows($result) != 0) {
         while ($row = mysql_fetch_assoc($result)) {
@@ -152,47 +150,44 @@ if (!$action) {
                  "</div>\n";
           }
           echo "<p class=\"notepreview\">",clean_note($row['note']),
-            "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
-            hscr($row['user']),"</span><br />",
-	    "Note id: $id<br />\n",
-	    "<a href=\"http://php.net/manual/en/{$row['sect']}.php#{$id}\" target=\"_blank\">http://php.net/manual/en/{$row['sect']}.php#{$id}</a><br />\n",
-            "<a href=\"https://master.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
-	  foreach ($note_del_reasons AS $reason => $text) {
-	    echo '<a href="https://master.php.net/note/delete/', $id, '/', urlencode($reason), '" target=\"_blank\">', 'Delete Note: ', hscr($text), "</a><br />\n";
-	  }
+               "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
+               hscr($row['user']),"</span><br />",
+               "Note id: $id<br />\n",
+               "<a href=\"http://php.net/manual/en/{$row['sect']}.php#{$id}\" target=\"_blank\">http://php.net/manual/en/{$row['sect']}.php#{$id}</a><br />\n",
+               "<a href=\"https://master.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
+          foreach ($note_del_reasons AS $reason => $text) {
+            echo '<a href="https://master.php.net/note/delete/', $id, '/', urlencode($reason), '" target=\"_blank\">', 'Delete Note: ', hscr($text), "</a><br />\n";
+          }
           echo "<a href=\"https://master.php.net/note/delete/$id\" target=\"_blank\">Delete Note: other reason</a><br />",
-            "<a href=\"https://master.php.net/note/reject/$id\" target=\"_blank\">Reject Note</a>",
-            "</p>",
-	    "<hr />";
-		}
-		if(isset($_REQUEST["view"])) {
-			echo "<p><a href=\"?view=1&page=$page&type=$type\">Next 10</a>";
-		}
+               "<a href=\"https://master.php.net/note/reject/$id\" target=\"_blank\">Reject Note</a>",
+               "</p>",
+               "<hr />";
+        }
+        if(isset($_REQUEST["view"])) {
+          echo "<p><a href=\"?view=1&page=$page&type=$type\">Next 10</a>";
+        }
       } else {
         echo "no results<br />";
       }
     }
   }
-
-?>
-<?php if (empty($_SERVER['QUERY_STRING']) && strtoupper($_SERVER['REQUEST_METHOD']) == 'GET') { ?>
-<?php
-  /* Calculate dates */
-  $today = strtotime('midnight');
-  $week = !date('w') ? strtotime('midnight') : strtotime('Last Sunday');
-  $month = strtotime('First Day of ' . date('F') . ' ' . date('Y'));
-  /* Handle stats queries for voting here */
-  $stats_sql = $stats = array();
-  $stats_sql['Total']       = "SELECT COUNT(votes.id) AS total FROM votes";
-  $stats_sql['Today']       = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($today);
-  $stats_sql['This Week']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($week);
-  $stats_sql['This Month']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($month);
-  foreach ($stats_sql as $key => $sql_code) {
+  if (empty($_SERVER['QUERY_STRING'])) {
+    /* Calculate dates */
+    $today = strtotime('midnight');
+    $week = !date('w') ? strtotime('midnight') : strtotime('Last Sunday');
+    $month = strtotime('First Day of ' . date('F') . ' ' . date('Y'));
+    /* Handle stats queries for voting here */
+    $stats_sql = $stats = array();
+    $stats_sql['Total']       = "SELECT COUNT(votes.id) AS total FROM votes";
+    $stats_sql['Today']       = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($today);
+    $stats_sql['This Week']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($week);
+    $stats_sql['This Month']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($month);
+    foreach ($stats_sql as $key => $sql_code) {
       $result = db_query($sql_code);
       $row = mysql_fetch_assoc($result);
       $stats[$key] = $row['total'];
-  }
-  /* Display the stats on the front page only */
+    }
+    /* Display the stats on the front page only */
 ?>
 <div style="float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: lightgray;">
   <p>User Contributed Voting Statistics</p>
@@ -200,7 +195,9 @@ if (!$action) {
   <div style="display: inline-block; float: left; padding: 15px;"><strong><?= $figure ?></strong>: <?= $stat ?></div>
   <?php } ?>
 </div>
-<?php } ?>
+<?php
+  }
+?>
 <p>Search the notes table.</p>
 <form method="post" action="<?= PHP_SELF ?>">
 <table>
@@ -223,10 +220,10 @@ if (!$action) {
 <p><a href="<?= PHP_SELF ?>?view=notes&type=3">View top 10 rated notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=4">View bottom 10 rated notes</a></p>
 <?php
-foot();
-exit;
+  foot();
+  exit;
 }
-// end search
+/*------ END SEARCH ------*/
 
 
 if (preg_match("/^(.+)\\s+(\\d+)\$/", $action, $m)) {
@@ -325,7 +322,7 @@ case 'approve':
     if ($row = note_get_by_id($id)) {
       
       if ($row['status'] != 'na') {
-      	die ("Note #$id has already been approved");
+        die ("Note #$id has already been approved");
       }
       
       if ($row['id'] && db_query("UPDATE note SET status=NULL WHERE id=$id")) {
@@ -354,8 +351,8 @@ case 'delete':
             $id,
             "note {$row['id']} $action_taken from {$row['sect']} by $user",
             "Note Submitter: " . safe_email($row['user']) . 
-	    (isset($reason) ? "\nReason: $reason" : " ") .
-	    "\n\n----\n\n{$row['note']}");
+        (isset($reason) ? "\nReason: $reason" : " ") .
+        "\n\n----\n\n{$row['note']}");
         if ($action == 'reject') {
           note_mail_user($row['user'], "note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
         }
