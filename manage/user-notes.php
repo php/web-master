@@ -124,7 +124,21 @@ if (!$action) {
       } else if ($type == 5) {
         $search_votes = true; // set this only to change the output between votes table and notes table
         if (!empty($_GET['votessearch'])) {
-          if (filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP)) {
+          if (($iprange = wildcard_ip($_GET['votessearch'])) !== false) {
+            $search = html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8');
+            $start = $iprange[0]; $end = $iprange[1];
+            $resultCount = db_query("SELECT count(votes.id) AS total_votes FROM votes JOIN (note) ON (votes.note_id = note.id) WHERE ".
+                                    "(hostip >= $start AND hostip <= $end) OR (ip >= $start AND ip <= $end)");
+            $resultCount = mysql_fetch_assoc($resultCount);
+            $resultCount = $resultCount['total_votes'];
+            $isSearch = '&votessearch=' . hscr($search);
+            $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
+                   "FROM votes ".
+                   "JOIN(note) ON (votes.note_id = note.id) ".
+                   "WHERE (hostip >= $start AND hostip <= $end) OR (ip >= $start AND ip <= $end) ".
+                   "ORDER BY votes.id DESC LIMIT $limitVotes, 25";
+            
+          } elseif (filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP)) {
             $searchip = (int) ip2long(filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP));
             $resultCount = db_query("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE hostip = $searchip OR ip = $searchip");
             $resultCount = mysql_fetch_assoc($resultCount);
@@ -274,7 +288,8 @@ if (!$action) {
                "</form>\n";
         }
         echo "<form method=\"GET\" action=\"" . PHP_SELF . "\">\n".
-             "  <strong>Search for votes by IP address or Note ID</strong>: <input type=\"text\" name=\"votessearch\" value=\"".
+             "  <strong>Search for votes by IP address or Note ID</strong> - (<em>wild card searches are allowed e.g. 127.0.0.*</em>): ".
+             "<input type=\"text\" name=\"votessearch\" value=\"".
              (isset($_GET['votessearch']) ? hscr($_GET['votessearch']) : '').
              "\" /> <input type=\"submit\" value=\"Search\" />\n".
              "<input type=\"hidden\" name=\"view\" value=\"notes\" />\n".
@@ -285,7 +300,7 @@ if (!$action) {
         echo "<p><a href=\"?view=1&page=$page&type=$type\">Next 10</a>";
       } elseif (isset($_REQUEST["view"]) && !empty($search_votes)) {
         echo "<p>";
-        if (isset($NextPage) && $NextPage > 0) {
+        if (isset($NextPage) && $NextPage > 1) {
           echo "<a href=\"?view=1&page=$PrevPage&type=$type{$isSearch}\">&lt; Prev 25</a> ";
         }
         if (isset($to) && isset($resultCount) && $to < $resultCount) {
@@ -781,4 +796,38 @@ function safe_email($mail)
         return str_replace(array('@', '.'), array(' at ', ' dot '), $mail);
     }
     return $mail;
+}
+
+// Return a valid IPv4 range (as 0-indexed two element array) based on wildcard IP string
+function wildcard_ip($ip)
+{
+    $start = explode(".", $ip);
+    if (count($start) != 4) {
+        return false;
+    }
+    foreach ($start as $part) {
+        if ($part === "*") {
+            continue;
+        }
+        if ($part > 255 || $part < 0 || !is_numeric($part)) {
+            return false;
+        }
+    }
+    $end = array();
+    foreach (array_keys($start, "*", true) as $key) {
+        $start[$key] = "0";
+        $end[$key] = "255";
+    }
+    foreach ($start as $key => $part) {
+        if (!isset($end[$key])) {
+            $end[$key] = $start[$key];
+        }
+    }
+    ksort($end);
+    $start = ip2long(implode('.',$start));
+    $end = ip2long(implode('.',$end));
+    if ($end - $start <= 0) {
+      return false;
+    }
+    return array($start, $end);
 }
