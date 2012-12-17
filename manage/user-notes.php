@@ -171,6 +171,13 @@ if (!$action) {
                  "JOIN(note) ON (votes.note_id = note.id) ".
                  "ORDER BY votes.id DESC LIMIT $limitVotes, 25";
         }
+      /* IPs with the most votes -- aggregated data */
+      } elseif ($type == 6) {
+        $votes_by_ip = true; // only set this get the table for top IPs with votes
+        $sql = "SELECT DISTINCT(votes.ip), COUNT(votes.ip) as votes, COUNT(DISTINCT(votes.note_id)) as notes, ".
+               "INET_NTOA(votes.ip) AS ip, MIN(UNIX_TIMESTAMP(votes.ts)) AS `from`, MAX(UNIX_TIMESTAMP(votes.ts)) AS `to` ".
+               "FROM votes ".
+               "JOIN (note) ON (votes.note_id = note.id) GROUP BY votes.ip ORDER BY votes DESC LIMIT 100";
       /* Last notes */
       } else {
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
@@ -210,6 +217,24 @@ if (!$action) {
           echo "<p><strong>No results found...</strong></p>";
         }
       }
+      /* This is a special table only used for viewing top IPs by votes */
+      if (!empty($votes_by_ip)) {
+        echo "<form method=\"POST\" action=\"" . PHP_SELF . "?action=deletevotes{$t}\" id=\"votesdeleteform\">".
+             "<table width=\"100%\">".
+             "  <thead>".
+             "    <tr style=\"text-align: center; background-color: #99C; font-size: 18px;\">\n".
+             "      <td  colspan=\"5\" width=\"100%\" style=\"padding: 5px;\"><strong>IPs With Most Votes</strong></td>\n".
+             "    </tr>\n".
+             "    <tr style=\"background-color: #99C; 18px;\">\n".
+             "      <td style=\"padding: 5px;\"><strong>Client IP Address</strong></td>
+                    <td style=\"padding: 5px;\"><strong>Number of Votes</strong></td>
+                    <td style=\"padding: 5px;\"><strong>Number of Notes</strong></td>
+                    <td style=\"padding: 5px;\"><strong>First Vote Cast</strong></td>
+                    <td style=\"padding: 5px;\"><strong>Last Vote Cast</strong></td>\n".
+             "    </tr>\n".
+             "  </thead>\n".
+             "  <tbody>\n";
+      }
       while ($row = mysql_fetch_assoc($result)) {
         /*
            I had to do this because the JOIN queries will return a single row of NULL values even when no rows match.
@@ -219,7 +244,7 @@ if (!$action) {
           echo "<p>No results found...</p>";
           continue;
         }
-        $id = $row['id'];
+        $id = isset($row['id']) ? $row['id'] : null;
         /* This div is only available in cases where the query includes the voting info */
         if (isset($row['up']) && isset($row['down'])) {
           $rating = $row['up'] - $row['down'];
@@ -259,6 +284,18 @@ if (!$action) {
                "      <td style=\"padding: 5px;\">{$row['hostip']}</td>\n".
                "      <td style=\"padding: 5px;\">{$row['ip']}</td>\n".
                "    </tr>\n";
+        /* This is a special table only used for viewing top IPs by votes */
+        } elseif(!empty($votes_by_ip)) {
+          $from = date('Y-m-d H:i:s', $row['from']);
+          $to = date('Y-m-d H:i:s', $row['to']);
+          $ip = hscr($row['ip']);
+          echo "    <tr style=\"background-color: #F0F0F0;\">\n".
+               "      <td style=\"padding: 5px;\"><a href=\"?view=votes&type=5&votessearch=$ip\">$ip</a></td>\n".
+               "      <td style=\"padding: 5px;\">{$row['votes']}</td>\n".
+               "      <td style=\"padding: 5px;\">{$row['notes']}</td>\n".
+               "      <td style=\"padding: 5px;\">{$from}</td>\n".
+               "      <td style=\"padding: 5px;\">{$to}</td>\n".
+               "    </tr>\n";        
         /* Everything else in search should fall through here */
         } else {
           echo "<p class=\"notepreview\">",clean_note($row['note']),
@@ -295,6 +332,14 @@ if (!$action) {
              "<input type=\"hidden\" name=\"view\" value=\"notes\" />\n".
              "<input type=\"hidden\" name=\"type\" value=\"" . (isset($_GET['type']) ? hscr($_GET['type']) : 5) . "\" />\n".
              "</form>\n";
+      }
+      /* This is a special table only used for viewing top IPs by votes */
+      if (!empty($votes_by_ip)) {
+        echo "  </tbody>\n".
+             "</table>\n".
+             "<p>This information should only be used to determine if there are any IP addresses with an unusually high ".
+             "number of votes placed in a small timeframe to help detect spam and other potential abuse.</p>\n".
+             "<p>Also note that a <em>0.0.0.0</em> IP address indicates a client IP could not be resolved at the time of voting.</p>";
       }
       if(isset($_REQUEST["view"]) && empty($search_votes)) {
         echo "<p><a href=\"?view=1&page=$page&type=$type\">Next 10</a>";
@@ -370,6 +415,7 @@ if (!$action) {
 <p><a href="<?= PHP_SELF ?>?view=notes&type=3">View top 10 rated notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=4">View bottom 10 rated notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=5">View votes table</a></p>
+<p><a href="<?= PHP_SELF ?>?view=notes&type=6">IPs with the most votes</a></p>
 <?php
   foot();
   exit;
