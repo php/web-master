@@ -7,6 +7,20 @@ include '../include/email-validation.inc';
 include '../include/note-reasons.inc';
 //require_once 'alert_lib.inc'; // remove comment if alerts are needed
 
+/*
+  - Since filter.default is 'magic_quotes' I'm reverting to filter_input with FILTER_UNSAFE_RAW as this was the original
+    assumption underwhich this code was rewritten. The code continues to use mysql_real_escape_string as opposed to
+    relying on magic_quotes and the addslashes/strip dependencies were removed entirely from this code.
+  - This remains to be portable whether magic_quotes is set as filter.default or not.
+  - Please use hscr() as opposed to clean() and real_clean() as opposed to escape().
+*/
+foreach($_GET as $key => $val) $_GET[$key] = filter_input(INPUT_GET,$key,FILTER_UNSAFE_RAW);
+foreach($_POST as $key => $val) $_POST[$key] = filter_input(INPUT_POST,$key,FILTER_UNSAFE_RAW);
+foreach($_COOKIE as $key => $val) $_COOKIE[$key] = filter_input(INPUT_COOKIE,$key,FILTER_UNSAFE_RAW);
+foreach($_POST as $key => $val) $_REQUEST[$key] = filter_input(INPUT_POST,$key,FILTER_UNSAFE_RAW);
+foreach($_GET as $key => $val) $_REQUEST[$key] = filter_input(INPUT_GET,$key,FILTER_UNSAFE_RAW);
+foreach($_SERVER as $key => $val) $_SERVER[$key] = filter_input(INPUT_SERVER,$key,FILTER_UNSAFE_RAW);
+
 define("NOTES_MAIL", "php-notes@lists.php.net");
 define("PHP_SELF", hsc($_SERVER['PHP_SELF']));
 
@@ -126,7 +140,7 @@ if (!$action) {
         if (!empty($_GET['votessearch'])) {
           if (($iprange = wildcard_ip($_GET['votessearch'])) !== false) {
             $search = html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8');
-            $start = $iprange[0]; $end = $iprange[1];
+            $start = real_clean($iprange[0]); $end = real_clean($iprange[1]);
             $resultCount = db_query("SELECT count(votes.id) AS total_votes FROM votes JOIN (note) ON (votes.note_id = note.id) WHERE ".
                                     "(hostip >= $start AND hostip <= $end) OR (ip >= $start AND ip <= $end)");
             $resultCount = mysql_fetch_assoc($resultCount);
@@ -398,7 +412,7 @@ if (!$action) {
 <table>
  <tr>   
   <th align="right">Keyword or ID:</th>
-  <td><input type="text" name="keyword" value="<?php echo (isset($_REQUEST['keyword']) ? clean($_REQUEST['keyword']) : ''); ?>" size="10" maxlength="32" /></td>
+  <td><input type="text" name="keyword" value="<?php echo (isset($_REQUEST['keyword']) ? hscr($_REQUEST['keyword']) : ''); ?>" size="10" maxlength="32" /></td>
  </tr>
  <tr> 
   <td align="center" colspan="2">
@@ -443,7 +457,7 @@ case 'mass':
   }
   if (!empty($_REQUEST["ids"])) {
     if (preg_match('~^([0-9]+, *)*[0-9]+$~i', $_REQUEST["ids"])) {
-      $where[] = "id IN ($_REQUEST[ids])";
+      $where[] = "id IN (".real_clean($_REQUEST['ids']).")";
     } else {
       echo "<p><b>Incorrect format of notes IDs.</b></p>\n";
       $step = 0;
@@ -461,16 +475,16 @@ case 'mass':
       } else {
         $step = 2;
         $msg = "Are you sure to change section of <b>$count note(s)</b>";
-        $msg .= (!empty($_REQUEST["ids"]) ? " with IDs <b>" . clean($_REQUEST['ids']) . "</b>" : "");
-        $msg .= (!empty($_REQUEST["old_sect"]) ? " from section <b>" . clean($_REQUEST['old_sect']) . "</b>" : "");
-        $msg .= " to section <b>" . clean($_REQUEST['new_sect']) . "</b>?";
+        $msg .= (!empty($_REQUEST["ids"]) ? " with IDs <b>" . hscr($_REQUEST['ids']) . "</b>" : "");
+        $msg .= (!empty($_REQUEST["old_sect"]) ? " from section <b>" . hscr($_REQUEST['old_sect']) . "</b>" : "");
+        $msg .= " to section <b>" . hscr($_REQUEST['new_sect']) . "</b>?";
         echo "<p>$msg</p>\n";
 ?>
 <form action="<?= PHP_SELF; ?>?action=mass" method="post">
 <input type="hidden" name="step" value="2">
-<input type="hidden" name="old_sect" value="<?= clean($_REQUEST["old_sect"]); ?>">
-<input type="hidden" name="ids" value="<?= clean($_REQUEST["ids"]); ?>">
-<input type="hidden" name="new_sect" value="<?= clean($_REQUEST["new_sect"]); ?>">
+<input type="hidden" name="old_sect" value="<?= hscr($_REQUEST["old_sect"]); ?>">
+<input type="hidden" name="ids" value="<?= hscr($_REQUEST["ids"]); ?>">
+<input type="hidden" name="new_sect" value="<?= hscr($_REQUEST["new_sect"]); ?>">
 <input type="submit" value="Change">
 </form>
 <?php
@@ -492,15 +506,15 @@ case 'mass':
 <table>
  <tr>
   <th align="right">Current section:</th>
-  <td><input type="text" name="old_sect" value="<?= clean($_REQUEST["old_sect"]); ?>" size="30" maxlength="80" /> (filename without extension)</td>
+  <td><input type="text" name="old_sect" value="<?= hscr($_REQUEST["old_sect"]); ?>" size="30" maxlength="80" /> (filename without extension)</td>
  </tr>
  <tr>
   <th align="right">Notes IDs:</th>
-  <td><input type="text" name="ids" value="<?= clean($_REQUEST["ids"]); ?>" size="30" maxlength="80" /> (comma separated list)</td>
+  <td><input type="text" name="ids" value="<?= hscr($_REQUEST["ids"]); ?>" size="30" maxlength="80" /> (comma separated list)</td>
  </tr>
  <tr>
   <th align="right">Move to section:</th>
-  <td><input type="text" name="new_sect" value="<?= clean($_REQUEST["new_sect"]); ?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="new_sect" value="<?= hscr($_REQUEST["new_sect"]); ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr> 
   <td align="center" colspan="2">
@@ -522,7 +536,7 @@ case 'approve':
         die ("Note #$id has already been approved");
       }
       
-      if ($row['id'] && db_query("UPDATE note SET status=NULL WHERE id=$id")) {
+      if ($row['id'] && db_query("UPDATE note SET status=NULL WHERE id=".real_clean($id))) {
         note_mail_on_action(
             $user,
             $id,
@@ -539,7 +553,7 @@ case 'reject':
 case 'delete':
   if ($id) {
     if ($row = note_get_by_id($id)) {
-      if ($row['id'] && db_query("DELETE note,votes FROM note LEFT JOIN (votes) ON (note.id = votes.note_id) WHERE note.id = $id")) {
+      if ($row['id'] && db_query("DELETE note,votes FROM note LEFT JOIN (votes) ON (note.id = votes.note_id) WHERE note.id = ".real_clean($id))) {
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
         $action_taken = ($action == "reject" ? "rejected" : "deleted");
@@ -581,7 +595,7 @@ case 'edit':
     $sect = (isset($_POST['sect']) ? real_clean(html_entity_decode($_POST['sect'],ENT_QUOTES)) : real_clean($row['sect']));
 
     if (isset($note) && $action == "edit") {
-      if (db_query("UPDATE note SET note='".real_clean(html_entity_decode($note,ENT_QUOTES))."',user='$email',sect='$sect',updated=NOW() WHERE id=$id")) {
+      if (db_query("UPDATE note SET note='".real_clean(html_entity_decode($note,ENT_QUOTES))."',user='$email',sect='$sect',updated=NOW() WHERE id=".real_clean($id))) {
 
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
@@ -602,9 +616,9 @@ case 'edit':
     $note = isset($note) ? $note : $row['note'];
 
     if ($action == "preview") {
-      echo "<p class=\"notepreview\">",clean_note(strip($note)),
+      echo "<p class=\"notepreview\">",clean_note($note),
            "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
-           clean(strip($email)),"</span></p>";
+           hscr($email),"</span></p>";
     }
 ?>
 <form method="post" action="<?= PHP_SELF ?>">
@@ -612,14 +626,14 @@ case 'edit':
 <table>
  <tr>
   <th align="right">Section:</th>
-  <td><input type="text" name="sect" value="<?= clean($sect) ?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="sect" value="<?= hscr($sect) ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
   <th align="right">email:</th>
-  <td><input type="text" name="email" value="<?= clean($email) ?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="email" value="<?= hscr($email) ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= clean($note) ?></textarea></td>
+  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= hscr($note) ?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
@@ -802,7 +816,7 @@ function note_mail_user($mailto, $subject, $message)
 // Return data about a note by its ID
 function note_get_by_id($id)
 {
-    if ($result = db_query("SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id='$id'")) {
+    if ($result = db_query("SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id='".real_clean($id)."'")) {
         if (!mysql_num_rows($result)) {
             die("Note #$id doesn't exist. It has probably been deleted/rejected already.");
         }
