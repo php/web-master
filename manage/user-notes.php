@@ -15,13 +15,10 @@ include '../include/note-reasons.inc';
   - Please use hscr() as opposed to clean() and real_clean() as opposed to escape().
 */
 foreach($_GET as $key => $val) $_GET[$key] = filter_input(INPUT_GET,$key,FILTER_UNSAFE_RAW);
-foreach($_POST as $key => $val) {
-    if (!is_array($val)) {
-        $_POST[$key] = filter_input(INPUT_POST,$key,FILTER_UNSAFE_RAW);
-    } else {
-        foreach ($val as $k=>$v) { $_POST[$key][$k] = filter_input(INPUT_POST,$val[$k],FILTER_UNSAFE_RAW); }
-    }
-}
+$args = array();
+foreach($_POST as $key => $val) $args[$key] = array('filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ? FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR);
+$_POST = filter_input_array(INPUT_POST, $args);
+unset($args);
 foreach($_COOKIE as $key => $val) $_COOKIE[$key] = filter_input(INPUT_COOKIE,$key,FILTER_UNSAFE_RAW);
 foreach($_POST as $key => $val) $_REQUEST[$key] = filter_input(INPUT_POST,$key,FILTER_UNSAFE_RAW);
 foreach($_GET as $key => $val) $_REQUEST[$key] = filter_input(INPUT_GET,$key,FILTER_UNSAFE_RAW);
