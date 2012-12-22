@@ -19,7 +19,7 @@ foreach($_POST as $key => $val) {
     if (!is_array($val)) {
         $_POST[$key] = filter_input(INPUT_POST,$key,FILTER_UNSAFE_RAW);
     } else {
-        foreach ($val as $k=>$v) { var_dump($val[$k]); $_POST[$key][$k] = filter_input(INPUT_POST,$val[$k],FILTER_UNSAFE_RAW); }
+        foreach ($val as $k=>$v) { $_POST[$key][$k] = filter_input(INPUT_POST,$val[$k],FILTER_UNSAFE_RAW); }
     }
 }
 foreach($_COOKIE as $key => $val) $_COOKIE[$key] = filter_input(INPUT_COOKIE,$key,FILTER_UNSAFE_RAW);
