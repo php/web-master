@@ -127,7 +127,8 @@ if (!$action) {
       } else if ($type == 3) {
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
                "ROUND((SUM(votes.vote) / COUNT(votes.vote)) * 100) AS rate, ".
-               "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+               "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, ".
+               "note.id, note.sect, note.user, note.note, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
                "GROUP BY note.id ORDER BY rate DESC,up DESC, down DESC LIMIT $limit, 10";
@@ -135,7 +136,8 @@ if (!$action) {
       } else if ($type == 4) {
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
                "ROUND((SUM(votes.vote) / COUNT(votes.vote)) * 100) AS rate, ".
-               "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+               "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, ".
+               "note.id, note.sect, note.user, note.note, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
                "GROUP BY note.id ORDER BY rate ASC,up ASC, down ASC LIMIT $limit, 10";
@@ -282,7 +284,7 @@ if (!$action) {
                " <div style=\"padding: 15px;\">\n".
                "  <a href=\"?action=resetall&id={$id}\">Reset all votes</a> |".
                "  <a href=\"?action=resetup&id={$id}\">Reset up votes</a> |".
-               "  <a href=\"?action=resetdown&id={$id}\">Reset down votes</a>\n".
+               "  <a href=\"?action=resetdown&id={$id}\">Reset down votes</a> |".
                "  <a href=\"?votessearch={$id}&view=notes&type=5\">See Votes</a>\n".
                " </div>\n".
                "</div>\n";
