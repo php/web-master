@@ -281,7 +281,7 @@ if (!$action) {
             $percentage = $row['rate'];
           } else {
             if ($row['up'] + $row['down']) { // prevents division by zero warning
-              $percentage = $row['up'] / ($row['up'] +$row['down']);
+              $percentage = round(($row['up'] / ($row['up'] +$row['down'])) * 100);
             } else {
               $precentage = 0;
             }
