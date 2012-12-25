@@ -34,7 +34,7 @@ try {
 
 // Print out a row for all notes, obfuscating the
 // email addresses as needed
-while($row = $stmt->fetch(PDO::FETCH_ASSOC) {
+while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $user = $row['user'];
     $row['rate'] = empty($row['rate']) ? 0 : $row['rate'];
     if ($user != "php-general@lists.php.net" && $user != "user@example.com") {

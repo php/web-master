@@ -126,17 +126,19 @@ if (!$action) {
       /* Top rated notes */
       } else if ($type == 3) {
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
+               "ROUND((SUM(votes.vote) / COUNT(votes.vote)) * 100) AS rate, ".
                "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY rating DESC LIMIT $limit, 10";
+               "GROUP BY note.id ORDER BY rate DESC,up DESC, down DESC LIMIT $limit, 10";
       /* Bottom rated notes */
       } else if ($type == 4) {
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
+               "ROUND((SUM(votes.vote) / COUNT(votes.vote)) * 100) AS rate, ".
                "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY rating ASC LIMIT $limit, 10";
+               "GROUP BY note.id ORDER BY rate ASC,up ASC, down ASC LIMIT $limit, 10";
       /* Votes table view */
       } else if ($type == 5) {
         $search_votes = true; // set this only to change the output between votes table and notes table
@@ -264,7 +266,7 @@ if (!$action) {
         $id = isset($row['id']) ? $row['id'] : null;
         /* This div is only available in cases where the query includes the voting info */
         if (isset($row['up']) && isset($row['down'])) {
-          $rating = $row['up'] - $row['down'];
+          $rating = $row['rating'];
           if ($rating < 0) {
             $rating = "<span style=\"color: red;\">$rating</span>";
           } elseif ($rating > 0) {
@@ -272,7 +274,7 @@ if (!$action) {
           } else {
             $rating = "<span style=\"color: blue;\">$rating</span>";
           }
-          $percentage = sprintf('%d%%',((($row['up'] + $row['down']) ? $row['up'] / ($row['up'] + $row['down']) : 0) * 100));
+          $percentage = sprintf('%d%%',$row['rate']);
           echo "<div style=\"float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: lightgray;\">\n".
                "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Up votes</strong>: {$row['up']}</div>\n".
                "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Down votes</strong>: {$row['down']}</div>\n".
@@ -281,6 +283,7 @@ if (!$action) {
                "  <a href=\"?action=resetall&id={$id}\">Reset all votes</a> |".
                "  <a href=\"?action=resetup&id={$id}\">Reset up votes</a> |".
                "  <a href=\"?action=resetdown&id={$id}\">Reset down votes</a>\n".
+               "  <a href=\"?votessearch={$id}&view=notes&type=5\">See Votes</a>\n".
                " </div>\n".
                "</div>\n";
         }
