@@ -62,7 +62,7 @@ function vote_validate_request(PDO $dbh) {
       $hostip = sprintf("%u", ip2long($_SERVER['REMOTE_ADDR']));      
   } else {
       // If the IP can't be validated use a non routable IP for loose validation (i.e. IPv6 and clients that couldn't send back proper IPs)
-      $ip = 0;
+      $hostip = 0;
 
   }
   
