@@ -140,7 +140,7 @@ if (!$action) {
                "note.id, note.sect, note.user, note.note, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY rate ASC,up ASC, down ASC LIMIT $limit, 10";
+               "GROUP BY note.id ORDER BY rate ASC,up ASC, down DESC LIMIT $limit, 10";
       /* Votes table view */
       } else if ($type == 5) {
         $search_votes = true; // set this only to change the output between votes table and notes table
