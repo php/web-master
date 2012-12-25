@@ -276,7 +276,18 @@ if (!$action) {
           } else {
             $rating = "<span style=\"color: blue;\">$rating</span>";
           }
-          $percentage = sprintf('%d%%',$row['rate']);
+          
+          if (isset($row['rate'])) { // not all queries select the rate
+            $percentage = $row['rate'];
+          } else {
+            if ($row['up'] + $row['down']) { // prevents division by zero warning
+              $percentage = $row['up'] / ($row['up'] +$row['down']);
+            } else {
+              $precentage = 0;
+            }
+          }
+          $percentage = sprintf('%d%%', $percentage);
+          
           echo "<div style=\"float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: lightgray;\">\n".
                "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Up votes</strong>: {$row['up']}</div>\n".
                "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Down votes</strong>: {$row['down']}</div>\n".
