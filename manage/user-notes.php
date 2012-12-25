@@ -127,7 +127,7 @@ if (!$action) {
       } else if ($type == 3) {
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
                "ROUND((SUM(votes.vote) / COUNT(votes.vote)) * 100) AS rate, ".
-               "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, ".
+               "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS arating, ".
                "note.id, note.sect, note.user, note.note, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
@@ -136,7 +136,7 @@ if (!$action) {
       } else if ($type == 4) {
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
                "ROUND((SUM(votes.vote) / COUNT(votes.vote)) * 100) AS rate, ".
-               "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS rating, ".
+               "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS arating, ".
                "note.id, note.sect, note.user, note.note, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
@@ -268,7 +268,7 @@ if (!$action) {
         $id = isset($row['id']) ? $row['id'] : null;
         /* This div is only available in cases where the query includes the voting info */
         if (isset($row['up']) && isset($row['down'])) {
-          $rating = $row['rating'];
+          $rating = isset($row['arating']) ? $row['arating'] : ($row['up'] - $row['down']);
           if ($rating < 0) {
             $rating = "<span style=\"color: red;\">$rating</span>";
           } elseif ($rating > 0) {
