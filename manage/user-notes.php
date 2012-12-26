@@ -7,22 +7,7 @@ include '../include/email-validation.inc';
 include '../include/note-reasons.inc';
 //require_once 'alert_lib.inc'; // remove comment if alerts are needed
 
-/*
-  - Since filter.default is 'magic_quotes' I'm reverting to filter_input with FILTER_UNSAFE_RAW as this was the original
-    assumption underwhich this code was rewritten. The code continues to use mysql_real_escape_string as opposed to
-    relying on magic_quotes and the addslashes/strip dependencies were removed entirely from this code.
-  - This remains to be portable whether magic_quotes is set as filter.default or not.
-  - Please use hscr() as opposed to clean() and real_clean() as opposed to escape().
-*/
-foreach($_GET as $key => $val) $_GET[$key] = filter_input(INPUT_GET,$key,FILTER_UNSAFE_RAW);
-$args = array();
-foreach($_POST as $key => $val) $args[$key] = array('filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ? FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR);
-$_POST = filter_input_array(INPUT_POST, $args);
-unset($args);
-foreach($_COOKIE as $key => $val) $_COOKIE[$key] = filter_input(INPUT_COOKIE,$key,FILTER_UNSAFE_RAW);
-foreach($_POST as $key => $val) $_REQUEST[$key] = filter_input(INPUT_POST,$key,FILTER_UNSAFE_RAW);
-foreach($_GET as $key => $val) $_REQUEST[$key] = filter_input(INPUT_GET,$key,FILTER_UNSAFE_RAW);
-foreach($_SERVER as $key => $val) $_SERVER[$key] = filter_input(INPUT_SERVER,$key,FILTER_UNSAFE_RAW);
+undo_magic_quotes();
 
 define("NOTES_MAIL", "php-notes@lists.php.net");
 define("PHP_SELF", hsc($_SERVER['PHP_SELF']));
