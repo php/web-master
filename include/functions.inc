@@ -63,6 +63,7 @@ function head($title="",$private=1) { // Default to $private == true to permit n
     <?php if (isset($_SESSION['user'])) { ?>
     <li><a href="/manage/users.php?username=<?php echo $_SESSION['user']; ?>">My php.net Profile</a></li>
     <?php } ?>
+    <li><a href="/login.php?action=logout">Logout</a></li>
   </ul>
 <?php
   warn("Have you changed your password yet?");
