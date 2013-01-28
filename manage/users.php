@@ -132,7 +132,7 @@ of existing PHP developers through patches, and have demonstrated
 the ability to work with others.
 ";
       mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
-      mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]",$userinfo['cvsaccess'] ? "VCS Account Deleted: $userinfo[username] deleted by $user /o\" : "VCS Account Rejected: $userinfo[username] rejected by $user /o\","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
+      mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]",$userinfo['cvsaccess'] ? "VCS Account Deleted: $userinfo[username] deleted by $user /o\\" : "VCS Account Rejected: $userinfo[username] rejected by $user /o\\","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
       db_query("DELETE FROM users_note WHERE userid=$id");
       db_query("DELETE FROM users_profile WHERE userid=$id");
       if (!$noclose) {
