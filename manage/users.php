@@ -84,7 +84,7 @@ with your VCS account, feel free to send us a note at $mailtext.
 ";
       mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
 
-      mail($mailto . ($cc ? ",$cc" : ""),"VCS Account Approved: $userinfo[username] approved by $user","Approved $userinfo[username] \o/","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
+      mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]","VCS Account Approved: $userinfo[username] approved by $user \o/","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
         exit;
@@ -132,7 +132,7 @@ of existing PHP developers through patches, and have demonstrated
 the ability to work with others.
 ";
       mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
-      mail($mailto . ($cc ? ",$cc" : ""),$userinfo['cvsaccess'] ? "VCS Account Deleted: $userinfo[username] deleted by $user" : "VCS Account Rejected: $userinfo[username] rejected by $user","Nuked $userinfo[username]","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
+      mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]",$userinfo['cvsaccess'] ? "VCS Account Deleted: $userinfo[username] deleted by $user /o\" : "VCS Account Rejected: $userinfo[username] rejected by $user /o\","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
       db_query("DELETE FROM users_note WHERE userid=$id");
       db_query("DELETE FROM users_profile WHERE userid=$id");
       if (!$noclose) {
