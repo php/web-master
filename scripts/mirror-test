@@ -165,17 +165,31 @@ foreach ($hosts as $index => $host) {
 
     // if the mirror is used for the load balancing check that it can serve the mirror-info for cc.php.net also
     $lb_data = $lb_problem = '';
-    if ($host['load_balanced'] && host_has_error($host['hostname'], $filename, $lb_data, $lb_problem, $host['load_balanced'].'.php.net')) {
-        // remove from rotation
-        $query = "UPDATE mirrors SET load_balanced = '' WHERE hostname = '" . $host['hostname'] . "'";
-        $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
-	// send an email to systems, when we are stable enough, we should change this to php-mirrors@
-        mail(
-            "systems@php.net",
-            "Round robin for {$host['hostname']} is deactivated",
-            "The following error occured when testing {$host['hostname']} for serving traffic for {$host['load_balanced']}.php.net: \n{$lb_problem}",
-            "From: php-mirrors@lists.php.net"
-        );
+    if ($host['load_balanced']) {
+        $lb_error = host_has_error($host['hostname'], $filename, $lb_data, $lb_problem, $host['load_balanced'].'.php.net');
+        if (!$lb_error) {
+            // Explode information row by delimiter
+            $lb_info = explode("|", trim($lb_data));
+
+            // Invalid data received, skip mirror site
+            if (count($lb_info) < 8) {
+                 $lb_error = TRUE;
+                 $lb_problem = "Invalid data received from {$filename}.";
+            }
+        }
+
+        if ($lb_error) {
+            $lb_problem = "The following error occured when testing {$host['hostname']} for serving traffic for {$host['load_balanced']}.php.net:\n".$lb_problem;
+            $query = "UPDATE mirrors SET load_balanced = '' WHERE hostname = '" . $host['hostname'] . "'";
+            $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
+            // send an email to systems, when we are stable enough, we should change this to php-mirrors@
+            mail(
+                "systems@php.net",
+                "Round robin for {$host['hostname']} is deactivated",
+                $lb_problem,
+                "From: php-mirrors@lists.php.net"
+            );
+        }
     }
 
     // Explode information row by delimiter
