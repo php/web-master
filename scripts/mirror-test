@@ -25,7 +25,8 @@ mysql_select_db("phpmasterdb");
 // Get mirror information for all active mirrors (regardless of their type!)
 $query = "SELECT maintainer, hostname, id, has_search, has_stats, lang,
           UNIX_TIMESTAMP(lastchecked) as lastchecked,
-          UNIX_TIMESTAMP(lastupdated) AS lastupdated
+          UNIX_TIMESTAMP(lastupdated) AS lastupdated,
+	  load_balanced
           FROM mirrors WHERE active = 1";
 $result = mysql_query($query) or die("unable to get from the database: " . mysql_error());
 
@@ -39,7 +40,7 @@ while ($row = mysql_fetch_array($result)) {
 mysql_free_result($result);
 
 // Check host for errors, inject data into $data and $problem
-function host_has_error($hostname, $filename, &$data, &$problem) {
+function host_has_error($hostname, $filename, &$data, &$problem, $spoofed_hostname=FALSE) {
 
     // Open port 80 on the mirror site
     $fp = @fsockopen($hostname, 80, $errno, $errstr, 15);
@@ -52,7 +53,7 @@ function host_has_error($hostname, $filename, &$data, &$problem) {
 
     // GET the page from the registered hostname
     $rc = fputs($fp, "GET $filename HTTP/1.0\r\n" .
-                     "Host: {$hostname}\r\n" .
+                     "Host: ".($spoofed_hostname?$spoofed_hostname:$hostname)."\r\n" .
                      "User-Agent: PHP.net Mirror Site Check\r\n\r\n");
     
     // If we were unable to write to socket, skip mirror site
@@ -160,6 +161,21 @@ foreach ($hosts as $index => $host) {
       $hosts[$index]['disable'] = true;
       $hosts[$index]['problem'] = $problem;
       continue;
+    }
+
+    // if the mirror is used for the load balancing check that it can serve the mirror-info for cc.php.net also
+    $lb_data = $lb_problem = '';
+    if ($host['load_balanced'] && host_has_error($host['hostname'], $filename, $lb_data, $lb_problem, $host['load_balanced'].'.php.net')) {
+        // remove from rotation
+        $query = "UPDATE mirrors SET load_balanced = '' WHERE hostname = '" . $host['hostname'] . "'";
+        $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
+	// send an email to systems, when we are stable enough, we should change this to php-mirrors@
+        mail(
+            "systems@php.net",
+            "Round robin for {$host['hostname']} is deactivated",
+            "The following error occured when testing {$host['hostname']} for serving traffic for {$host['load_balanced']}.php.net: \n{$lb_problem}",
+            "From: php-mirrors@lists.php.net"
+        );
     }
 
     // Explode information row by delimiter
