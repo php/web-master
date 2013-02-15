@@ -187,7 +187,8 @@ foreach ($hosts as $index => $host) {
                 "php-mirrors@lists.php.net",
                 "Round robin for {$host['hostname']} is deactivated",
                 $lb_problem,
-                "From: php-mirrors@lists.php.net"
+                "From: php-mirrors@lists.php.net",
+                "-f noreply@php.net"
             );
         }
     }
@@ -434,6 +435,8 @@ if ($mirrorsupdated < 70) {
     @mail(
         "php-webmaster@lists.php.net",
         "[CRITICAL] Mirror site updates failure",
-        "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems
+        "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems,
+        "From: php-mirrors@lists.php.net",
+        "-f noreply@php.net"
     );
 }
