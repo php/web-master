@@ -47,7 +47,7 @@ function host_has_error($hostname, $filename, &$data, &$problem, $spoofed_hostna
     
     // If we were unable to open the port, continue with the next mirror
     if (!$fp) {
-        $problem = "Unable to connect.";
+        $problem = "Unable to connect: {$errstr}({$errno}).";
         return TRUE;
     }
 
