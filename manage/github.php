@@ -135,7 +135,7 @@ php-pulls user to push changes made on git.php.net.</p>
 <form method="post" action="github.php">
 Github repo name: http://github.com/php/<input name="name"> (i.e. pecl-category-foobar)<br>
 Description: <input name="description"> (i.e. PECL foobar extension)<br>
-Homepage: <input name="homepage"> (i.e. http://pecl.php.net/package/fooar)<br>
+Homepage: <input name="homepage"> (i.e. http://pecl.php.net/package/foobar)<br>
 <input type="submit" value="Create Repository on GitHub">
 <input type="hidden" name="action" value="create">
 <?php
