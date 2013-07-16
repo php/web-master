@@ -842,7 +842,7 @@ function allow_mass_change($user)
     if (in_array(
             $user,
             array(
-                "vrana", "goba", "nlopess", "didou", "bjori", "philip", "bobby", "danbrown", "mgdm", "googleguy",
+                "vrana", "goba", "nlopess", "didou", "bjori", "philip", "bobby", "danbrown", "mgdm", "googleguy", "levim",
             )
         )
     ) {
