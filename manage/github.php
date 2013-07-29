@@ -90,7 +90,7 @@ function github_require_valid_user()
 
     if ($is_member === false) {
       head("github administration");
-      echo '<h1>You are no member of the php organization on github.</h1>'.
+      echo '<h1>You (Authenticated GitHub user: '.htmlentities($user->login). ') are no member of the php organization on github.</h1>'.
         '<p>Please contact an existing member if you see need.</p>';
       foot();
       exit;
@@ -126,8 +126,10 @@ function action_default()
 function action_form()
 {
   github_require_valid_user();
+  $user = $_SESSION['github']['current_user'];
   head("github administration");
 ?>
+<p><b>GitHub user: </b> <?php echo htmlentities($user->login); ?></p>
 <p>Creating a GitHub repo using this form ensures the proper configuration. This
 includes disabling the GitHub wiki and issue tracker as well as enabling the
 php-pulls user to push changes made on git.php.net.</p>
