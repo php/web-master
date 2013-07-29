@@ -133,7 +133,7 @@ function action_form()
 <p>Creating a GitHub repo using this form ensures the proper configuration. This
 includes disabling the GitHub wiki and issue tracker as well as enabling the
 php-pulls user to push changes made on git.php.net.</p>
-<p>The name, description andhomepage should follow other existing repositories.</p>
+<p>The name, description and homepage should follow other existing repositories.</p>
 <form method="post" action="github.php">
 Github repo name: http://github.com/php/<input name="name"> (i.e. pecl-category-foobar)<br>
 Description: <input name="description"> (i.e. PECL foobar extension)<br>
