@@ -146,6 +146,7 @@ div.phpcode span.string {
 body {
   font-family: Tahoma, Arial, sans-serif, serif, monospace;
   background-color: #f8f8f8;
+  margin-top: 60px;
 }
 p.warning, p.warning {
   padding: 1em;
