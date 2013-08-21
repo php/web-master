@@ -23,7 +23,8 @@ function head($title="",$private=1) { // Default to $private == true to permit n
 <head>
   <title>PHP: <?php echo $title ?></title>
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" media="all" rel="stylesheet" href="/style.css" />
+  <link type="text/css" media="all" rel="stylesheet" href="/style.css?v=2" />
+  <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,400italic,600italic|Source+Code+Pro&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
   <link rel="shortcut icon" href="//php.net/favicon.ico" />
   <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" >
@@ -50,10 +51,12 @@ function head($title="",$private=1) { // Default to $private == true to permit n
 </head>
 
 <body>
-  <h1 id="header"><a href="http://php.net/index.php">PHP: Hypertext Preprocessor</a><?php echo !empty($title) ? ' - '.$title : ''; ?></h1>
+<header>
+  <nav id="header-nav">
+    <div id="pagename"><a href="/">master . <img src="/images/php-logo@2x.png" width="48" height="24" alt="php"> . net</a></div>
 <?php
  if ($private) { ?>
-  <ul id="mainmenu">
+  <ul>
     <li><a href="/manage/event.php">Events</a></li>
     <li><a href="/manage/mirrors.php">Mirrors</a></li>
     <li><a href="/manage/users.php">Users</a></li>
@@ -67,8 +70,8 @@ function head($title="",$private=1) { // Default to $private == true to permit n
     <li><a href="/login.php?action=logout">Logout</a></li>
   </ul>
 <?php
-  warn("Have you changed your password yet?");
  } // End if ($private)
+  echo '</nav></header>';
 }
 
 function foot() {

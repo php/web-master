@@ -1,19 +1,60 @@
-div#header {
-  background: #dde;
-  border: 2px solid #669;
-  padding: 2px 4px;
+header {
+    top: 0px;
+    left: 0px;
+    position: fixed;
+    width: 100%;
+
+    border-bottom: 0.2em solid #669;
+    background-color: #99c;
+    box-shadow: -2px 2px 6px #bbb;
 }
-div#header div#logo {
-  display: inline;
+body {
+    padding: 20px;
+    margin: 20px;
+    border: 1px solid #ddd;
+    box-shadow: -2px 2px 6px #bbb;
+    background-color: #eeeef6;
+    color: #444;
 }
-div#header div#logo a {
-  text-decoration: none;
+
+nav {
+    margin-left: 100px;
 }
-div#header div#links {
-  display: inline;
-  text-align: right;
-  font-size: smaller;
-  font-family: sans-serif;
+nav ul {
+    list-style: none;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+nav li {
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+}
+nav li a {
+    display: inline-block;
+    padding: 15px 20px;
+    font-weight: normal;
+    color: #eef;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+    text-decoration: none;
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+}
+nav li a:active, nav li a:hover, nav li a:focus, nav li a:visited {
+    font-family: "Source Sans Pro", Helvetica, Arial, sans-serif;
+    font-weight: normal;
+    background-color: #669;
+    color: #eef;
+}
+#pagename {
+    float: left;
+}
+#pagename a {
+    display: inline-block;
+    padding: 11px 20px;
+    text-decoration: none;
+    color: #eef;
 }
 
 /* Notes management page */
@@ -103,41 +144,8 @@ div.phpcode span.string {
 
 
 body {
-  margin: 0;
   font-family: Tahoma, Arial, sans-serif, serif, monospace;
   background-color: #f8f8f8;
-}
-h1#header {
-  margin: 0;
-  background: url(/images/php.gif) #5a5993 no-repeat;
-  padding: 20px 0 10px 150px;
-  height: 37px;
-  font-style: italic;
-  font-size: 1em;
-  color: #B5B5E9;
-}
-h1#header a {
-  color: #B5B5E9;
-}
-ul#mainmenu {
-  margin: 0;
-  background-color: #f3f3f3;
-  font-size: 0.9em;
-  padding: 8px 10px;
-  text-align: center;
-  border-top: 1px solid #000000;
-  border-bottom: 1px solid #D0D0D0;
-}
-ul#mainmenu li {
-  display: inline;
-  padding: 0 1%;
-  border-right: 1px solid #CDCDCD;
-}
-ul#mainmenu li a {
-  color: #6181B7;
-}
-ul#mainmenu li:last-child {
-	border: 0px;
 }
 p.warning, p.warning {
   padding: 1em;
