@@ -207,7 +207,7 @@ foreach ($hosts as $index => $host) {
 		mail(
 			'php-mirrors@lists.php.net',
 			'[ OK ] Round-robin for '.$host['hostname'].' is UP',
-			'When most recently tested, '.$host['load_balanced'].'.php.net was cleared for reactivation.',
+			'When most recently tested, '.$lb_ccname.'.php.net was cleared for reactivation.',
 			"From: php-mirrors@lists.php.net\r\nX-Mailer: PHP-".basename(__FILE__)."\r\n",
 			'-fnoreply@php.net'
 		);
