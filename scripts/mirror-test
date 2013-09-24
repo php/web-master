@@ -185,13 +185,34 @@ foreach ($hosts as $index => $host) {
             // send a notification email to php-mirrors@
             mail(
                 "php-mirrors@lists.php.net",
-                "Round robin for {$host['hostname']} is deactivated",
+                "[WARN] Round-robin for {$host['hostname']} is DOWN",
                 $lb_problem,
                 "From: php-mirrors@lists.php.net",
                 "-f noreply@php.net"
             );
         }
-    }
+    } else {
+	/**
+	  This was done in a hurry, a day after recovering from food poisoning,
+	  and should be cleaned up (the code.... the undercooked chicken is
+	  already gone, thanks).  This is just to get it going until - someday -
+	  we can overhaul these scripts and make things more modular.
+	 */
+	$lb_ccname = substr($host['hostname'],0,2);
+	$lb_error = host_has_error($host['hostname'],$filename,$lb_data,$lb_problem,$lb_ccname.'.php.net');
+	$lb_info = explode("|", trim($lb_data));
+	if (count($lb_info) >= 8) {
+		$sql = "UPDATE mirrors SET load_balanced='".mysql_real_escape_string($lb_ccname)."' WHERE hostname='".mysql_real_escape_string($host['hostname'])."'";
+		mysql_query($sql) or die('Error performing query: '.$sql.'.... MySQL said:'.PHP_EOL.mysql_error().PHP_EOL);
+		mail(
+			'php-mirrors@lists.php.net',
+			'[ OK ] Round-robin for '.$host['hostname'].' is UP',
+			'When most recently tested, '.$host['load_balanced'].'.php.net was cleared for reactivation.',
+			"From: php-mirrors@lists.php.net\r\nX-Mailer: PHP-".basename(__FILE__)."\r\n",
+			'-fnoreply@php.net'
+		);
+	} // We do nothing if the mirror is still an RR-only SNAFU.
+    } // End of round-robin testing
 
     // Explode information row by delimiter
     $info = explode("|", trim($data));
