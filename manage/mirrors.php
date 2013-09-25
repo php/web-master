@@ -334,6 +334,7 @@ function page_mirror_list($moreinfo = false)
     $php_versions = array(
         '53' => 0,
         '54' => 0,
+        '55' => 0,
         'other' => 0,
     );    
     // Query the whole mirror list and display all mirrors. The query is
@@ -492,6 +493,8 @@ function page_mirror_list($moreinfo = false)
                 $php_versions['53']++;
         } elseif (preg_match('/^5.4/',$row['phpversion'])) {
                 $php_versions['54']++;
+	} elseif (preg_match('/^5.5/',$row['phpversion'])) {
+		$php_versions['55']++;
         } else {
                 $php_versions['other']++;
         }
@@ -552,6 +555,7 @@ function page_mirror_list($moreinfo = false)
     $stats['version5_percent']   = sprintf('%.1f%%', $stats['phpversion_counts'][5] / $stats['mirrors'] * 100);
     $php53_percent = sprintf('%.1f%%',($php_versions['53'] / $stats['mirrors']) * 100);
     $php54_percent = sprintf('%.1f%%',($php_versions['54'] / $stats['mirrors']) * 100);
+    $php55_percent = sprintf('%.1f%%',($php_versions['55'] / $stats['mirrors']) * 100);
     $php_other_versions = sprintf('%.1f%%',($php_versions['other'] / $stats['mirrors']) * 100);
     
     $stats['has_stats_percent']  = sprintf('%.1f%%', $stats['has_stats']            / $stats['mirrors'] * 100);
@@ -614,11 +618,13 @@ echo <<<EOS
    <td>
     PHP 5.3:<br/>
     PHP 5.4:<br/>
+    PHP 5.5:<br/>
     Other:
    </td>
    <td>
     {$php53_percent}<br/>
     {$php54_percent}<br/>
+    {$php55_percent}<br/>
     {$php_other_versions}
    </td>
   </tr>
