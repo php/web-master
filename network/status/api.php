@@ -91,7 +91,7 @@ if (is_array($geoip_info) && $geoip_info[0] == 'OK') {
 $html =<<<HTML
 The node named <b><a href="{$conf[0]}" target="_blank">{$_GET['host']}</a></b> is an <b>{$active}</b>
 {$mirrortype} php.net mirror serving the community from <b>{$row['name']}</b>.  It is sponsored by
-<b><a href="http://{$row['providerurl']}/" target="_blank">{$row['providername']}</a></b> and
+<b><a href="{$row['providerurl']}" target="_blank">{$row['providername']}</a></b> and
 primarily maintained by <b>{$maintainer}</b>.  Its hostname <b>{$ip_info}</b>.  It was
 last updated <b>{$last_updated}</b>.  It is presently running <b>PHP {$conf[1]}</b> with
 <b>{$sqlites} SQLite</b> available.  The node <b>{$stats}</b> have statistics available, and
