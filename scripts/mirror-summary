@@ -130,10 +130,10 @@ if(DEBUG) {
     echo $body . "\n\n";
 } else {
     mail(
-        "php-mirrors@lists.php.net",
+        "network-status@lists.php.net",
         "[mirrors] Status information",
         $body,
-        "From: php-mirrors@lists.php.net"
+        "From: mirrors@php.net"
     );
 }
 
@@ -163,7 +163,7 @@ foreach (array_merge($inactives, $disabled) as $hostname => $hostinfo) {
             $hostinfo[0],
             "$hostname mirror site deactivated",
             str_replace("{{lasterror}}", $last_error, $inactives_text),
-            "From: php-mirrors@lists.php.net"
+            "From: network-status@lists.php.net"
         );
     }
 }
@@ -186,8 +186,7 @@ foreach ($outdated as $hostname => $hostinfo) {
             $hostinfo[0],
             "$hostname mirror site deactivated",
             $outdated_text,
-            "From: php-mirrors@lists.php.net"
+            "From: network-status@lists.php.net"
         );
     }
 }
-

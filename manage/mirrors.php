@@ -106,11 +106,11 @@ if (isset($id) && isset($hostname)) {
 		    $body .= wordwrap(unmangle($original_log),70);
                 }
                 @mail(
-                    "php-mirrors@lists.php.net",
+                    "network-status@lists.php.net",
                     "[mirrors] Update by $user.",
                     $body,
-                    "From: php-mirrors@lists.php.net",
-                    "-fnoreply@php.net"
+                    "From: mirrors@php.net",
+                    "-fmirrors@php.net"
                 );
 
             // If a mirror has been modified, send information safe for public eyes to the
@@ -119,7 +119,7 @@ if (isset($id) && isset($hostname)) {
                 $body  = 'The mirror '.$hostname.' has been modified by '.$user.'.  It\'s status is ';
                 $body .= isset($active) && $active == true ? 'active.' : 'inactive, and DNS will be disabled.';
 		$body .= isset($acmt) && !empty($acmt) ? '  Notes were added to the mirror\'s file.' : '';
-		@mail('php-mirrors@lists.php.net','[mirrors] Status change for '.$hostname,$body,"From: php-mirrors@lists.php.net\r\n", "-fnoreply@php.net");
+		@mail('network-status@lists.php.net','[mirrors] Status change for '.$hostname,$body,"From: mirrors@php.net\r\n", "-fmirrors@php.net");
             }
         }
     } else {
@@ -461,7 +461,7 @@ function page_mirror_list($moreinfo = false)
                 $addr = $found[1];
                 $name = str_replace("<$addr>", "", $maintainer);
                 $emailcell = '<a href="mailto:' . $addr . '?subject=' . $row['hostname'] .
-                '&amp;cc=mirrors@php.net">' . $name . ' <img src="/images/mirror_mail.png" /></a>';
+                '&amp;cc=php-mirrors@lists.php.net">' . $name . ' <img src="/images/mirror_mail.png" /></a>';
             }
         }
 
@@ -638,7 +638,8 @@ echo <<<EOS
  <h1>Resources</h1>
  <a href="/manage/mirrors.php?mi={$moreinfo_flag}">{$moreinfo_text}</a><br />
  <a href="http://php.net/mirroring.php" target="_blank">Guidelines</a><br />
- <a href="mailto:mirrors@php.net">Mailing list</a><br />
+ <a href="mailto:php-mirrors@lists.php.net">Announcement/Discussion List</a><br />
+ <a href="mailto:network-status@lists.php.net">Network Status List</a><br/>
  <a href="http://www.iana.org/domains/root/db/" target="_blank">Country TLDs</a>
  <h1>Last check time</h1>
  {$last_check_time}

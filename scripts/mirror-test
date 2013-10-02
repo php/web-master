@@ -182,13 +182,13 @@ foreach ($hosts as $index => $host) {
             $lb_problem = "The following error occured when testing {$host['hostname']} for serving traffic for {$host['load_balanced']}.php.net:\n".$lb_problem;
             $query = "UPDATE mirrors SET load_balanced = '' WHERE hostname = '" . $host['hostname'] . "'";
             $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
-            // send a notification email to php-mirrors@
+            // send a notification email to network-status@
             mail(
-                "php-mirrors@lists.php.net",
+                "network-status@lists.php.net",
                 "[WARN] Round-robin for {$host['hostname']} is DOWN",
                 $lb_problem,
-                "From: php-mirrors@lists.php.net",
-                "-f noreply@php.net"
+                "From: mirrors@php.net",
+                "-fmirrors@php.net"
             );
         }
     } else {
@@ -205,11 +205,11 @@ foreach ($hosts as $index => $host) {
 		$sql = "UPDATE mirrors SET load_balanced='".mysql_real_escape_string($lb_ccname)."' WHERE hostname='".mysql_real_escape_string($host['hostname'])."'";
 		mysql_query($sql) or die('Error performing query: '.$sql.'.... MySQL said:'.PHP_EOL.mysql_error().PHP_EOL);
 		mail(
-			'php-mirrors@lists.php.net',
+			'network-status@lists.php.net',
 			'[ OK ] Round-robin for '.$host['hostname'].' is UP',
 			'When most recently tested, '.$lb_ccname.'.php.net was cleared for reactivation.',
-			"From: php-mirrors@lists.php.net\r\nX-Mailer: PHP-".basename(__FILE__)."\r\n",
-			'-fnoreply@php.net'
+			"From: mirrors@php.net\r\nX-Mailer: PHP-".basename(__FILE__)."\r\n",
+			'-fmirrors@php.net'
 		);
 	} // We do nothing if the mirror is still an RR-only SNAFU.
     } // End of round-robin testing
@@ -454,10 +454,10 @@ foreach ($hosts as $host) {
 // If less then 70 mirrors updated there is something severly wrong. mail it.
 if ($mirrorsupdated < 70) {
     @mail(
-        "php-webmaster@lists.php.net",
+        "network-status@lists.php.net,php-mirrors@lists.php.net",
         "[CRITICAL] Mirror site updates failure",
         "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems,
-        "From: php-mirrors@lists.php.net",
-        "-f noreply@php.net"
+        "From: mirrors@php.net",
+        "-fmirrors@php.net"
     );
 }
