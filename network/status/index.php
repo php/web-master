@@ -258,6 +258,15 @@ more than you ever wanted to know about the mirror, click
 anywhere in its respective row.</b><br/>
 <br/>
 
+If you're interested in receiving network status updates
+for the small army of global machines that comprise the
+<a href="http://php.net">php.net</a> network, you may
+subscribe to the notification list
+(<code>network-status@lists.php.net</code>) by sending a
+blank email to
+<a href="mailto:network-status-subscribe@lists.php.net">network-status-subscribe@lists.php.net</a>.<br/>
+<br/>
+
 <h2>Key:</h2>
 <br/>
 
