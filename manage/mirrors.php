@@ -640,6 +640,7 @@ echo <<<EOS
  <a href="http://php.net/mirroring.php" target="_blank">Guidelines</a><br />
  <a href="mailto:php-mirrors@lists.php.net">Announcement/Discussion List</a><br />
  <a href="mailto:network-status@lists.php.net">Network Status List</a><br/>
+ <a href="https://status.php.net/">Network Health Page</a><br/>
  <a href="http://www.iana.org/domains/root/db/" target="_blank">Country TLDs</a>
  <h1>Last check time</h1>
  {$last_check_time}
