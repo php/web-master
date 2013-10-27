@@ -64,15 +64,6 @@ pregen_flickr(
     100
 );
 
-// Compress mirrorkit dir in backend to mirrorkit.tgz, and
-// then move it to the webspace in case it is properly done
-chdir("$root/backend/mirrorkit");
-$output = `tar --exclude=CVS --exclude=.svn --exclude=mirrorkit.tgz -czf mirrorkit.tgz *`;
-if (strlen($output)) { die("Mirrorkit compression error: $output"); }
-if (@file_exists('mirrorkit.tgz')) {
-    rename('mirrorkit.tgz', "$root/mirrorkit.tgz");
-}
-
 // Fetch data into a temporary file first, and then
 // overwrite the real file with the new data
 function fetch_into_file($url, $file)
