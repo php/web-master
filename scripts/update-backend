@@ -53,17 +53,6 @@ pregenerate_conf_teaser("$root/feed.atom", "$root/include/pregen-confs.inc");
 include "php_version";
 pregenerate_version_feed("$root/include/version.inc", "$root/include/releases.inc", "$root/releases.atom");
 
-// Pregenerate the reST files
-include "rest_render";
-/* URLs to parse/render */
-$urls = array(
-	'CODING_STANDARDS',
-	'README.GIT-RULES',
-	'README.MAILINGLIST_RULES',
-	'README.RELEASE_PROCESS',
-);
-pregen_rest_files("$root/reST/cache/", $urls);
-
 // Pregenerate elephpant image pool from flickr.
 include "pregen_flickr";
 $flickr_api_key = getenv("TOKEN_FLICKR");
