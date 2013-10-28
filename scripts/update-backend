@@ -20,11 +20,6 @@ set_time_limit(30 * 60);
 fetch_into_file("https://master.php.net/fetch/mirrors.php?token=$token",
                 "$root/include/mirrors.inc");
 
-// Get list of countries
-fetch_into_file("https://master.php.net/fetch/countries.php?token=$token",
-                "$root/include/countries.inc");
-
-
 // Get list of upcoming events
 fetch_into_file("https://master.php.net/fetch/events.php?token=$token",
                 "$root/backend/events.csv");
