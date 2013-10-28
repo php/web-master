@@ -44,10 +44,6 @@ legacy_rss("$root/feed.atom", "$root/news.rss", "$root/conferences/news.rss");
 include "conference_teaser";
 pregenerate_conf_teaser("$root/feed.atom", "$root/include/pregen-confs.inc");
 
-// Pregenerate version feed
-include "php_version";
-pregenerate_version_feed("$root/include/version.inc", "$root/include/releases.inc", "$root/releases.atom");
-
 // Pregenerate elephpant image pool from flickr.
 include "pregen_flickr";
 $flickr_api_key = getenv("TOKEN_FLICKR");
