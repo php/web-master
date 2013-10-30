@@ -24,6 +24,6 @@ Thanks!";
 
 	$headers = "From: php-webmaster@lists.php.net";
 
-	mail('php-webmaster@lists.php.net', $subject, $message, $headers);
+	mail('php-webmaster@lists.php.net', $subject, $message, $headers, "-fnoreply@php.net");
 
 }
