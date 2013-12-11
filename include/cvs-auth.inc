@@ -3,7 +3,13 @@
 
 define("LOGIN_IGNORE_PWD", FALSE);
 define("LOGIN_PWD_FILE",   "/repository/CVSROOT/passwd");
-require dirname(__FILE__) . "/svn-auth.inc";
+require dirname(__FILE__) . "/cvs-auth.inc";
+
+define("REALM", "PHP Subversion Repository");
+
+function gen_svn_pass($username, $password) {
+	return md5(sprintf("%s:%s:%s", $username, REALM, $password));
+}
 
 function find_password($user)
 {

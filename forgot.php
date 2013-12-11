@@ -1,6 +1,6 @@
 <?php // vim: et ts=2 sw=2
 require 'functions.inc';
-require dirname(__FILE__) . "/include/svn-auth.inc";
+require dirname(__FILE__) . "/include/cvs-auth.inc";
 
 $valid_vars = array('id','user','key','n1','n2');
 foreach($valid_vars as $k) {
