@@ -48,7 +48,7 @@ if (isset($_REQUEST['id'])) $id = (int)$_REQUEST['id'];
 if (isset($id) && isset($hostname)) {
 
     // Allow everyone to disable a mirror, but only elite few to make other changes
-    if (is_mirror_site_admin($user) || ($mode == "update" && !$active)) {
+    if (is_mirror_site_admin($_SESSION["user"]) || ($mode == "update" && !$active)) {
         // No query need to be made
         $query = FALSE;
         
@@ -57,7 +57,7 @@ if (isset($id) && isset($hostname)) {
 
             // Perform a full data update on a mirror
             case "update":
-		$mod_by_time = '<b>'.strtoupper(date('d-M-Y H:i:s T')).'</b> ['.$user.'] Mirror updated';
+		$mod_by_time = '<b>'.strtoupper(date('d-M-Y H:i:s T')).'</b> ['.$_SESSION["user"].'] Mirror updated';
                 $query = "UPDATE mirrors SET hostname='$hostname', active=$active, " .
                          "mirrortype=$mirrortype, cname='$cname', maintainer='".unmangle($maintainer)."', " .
                          "providername='".unmangle($providername)."', providerurl='$providerurl', " .
@@ -107,7 +107,7 @@ if (isset($id) && isset($hostname)) {
                 }
                 @mail(
                     "network-status@lists.php.net",
-                    "[mirrors] Update by $user.",
+                    "[mirrors] Update by " . $_SESSION["username"],
                     $body,
                     "From: mirrors@php.net",
                     "-fmirrors@php.net"
@@ -116,7 +116,7 @@ if (isset($id) && isset($hostname)) {
             // If a mirror has been modified, send information safe for public eyes to the
             // list: active status, hostname.
             } elseif ($mode == 'update') {
-                $body  = 'The mirror '.$hostname.' has been modified by '.$user.'.  It\'s status is ';
+                $body  = 'The mirror '.$hostname.' has been modified by '.$_SERVER["username"].'.  It\'s status is ';
                 $body .= isset($active) && $active == true ? 'active.' : 'inactive, and DNS will be disabled.';
 		$body .= isset($acmt) && !empty($acmt) ? '  Notes were added to the mirror\'s file.' : '';
 		@mail('network-status@lists.php.net','[mirrors] Status change for '.$hostname,$body,"From: mirrors@php.net\r\n", "-fmirrors@php.net");

@@ -55,7 +55,7 @@ if ($username && !$id) {
 
 
 if ($id && $action) {
-  if (!is_admin($user)) {
+  if (!is_admin($_SESSION["username"])) {
     warn("you're not allowed to take actions on users.");
     exit;
   }
@@ -84,7 +84,7 @@ with your VCS account, feel free to send us a note at $mailtext.
 ";
       mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
 
-      mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]","VCS Account Approved: $userinfo[username] approved by $user \o/","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
+      mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]","VCS Account Approved: $userinfo[username] approved by {$_SESSION["username"]} \o/","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
       if (!$noclose) {
         echo '<script language="javascript">window.close();</script>';
         exit;
@@ -132,7 +132,7 @@ of existing PHP developers through patches, and have demonstrated
 the ability to work with others.
 ";
       mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
-      mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]",$userinfo['cvsaccess'] ? "VCS Account Deleted: $userinfo[username] deleted by $user /o\\" : "VCS Account Rejected: $userinfo[username] rejected by $user /o\\","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
+      mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]",$userinfo['cvsaccess'] ? "VCS Account Deleted: $userinfo[username] deleted by {$_SESSION["username"]} /o\\" : "VCS Account Rejected: $userinfo[username] rejected by {$_SESSION["username"]} /o\\","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
       db_query("DELETE FROM users_note WHERE userid=$id");
       db_query("DELETE FROM users_profile WHERE userid=$id");
       if (!$noclose) {
@@ -151,7 +151,7 @@ the ability to work with others.
 }
 
 if ($id && $in) {
-  if (!can_modify($user,$id)) {
+  if (!can_modify($_SESSION["username"],$id)) {
     warn("you're not allowed to modify this user.");
   }
   else {
@@ -181,8 +181,8 @@ if ($id && $in) {
                  . (!empty($in['svnpasswd']) ? ",svnpasswd='$in[svnpasswd]'" : "")
                  . (!empty($in['md5passwd']) ? ",md5passwd='$in[md5passwd]'" : "")
                  . (!empty($in['sshkey']) ? ",ssh_keys='".escape(html_entity_decode($in[sshkey],ENT_QUOTES))."'" : ",ssh_keys=''")
-                 . ((is_admin($user) && !empty($in['username'])) ? ",username='$in[username]'" : "")
-                 . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
+                 . ((is_admin($_SESSION["username"]) && !empty($in['username'])) ? ",username='$in[username]'" : "")
+                 . (is_admin($_SESSION["username"]) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
                  . ",verified=$verified"
                  . ",enable=$enable"
@@ -268,7 +268,7 @@ table.useredit tr {
   	<input type="checkbox" name="in[enable]"<?php echo $row['enable'] ? " checked" : "";?> /> Enable email for my account.
  </td>
 </tr>
-<?php if (!is_admin($user)) {?>
+<?php if (!is_admin($_SESSION["username"])) {?>
 <tr>
  <th align="right">VCS username:</th>
  <td><?php echo hscr($row['username']);?></td>
@@ -285,7 +285,7 @@ table.useredit tr {
  <th align="right">Password (again):</th>
  <td><input type="password" name="in[rawpasswd2]" value="" size="20" maxlength="120" /></td>
 </tr>
-<?php if (is_admin($user)) {?>
+<?php if (is_admin($_SESSION["username"])) {?>
 <tr>
  <th align="right">Password (crypted):</th>
  <td><input type="text" name="in[passwd]" value="<?php echo hscr($row['passwd']);?>" size="20" maxlength="20" /></td>
@@ -295,7 +295,7 @@ table.useredit tr {
  <td><input type="text" name="in[username]" value="<?php echo hscr($row['username']);?>" size="16" maxlength="16" /></td>
 </tr>
 <?php }?>
-<?php if (is_admin($user)) {?>
+<?php if (is_admin($_SESSION["username"])) {?>
 <tr>
  <th align="right">VCS access?</th>
  <td><input type="checkbox" name="in[cvsaccess]"<?php echo $row['cvsaccess'] ? " checked" : "";?> /></td>
@@ -309,7 +309,7 @@ table.useredit tr {
 <tr>
  <th align="right">Use Challenge/Response spam protection?</th>
  <td><input type="checkbox" name="in[spamprotect]"<?php echo $row['spamprotect'] ? " checked" : "";?> />
- <?php if ($row['username'] == $user) { ?>
+ <?php if ($row['username'] == $_SESSION["username"]) { ?>
  <br/>
  <a href="challenge-response.php">Show people on my quarantine list</a>
  <?php } ?>
@@ -363,7 +363,7 @@ table.useredit tr {
  <td><input type="submit" value="<?php echo $id ? "Update" : "Add";?>" />
 </tr>
 </form>
-<?php if (is_admin($user) && !$row['cvsaccess']) {?>
+<?php if (is_admin($_SESSION["username"]) && !$row['cvsaccess']) {?>
 <tr>
  <form method="get" action="<?php echo PHP_SELF;?>">
   <input type="hidden" name="action" value="remove" />
@@ -401,7 +401,7 @@ table.useredit tr {
    </form>
 </div>
 <div>
-    <a href="<?php echo PHP_SELF . "?username=$user";?>">edit your entry</a>
+    <a href="<?php echo PHP_SELF . "?username={$_SESSION["username"]}";?>">edit your entry</a>
   | <a href="<?php echo PHP_SELF . "?unapproved=1";?>">see outstanding requests</a>
 </div>
 </div>

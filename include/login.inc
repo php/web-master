@@ -77,6 +77,7 @@ if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
 }
 
 $_SESSION["credentials"] = array($cuser, $cpw);
+$_SESSION["username"] = $cuser;
 
 // Killing magic cookie
 setcookie("MAGIC_COOKIE","",$ts-3600,'/','.php.net');
