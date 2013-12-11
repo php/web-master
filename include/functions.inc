@@ -93,13 +93,13 @@ function real_clean($var)      { return mysql_real_escape_string($var); }
 
 function db_connect($dieonerror = TRUE)
 {
-    if (!@mysql_connect("localhost", "nobody", "")) {
+    if (!mysql_connect("localhost", "nobody", "")) {
         if ($dieonerror) {
             die(format_warn("Unable to connect to database!"));
         }
         return FALSE;
     }
-    elseif (!@mysql_select_db("phpmasterdb")) {
+    elseif (!mysql_select_db("phpmasterdb")) {
         if ($dieonerror) {
             die(format_warn("Unable to select database!"));
         }
@@ -111,7 +111,7 @@ function db_connect($dieonerror = TRUE)
 function db_query($query)
 {
 	//var_dump($query);
-    $res = @mysql_query($query);
+    $res = mysql_query($query);
     if (!$res) {
         $bt = debug_backtrace();
         die(format_warn("Query failed: " . hsc(mysql_error()) . "<tt>\n" . hsc($query) . "</tt><br />({$bt[0]['file']}:{$bt[0]['line']})"));
@@ -122,7 +122,7 @@ function db_query($query)
 
 function db_get_one($query)
 {
-    $res = @mysql_query($query);
+    $res = mysql_query($query);
     if ($res && mysql_num_rows($res)) {
         return mysql_result($res, 0);
     }
