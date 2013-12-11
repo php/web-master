@@ -6,16 +6,16 @@ require 'cvs-auth.inc';
 require 'functions.inc';
 
 // User not logged in
-$user = $pw = FALSE;
+$cuser = $cpw = FALSE;
 
 if (isset($_POST["user"], $_POST["pw"])) {
-    list($user, $pw) = array($_POST['user'], $_POST['pw']);
+    list($cuser, $cpw) = array($_POST['user'], $_POST['pw']);
 } elseif (isset($_SESSION["credentials"]) && count($_SESSION["credentials"]) == 2) {
-    list($user, $pw) = $_SESSION["credentials"];
+    list($cuser, $cpw) = $_SESSION["credentials"];
 }
 
 // Login form, if the user is not yet logged in
-if (!$user || !$pw || !verify_password($user,$pw)) {
+if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
     $_SESSION["credentials"] = array();
     session_destroy();
 
@@ -30,12 +30,12 @@ if (!$user || !$pw || !verify_password($user,$pw)) {
     }
 
     // IS_DEV was 1 or 0 until 22 Feb 2012. It's now a @php.net username hint.
-    $username = '';
+    $cuser = '';
     if (isset($_COOKIE['IS_DEV']) && !is_numeric($_COOKIE['IS_DEV'])) {
-        $username = clean($_COOKIE['IS_DEV']);
+        $cuser = clean($_COOKIE['IS_DEV']);
     } else {
         if (!empty($_POST['user'])) {
-            $username = clean($_POST['user']);
+            $cuser = clean($_POST['user']);
         }
     }
 ?>
@@ -51,11 +51,11 @@ if (!$user || !$pw || !verify_password($user,$pw)) {
 <table>
  <tr>
   <th align="right">Username:</th>
-  <td><input type="text" name="user" value="<?php echo $username;?>" />@php.net
+  <td><input type="text" name="user" value="<?php echo $cuser;?>" />@php.net
  </tr>
  <tr>
   <th align="right">Password:</th>
-  <td><input type="password" name="pw" value="<?php echo clean($pw);?>" />
+  <td><input type="password" name="pw" value="<?php echo clean($cpw);?>" />
  </tr>
  <tr>
   <td align="center" colspan="2"><input type="submit" value="Login" /></td>
@@ -70,11 +70,13 @@ if (!$user || !$pw || !verify_password($user,$pw)) {
 
 // At this point, we have logged in successfully
 if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
+    /*
     echo '<meta http-equiv="refresh" content="2;https://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'">'.PHP_EOL;
     exit('Bad puppy. Use <a href="https://'.$_SERVER['HTTP_HOST'].'/'.$_SERVER['PHP_SELF'].'">HTTPS</a>.');
+     */
 }
 
-$_SESSION["credentials"] = array($user, $pw);
+$_SESSION["credentials"] = array($cuser, $cpw);
 
 // Killing magic cookie
 setcookie("MAGIC_COOKIE","",$ts-3600,'/','.php.net');
@@ -82,7 +84,7 @@ setcookie("MAGIC_COOKIE","",$ts-3600,'/');
 
 // Set a cookie to tell various .php.net services that the user is probably logged in
 // The username is saved here so we can automagically fill it in during login prompts
-setcookie("IS_DEV", $user, $ts+3600*24*12, '/', '.php.net', false, true);
+setcookie("IS_DEV", $cuser, $ts+3600*24*12, '/', '.php.net', false, true);
 
 
 
