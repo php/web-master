@@ -69,17 +69,12 @@ $res = @mysql_query("SELECT userid FROM users WHERE username='$username'");
 if ($res && mysql_num_rows($res))
   die("someone is already using that svn id");
 
-# TODO: fail if someone with that email address has an account. right now
-# this goes to the failto address since there's no password recovery
-# mechanism
 $passwd = strip($passwd);
-$cvspasswd = crypt($passwd, substr(md5($ts), 0, 2));
-$md5passwd = md5($passwd);
 $svnpasswd = gen_svn_pass($username, $passwd);
 $note = hsc($note);
 
-$query = "INSERT INTO users (name,email,passwd,svnpasswd,md5passwd,username) VALUES ";
-$query .= "('$name','$email','$cvspasswd','$svnpasswd','$md5passwd','$username')";
+$query = "INSERT INTO users (name,email,svnpasswd,username) VALUES ";
+$query .= "('$name','$email','$svnpasswd','$username')";
 
 //echo "<!--$query-->\n";
 if (@mysql_query($query)) {
@@ -108,7 +103,6 @@ if (@mysql_query($query)) {
       "Full name: $name\n".
       "Email:     $email\n".
       "ID:        $username\n".
-      "Password:  $cvspasswd\n".
       "Purpose:   $note",
        "From: \"VCS Account Request\" <$email>");
 }

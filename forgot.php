@@ -1,11 +1,13 @@
 <?php // vim: et ts=2 sw=2
-require 'functions.inc';
+require dirname(__FILE__) . '/include/functions.inc';
 require dirname(__FILE__) . "/include/cvs-auth.inc";
 
 $valid_vars = array('id','user','key','n1','n2');
 foreach($valid_vars as $k) {
   $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
+
+$ts = $_SERVER["REQUEST_TIME"];
 
 function random_password() {
   $alphanum = array_merge(range("a","z"),range("A","Z"),range(0,9));
@@ -34,10 +36,8 @@ if ($id && $key) {
   if ($n1 && $n2) {
     if ($n1 == $n2) {
       $sn1 = strip($n1);
-      $passwd = mysql_real_escape_string(crypt($n1, substr(md5($ts), 0, 2)));
       $svnpasswd = gen_svn_pass(username_from_forgotten($key, $id), $sn1);
-      $md5passwd = md5($sn1);
-      $res = @mysql_query("UPDATE users SET forgot=NULL,passwd='$passwd',svnpasswd='$svnpasswd',md5passwd='$md5passwd' WHERE userid='$id' AND forgot='$key'");
+      $res = @mysql_query("UPDATE users SET forgot=NULL,svnpasswd='$svnpasswd',pchanged=$ts WHERE userid='$id' AND forgot='$key'");
       if ($res && mysql_affected_rows()) {
         echo '<p>Okay, your password has been changed. It could take as long as an hour before this change makes it to the VCS server and other services. To change your password again, you\'ll have to start this process over to get a new key.</p>';
         foot();

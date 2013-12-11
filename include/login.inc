@@ -1,4 +1,17 @@
 <?php
+/* Force https */
+/*
+if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
+    $name = basename($_SERVER["SCRIPT_NAME"]);
+    if ($name === 'login.php') {
+        header("Location: https://master.php.net/" . $name);
+    } else {
+        header("Location: https://master.php.net/manage/" . $name);
+    }
+    exit;
+}
+ */
+
 session_start();
 /* $Id$ */
 
@@ -18,16 +31,6 @@ if (isset($_POST["user"], $_POST["pw"])) {
 if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
     $_SESSION["credentials"] = array();
     session_destroy();
-
-    if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
-        $name = basename($_SERVER["SCRIPT_NAME"]);
-        if ($name === 'login.php') {
-            header("Location: https://master.php.net/" . $name);
-        } else {
-            header("Location: https://master.php.net/manage/" . $name);
-        }
-        exit;
-    }
 
     // IS_DEV was 1 or 0 until 22 Feb 2012. It's now a @php.net username hint.
     $cuser = '';
@@ -56,6 +59,10 @@ if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
  <tr>
   <th align="right">Password:</th>
   <td><input type="password" name="pw" value="<?php echo clean($cpw);?>" />
+<?php if ($cpw): ?>
+        <a href="/forgot.php" /> Forgot your password?</a>
+<?php endif ?>
+    </td>
  </tr>
  <tr>
   <td align="center" colspan="2"><input type="submit" value="Login" /></td>
@@ -69,13 +76,6 @@ if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
 }
 
 // At this point, we have logged in successfully
-if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
-    /*
-    echo '<meta http-equiv="refresh" content="2;https://'.$_SERVER['HTTP_HOST'].$_SERVER['PHP_SELF'].'">'.PHP_EOL;
-    exit('Bad puppy. Use <a href="https://'.$_SERVER['HTTP_HOST'].'/'.$_SERVER['PHP_SELF'].'">HTTPS</a>.');
-     */
-}
-
 $_SESSION["credentials"] = array($cuser, $cpw);
 $_SESSION["username"] = $cuser;
 

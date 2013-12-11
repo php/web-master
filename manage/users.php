@@ -160,10 +160,8 @@ if ($id && $in) {
     }
     else {
       if (!empty($in['rawpasswd'])) {
-        // need to get rid of these
-        $in['passwd'] = crypt($in['rawpasswd'],substr(md5($ts),0,2));
-        $in['svnpasswd'] = gen_svn_pass($user, $in['rawpasswd']);
-        $in['md5passwd'] = md5($in['rawpasswd']);
+        $userinfo = fetch_user($id);
+        $in['svnpasswd'] = gen_svn_pass($userinfo["username"], $in['rawpasswd']);
       }
 
       $cvsaccess = empty($in['cvsaccess']) ? 0 : 1;
@@ -177,9 +175,7 @@ if ($id && $in) {
         # update main table data
         if (!empty($in['email']) && !empty($in['name'])) {
           $query = "UPDATE users SET name='$in[name]',email='$in[email]'"
-                 . (!empty($in['passwd']) ? ",passwd='$in[passwd]'" : "")
                  . (!empty($in['svnpasswd']) ? ",svnpasswd='$in[svnpasswd]'" : "")
-                 . (!empty($in['md5passwd']) ? ",md5passwd='$in[md5passwd]'" : "")
                  . (!empty($in['sshkey']) ? ",ssh_keys='".escape(html_entity_decode($in[sshkey],ENT_QUOTES))."'" : ",ssh_keys=''")
                  . ((is_admin($_SESSION["username"]) && !empty($in['username'])) ? ",username='$in[username]'" : "")
                  . (is_admin($_SESSION["username"]) ? ",cvsaccess=$cvsaccess" : "")
@@ -188,7 +184,7 @@ if ($id && $in) {
                  . ",enable=$enable"
                  . ",use_sa=$use_sa"
                  . ",greylist=$greylist"
-                 . (!empty($in['passwd']) ? ",pchanged=" . $ts : "")
+                 . (!empty($in['rawpasswd']) ? ",pchanged=" . $ts : "")
                  . " WHERE userid=$id";
           if (!empty($in['passwd'])) {
             // Kill the session data after updates :)
@@ -217,24 +213,6 @@ if ($id && $in) {
 
         warn("record $id updated");
         $id = false;
-      }
-      else {
-        $query = "INSERT users SET name='$in[name]',email='$in[email]'"
-               . (!empty($in['username']) ? ",username='$in[username]'" : "")
-               . (!empty($in['passwd']) ? ",passwd='$in[passwd]'" : "")
-               . (!empty($in['svnpasswd']) ? ",svnpasswd='$in[svnpasswd]'" : "")
-               . (!empty($in['md5passwd']) ? ",md5passwd='$in[md5passwd]'" : "")
-               . (!empty($in['sshkey']) ? ",ssh_keys='".escape(html_entity_decode($in[sshkey],ENT_QUOTES))."'" : "")
-               . (is_admin($user) ? ",cvsaccess=$cvsaccess" : "")
-               . ",spamprotect=$spamprotect"
-               . ",use_sa=$use_sa"
-               . ",greylist=$greylist"
-               . ",verified=$verified";
-        db_query($query);
-
-        $nid = mysql_insert_id();
-
-        warn("record $nid added");
       }
     }
   }
