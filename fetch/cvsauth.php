@@ -80,6 +80,10 @@ if (!isset($_REQUEST['token']) || md5($_REQUEST['token']) != "73864a7c89d97a1336
 	exit_forbidden(E_UNKNOWN);
 }
 
+if (!verify_username($username)) {
+	exit_forbidden(E_USERNAME);
+}
+
 if (!verify_password($username, $password)) {
 	exit_forbidden(E_PASSWORD);
 }
