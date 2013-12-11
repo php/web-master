@@ -63,8 +63,8 @@ function head($title="",$private=1) { // Default to $private == true to permit n
     <li><a href="/manage/user-notes.php">Notes</a></li>
     <li><a href="http://wiki.php.net/">Wiki</a></li>
     <li><a href="http://bugs.php.net/">Bugsweb</a></li>
-    <?php if (isset($_SESSION['user'])) { ?>
-    <li><a href="/manage/users.php?username=<?php echo $_SESSION['user']; ?>">My php.net Profile</a></li>
+    <?php if (isset($_SESSION['credentials'])) { ?>
+    <li><a href="/manage/users.php?username=<?php echo $_SESSION['credentials'][0]; ?>">My php.net Profile</a></li>
     <?php } ?>
     <li><a href="/manage/github.php">Github Repos</a></li>
     <li><a href="/login.php?action=logout">Logout</a></li>
