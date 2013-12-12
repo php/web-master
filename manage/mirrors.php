@@ -352,7 +352,7 @@ function page_mirror_list($moreinfo = false)
     );
 
     // Start table
-    $summary = '<div align="center" style="float:left;clear:left;position:relative;">
+    $summary = '<div>
     <table border="0" cellspacing="0" cellpadding="3" id="mirrors">';
 
     // Previous country code
