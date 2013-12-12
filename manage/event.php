@@ -224,11 +224,6 @@ if ($id) {
    <a href="<?php echo PHP_SELF?>">see upcoming events</a>
    | <a href="<?php echo PHP_SELF . "?unapproved=1"?>">see unapproved events</a>
   </td>
-  <td align="right">
-   <form method="GET" action="<?php echo PHP_SELF;?>">
-    <input type="text" name="search" value="<?php echo clean($search);?>" />
-    <input type="submit" value="search">
-   </form>
  </tr>
 </table>
 <?php

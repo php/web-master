@@ -371,13 +371,6 @@ table.useredit tr {
 }
 ?>
 <div>
-<div style="float:right">
-   <form method="GET" action="<?php echo PHP_SELF;?>">
-    <input type="text" name="search" value="<?php echo clean($search);?>" />
-    <input type="submit" value="search"><br>
-    <input type="checkbox" name="searchnotes" value="1" <?php echo isset($_GET['searchnotes']) ? 'checked="checked"' : ''?>> Search notes
-   </form>
-</div>
 <div>
     <a href="<?php echo PHP_SELF . "?username={$_SESSION["username"]}";?>">edit your entry</a>
   | <a href="<?php echo PHP_SELF . "?unapproved=1";?>">see outstanding requests</a>
@@ -388,7 +381,7 @@ table.useredit tr {
 $begin = $begin ? (int)$begin : 0;
 $full = $full ? 1 : (!$full && ($search || $unapproved) ? 1 : 0);
 $max = $max ? (int)$max : 20;
-$searchnotes = !empty($_GET['searchnotes']);
+$searchnotes = !empty($_GET['searchnotes']); /* FIXME: There is no such option in the search box.. */
 
 $query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email FROM users ";
 if  ($search) {
