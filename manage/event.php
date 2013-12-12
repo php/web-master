@@ -1,6 +1,6 @@
 <?php
-require 'login.inc';
-require 'email-validation.inc';
+require __DIR__ . '/../include/login.inc';
+require __DIR__ . '/../include/email-validation.inc';
 
 define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
 
