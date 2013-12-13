@@ -27,9 +27,12 @@ function head($title="") {
         array("href" => "/manage/github.php",       "text" => "Github Repos"),
         array("href" => "/login.php?action=logout", "text" => "Logout"),
     );
+    $CSS = array();
     $SEARCH = array();
+
     if (strstr($_SERVER["SCRIPT_FILENAME"], "users.php")) {
         $SEARCH = array("method" => "get", "action" => "/manage/users.php", "placeholder" => "Search profiles", "name" => "search");
+        $CSS[] = "/shared/styles/user-autocomplete.css";
     }
     if (strstr($_SERVER["SCRIPT_FILENAME"], "event.php")) {
         $SEARCH = array("method" => "get", "action" => "/manage/event.php", "placeholder" => "Search Events", "name" => "search");
