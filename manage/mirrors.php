@@ -580,8 +580,6 @@ function page_mirror_list($moreinfo = false)
     }
 
 echo <<<EOS
-<script type="text/javascript" src="js/jquery.min.js"></script>
-<script type="text/javascript" src="js/curvycorners.js"></script>
 
 <div id="resources" class="semirounded">
  <table class="semirounded">
