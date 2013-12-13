@@ -54,7 +54,7 @@ function page_mirror_list($moreinfo = false)
 
     // Start table
     $summary  = '<br/><br/>
-    <div align="center" style="float:left;clear:left;position:relative;">
+    <div>
     <table border="0" cellspacing="0" cellpadding="3" id="mirrors">
      <tr>
       <td colspan="3" style="background-color:#ffdddd;"><center><b>Node Information</b></center></td>
@@ -233,7 +233,6 @@ function page_mirror_list($moreinfo = false)
     }
 
 echo <<<EOS
-<script type="text/javascript" src="js/jquery.min.js"></script>
 <script type="text/javascript" src="js/curvycorners.js"></script>
 <link type="text/css" rel="stylesheet" href="js/jquery.qtip.min.css"/>
 <script type="text/javascript" src="js/jquery.qtip.min.js"></script>
@@ -245,7 +244,7 @@ $('.selector').qtip({
 })
 </script>
 
-<div style="left:5%;position:relative;width:75%;">
+<div>
 
 <h1>PHP Global Network Infrastructure Health</h1>
 <b>Last check time:</b> {$last_check_time}<br/>
