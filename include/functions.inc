@@ -16,17 +16,50 @@ function require_token()
 
 // -----------------------------------------------------------------------------------
 
-function head($title="",$private=1) { // Default to $private == true to permit no-menu headers
-  header("Content-type: text/html; charset=utf-8");
+function head($title="") {
+    $SUBDOMAIN = "master";
+    $TITLE = $title ?: "master";
+    $LINKS = array(
+        array("href" => "/manage/event.php",        "text" => "Events"),
+        array("href" => "/manage/mirrors.php",      "text" => "Mirrors"),
+        array("href" => "/manage/users.php",        "text" => "Users"),
+        array("href" => "/manage/user-notes.php",   "text" => "Notes"),
+        array("href" => "/manage/github.php",       "text" => "Github Repos"),
+        array("href" => "/login.php?action=logout", "text" => "Logout"),
+    );
+    $SEARCH = array();
+    if (strstr($_SERVER["SCRIPT_FILENAME"], "users.php")) {
+        $SEARCH = array("method" => "get", "action" => "/manage/users.php", "placeholder" => "Search profiles", "name" => "search");
+    }
+    if (strstr($_SERVER["SCRIPT_FILENAME"], "event.php")) {
+        $SEARCH = array("method" => "get", "action" => "/manage/event.php", "placeholder" => "Search Events", "name" => "search");
+    }
+    if (isset($_SESSION['credentials'])) {
+        array_unshift($LINKS, array("href" => "/manage/users.php?username=" . $_SESSION["credentials"][0], "text" => "My PHP.net Profile"));
+    }
+    include __DIR__ . "/../shared/templates/header.inc";
+}
+
+function foot() {
+    $JS = array(
+        "http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",
+    );
+    if (strstr($_SERVER["SCRIPT_FILENAME"], "users.php")) {
+        array_push(
+            $JS,
+            "//people.php.net/js/jquery.autocomplete.min.js",
+            "//people.php.net/js/userlisting.php",
+            "//people.php.net/js/search.js"
+        );
+    }
+    if (strstr($_SERVER["SCRIPT_FILENAME"], "mirror.php")) {
+        array_push(
+            $JS,
+            "js/curvycorners.js"
+        );
+    }
+
 ?>
-<html>
-<head>
-  <title>PHP: <?php echo $title ?></title>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <link type="text/css" media="all" rel="stylesheet" href="/style.css?v=2" />
-  <link href='http://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,400italic,600italic|Source+Code+Pro&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
-  <link rel="shortcut icon" href="//php.net/favicon.ico" />
-  <script type="text/javascript" src="js/jquery.min.js"></script>
   <script type="text/javascript" >
   $(document).ready(function() {
     $('#votesdeleteform').submit(function() {
@@ -48,34 +81,8 @@ function head($title="",$private=1) { // Default to $private == true to permit n
     });
   });
   </script>
-</head>
-
-<body>
-<header>
-  <nav id="header-nav">
-    <div id="pagename"><a href="/">master . <img src="/images/php-logo@2x.png" width="48" height="24" alt="php"> . net</a></div>
 <?php
- if ($private) { ?>
-  <ul>
-    <li><a href="/manage/event.php">Events</a></li>
-    <li><a href="/manage/mirrors.php">Mirrors</a></li>
-    <li><a href="/manage/users.php">Users</a></li>
-    <li><a href="/manage/user-notes.php">Notes</a></li>
-    <li><a href="http://wiki.php.net/">Wiki</a></li>
-    <li><a href="http://bugs.php.net/">Bugsweb</a></li>
-    <?php if (isset($_SESSION['credentials'])) { ?>
-    <li><a href="/manage/users.php?username=<?php echo $_SESSION['credentials'][0]; ?>">My php.net Profile</a></li>
-    <?php } ?>
-    <li><a href="/manage/github.php">Github Repos</a></li>
-    <li><a href="/login.php?action=logout">Logout</a></li>
-  </ul>
-<?php
- } // End if ($private)
-  echo '</nav></header>';
-}
-
-function foot() {
-  echo "</body></html>";
+    include __DIR__ . "/../shared/templates/footer.inc";
 }
 
 // -----------------------------------------------------------------------------------
