@@ -25,7 +25,6 @@ function head($title="") {
         array("href" => "/manage/users.php",        "text" => "Users"),
         array("href" => "/manage/user-notes.php",   "text" => "Notes"),
         array("href" => "/manage/github.php",       "text" => "Github Repos"),
-        array("href" => "/login.php?action=logout", "text" => "Logout"),
     );
     $CSS = array();
     $SEARCH = array();
@@ -39,8 +38,10 @@ function head($title="") {
     }
     if (isset($_SESSION['credentials'])) {
         array_unshift($LINKS, array("href" => "/manage/users.php?username=" . $_SESSION["credentials"][0], "text" => "My PHP.net Profile"));
+        $LINKS[] = array("href" => "/login.php?action=logout", "text" => "Logout");
     }
     include __DIR__ . "/../shared/templates/header.inc";
+    echo '<section class="mainscreen">';
 }
 
 function foot() {
@@ -63,6 +64,7 @@ function foot() {
     }
 
 ?>
+  </section>
   <script type="text/javascript" >
   $(document).ready(function() {
     $('#votesdeleteform').submit(function() {
