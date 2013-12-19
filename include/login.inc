@@ -29,7 +29,7 @@ if (isset($_POST["user"], $_POST["pw"])) {
 
 // Login form, if the user is not yet logged in
 if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
-    $_SESSION["credentials"] = array();
+    $_SESSION = array();
     session_destroy();
 
     // IS_DEV was 1 or 0 until 22 Feb 2012. It's now a @php.net username hint.
@@ -65,8 +65,22 @@ if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
     </td>
  </tr>
  <tr>
-  <td align="center" colspan="2"><input type="submit" value="Login" /></td>
+  <td></td><td><input type="submit" value="Login" /></td>
  </tr>
+<?php if ($cpw): ?>
+<?php
+    $msgs = array(
+        "Nope.. Wrong (username?) password",
+        "Nope.. Thats not it",
+        "This isn't going very well..",
+    );
+    shuffle($msgs);
+    $msg = array_pop($msgs);
+?>
+ <tr>
+ <td colspan="2"><?php echo $msg ?></td>
+ </tr>
+<?php endif ?>
 </table>
 </form>
 </body>
@@ -75,6 +89,7 @@ if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
   exit;
 }
 
+session_regenerate_id();
 // At this point, we have logged in successfully
 $_SESSION["credentials"] = array($cuser, $cpw);
 $_SESSION["username"] = $cuser;
