@@ -372,8 +372,7 @@ table.useredit tr {
 ?>
 <div>
 <div>
-    <a href="<?php echo PHP_SELF . "?username={$_SESSION["username"]}";?>">edit your entry</a>
-  | <a href="<?php echo PHP_SELF . "?unapproved=1";?>">see outstanding requests</a>
+  <a href="<?php echo PHP_SELF . "?unapproved=1";?>">see outstanding requests</a>
 </div>
 </div>
 <?php
