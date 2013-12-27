@@ -31,7 +31,7 @@ function find_group_address_from_notes_for($id) {
 }
 
 define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
-$valid_vars = array('search','username','id','in','unapproved','begin','max','order','full', 'action', 'noclose');
+$valid_vars = array('search','username','id','in','unapproved','begin','max','order','full', 'action');
 foreach($valid_vars as $k) {
     $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
@@ -85,10 +85,6 @@ with your VCS account, feel free to send us a note at $mailtext.
       mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
 
       mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]","VCS Account Approved: $userinfo[username] approved by {$_SESSION["username"]} \o/","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
-      if (!$noclose) {
-        echo '<script language="javascript">window.close();</script>';
-        exit;
-      }
       warn("record $id ($userinfo[username]) approved");
     }
     else {
@@ -135,10 +131,6 @@ the ability to work with others.
       mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]",$userinfo['cvsaccess'] ? "VCS Account Deleted: $userinfo[username] deleted by {$_SESSION["username"]} /o\\" : "VCS Account Rejected: $userinfo[username] rejected by {$_SESSION["username"]} /o\\","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
       db_query("DELETE FROM users_note WHERE userid=$id");
       db_query("DELETE FROM users_profile WHERE userid=$id");
-      if (!$noclose) {
-        echo '<script language="javascript">window.close();</script>';
-        exit;
-      }
       warn("record $id ($userinfo[username]) removed");
     }
     else {
@@ -345,13 +337,11 @@ table.useredit tr {
 <tr>
  <form method="get" action="<?php echo PHP_SELF;?>">
   <input type="hidden" name="action" value="remove" />
-  <input type="hidden" name="noclose" value="1" />
   <input type="hidden" name="id" value="<?php echo $id?>" />
   <td><input type="submit" value="Reject" />
  </form>
  <form method="get" action="<?php echo PHP_SELF;?>">
   <input type="hidden" name="action" value="approve" />
-  <input type="hidden" name="noclose" value="1" />
   <input type="hidden" name="id" value="<?php echo $id?>" />
   <td><input type="submit" value="Approve" />
  </form>
@@ -449,7 +439,7 @@ while ($row = mysql_fetch_array($res)) {
  <td align="center"><a href="<?php echo PHP_SELF . "?id=$row[userid]";?>">edit</a></td>
  <td><?php echo $row['name'];?></td>
  <td><?php echo $row['email'];?></td>
- <td<?php if ($row['username'] && !$row['cvsaccess']) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo hscr($row['username']);?><?php if ($row['username'] && is_admin($user)) { if (!$row['cvsaccess']) echo ' <a href="'. PHP_SELF . "?action=approve&amp;noclose=1&amp;id=$row[userid]\" title=\"approve\">+</a>"; echo ' <a href="'.PHP_SELF."?action=remove&amp;noclose=1&amp;id=$row[userid]\" title=\"remove\">&times;</a>"; }?></td>
+ <td<?php if ($row['username'] && !$row['cvsaccess']) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo hscr($row['username']);?><?php if ($row['username'] && is_admin($user)) { if (!$row['cvsaccess']) echo ' <a href="'. PHP_SELF . "?action=approve&amp;id=$row[userid]\" title=\"approve\">+</a>"; echo ' <a href="'.PHP_SELF."?action=remove&amp;id=$row[userid]\" title=\"remove\">&times;</a>"; }?></td>
 </tr>
 <?php
   if ($full && !empty($row['note'])) {?>
