@@ -5,7 +5,7 @@ include '../include/login.inc';
 define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
 
 // This page is for mirror administration
-head("mirror administration");
+head("mirror administration", array("columns" => 2));
 db_connect();
 
 $valid_fields = array(
@@ -311,9 +311,9 @@ if (intval($id) !== 0) {
     exit();
 }
 
-page_mirror_list($moreinfo);
+$secondscreen = page_mirror_list($moreinfo);
 
-foot();
+foot($secondscreen);
 
 // =============================================================================
 
@@ -364,7 +364,7 @@ function page_mirror_list($moreinfo = false)
 
         // Print out a country header, if a new country is found
         if ($prevcc != $row['cc']) {
-            $summary .= '<tr><th colspan="8">' . $row['countryname'] . "</th></tr>\n";
+            $summary .= '<tr><th colspan="8"><h3>' . $row['countryname'] . "</h3></th></tr>\n";
         }
         $prevcc = $row['cc'];
 
@@ -399,20 +399,6 @@ function page_mirror_list($moreinfo = false)
             elseif (!empty($row['acmt'])) { $errorinfo = $row['acmt']; }
             $stats['disabled']++;
         }
-
-        // See what needs to be printed out as search info
-        /* This info isn't used anymore and "has_search" is now misused under 
-         * SQLite availability check
-        $searchcell = '';
-        if ($row['has_search'] == "2") { $searchcell = '('; }
-        if (in_array($row['has_search'], array("1", "2"))) {
-            $searchcell .= "<a href=\"http://$row[hostname]/search.php\" target=\"_blank\">" .
-                           "<img src=\"/images/mirror_search.png\" /></a>";
-            $stats['has_search']++;
-        }
-        if ($row['has_search'] == "2") { $searchcell .= ')'; }
-        if (!$searchcell) { $searchcell = "&nbsp;"; }
-        */
 
         $sqlites = decipher_available_sqlites($row['has_search']);
         if ($sqlites) {
@@ -544,12 +530,12 @@ function page_mirror_list($moreinfo = false)
    
     if(empty($stats['disabled'])) $stats['disabled'] = 0;
     $stats['ok']   = $stats['mirrors'] - $stats['autodisabled'] - $stats['disabled'];
-    if (empty($moreinfo)) {
-	$moreinfo_flag = 1;
-	$moreinfo_text = 'See more info';
+    if ($moreinfo) {
+        $moreinfo_flag = 0;
+        $moreinfo_text = 'See less info';
     } else {
-	$moreinfo_flag = 0;
-	$moreinfo_text = 'See less info';
+        $moreinfo_flag = 1;
+        $moreinfo_text = 'See more info';
     }
     
     $has_sqlite_counts = '';
@@ -558,71 +544,66 @@ function page_mirror_list($moreinfo = false)
        $has_sqlite_counts .= '<td>'. $scount .' <small>('.round(($scount / $stats['mirrors']) * 100).'%)</small></td></tr>';
     }
 
-echo <<<EOS
+$statusscreen = <<< EOS
 
- <table>
-  <tr>
-   <td><img src="/images/mirror_ok.png" /></td>
-   <td>Fine:</td>
-   <td>{$stats['ok']}</td>
-  </tr>
-  <tr>
-   <td><img src="/images/mirror_deactivated.png" /></td>
-   <td>Manually-Disabled:</td>
-   <td>{$stats['disabled']}</td>
-  </tr>
-  <tr>
-   <td><img src="/images/mirror_error.png" /></td>
-   <td>Auto-Disabled:</td>
-   <td>{$stats['autodisabled']}</td>
-  </tr>
-  <tr>
-   <td>&nbsp;</td>
-   <td><strong>Total:</strong></td>
-   <td><strong>{$stats['mirrors']}</strong></td>
-  </tr>
-  <tr>
-   <td colspan="3"><hr /></td>
-  </tr>
-  <tr>
-   <td><img src="/images/mirror_stats.png" /></td>
-   <td>Stats:</td>
-   <td>{$stats['has_stats_percent']}</td>
-  </tr>
-  <tr>
-   <td><img src="/images/mirror_info.png" /></td>
-   <td>
-    PHP 5.3:<br/>
-    PHP 5.4:<br/>
-    PHP 5.5:<br/>
-    Other:
-   </td>
-   <td>
-    {$php53_percent}<br/>
-    {$php54_percent}<br/>
-    {$php55_percent}<br/>
-    {$php_other_versions}
-   </td>
-  </tr>
-  <tr>
-   <td colspan="3"><hr /></td>
-  </tr>
+<section>
+<dl>
+ <dt>Last check time</dt>
+ <dd>{$last_check_time}</dd>
+
+ <dt>Current time</dt>
+ <dd>{$current_time}</dd>
+</dl>
+
+<hr>
+
+<dl>
+ <dt>Fully working mirrors:</dt>
+ <dd>{$stats['ok']}</dd>
+
+ <dt>Manually-Disabled:</dt>
+ <dd>{$stats['disabled']}</dd>
+
+ <dt>Auto-Disabled:</dt>
+ <dd>{$stats['autodisabled']}</dd>
+
+ <dt><strong>Total:</strong></dt>
+ <dd><strong>{$stats['mirrors']}</strong></dd>
+
+ <dt>Stats:</dt>
+ <dd>{$stats['has_stats_percent']}</dd>
+</dl>
+
+<hr>
+
+<dl>
+ <dt>PHP 5.3</dt>
+ <dd>{$php53_percent}</dd>
+
+ <dt>PHP 5.4</dt>
+ <dd>{$php54_percent}</dd>
+
+ <dt>PHP 5.5</dt>
+ <dd>{$php55_percent}</dd>
+
+ <dt>Other</dt>
+ <dd>{$php_other_versions}</dd>
+</dl>
   
   {$has_sqlite_counts}
 
- </table>
+<nav id="resources">
  <h1>Resources</h1>
- <a href="/manage/mirrors.php?mi={$moreinfo_flag}">{$moreinfo_text}</a><br />
- <a href="http://php.net/mirroring.php" target="_blank">Guidelines</a><br />
- <a href="mailto:php-mirrors@lists.php.net">Announcement/Discussion List</a><br />
- <a href="mailto:network-status@lists.php.net">Network Status List</a><br/>
- <a href="https://status.php.net/">Network Health Page</a><br/>
- <a href="http://www.iana.org/domains/root/db/" target="_blank">Country TLDs</a>
- <h1>Last check time</h1>
- {$last_check_time}
- <h1>Current time</h1>
- {$current_time} 
-
+<ul>
+ <li><a href="/manage/mirrors.php?mi={$moreinfo_flag}">{$moreinfo_text}</a></li>
+ <li><a href="http://php.net/mirroring.php" target="_blank">Guidelines</a></li>
+ <li><a href="mailto:php-mirrors@lists.php.net">Announcement/Discussion List</a></li>
+ <li><a href="mailto:network-status@lists.php.net">Network Status List</a></li>
+ <li><a href="https://status.php.net/">Network Health Page</a></li>
+ <li><a href="http://www.iana.org/domains/root/db/" target="_blank">Country TLDs</a></li>
+</ul>
+</nav>
+<section class="mirrorinfo">
 <div>
 
 <p>
@@ -649,13 +630,16 @@ echo <<<EOS
   {$versions}
  </div>
 </div>
+</section>
 
 <p><a href="/manage/mirrors.php?id=0">Add a new mirror</a></p>
 
-$summary
 
 </div>
+
 EOS;
+echo $summary;
+return $statusscreen;
 
 }
 
