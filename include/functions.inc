@@ -324,3 +324,87 @@ function undo_magic_quotes() {
 }
 
 // -----------------------------------------------------------------------------------
+//
+
+
+function find_group_address_from_notes_for($id) {
+    $res = db_query("SELECT note FROM users_note WHERE userid=$id LIMIT 1");
+    $row = mysql_fetch_assoc($res);
+    $cc = "";
+    if (preg_match("/\[group: (\w+)\]/", $row["note"], $matches)) {
+      switch($matches[1]) {
+      case "php":
+        $cc = "internals@lists.php.net";
+        break;
+      case "pear":
+        $cc = "pear-group@lists.php.net";
+        break;
+      case "pecl":
+        $cc = "pecl-dev@lists.php.net";
+        break;
+      case "doc":
+        $cc = "phpdoc@lists.php.net";
+        break;
+      }
+    }
+    return $cc;
+}
+
+define("MT_USER_APPROVE_MAIL", "group@php.net");
+define("MT_USER_REMOVE_MAIL", "group@php.net");
+function user_approve($id) {
+    $res = db_query("UPDATE users SET cvsaccess=1, enable=1 WHERE userid=$id");
+    if ($res && mysql_affected_rows()) {
+      $cc = find_group_address_from_notes_for($id);
+      $mailtext = $cc ? $cc : EMAIL_DEFAULT_CC;
+      $userinfo = fetch_user($id);
+
+      $message = mt_approve_user($userinfo, $mailtext);
+      /* Notify the user */
+      mail($userinfo["email"], "VCS Account Request: $userinfo[username]", $message, "From: PHP Group <group@php.net>", "-fnoreply@php.net");
+
+      /* Notify the public records */
+      $to = MT_USER_APPROVE_MAIL . ($cc ? ",$cc" : "");
+      $subject = "Re: VCS Account Request: $userinfo[username]";
+      $message = "VCS Account Approved: $userinfo[username] approved by {$_SESSION["username"]} \o/";
+      $headers = "From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>";
+      mail($to, $subject, $message, $headers, "-fnoreply@php.net");
+      warn("record $id ($userinfo[username]) approved");
+      return true;
+    }
+    else {
+      warn("wasn't able to grant access to id $id.");
+      return false;
+    }
+}
+
+function user_remove($id) {
+    $userinfo = fetch_user($id);
+    $res = db_query("DELETE FROM users WHERE userid=$id");
+    if ($res && mysql_affected_rows()) {
+      $cc = find_group_address_from_notes_for($id);
+
+      $message = $userinfo['cvsaccess'] ? mt_remove_user($userinfo) : mt_deny_user($userinfo);
+
+      /* Notify the user */
+      mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
+
+      $to = MT_USER_REMOVE_MAIL . ($cc ? ",$cc" : "");
+      $subject = "Re: VCS Account Request: $userinfo[username]";
+      $message = $userinfo['cvsaccess']
+          ? "VCS Account Deleted: $userinfo[username] deleted by {$_SESSION["username"]} /o\\"
+          : "VCS Account Rejected: $userinfo[username] rejected by {$_SESSION["username"]} /o\\";
+
+      /* Notify public records */
+      mail($to, $subject, $message,"From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
+      db_query("DELETE FROM users_note WHERE userid=$id");
+      db_query("DELETE FROM users_profile WHERE userid=$id");
+      warn("record $id ($userinfo[username]) removed");
+      return true;
+    }
+    else {
+      warn("wasn't able to delete id $id.");
+      return false;
+    }
+}
+

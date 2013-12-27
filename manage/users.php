@@ -6,29 +6,7 @@
 
 require '../include/login.inc';
 require '../include/email-validation.inc';
-
-function find_group_address_from_notes_for($id) {
-    $res = db_query("SELECT note FROM users_note WHERE userid=$id LIMIT 1");
-    $row = mysql_fetch_assoc($res);
-    $cc = "";
-    if (preg_match("/\[group: (\w+)\]/", $row["note"], $matches)) {
-      switch($matches[1]) {
-      case "php":
-        $cc = "internals@lists.php.net";
-        break;
-      case "pear":
-        $cc = "pear-group@lists.php.net";
-        break;
-      case "pecl":
-        $cc = "pecl-dev@lists.php.net";
-        break;
-      case "doc":
-        $cc = "phpdoc@lists.php.net";
-        break;
-      }
-    }
-    return $cc;
-}
+require '../include/email-templates.inc';
 
 define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
 $valid_vars = array('search','username','id','in','unapproved','begin','max','order','full', 'action');
@@ -36,8 +14,6 @@ foreach($valid_vars as $k) {
     $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
 if($id) $id = (int)$id;
-
-$mailto = "group@php.net";
 
 head("user administration");
 
@@ -59,84 +35,16 @@ if ($id && $action) {
     warn("you're not allowed to take actions on users.");
     exit;
   }
+
   switch ($action) {
   case 'approve':
-    if (db_query("UPDATE users SET cvsaccess=1, enable=1 WHERE userid=$id")
-     && mysql_affected_rows()) {
-      $cc = find_group_address_from_notes_for($id);
-      $userinfo = fetch_user($id);
-      $mailtext = $cc ? $cc : $mailto;
-      $message =
-"Your VCS account ($userinfo[username]) was created.
-
-You should be able to log into the VCS server within the hour, and
-your $userinfo[username]@php.net forward to $userinfo[email] should
-be active within the next 24 hours.
-
-If you ever forget your password, you can reset it at:
-    https://master.php.net/forgot.php
-
-To change your password, or other information about you please login on:
-    https://master.php.net/manage/users.php?username=$userinfo[username]
-
-Welcome to the PHP development team! If you encounter any problems
-with your VCS account, feel free to send us a note at $mailtext.
-";
-      mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
-
-      mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]","VCS Account Approved: $userinfo[username] approved by {$_SESSION["username"]} \o/","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
-      warn("record $id ($userinfo[username]) approved");
-    }
-    else {
-      warn("wasn't able to grant access to id $id.");
-    }
+    user_approve((int)$id);
     break;
+
   case 'remove':
-    $userinfo = fetch_user($id);
-    if (db_query("DELETE FROM users WHERE userid=$id")
-     && mysql_affected_rows()) {
-      $cc = find_group_address_from_notes_for($id);
-      $message = $userinfo['cvsaccess'] ? 
-"Your VCS account ($userinfo[username]) was deleted.
-
-Feel free to send us a note at group@php.net to find out why this
-was done."
-:
-"Your VCS account request ($userinfo[username]) was denied.
-
-The most likely reason is that you did not read the reasons for
-which VCS accounts are granted, and your request failed to meet
-the list of acceptable criteria.
-
-We urge you to make another appeal for a VCS account, but first
-it helps to write the appropriate list and:
-
- * Introduce yourself
- * Explain what you want to work on
- * And show what work you've already done (patches)
-
-Choose a list that relates to your request:
-
- * Internals:     internals@lists.php.net 
- * Documentation: phpdoc@lists.php.net 
- * PECL:          pecl-dev@lists.php.net 
- * PEAR:          pear-group@lists.php.net 
- * Other:         group@php.net 
-
-PHP accounts are granted to developers who have earned the trust
-of existing PHP developers through patches, and have demonstrated
-the ability to work with others.
-";
-      mail($userinfo['email'],"VCS Account Request: $userinfo[username]",$message,"From: PHP Group <group@php.net>", "-fnoreply@php.net");
-      mail($mailto . ($cc ? ",$cc" : ""),"Re: VCS Account Request: $userinfo[username]",$userinfo['cvsaccess'] ? "VCS Account Deleted: $userinfo[username] deleted by {$_SESSION["username"]} /o\\" : "VCS Account Rejected: $userinfo[username] rejected by {$_SESSION["username"]} /o\\","From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
-      db_query("DELETE FROM users_note WHERE userid=$id");
-      db_query("DELETE FROM users_profile WHERE userid=$id");
-      warn("record $id ($userinfo[username]) removed");
-    }
-    else {
-      warn("wasn't able to delete id $id.");
-    }
+    user_remove((int)$id);
     break;
+
   default:
     warn("that action ('$action') is not understood.");
   }
