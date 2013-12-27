@@ -24,9 +24,9 @@ function head($title="") {
         array("href" => "/manage/mirrors.php",      "text" => "Mirrors"),
         array("href" => "/manage/users.php",        "text" => "Users"),
         array("href" => "/manage/user-notes.php",   "text" => "Notes"),
-        array("href" => "/manage/github.php",       "text" => "Github Repos"),
+        array("href" => "/manage/github.php",       "text" => "Github"),
     );
-    $CSS = array();
+    $CSS = array("/shared/styles/master.css");
     $SEARCH = array();
 
     if (strstr($_SERVER["SCRIPT_FILENAME"], "users.php")) {
@@ -37,11 +37,11 @@ function head($title="") {
         $SEARCH = array("method" => "get", "action" => "/manage/event.php", "placeholder" => "Search Events", "name" => "search");
     }
     if (isset($_SESSION['credentials'])) {
-        array_unshift($LINKS, array("href" => "/manage/users.php?username=" . $_SESSION["credentials"][0], "text" => "My PHP.net Profile"));
+        array_unshift($LINKS, array("href" => "/manage/users.php?username=" . $_SESSION["credentials"][0], "text" => "My Profile"));
         $LINKS[] = array("href" => "/login.php?action=logout", "text" => "Logout");
     }
     include __DIR__ . "/../shared/templates/header.inc";
-    echo '<section class="mainscreen">';
+    echo '<section class="fullscreen">';
 }
 
 function foot() {
