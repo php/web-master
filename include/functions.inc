@@ -152,11 +152,13 @@ function array_to_url($array,$overlay=0) {
   return substr($out,5); # skip first &amp;
 }
 
-function show_prev_next($begin, $rows, $skip, $total, $extra = array())
+function show_prev_next($begin, $rows, $skip, $total, $extra = array(), $table = true)
 {?>
+<?php if ($table): ?>
 <table border="0" cellspacing="1" width="100%">
+<?php endif ?>
  <tr bgcolor="#eeeeee">
-  <td align="left" width="33%">
+  <td align="left">
    <?php 
      if ($begin > 0) {
        printf("<a href=\"%s?%s\">&laquo; Previous %d",
@@ -167,10 +169,14 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = array())
    ?>
    &nbsp;
   </td>
-  <td align="center" width="33%">
+<?php if($table): ?>
+  <td align="center">
+<?php else: ?>
+  <td align="center" colspan="2">
+<?php endif; ?>
    <?php echo "Displaying ",$begin+1,"-",$begin+$rows," of $total";?>
   </td>
-  <td align="right" width="33%">
+  <td align="right">
    &nbsp;
    <?php 
      if ($begin+$rows < $total) {
@@ -182,7 +188,9 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = array())
    ?>
   </td>
  </tr>
+<?php if ($table): ?>
 </table>
+<?php endif ?>
 <?php
 }
 

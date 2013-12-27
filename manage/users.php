@@ -430,9 +430,12 @@ $extra = array(
   "searchnotes" => (int)$searchnotes,
 );
 
-show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
 ?>
-<table border="0" cellspacing="1" width="100%">
+<table>
+<thead>
+<?php show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra, false); ?>
+</thead>
+<tbody>
 <tr bgcolor="#aaaaaa">
  <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("full" => $full ? 0 : 1));?>"><?php echo $full ? "&otimes;" : "&oplus;";?></a></th>
  <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"name"));?>">name</a></th>
@@ -459,8 +462,11 @@ while ($row = mysql_fetch_array($res)) {
   $color = substr($color,2,2) == 'dd' ? '#eeeeee' : '#dddddd';
 }
 ?>
+</tbody>
+<tfooter>
+<?php show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra, false); ?>
+</tfooter>
 </table>
-<?php show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra); ?>
 <p><a href="<?php echo PHP_SELF;?>?id=0">add a new user</a></p>
 <?php
 foot();
