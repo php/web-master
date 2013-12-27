@@ -16,7 +16,10 @@ function require_token()
 
 // -----------------------------------------------------------------------------------
 
-function head($title="") {
+function head($title="", $config = array()) {
+    $dconfig = array("columns" => 1);
+
+    $config = array_merge($dconfig, $config);
     $SUBDOMAIN = "master";
     $TITLE = $title ?: "master";
     $LINKS = array(
@@ -41,10 +44,16 @@ function head($title="") {
         $LINKS[] = array("href" => "/login.php?action=logout", "text" => "Logout");
     }
     include __DIR__ . "/../shared/templates/header.inc";
-    echo '<section class="fullscreen">';
+    if ($config["columns"] > 1) {
+        echo '<section class="mainscreen">';
+    } else {
+        echo '<section class="fullscreen">';
+    }
 }
 
-function foot() {
+function foot($secondscreen) {
+    $SECONDSCREEN = $secondscreen;
+
     $JS = array(
         "//ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",
     );
