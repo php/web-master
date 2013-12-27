@@ -364,7 +364,6 @@ while ($row = mysql_fetch_array($res)) {
 <?php show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra, false); ?>
 </tfooter>
 </table>
-<p><a href="<?php echo PHP_SELF;?>?id=0">add a new user</a></p>
 <?php
 foot();
 
