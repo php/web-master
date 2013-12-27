@@ -161,9 +161,6 @@ elseif (isset($id)) {
  <input type="hidden" name="id" value="<?php echo isset($row['id']) ? $row['id'] : ''; ?>" />
  <input type="hidden" name="mode" value="<?php echo empty($id) ? 'insert' : 'update'; ?>" />
 
- <table>
-  <tr>
-   <td style="vertical-align:top;">
     <table>
      <tr>
       <th align="right">Hostname (without http://):</th>
@@ -223,8 +220,7 @@ elseif (isset($id)) {
       <td colspan="2" align="center"><input type="submit" value="<?php echo empty($id) ? "Add" : "Change"; ?>" />
      </tr>
     </table>
-   </td>
-   <td style="vertical-align:top;overflow:auto;">
+
     <input type="hidden" name="acmt_prev" value="<?php echo empty($row['acmt']) ? '' : hscr($row['acmt']); ?>"/>
     <b>Administration Comment History:</b><br/>
     <?php
@@ -237,10 +233,6 @@ elseif (isset($id)) {
         echo 'N/A';
       }
     ?>
-   </td>
-  </tr>
- </table>
- <hr />
 <?php
 
 if (intval($id) !== 0) {
@@ -287,7 +279,7 @@ if (intval($id) !== 0) {
   </tr>
   <tr>
    <th align="right">Available extensions:</th>
-   <td><div style="height:48px;width:400px;overflow:auto;"><?php echo str_replace(',',' ',get_extension_info($row['hostname'])); ?></div></td>
+   <td><?php echo str_replace(',',' ',get_extension_info($row['hostname'])); ?></td>
   </tr>
   <tr>
    <th align="right">Local Stats:</th>
@@ -352,8 +344,8 @@ function page_mirror_list($moreinfo = false)
     );
 
     // Start table
-    $summary = '<div>
-    <table border="0" cellspacing="0" cellpadding="3" id="mirrors">';
+    $summary = '
+    <table id="mirrors">';
 
     // Previous country code
     $prevcc = "n/a";
@@ -370,12 +362,9 @@ function page_mirror_list($moreinfo = false)
         @$stats['phpversion'][$row['phpversion']]++;
         @$stats['phpversion_counts'][$row['phpversion'][0]]++;
 
-        // Print separator row
-        $summary .= '<tr><td colspan="9"></td></tr>' . "\n";
-
         // Print out a country header, if a new country is found
         if ($prevcc != $row['cc']) {
-            $summary .= '<tr><th colspan="9" class="rounded">' . $row['countryname'] . "</th></tr>\n";
+            $summary .= '<tr><th colspan="8">' . $row['countryname'] . "</th></tr>\n";
         }
         $prevcc = $row['cc'];
 
@@ -385,11 +374,8 @@ function page_mirror_list($moreinfo = false)
         // Active mirror site
         if ($row['active']) {
         
-            // Special active mirror site (green)
-            if ($row['mirrortype'] != 1) { $siteimage = "special"; }
-        
             // Not special, but active
-            else {
+            if ($row['mirrortype'] == 1) {
                 // Not up to date or not current
                 if (!$row['up'] || !$row['current']) {
                     if(empty($stats['autodisabled'])) $stats['autodisabled'] = 1;
@@ -403,17 +389,12 @@ function page_mirror_list($moreinfo = false)
                                      get_print_date($row['ulastupdated']) . ")";
                     }
                 }
-                // Up to date and current
-                else {
-                    $siteimage = "ok";
-                }
             }
         }
         // Not active mirror site (maybe deactivated by the
         // mirror check bot, because of a /manual alias,
         // or deactivated by some admin)
         else {
-            $siteimage = "deactivated";
             if (!empty($row['ocmt']))     { $errorinfo = $row['ocmt']; }
             elseif (!empty($row['acmt'])) { $errorinfo = $row['acmt']; }
             $stats['disabled']++;
@@ -466,27 +447,25 @@ function page_mirror_list($moreinfo = false)
         }
 
         // Mirror status information
-        $summary .= "<tr class=\"mirrorstatus\">\n" .
-                    "<td bgcolor=\"#ffffff\" align=\"right\" class=\"rounded\">\n" .
-                    "<img src=\"/images/mirror_{$siteimage}.png\" /></td>\n";
+        $summary .= "<tr>\n";
 
         // Print out mirror site link
-        $summary .= '<td class="rounded"><a href="http://' . $row['hostname'] . '/" target="_blank">' .
+        $summary .= '<td><a href="http://' . $row['hostname'] . '/" target="_blank">' .
                     $row['hostname'] . '</a>'.PHP_EOL .
-		    ' <a href="http://'.$row['hostname'].'/mirror-info" target="_blank"><img src="/images/mirror_info.png"/></a><br /></td>' . "\n";
+		    ' <a href="http://'.$row['hostname'].'/mirror-info" target="_blank"></a><br /></td>' . "\n";
 
         // Print out mirror provider information
-        $summary .= '<td class="rounded"><a href="' . $row['providerurl'] . '">' .
+        $summary .= '<td><a href="' . $row['providerurl'] . '">' .
                     $row['providername'] . '</a><br /></td>' . "\n";
 
         // Print out maintainer email cell
-        $summary .= '<td align="right" class="rounded">' . $emailcell . '</td>' . "\n";
+        $summary .= '<td>' . $emailcell . '</td>' . "\n";
 
         // Print out mirror search table cell
-        $summary .= '<td align="center" class="rounded">' . $searchcell . '</td>' . "\n";
+        $summary .= '<td>' . $searchcell . '</td>' . "\n";
 
         // Print out version information for this mirror
-        $summary .= '<td align="center" class="rounded">' . $row['phpversion']. '</td>' . "\n";
+        $summary .= '<td>' . $row['phpversion']. '</td>' . "\n";
 
 	// Increment the appropriate version for our statistical overview
 	if (preg_match('/^5\.3/',$row['phpversion'])) {
@@ -499,15 +478,15 @@ function page_mirror_list($moreinfo = false)
                 $php_versions['other']++;
         }
 
-	$summary .= '<td align="right" class="rounded">';
+	$summary .= '<td>';
 	$summary .= preg_match('/\w{2}/',$row['load_balanced']) ? '<img src="/images/Robin.ico" height="16" width="16"/>' : '';
 	$summary .= '</td>'.PHP_EOL;
 
         // Print out mirror stats table cell
-        $summary .= '<td align="right" class="rounded">' . $statscell . '</td>' . "\n";
+        $summary .= '<td>' . $statscell . '</td>' . "\n";
 
         // Print out mirror edit link
-        $summary .= '<td align="right" class="rounded"><a href="mirrors.php?id=' . $row['id'] .
+        $summary .= '<td><a href="mirrors.php?id=' . $row['id'] .
                     '"><img src="/images/mirror_edit.png"></a></td>' . "\n";
 
         // End of row
@@ -515,8 +494,8 @@ function page_mirror_list($moreinfo = false)
 
         // If any info on the error of this mirror is available, print it out
         if ($errorinfo) {
-            $summary .= "<tr class=\"mirrorerror\"><td bgcolor=\"#ffffff\"></td>" .
-                        "<td colspan=\"7\" class=\"rounded\"><img src=\"/images/mirror_notice.png\" /> <small>";
+            $summary .= "<tr>" .
+                        "<td colspan=8><img src=\"/images/mirror_notice.png\" /> <small>";
                        if (($errorblock = preg_split('/==\r?\n/',$errorinfo)) != 0) {
                                $summary .= nl2br($errorblock[(count($errorblock)-1)]);
                        } else {
@@ -526,15 +505,15 @@ function page_mirror_list($moreinfo = false)
         }
         // If additional details are desired
         if ($moreinfo) {
-            $summary .= '<tr class=\"mirrordetails\"><td bgcolor="#ffffff">&nbsp;</td>' .
-                        '<td colspan="7">' . 
+            $summary .= '<tr>' .
+                        '<td>' . 
                             ' Last update: ' . date(DATE_RSS, $row['ulastupdated']) . 
                             ' SQLites: '     . implode(' : ', decipher_available_sqlites($row['has_search'])) .
                         '</td></tr>';
         }
     }
 
-    $summary .= '</table></div>';
+    $summary .= '</table>';
 
     // Sort by versions in use, descendingly, and produce the HTML string.
     uksort($stats['phpversion'],'strnatcmp');
@@ -544,9 +523,9 @@ function page_mirror_list($moreinfo = false)
     $vnow = 0;
     foreach($stats['phpversion'] as $version => $amount) {
         if (empty($version)) { $version = "n/a"; }
-        $versions .= '<span style="font-weight:bold;">'.$version.'</span> ('.$amount.')<br/>'.PHP_EOL;
+        $versions .= '<strong>'.$version.'</strong> ('.$amount.')<br/>'.PHP_EOL;
         if (round(($vcount / 2)) == ++$vnow) {
-            $versions .= '</div>'.PHP_EOL.'<div style="float:right;margin-right:35%;">';//width:120px;">';
+            $versions .= '</div>'.PHP_EOL.'<div>';
         }
     }
     //$versions = substr($versions, 0, -2);
@@ -581,8 +560,7 @@ function page_mirror_list($moreinfo = false)
 
 echo <<<EOS
 
-<div id="resources" class="semirounded">
- <table class="semirounded">
+ <table>
   <tr>
    <td><img src="/images/mirror_ok.png" /></td>
    <td>Fine:</td>
@@ -644,9 +622,8 @@ echo <<<EOS
  {$last_check_time}
  <h1>Current time</h1>
  {$current_time} 
-</div>
 
-<div style="left:5%;position:relative;width:75%;">
+<div>
 
 <p>
  Note that the DNS table for mirror sites is updated directly from this list, without
@@ -666,18 +643,14 @@ echo <<<EOS
  <strong>NOTE</strong>: Manual deactivation of a mirror will now also disable its DNS.
 </p>
 
-<div id="phpversions_off" style="display:block;text-align:center;width:100%;">
- <!--<a href="#" onclick="javascript:pop('phpversions');">PHP Version Summary</a>-->
+<div id="phpversions_off">
  <a href="#" onclick="$('#phpversions').toggle('slow');">PHP Version Summary</a>
- <div id="phpversions" style="display:none;text-align:center;width:100%;">
-  <div style="float:left;margin-left:35%;">
+ <div id="phpversions">
   {$versions}
-  </div>
- <div style="clear:left;height:1px;"></div>
  </div>
 </div>
 
-<p align="center"><a href="/manage/mirrors.php?id=0">Add a new mirror</a></p>
+<p><a href="/manage/mirrors.php?id=0">Add a new mirror</a></p>
 
 $summary
 
