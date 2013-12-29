@@ -9,7 +9,7 @@ require '../include/email-validation.inc';
 require '../include/email-templates.inc';
 
 define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
-$valid_vars = array('username','id','in','unapproved','order','action');
+$valid_vars = array('username','id','in','unapproved','action');
 foreach($valid_vars as $k) {
     $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
@@ -275,6 +275,7 @@ $begin      = filter_input(INPUT_GET, "begin", FILTER_VALIDATE_INT) ?: 0;
 $max        = filter_input(INPUT_GET, "max", FILTER_VALIDATE_INT) ?: 20;
 $forward    = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
 $search     = filter_input(INPUT_GET, "search", FILTER_CALLBACK, array("options" => "mysql_real_escape_string")) ?: "";
+$order      = filter_input(INPUT_GET, "order", FILTER_CALLBACK, array("options" => "mysql_real_escape_string")) ?: "";
 
 $query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email FROM users ";
 if  ($search) {
@@ -314,19 +315,17 @@ $extra = array(
 );
 
 ?>
-<?php if ($search || $unapproved): ?>
-  <a href="?unapproved=0">see all users</a>
-<?php else: ?>
-  <a href="?unapproved=1">see outstanding requests</a>
-<?php endif ?>
-
+<h1 class="browse">Browse users<ul>
+  <li><a href="?unapproved=0">See all users</a></li>
+  <li><a href="?unapproved=1">See outstanding requests</a></li>
+  </ul></h1>
 <table id="users">
 <thead>
 <?php show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra, false); ?>
 </thead>
 <tbody>
 <tr>
-  <th><a href="?<?php echo array_to_url($extra,array());?>">&otimes;</a></th>
+  <th><a href="?<?php echo array_to_url($extra,array("unapproved"=>!$unapproved));?>"><?php echo $unapproved ? "&otimes" : "&oplus"; ?>;</a></th>
   <th><a href="?<?php echo array_to_url($extra,array("order"=>"name"));?>">name</a></th>
   <th><a href="?<?php echo array_to_url($extra,array("order"=>"email"));?>">email</a></th>
   <th><a href="?<?php echo array_to_url($extra,array("order"=>"username"));?>">username</a></th>
