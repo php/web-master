@@ -337,7 +337,7 @@ while ($row = mysql_fetch_array($res)) {
     <td><a href="?id=<?php echo $row["userid"];?>">edit</a></td>
     <td><?php echo $row['name'];?></td>
     <td><?php echo $row['email'];?></td>
-    <td><?php echo hscr($row['username']) ?></td>
+    <td><a href="https://people.php.net/?username=<?php echo hscr($row['username'])?>"><?php echo hscr($row['username']) ?></a></td>
   </tr>
 <?php
 }
