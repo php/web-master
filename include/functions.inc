@@ -174,8 +174,8 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = array(), $table =
 <?php if ($table): ?>
 <table border="0" cellspacing="1" width="100%">
 <?php endif ?>
- <tr bgcolor="#eeeeee">
-  <td align="left">
+ <tr>
+  <td>
    <?php 
      if ($begin > 0) {
        printf("<a href=\"%s?%s\">&laquo; Previous %d",
@@ -187,13 +187,13 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = array(), $table =
    &nbsp;
   </td>
 <?php if($table): ?>
-  <td align="center">
+  <td>
 <?php else: ?>
-  <td align="center" colspan="2">
+  <td colspan="2">
 <?php endif; ?>
    <?php echo "Displaying ",$begin+1,"-",$begin+$rows," of $total";?>
   </td>
-  <td align="right">
+  <td>
    &nbsp;
    <?php 
      if ($begin+$rows < $total) {
