@@ -9,7 +9,7 @@ require '../include/email-validation.inc';
 require '../include/email-templates.inc';
 
 define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
-$valid_vars = array('search','username','id','in','unapproved','begin','max','order','full', 'action');
+$valid_vars = array('username','id','in','unapproved','order','action');
 foreach($valid_vars as $k) {
     $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
@@ -268,42 +268,23 @@ table.useredit tr {
   exit;
 }
 ?>
-<div>
-<div>
-  <a href="<?php echo PHP_SELF . "?unapproved=1";?>">see outstanding requests</a>
-</div>
-</div>
 <?php
 
-$begin = $begin ? (int)$begin : 0;
-$full = $full ? 1 : (!$full && ($search || $unapproved) ? 1 : 0);
-$max = $max ? (int)$max : 20;
-$searchnotes = !empty($_GET['searchnotes']); /* FIXME: There is no such option in the search box.. */
+$unapproved = filter_input(INPUT_GET, "unapproved", FILTER_VALIDATE_INT) ?: 0;
+$begin      = filter_input(INPUT_GET, "begin", FILTER_VALIDATE_INT) ?: 0;
+$max        = filter_input(INPUT_GET, "max", FILTER_VALIDATE_INT) ?: 20;
+$search     = filter_input(INPUT_GET, "search", FILTER_CALLBACK, array("options" => "mysql_real_escape_string")) ?: "";
 
 $query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email FROM users ";
 if  ($search) {
     $query .= "WHERE (MATCH(name,email,username) AGAINST ('$search') OR username = '$search') ";
 
-    if ($searchnotes) {
-        $in = '';
-        $notes_query = "SELECT userid FROM users_note WHERE MATCH(note) AGAINST ('$search')";
-        $res = db_query($notes_query);
-        while ($row = mysql_fetch_array($res)) {
-            if ($in) {
-                $in .= ', ';
-            }
-            $in .= $row[0];
-        }
-        if ($in) {
-            $query .= " OR userid IN ($in) ";
-        }
-    }
 } else {
     $query .= ' WHERE 1=1 ';
 }
 
 if ($unapproved) {
-    $query .= ' AND (username IS NOT NULL AND NOT cvsaccess) ';
+    $query .= ' AND NOT cvsaccess ';
 }
 
 if ($order) {
@@ -318,51 +299,47 @@ $total = mysql_result($res2,0);
 
 
 $extra = array(
-  "search" => stripslashes($search),
-  "order" => $order,
-  "begin" => $begin,
-  "max" => $max,
-  "full" => $full,
+  "search"     => $search,
+  "order"      => $order,
+  "begin"      => $begin,
+  "max"        => $max,
   "unapproved" => $unapproved,
-  "searchnotes" => (int)$searchnotes,
 );
 
 ?>
-<table>
+<?php if ($search || $unapproved): ?>
+  <a href="?unapproved=0">see all users</a>
+<?php else: ?>
+  <a href="?unapproved=1">see outstanding requests</a>
+<?php endif ?>
+
+<table id="users">
 <thead>
 <?php show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra, false); ?>
 </thead>
 <tbody>
-<tr bgcolor="#aaaaaa">
- <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("full" => $full ? 0 : 1));?>"><?php echo $full ? "&otimes;" : "&oplus;";?></a></th>
- <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"name"));?>">name</a></th>
- <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"email"));?>">email</a></th>
- <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"username"));?>">username</a></th>
+<tr>
+  <th><a href="?<?php echo array_to_url($extra,array());?>">&otimes;</a></th>
+  <th><a href="?<?php echo array_to_url($extra,array("order"=>"name"));?>">name</a></th>
+  <th><a href="?<?php echo array_to_url($extra,array("order"=>"email"));?>">email</a></th>
+  <th><a href="?<?php echo array_to_url($extra,array("order"=>"username"));?>">username</a></th>
 </tr>
 <?php
-$color = '#dddddd';
 while ($row = mysql_fetch_array($res)) {
 ?>
-<tr bgcolor="<?php echo $color;?>">
- <td align="center"><a href="<?php echo PHP_SELF . "?id=$row[userid]";?>">edit</a></td>
- <td><?php echo $row['name'];?></td>
- <td><?php echo $row['email'];?></td>
- <td<?php if ($row['username'] && !$row['cvsaccess']) echo ' bgcolor="#ff',substr($color,2),'"';?>><?php echo hscr($row['username']);?><?php if ($row['username'] && is_admin($user)) { if (!$row['cvsaccess']) echo ' <a href="'. PHP_SELF . "?action=approve&amp;id=$row[userid]\" title=\"approve\">+</a>"; echo ' <a href="'.PHP_SELF."?action=remove&amp;id=$row[userid]\" title=\"remove\">&times;</a>"; }?></td>
-</tr>
+  <tr class="<?php if (!$row["cvsaccess"]) { echo "noaccess"; }?>">
+    <td><a href="?id=<?php echo $row["userid"];?>">edit</a></td>
+    <td><?php echo $row['name'];?></td>
+    <td><?php echo $row['email'];?></td>
+    <td><?php echo hscr($row['username']) ?></td>
+  </tr>
 <?php
-  if ($full && !empty($row['note'])) {?>
-<tr bgcolor="<?php echo $color;?>">
- <td></td><td colspan="3"><?php echo hsc($row['note']);?></td>
-</tr>
-<?php
-  }
-  $color = substr($color,2,2) == 'dd' ? '#eeeeee' : '#dddddd';
 }
 ?>
 </tbody>
-<tfooter>
+<tfoot>
 <?php show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra, false); ?>
-</tfooter>
+</tfoot>
 </table>
 <?php
 foot();
