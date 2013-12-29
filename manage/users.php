@@ -273,6 +273,7 @@ table.useredit tr {
 $unapproved = filter_input(INPUT_GET, "unapproved", FILTER_VALIDATE_INT) ?: 0;
 $begin      = filter_input(INPUT_GET, "begin", FILTER_VALIDATE_INT) ?: 0;
 $max        = filter_input(INPUT_GET, "max", FILTER_VALIDATE_INT) ?: 20;
+$forward    = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
 $search     = filter_input(INPUT_GET, "search", FILTER_CALLBACK, array("options" => "mysql_real_escape_string")) ?: "";
 
 $query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email FROM users ";
@@ -288,7 +289,12 @@ if ($unapproved) {
 }
 
 if ($order) {
-    $query .= " ORDER BY $order ";
+  if ($forward) {
+    $ext = "ASC";
+  } else {
+    $ext = "DESC";
+  }
+  $query .= " ORDER BY $order $ext";
 }
 $query .= " LIMIT $begin,$max ";
 $res = db_query($query);
@@ -301,6 +307,7 @@ $total = mysql_result($res2,0);
 $extra = array(
   "search"     => $search,
   "order"      => $order,
+  "forward"    => $forward,
   "begin"      => $begin,
   "max"        => $max,
   "unapproved" => $unapproved,

@@ -153,12 +153,20 @@ function db_get_one($query)
 // -----------------------------------------------------------------------------------
 
 function array_to_url($array,$overlay=array()) {
-  if ($overlay) $array = array_merge($array,$overlay);
-  $out = "";
-  while (list($k,$v) = each($array)) {
-    $out .= "&amp;" . rawurlencode($k) . "=" . rawurlencode($v);
-  }
-  return substr($out,5); # skip first &amp;
+    $params = array();
+    foreach($array as $k => $v) {
+        $params[$k] = rawurlencode($k) . "=" . rawurlencode($v);
+    }
+    foreach($overlay as $k => $v) {
+        if ($array[$k] == $v) {
+            $params["forward"] = $array["forward"] ? "forward=0" : "forward=1";
+            continue;
+        }
+        $params["forward"] = "forward=0";
+        $params[$k] = rawurlencode($k) . "=" . rawurlencode($v);
+    }
+
+    return join($params, "&amp;");
 }
 
 function show_prev_next($begin, $rows, $skip, $total, $extra = array(), $table = true)
