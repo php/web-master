@@ -71,7 +71,7 @@ function fetch_into_file($url, $file)
             return;
         }
     } else {
-        $source = popen("curl -s $url", 'r');
+        $source = popen("curl -s '$url'", 'r');
     }
 
     // Open temporary file for writing
