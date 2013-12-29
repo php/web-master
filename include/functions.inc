@@ -152,7 +152,7 @@ function db_get_one($query)
 
 // -----------------------------------------------------------------------------------
 
-function array_to_url($array,$overlay=0) {
+function array_to_url($array,$overlay=array()) {
   if ($overlay) $array = array_merge($array,$overlay);
   $out = "";
   while (list($k,$v) = each($array)) {
