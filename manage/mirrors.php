@@ -48,7 +48,7 @@ if (isset($_REQUEST['id'])) $id = (int)$_REQUEST['id'];
 if (isset($id) && isset($hostname)) {
 
     // Allow everyone to disable a mirror, but only elite few to make other changes
-    if (is_mirror_site_admin($_SESSION["user"]) || ($mode == "update" && !$active)) {
+    if (is_mirror_site_admin($_SESSION["username"]) || ($mode == "update" && !$active)) {
         // No query need to be made
         $query = FALSE;
         
