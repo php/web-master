@@ -243,7 +243,7 @@ if ($id) {
  <td><textarea name="in[purpose]" placeholder="Administrative notes"></textarea></td>
 </tr>
 <tr>
- <td colspan="2"><input type="submit" value="<?php echo $id ? "Update" : "Add";?>" />
+ <td colspan="2"><input type="submit" value="Update" />
 </tr>
 </tfoot>
 </table>
