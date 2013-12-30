@@ -195,8 +195,8 @@ if (!$action) {
     
     if ($result = db_query($sql)) {
       /* This is a special table only used for viewing the most recent votes */
-      if (!empty($search_votes)) {
         $t = (isset($_GET['type']) ? '&type=' . $_GET['type'] : null);
+      if (!empty($search_votes)) {
         $from = $limitVotes + 1;
         $to = $NextPage * 25;
         $to = $to > $resultCount ? $resultCount : $to;
@@ -452,7 +452,7 @@ if (isset($_GET['action']) && ($_GET['action'] == 'resetall' || $_GET['action'] 
 
 switch($action) {
 case 'mass':
-  if (!allow_mass_change($user)) { die("You are not allowed to take this action!"); }
+  if (!allow_mass_change($cuser)) { die("You are not allowed to take this action!"); }
   head("user notes");
   $step = (isset($_REQUEST["step"]) ? $_REQUEST["step"] : 0);
   $where = array();
@@ -542,9 +542,9 @@ case 'approve':
       
       if ($row['id'] && db_query("UPDATE note SET status=NULL WHERE id=".real_clean($id))) {
         note_mail_on_action(
-            $user,
+            $cuser,
             $id,
-            "note {$row['id']} approved from {$row['sect']} by $user",
+            "note {$row['id']} approved from {$row['sect']} by $cuser",
             "This note has been approved and will appear in the manual.\n\n----\n\n{$row['note']}"
         );
       }
@@ -562,14 +562,14 @@ case 'delete':
         //$mailto .= get_emails_for_sect($row["sect"]);
         $action_taken = ($action == "reject" ? "rejected" : "deleted");
         note_mail_on_action(
-            $user,
+            $cuser,
             $id,
-            "note {$row['id']} $action_taken from {$row['sect']} by $user",
+            "note {$row['id']} $action_taken from {$row['sect']} by $cuser",
             "Note Submitter: " . safe_email($row['user']) . 
         (isset($reason) ? "\nReason: $reason" : " ") .
         "\n\n----\n\n{$row['note']}");
         if ($action == 'reject') {
-          note_mail_user($row['user'], "note $row[id] rejected and deleted from $row[sect] by notes editor $user",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
+          note_mail_user($row['user'], "note $row[id] rejected and deleted from $row[sect] by notes editor $cuser",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
         }
       }
       
@@ -604,13 +604,13 @@ case 'edit':
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
         note_mail_on_action(
-            $user,
+            $cuser,
             $id,
-            "note {$row['id']} modified in {$row['sect']} by $user",
+            "note {$row['id']} modified in {$row['sect']} by $cuser",
             strip($note)."\n\n--was--\n{$row['note']}\n\nhttp://php.net/manual/en/{$row['sect']}.php"
         );
         if (real_clean($row["sect"]) != $sect) {
-          note_mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $user", "----- Copy of your note below -----\n\n".strip($note));
+          note_mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $cuser", "----- Copy of your note below -----\n\n".strip($note));
         }
         header('Location: user-notes.php?id=' . $id . '&was=' . $action);
         exit;
@@ -655,7 +655,7 @@ case 'resetall':
 case 'resetup':
 case 'resetdown':
   /* Only those with privileges in allow_mass_change may use these options */
-  if (!allow_mass_change($user)) {
+  if (!allow_mass_change($cuser)) {
     die("You do not have access to use this feature!");
   }
   /* Reset votes for user note -- effectively deletes votes found for that note_id in the votes table:  up/down/both */
@@ -716,7 +716,7 @@ case 'resetdown':
   exit;
 case 'deletevotes':
   /* Only those with privileges in allow_mass_change may use these options */
-  if (!allow_mass_change($user)) {
+  if (!allow_mass_change($cuser)) {
     die("You do not have access to use this feature!");
   }
   /* Delete votes -- effectively deletes votes found in the votes table matching all supplied ids */
