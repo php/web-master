@@ -293,7 +293,7 @@ while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
 <?php
   if ($full && $row['ldesc']) {?>
 <tr>
- <td></td><td colspan="3"><?php echo html_entity_decode($row['ldesc'],ENT_QUOTES);?></td>
+ <td></td><td colspan="5"><?php echo html_entity_decode($row['ldesc'],ENT_QUOTES);?></td>
 </tr>
 <?php
   }
