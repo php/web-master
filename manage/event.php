@@ -114,7 +114,7 @@ if ($id) {
 ?>
 <form action="<?php echo PHP_SELF?>" method="post">
 <input type="hidden" name="id" value="<?php echo $id?>" />
-<table bgcolor="#eeeeee" border="0" cellspacing="0" cellpadding="3" width="100%">
+<table class="useredit">
  <tr>
   <th>Start Date</th>
   <td>
@@ -188,7 +188,7 @@ if ($id) {
  </tr>
 </table>
 </form>
-<table>
+<table class="useredit">
 <tr>
  <form method="get" action="<?php echo PHP_SELF;?>">
   <input type="hidden" name="action" value="reject" />
@@ -213,7 +213,7 @@ if ($id) {
   exit;
 }
 ?>
-<table width="100%">
+<table class="useredit">
  <tr>
   <td>
    <a href="<?php echo PHP_SELF?>">see upcoming events</a>
@@ -228,7 +228,16 @@ $full = $full ? 1 : (!$full && ($search || $unapproved) ? 1 : 0);
 $max = $max ? (int)$max : 20;
 
 $limit = "LIMIT $begin,$max";
-$orderby = $order ? "ORDER BY $order" : "";
+$orderby="";
+$forward    = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
+if ($order) {
+  if ($forward) {
+    $ext = "ASC";
+  } else {
+    $ext = "DESC";
+  }
+  $orderby = "ORDER BY $order $ext";
+}
 
 $searchby = $search ? " WHERE MATCH(sdesc,ldesc,email) AGAINST ('$search')" : "";
 if (!$searchby && $unapproved) {
@@ -256,12 +265,13 @@ $extra = array(
   "max" => $max,
   "full" => $full,
   "unapproved" => $unapproved,
+  "forward"    => $forward,
 );
 
 show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
 ?>
-<table border="0" cellspacing="1" width="100%">
-<tr bgcolor="#aaaaaa">
+<table class="useredit">
+<tr>
  <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("full" => $full ? 0 : 1));?>"><?php echo $full ? "&otimes;" : "&oplus;";?></a></th>
  <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"sdato"));?>">date</a></th>
  <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"sdesc"));?>">summary</a></th>
@@ -270,10 +280,9 @@ show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
  <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"category"));?>">category</a></th>
 </tr>
 <?php
-$color = '#dddddd';
 while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
 ?>
-<tr bgcolor="<?php echo $color;?>">
+<tr>
  <td align="center"><a href="<?php echo PHP_SELF . "?id=$row[id]";?>">edit</a></td>
  <td><?php echo html_entity_decode($row['sdato'],ENT_QUOTES);?></td>
  <td><?php echo html_entity_decode($row['sdesc'],ENT_QUOTES);?></td>
@@ -283,12 +292,11 @@ while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
 </tr>
 <?php
   if ($full && $row['ldesc']) {?>
-<tr bgcolor="<?php echo $color;?>">
+<tr>
  <td></td><td colspan="3"><?php echo html_entity_decode($row['ldesc'],ENT_QUOTES);?></td>
 </tr>
 <?php
   }
-  $color = substr($color,2,2) == 'dd' ? '#eeeeee' : '#dddddd';
 }
 ?>
 </table>
