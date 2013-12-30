@@ -67,10 +67,6 @@ if ($id && $action) {
 }
 
 if ($id && $in) {
-  if ($error = invalid_input($in)) {
-    warn($error);
-  }
-  else {
     $tipo = array_search($in['type'],$type);
     if ($in['sday'] && $in['smonth'] && $in['syear'])
       $sdato = "$in[syear]-$in[smonth]-$in[sday]";
@@ -94,7 +90,6 @@ if ($id && $in) {
 
     warn("record $id updated");
     unset($id);
-  }
 }
 
 if ($id && !$in) {
@@ -300,10 +295,6 @@ while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
 <?php
 show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
 foot();
-
-function invalid_input($in) {
-  return false;
-}
 
 function fetch_event($id) {
   $query = "SELECT * FROM phpcal WHERE id=$id";
