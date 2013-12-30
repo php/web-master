@@ -51,7 +51,7 @@ function head($title="", $config = array()) {
     }
 }
 
-function foot($secondscreen) {
+function foot($secondscreen = null) {
     $SECONDSCREEN = $secondscreen;
 
     $JS = array(
