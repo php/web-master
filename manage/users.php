@@ -8,6 +8,30 @@ require '../include/login.inc';
 require '../include/email-validation.inc';
 require '../include/email-templates.inc';
 
+function csrf_generate(&$mydata, $name) {
+  $mydata["CSRF"][$name] = $csrf = hash("sha512", mt_rand(0,mt_getrandmax()));
+  return "$name:$csrf";
+}
+function csrf_validate(&$mydata, $name) {
+  $val = filter_input(INPUT_POST, "csrf", FILTER_UNSAFE_RAW);
+  list($which, $hash) = explode(":", $val, 2);
+
+  if ($which != $name) {
+    warn("Failed CSRF Check");
+    foot();
+    exit;
+  }
+
+  if ($mydata["CSRF"][$name] != $hash) {
+    warn("Failed CSRF Check");
+    foot();
+    exit;
+  }
+
+  csrf_generate($mydata, $name);
+  return true;
+}
+
 $indesc = array(
   "id"               => FILTER_VALIDATE_INT,
   "rawpasswd"        => FILTER_UNSAFE_RAW,
@@ -55,8 +79,9 @@ if ($id) {
   }
 }
 
-$action = filter_input(INPUT_GET, "action", FILTER_CALLBACK, array("options" => "validateAction"));
+$action = filter_input(INPUT_POST, "action", FILTER_CALLBACK, array("options" => "validateAction"));
 if ($id && $action) {
+  csrf_validate($_SESSION, $action);
   if (!is_admin($_SESSION["username"])) {
     warn("you're not allowed to take actions on users.");
     exit;
@@ -77,6 +102,7 @@ if ($id && $action) {
 }
 
 if ($in) {
+  csrf_validate($_SESSION, "useredit");
   if (!can_modify($_SESSION["username"],$id)) {
     warn("you're not allowed to modify this user.");
   }
@@ -145,6 +171,7 @@ if ($in) {
 if ($id) {
 ?>
 <form method="post" action="users.php?id=<?php echo $userdata["userid"]?>">
+ <input type="hidden" name="csrf" value="<?php echo csrf_generate($_SESSION, "useredit") ?>" />
 <table class="useredit">
 <tbody>
 <tr>
@@ -254,16 +281,20 @@ if (is_admin($_SESSION["username"]) && !$userdata['cvsaccess']) {
 <table>
 <tr>
 <td>
- <form method="get" action="users.php">
+ <form method="post" action="users.php?id=<?php echo $id?>">
+  <input type="hidden" name="csrf" value="<?php echo csrf_generate($_SESSION, "remove") ?>" />
   <input type="hidden" name="action" value="remove" />
-  <input type="hidden" name="id" value="<?php echo $id?>" />
   <input type="submit" value="Reject" />
  </form>
 </td>
 <td>
- <form method="get" action="users.php">
+<?php
+  $hash = gen_svn_pass($_SESSION["credentials"][0], $_SESSION["credentials"][1]);
+  $csrf = "approve:$hash:";
+?>
+ <form method="post" action="users.php?id=<?php echo $id?>">
+  <input type="hidden" name="csrf" value="<?php echo csrf_generate($_SESSION, "approve") ?>" />
   <input type="hidden" name="action" value="approve" />
-  <input type="hidden" name="id" value="<?php echo $id?>" />
   <input type="submit" value="Approve" />
  </form>
 </td>
