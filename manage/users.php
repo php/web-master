@@ -8,28 +8,66 @@ require '../include/login.inc';
 require '../include/email-validation.inc';
 require '../include/email-templates.inc';
 
-define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
-$valid_vars = array('username','id','in','unapproved','action');
-foreach($valid_vars as $k) {
-    $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
-}
-if($id) $id = (int)$id;
+$indesc = array(
+  "id"               => FILTER_VALIDATE_INT,
+  "rawpasswd"        => FILTER_UNSAFE_RAW,
+  "rawpasswd2"       => FILTER_UNSAFE_RAW,
+  "svnpasswd"        => FILTER_SANITIZE_STRIPPED,
+  "cvsaccess"        => array("filter" => FILTER_CALLBACK, "options" => function($v) { if ($v == "on") { return true; } return false; }),
+  "enable"           => array("filter" => FILTER_CALLBACK, "options" => function($v) { if ($v == "on") { return true; } return false; }),
+  "spamprotect"      => array("filter" => FILTER_CALLBACK, "options" => function($v) { if ($v == "on") { return true; } return false; }),
+  "greylist"         => array("filter" => FILTER_CALLBACK, "options" => function($v) { if ($v == "on") { return true; } return false; }),
+  "verified"         => FILTER_VALIDATE_INT,
+  "use_sa"           => FILTER_VALIDATE_INT,
+  "email"            => FILTER_SANITIZE_EMAIL,
+  "name"             => FILTER_SANITIZE_SPECIAL_CHARS,
+  "sshkey"           => FILTER_SANITIZE_SPECIAL_CHARS,
+  "purpose"          => FILTER_SANITIZE_SPECIAL_CHARS,
+  "profile_markdown" => FILTER_UNSAFE_RAW,
+);
+
+$rawin    = filter_input_array(INPUT_POST) ?: array();
+$in       = isset($rawin["in"]) ? filter_var_array($rawin["in"], $indesc, false) : array();
+$id       = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT) ?: 0;
+$username = filter_input(INPUT_GET, "username", FILTER_SANITIZE_STRIPPED) ?: 0;
 
 head("user administration");
 
 db_connect();
 
 # ?username=whatever will look up 'whatever' by email or username
-if ($username && !$id) {
+if ($username) {
+  $tmp = filter_input(INPUT_GET, "username", FILTER_CALLBACK, array("options" => "mysql_real_escape_string")) ?: "";
   $query = "SELECT userid FROM users"
-         . " WHERE username='$username' OR email='$username'";
+         . " WHERE username='$tmp' OR email='$tmp'";
   $res = db_query($query);
-  if (!($id = @mysql_result($res,0))) {
-    warn("wasn't able to find user matching '".clean($username)."'");
+
+  if (!($id = @mysql_result($res, 0))) {
+    warn("wasn't able to find user matching '$username'");
+  }
+}
+if ($id) {
+  $query = "SELECT * FROM users WHERE users.userid=$id";
+  $res = db_query($query);
+  $userdata = mysql_fetch_array($res);
+  if (!$userdata) {
+    warn("Can't find user#$id");
   }
 }
 
+function validateAction($k) {
+  switch($k) {
+  case "approve":
+  case "remove":
+    return $k;
+  default:
+    warn("that action ('" . hsc($k) . "') is not understood.");
+  }
 
+  return false;
+}
+
+$action = filter_input(INPUT_GET, "action", FILTER_CALLBACK, array("options" => "validateAction"));
 if ($id && $action) {
   if (!is_admin($_SESSION["username"])) {
     warn("you're not allowed to take actions on users.");
@@ -50,7 +88,7 @@ if ($id && $action) {
   }
 }
 
-if ($id && $in) {
+if ($in) {
   if (!can_modify($_SESSION["username"],$id)) {
     warn("you're not allowed to modify this user.");
   }
@@ -64,23 +102,21 @@ if ($id && $in) {
         $in['svnpasswd'] = gen_svn_pass($userinfo["username"], $in['rawpasswd']);
       }
 
-      $cvsaccess = empty($in['cvsaccess']) ? 0 : 1;
-      $enable = empty($in['enable']) ? 0 : 1;
+      $cvsaccess   = empty($in['cvsaccess'])   ? 0 : 1;
+      $enable      = empty($in['enable'])      ? 0 : 1;
       $spamprotect = empty($in['spamprotect']) ? 0 : 1;
-      $verified = empty($in['verified']) ? 0 : 1;
-      $use_sa = empty($in['use_sa']) ? 0 : (int)$in['use_sa'];
-      $greylist = empty($in['greylist']) ? 0 : 1;
+      $use_sa      = empty($in['use_sa'])      ? 0 : (int)$in['use_sa'];
+      $greylist    = empty($in['greylist'])    ? 0 : 1;
 
       if ($id) {
         # update main table data
         if (!empty($in['email']) && !empty($in['name'])) {
           $query = "UPDATE users SET name='$in[name]',email='$in[email]'"
                  . (!empty($in['svnpasswd']) ? ",svnpasswd='$in[svnpasswd]'" : "")
-                 . (!empty($in['sshkey']) ? ",ssh_keys='".escape(html_entity_decode($in[sshkey],ENT_QUOTES))."'" : ",ssh_keys=''")
+                 . (!empty($in['sshkey']) ? ",ssh_keys='".escape(html_entity_decode($in['sshkey'],ENT_QUOTES))."'" : ",ssh_keys=''")
                  . ((is_admin($_SESSION["username"]) && !empty($in['username'])) ? ",username='$in[username]'" : "")
                  . (is_admin($_SESSION["username"]) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
-                 . ",verified=$verified"
                  . ",enable=$enable"
                  . ",use_sa=$use_sa"
                  . ",greylist=$greylist"
@@ -119,150 +155,140 @@ if ($id && $in) {
 }
 
 if ($id) {
-  $query = "SELECT * FROM users"
-         . " WHERE users.userid=$id";
-  $res = db_query($query);
-  $row = mysql_fetch_array($res);
-  if (!$row) $id = false;
-}
-
-if ($id) {
 ?>
-<style>
-table.useredit tr {
-   vertical-align: top;
-}
-</style>
+<form method="post" action="users.php?id=<?php echo $userdata["userid"]?>">
 <table class="useredit">
-<form method="post" action="<?php echo PHP_SELF;?>">
-<input type="hidden" name="id" value="<?php echo $row['userid'];?>" />
+<tbody>
 <tr>
- <th align="right">Name:</th>
- <td><input type="text" name="in[name]" value="<?php echo $row['name'];?>" size="40" maxlength="255" /></td>
+ <th>Name:</th>
+ <td><input type="text" name="in[name]" value="<?php echo $userdata['name'];?>" size="40" maxlength="255" /></td>
 </tr>
 <tr>
- <th align="right">Email:</th>
- <td><input type="text" name="in[email]" value="<?php echo $row['email'];?>" size="40" maxlength="255" /><br/>
-  	<input type="checkbox" name="in[enable]"<?php echo $row['enable'] ? " checked" : "";?> /> Enable email for my account.
+ <th>Email:</th>
+ <td><input type="text" name="in[email]" value="<?php echo $userdata['email'];?>" size="40" maxlength="255" /><br/>
+  	<input type="checkbox" name="in[enable]"<?php echo $userdata['enable'] ? " checked" : "";?> /> Enable email for my account.
  </td>
 </tr>
-<?php if (!is_admin($_SESSION["username"])) {?>
 <tr>
- <th align="right">VCS username:</th>
- <td><?php echo hscr($row['username']);?></td>
+ <th>VCS username:</th>
+<?php if (is_admin($_SESSION["username"])): ?>
+ <td><input type="text" name="in[username]" value="<?php echo hscr($userdata['username']);?>" size="16" maxlength="16" /></td>
+<?php else: ?>
+ <td><?php echo hscr($userdata['username']);?></td>
+<?php endif ?>
 </tr>
-<?php } ?>
 <tr>
  <td colspan="2">Leave password fields blank to leave password unchanged.</td>
 </tr>
 <tr>
- <th align="right">Password:</th>
+ <th>Password:</th>
  <td><input type="password" name="in[rawpasswd]" value="" size="20" maxlength="120" /></td>
 </tr>
 <tr>
- <th align="right">Password (again):</th>
+ <th>Password (again):</th>
  <td><input type="password" name="in[rawpasswd2]" value="" size="20" maxlength="120" /></td>
 </tr>
 <?php if (is_admin($_SESSION["username"])) {?>
 <tr>
- <th align="right">Password (crypted):</th>
- <td><input type="text" name="in[passwd]" value="<?php echo hscr($row['passwd']);?>" size="20" maxlength="20" /></td>
-</tr>
-<tr>
- <th align="right">VCS username:</th>
- <td><input type="text" name="in[username]" value="<?php echo hscr($row['username']);?>" size="16" maxlength="16" /></td>
-</tr>
-<?php }?>
-<?php if (is_admin($_SESSION["username"])) {?>
-<tr>
- <th align="right">VCS access?</th>
- <td><input type="checkbox" name="in[cvsaccess]"<?php echo $row['cvsaccess'] ? " checked" : "";?> /></td>
+ <th>VCS access?</th>
+ <td><input type="checkbox" name="in[cvsaccess]"<?php echo $userdata['cvsaccess'] ? " checked" : "";?> /></td>
 </tr>
 <?php } else { ?>
 <tr>
- <th align="right">Has VCS access?</th>
- <td><?php echo $row['cvsaccess'] ? "Yes" : "No";?></td>
+ <th>Has VCS access?</th>
+ <td><?php echo $userdata['cvsaccess'] ? "Yes" : "No";?></td>
 </tr>
 <?php } ?>
 <tr>
- <th align="right">Use Challenge/Response spam protection?</th>
- <td><input type="checkbox" name="in[spamprotect]"<?php echo $row['spamprotect'] ? " checked" : "";?> />
- <?php if ($row['username'] == $_SESSION["username"]) { ?>
+ <th>Use Challenge/Response spam protection?</th>
+ <td><input type="checkbox" name="in[spamprotect]"<?php echo $userdata['spamprotect'] ? " checked" : "";?> />
+ <?php if ($userdata['username'] == $_SESSION["username"]) { ?>
  <br/>
  <a href="challenge-response.php">Show people on my quarantine list</a>
  <?php } ?>
  </td>
 </tr>
 <tr>
- <th align="right">SpamAssassin threshold</th>
- <td>Block mail scoring <input type="text" name="in[use_sa]" value="<?php echo $row['use_sa'] ?>" size="4" maxlength="4"/> or higher in SpamAssassin tests.  Set to 0 to disable.</td>
+ <th>SpamAssassin threshold</th>
+ <td>Block mail scoring <input type="text" name="in[use_sa]" value="<?php echo $userdata['use_sa'] ?>" size="4" maxlength="4"/> or higher in SpamAssassin tests.  Set to 0 to disable.</td>
 </tr>
 <tr>
- <th align="right">Greylist</th>
+ <th>Greylist</th>
  <td>Delay reception of your incoming mail by a minimum of one hour using a 451 response.<br/>
   Legitimate senders will continue to try to deliver the mail, whereas
   spammers will typically give up and move on to spamming someone else.<br/>
   See <a href="http://projects.puremagic.com/greylisting/whitepaper.html">this whitepaper</a> for more information on greylisting.<br/>
-  <input type="checkbox" name="in[greylist]"<?php echo $row['greylist'] ? " checked" : "";?> /> Enable greylisting on my account</td>
+  <input type="checkbox" name="in[greylist]"<?php echo $userdata['greylist'] ? " checked" : "";?> /> Enable greylisting on my account</td>
 </tr>
 <tr>
- <th align="right">Verified?</th>
- <td><input type="checkbox" name="in[verified]"<?php echo $row['verified'] ? " checked" : "";?> /> Note: Do not worry about this value. It's sometimes used to check if old-timers are still around.</td>
+ <th>Verified?</th>
+ <td><input type="checkbox" name="in[verified]"<?php echo $userdata['verified'] ? " checked" : "";?> /> Note: Do not worry about this value. It's sometimes used to check if old-timers are still around.</td>
 </tr>
+</tbody>
+<tfoot>
 <tr>
- <th align="right">SSH Key</th>
- <td><textarea cols="50" rows="5" name="in[sshkey]"><?php echo escape(html_entity_decode($row['ssh_keys'],ENT_QUOTES)); ?></textarea>
+ <th>SSH Key</th>
+ <td><textarea name="in[sshkey]" placeholder="Paste in the contents of your id_rsa.pub"><?php echo escape(html_entity_decode($userdata['ssh_keys'],ENT_QUOTES)); ?></textarea>
   <p>Adding/editing the SSH key takes a few minutes to propagate to the server.<br>
   Multiple keys are allowed, separated using a newline.</p></td>
 </tr>
 <?php
   if ($id) {
     $res = db_query("SELECT markdown FROM users_profile WHERE userid=$id");
-    $row['profile_markdown'] = '';
+    $userdata['profile_markdown'] = '';
     if ($profile_row = mysql_fetch_assoc($res)) {
-        $row['profile_markdown'] = $profile_row['markdown'];
+        $userdata['profile_markdown'] = $profile_row['markdown'];
     }
 ?>
 <tr>
- <th align="right">People Profile<br>(<a href="http://people.php.net/user.php?username=<?php echo urlencode($row['username']);?>"><?php echo hscr($row['username']);?>'s page</a>)</th>
+ <th>People Profile<br>(<a href="http://people.php.net/user.php?username=<?php echo urlencode($userdata['username']);?>"><?php echo hscr($userdata['username']);?>'s page</a>)</th>
  <td>
      <p>Use <a href="http://michelf.ca/projects/php-markdown/dingus/" title="PHP Markdown: Dingus">Markdown</a>. Type as much as you like.</p>
-     <div><textarea cols="100" rows="20" name="in[profile_markdown]"><?php echo clean($row['profile_markdown']); ?></textarea></div>
+     <div><textarea name="in[profile_markdown]" placeholder="My PHP People page content"><?php echo clean($userdata['profile_markdown']); ?></textarea></div>
  </td>
 </tr>
 <?php
   }
 ?>
 <tr>
- <th align="right">Add Note: </th>
- <td><textarea cols="50" rows="5" name="in[purpose]"></textarea></td>
+ <th>Add Note: </th>
+ <td><textarea name="in[purpose]" placeholder="Administrative notes"></textarea></td>
 </tr>
 <tr>
- <td><input type="submit" value="<?php echo $id ? "Update" : "Add";?>" />
+ <td colspan="2"><input type="submit" value="<?php echo $id ? "Update" : "Add";?>" />
 </tr>
+</tfoot>
+</table>
 </form>
-<?php if (is_admin($_SESSION["username"]) && !$row['cvsaccess']) {?>
+<script language="php">
+if (is_admin($_SESSION["username"]) && !$userdata['cvsaccess']) {
+</script>
+<table>
 <tr>
- <form method="get" action="<?php echo PHP_SELF;?>">
+<td>
+ <form method="get" action="users.php">
   <input type="hidden" name="action" value="remove" />
   <input type="hidden" name="id" value="<?php echo $id?>" />
-  <td><input type="submit" value="Reject" />
+  <input type="submit" value="Reject" />
  </form>
- <form method="get" action="<?php echo PHP_SELF;?>">
+</td>
+<td>
+ <form method="get" action="users.php">
   <input type="hidden" name="action" value="approve" />
   <input type="hidden" name="id" value="<?php echo $id?>" />
-  <td><input type="submit" value="Approve" />
+  <input type="submit" value="Approve" />
  </form>
+</td>
 </tr>
-<?php }?>
 </table>
+<script language="php">
+}
+</script>
+<h2 id="notes">Notes:</h2>
 <?php
-  if ($id) {
-    $res = db_query("SELECT note, UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=$id");
-    echo "<b>notes</b>";
-    while ($res && $row = mysql_fetch_assoc($res)) {
-      echo "<div>", date("r",$row['ts']), "<br />".$row['note']."</div>";
-    }
+  $res = db_query("SELECT note, UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=$id");
+  while ($res && $userdata = mysql_fetch_assoc($res)) {
+    echo "<div class='note'>", date("r",$userdata['ts']), "<br />".$userdata['note']."</div>";
   }
   foot();
   exit;
@@ -331,13 +357,13 @@ $extra = array(
   <th><a href="?<?php echo array_to_url($extra,array("order"=>"username"));?>">username</a></th>
 </tr>
 <?php
-while ($row = mysql_fetch_array($res)) {
+while ($userdata = mysql_fetch_array($res)) {
 ?>
-  <tr class="<?php if (!$row["cvsaccess"]) { echo "noaccess"; }?>">
-    <td><a href="?id=<?php echo $row["userid"];?>">edit</a></td>
-    <td><?php echo $row['name'];?></td>
-    <td><?php echo $row['email'];?></td>
-    <td><a href="https://people.php.net/?username=<?php echo hscr($row['username'])?>"><?php echo hscr($row['username']) ?></a></td>
+  <tr class="<?php if (!$userdata["cvsaccess"]) { echo "noaccess"; }?>">
+    <td><a href="?username=<?php echo $userdata["username"];?>">edit</a></td>
+    <td><?php echo $userdata['name'];?></td>
+    <td><?php echo $userdata['email'];?></td>
+    <td><a href="https://people.php.net/?username=<?php echo hscr($userdata['username'])?>"><?php echo hscr($userdata['username']) ?></a></td>
   </tr>
 <?php
 }
