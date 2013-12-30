@@ -296,20 +296,3 @@ while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
 show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
 foot();
 
-function fetch_event($id) {
-  $query = "SELECT * FROM phpcal WHERE id=$id";
-
-  if ($res = db_query($query)) {
-    return mysql_fetch_array($res,MYSQL_ASSOC);
-  }
-
-  return false;
-}
-
-function display_options($options,$current) {
-  foreach ($options as $k => $v) {
-    echo '<option value="', $k, '"',
-         ($k == $current ? ' selected="selected"' : ''),
-         '>', html_entity_decode($v,ENT_QUOTES), "</option>\n";
-  }
-}

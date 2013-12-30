@@ -55,18 +55,6 @@ if ($id) {
   }
 }
 
-function validateAction($k) {
-  switch($k) {
-  case "approve":
-  case "remove":
-    return $k;
-  default:
-    warn("that action ('" . hsc($k) . "') is not understood.");
-  }
-
-  return false;
-}
-
 $action = filter_input(INPUT_GET, "action", FILTER_CALLBACK, array("options" => "validateAction"));
 if ($id && $action) {
   if (!is_admin($_SESSION["username"])) {
