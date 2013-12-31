@@ -29,12 +29,12 @@ function head($title="", $config = array()) {
         array("href" => "/manage/user-notes.php",   "text" => "Notes"),
         array("href" => "/manage/github.php",       "text" => "Github"),
     );
-    $CSS = array("/shared/styles/master.css");
+    $CSS = array("/styles/master.css");
     $SEARCH = array();
 
     if (strstr($_SERVER["SCRIPT_FILENAME"], "users.php")) {
         $SEARCH = array("method" => "get", "action" => "/manage/users.php", "placeholder" => "Search profiles", "name" => "search");
-        $CSS[] = "/shared/styles/user-autocomplete.css";
+        $CSS[] = "/styles/user-autocomplete.css";
     }
     if (strstr($_SERVER["SCRIPT_FILENAME"], "event.php")) {
         $SEARCH = array("method" => "get", "action" => "/manage/event.php", "placeholder" => "Search Events", "name" => "search");
