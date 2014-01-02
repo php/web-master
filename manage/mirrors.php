@@ -364,7 +364,7 @@ function page_mirror_list($moreinfo = false)
 
         // Print out a country header, if a new country is found
         if ($prevcc != $row['cc']) {
-            $summary .= '<tr><th colspan="8"><h3>' . $row['countryname'] . "</h3></th></tr>\n";
+            $summary .= '<tr><th colspan="7"><h3>' . $row['countryname'] . "</h3></th></tr>\n";
         }
         $prevcc = $row['cc'];
 
@@ -402,13 +402,11 @@ function page_mirror_list($moreinfo = false)
 
         $sqlites = decipher_available_sqlites($row['has_search']);
         if ($sqlites) {
-            $searchcell = implode(", ", $sqlites);
             foreach ($sqlites as $sqlite_type) {
                 $stats['sqlite_counts'][$sqlite_type]++;
             }
         } else {
             $stats['sqlite_counts']['none']++;
-            $searchcell = "&nbsp;";
         }
 
         // Stats information cell
@@ -447,9 +445,6 @@ function page_mirror_list($moreinfo = false)
         // Print out maintainer email cell
         $summary .= '<td>' . $emailcell . '</td>' . "\n";
 
-        // Print out mirror search table cell
-        $summary .= '<td>' . $searchcell . '</td>' . "\n";
-
         // Print out version information for this mirror
         $summary .= '<td>' . $row['phpversion']. '</td>' . "\n";
 
@@ -481,7 +476,7 @@ function page_mirror_list($moreinfo = false)
         // If any info on the error of this mirror is available, print it out
         if ($errorinfo) {
             $summary .= "<tr>" .
-                        "<td colspan=8><img src=\"/images/mirror_notice.png\" /> <small>";
+                        "<td colspan=7><img src=\"/images/mirror_notice.png\" /> <small>";
                        if (($errorblock = preg_split('/==\r?\n/',$errorinfo)) != 0) {
                                $summary .= nl2br($errorblock[(count($errorblock)-1)]);
                        } else {
