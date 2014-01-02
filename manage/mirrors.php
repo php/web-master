@@ -236,7 +236,7 @@ elseif (isset($id)) {
 <?php
 
 if (intval($id) !== 0) {
-    include_once "languages.inc";
+    include __DIR__ ."/../include/languages.inc";
 ?>
  <table>
   <tr>
