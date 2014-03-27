@@ -9,12 +9,12 @@ function usergroups_update_infos($root)
      */ 
     $nameOfUgCacheFile = $root . "/backend/usergroups.json";
     // Get the complete list of usergroups.
-    fetch_into_file(USERGROUP_JSON_URL, $nameOfUgCacheFile)
+    fetch_into_file(USERGROUP_JSON_URL, $nameOfUgCacheFile);
     
     $usergroups = json_decode(file_get_contents($nameOfUgCacheFile), true);
     foreach($usergroups['groups'] as $group) {
         
-        if (! isset($group['icalendar_url']) {
+        if (! isset($group['icalendar_url'])) {
             continue;
         }
         $url = $group['icalendar_url'];
