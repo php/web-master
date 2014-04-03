@@ -36,6 +36,8 @@ if ($id && $key) {
   if ($n1 && $n2) {
     if ($n1 == $n2) {
       $sn1 = strip($n1);
+      $key = mysql_real_escape_string($key);
+      $id = mysql_real_escape_string($id);
       $svnpasswd = gen_svn_pass(username_from_forgotten($key, $id), $sn1);
       $res = @mysql_query("UPDATE users SET forgot=NULL,svnpasswd='$svnpasswd',pchanged=$ts WHERE userid='$id' AND forgot='$key'");
       if ($res && mysql_affected_rows()) {
