@@ -1,7 +1,7 @@
 <?php /* vim: set noet ts=4 sw=4 ft=php: : */
 
 define('FLICKR_GROUP_ID',    '610963@N20');
-define('FLICKR_REST_URL',    'http://api.flickr.com/services/rest/');
+define('FLICKR_REST_URL',    'https://api.flickr.com/services/rest/');
 define('FLICKR_REST_METHOD', 'flickr.groups.pools.getPhotos');
 define('FLICKR_REST_FORMAT', 'json');
 define('FLICKR_FILE_PREFIX', 'flickr-');
