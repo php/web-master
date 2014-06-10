@@ -7,9 +7,9 @@ $config = array(
 	),
 );
 
-$body = file_get_contents("php://input");
+$description = file_get_contents("php://input");
 
-if (!verify_signature($body)) {
+if (!verify_signature($description)) {
 	header('HTTP/1.1 403 Forbidden');
 	exit;
 }
@@ -18,13 +18,13 @@ switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 	case 'ping':
 		break;
 	case 'pull_request':
-		$payload = json_decode($body);
+		$payload = json_decode($description);
 		$action = $payload->action;
 		$PRNumber = $payload->number;
 		$PR = $payload->pull_request;
 		$htmlUrl = $PR->html_url;
 		$title = $PR->title;
-		$body = $PR->body;
+		$description = $PR->body;
 		$repoName = $PR->base->repo->name;
 
 		$targetBranch = $PR->base->ref;
@@ -43,9 +43,7 @@ switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 		if ($mergeable === false) {
 			$message .= "\r\n\r\nWarning: according to github, the Pull Request cannot be merged without manual conflict resolution!";
 		}
-		if ($body) {
-			$message .= sprintf("\r\n\r\nPull Request Description:\r\n%s", $body);
-		}
+		$message .= sprintf("\r\n\r\nPull Request Description:\r\n%s", $description);
 		$headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
 		mail($to, '=?utf-8?B?'.base64_encode($subject).'?=', $message, $headers);
 		break;
