@@ -6,18 +6,19 @@ $config = array(
 		'pecl-' => 'pecl-dev@lists.php.net',
 	),
 );
-if (
-	!isset($_SERVER['HTTP_X_HUB_SIGNATURE'], $_SERVER['HTTP_X_GITHUB_EVENT'])
-	&& $_SERVER['HTTP_X_HUB_SIGNATURE'] !== 'sha1=e2a3e7a586aa08d7c9d3c73482e618164c7c75b1'
-) {
+
+$body = file_get_contents("php://input");
+
+if (!verify_signature($body)) {
 	header('HTTP/1.1 403 Forbidden');
 	exit;
 }
+
 switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 	case 'ping':
 		break;
 	case 'pull_request':
-		$payload = json_decode(file_get_contents("php://input"));
+		$payload = json_decode($body);
 		$action = $payload->action;
 		$PRNumber = $payload->number;
 		$PR = $payload->pull_request;
@@ -50,4 +51,14 @@ switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 		break;
 	default:
 		header('HTTP/1.1 501 Not Implemented');
+}
+
+function verify_signature($requestBody) {
+	if(isset($_SERVER['HTTP_X_HUB_SIGNATURE'])){
+		$parts = explode("=", $_SERVER['HTTP_X_HUB_SIGNATURE'], 1);
+		if (count($parts) == 2) {
+			return hash_hmac($parts[0], $requestBody, getenv('GITHUB_SECRET')) === $parts[1];
+		}
+	}
+	return false;
 }
