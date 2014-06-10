@@ -7,9 +7,9 @@ $config = array(
 	),
 );
 
-$description = file_get_contents("php://input");
+$body = file_get_contents("php://input");
 
-if (!verify_signature($description)) {
+if (!verify_signature($body)) {
 	header('HTTP/1.1 403 Forbidden');
 	exit;
 }
@@ -18,7 +18,7 @@ switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 	case 'ping':
 		break;
 	case 'pull_request':
-		$payload = json_decode($description);
+		$payload = json_decode($body);
 		$action = $payload->action;
 		$PRNumber = $payload->number;
 		$PR = $payload->pull_request;
