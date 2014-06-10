@@ -32,7 +32,7 @@ switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 		// if we somehow end up receiving a PR for a repo not matching anything send it to systems so that we can fix it
 		$to = 'systems@php.net';
 		foreach ($config['repos'] as $repoPrefix => $email) {
-			if (strpos($repoName, $repoPrefix) !== 0) {
+			if (strpos($repoName, $repoPrefix) === 0) {
 				$to = $email;
 			}
 		}
