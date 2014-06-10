@@ -53,7 +53,7 @@ switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 
 function verify_signature($requestBody) {
 	if(isset($_SERVER['HTTP_X_HUB_SIGNATURE'])){
-		$parts = explode("=", $_SERVER['HTTP_X_HUB_SIGNATURE'], 1);
+		$parts = explode("=", $_SERVER['HTTP_X_HUB_SIGNATURE'], 2);
 		if (count($parts) == 2) {
 			return hash_hmac($parts[0], $requestBody, getenv('GITHUB_SECRET')) === $parts[1];
 		}
