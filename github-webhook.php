@@ -45,7 +45,7 @@ switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 		}
 		$message .= sprintf("\r\n\r\nPull Request Description:\r\n%s", $description);
 		$headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
-		mail($to, '=?utf-8?B?'.base64_encode($subject).'?=', $message, $headers);
+		mail($to, '=?utf-8?B?'.base64_encode($subject).'?=', $message, $headers, "-fnoreply@php.net");
 		break;
 	default:
 		header('HTTP/1.1 501 Not Implemented');
