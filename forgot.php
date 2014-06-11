@@ -69,6 +69,7 @@ password: <input type="password" name="n1" value="<?= hsc($n1)?>" />
   exit;
 }
 elseif ($user) {
+  $user = mysql_real_escape_string($user);
   $res = @mysql_query("SELECT * FROM users WHERE username = '$user'");
   if ($res && ($row = mysql_fetch_array($res,MYSQL_ASSOC))) {
     $newpass = random_password();
