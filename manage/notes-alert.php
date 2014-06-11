@@ -7,7 +7,7 @@ head();
 	
 switch ($alert_action) {
 	case "add_alert" :
-		$sql = "INSERT INTO alerts VALUES ('$cuser', '$sect', NOW())";
+		$sql = "INSERT INTO alerts VALUES ('".real_clean($cuser)."', '".real_clean($sect)."', NOW())";
 		if (has_alert($user, $sect))
 			echo "<b>You already have an alert for this page</b><br />\n";
 		else
@@ -17,7 +17,7 @@ switch ($alert_action) {
 				echo "Unknown error while adding alert<br />\n";
 		break;
 	case "del_alert" :
-		$sql = "delete from alerts where user='$cuser' and sect='$sect'";
+		$sql = "delete from alerts where user='".real_clean($cuser)."' and sect='".real_clean($sect)."'";
 		if (has_alert($user, $sect))
 			if(do_alert_action($sql))
 				echo "<b>Alert for page \"$sect\", deleted from your list</b></ br>";
