@@ -62,7 +62,7 @@ if ($id && $action) {
     }
     break;
   default:
-    warn("that action ('$action') is not understood.");
+    warn("that action ('".html_entity_decode($action,ENT_QUOTES)."') is not understood.");
   }
 }
 
