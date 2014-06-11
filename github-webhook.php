@@ -1,7 +1,7 @@
 <?php
 $config = array(
 	'repos' => array(
-		'php-src' => 'internals@lists.php.net',
+		'php-src' => 'git-pulls@lists.php.net',
 		'web-' => 'php-webmaster@lists.php.net',
 		'pecl-' => 'pecl-dev@lists.php.net',
 	),
