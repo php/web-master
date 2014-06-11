@@ -23,6 +23,11 @@ CREATE TABLE mirrors (
   acmt text,
   ocmt text,
   maintainer2 varchar(255) NOT NULL default '',
+  load_balanced varchar(4) default NULL,
+  ext_avail text,
+  local_hostname varchar(255) default NULL,
+  ipv4_addr varchar(55) default NULL,
+  ipv6_addr varchar(55) default NULL,
   PRIMARY KEY  (id),
   UNIQUE KEY hostname (hostname)
 ) TYPE=MyISAM;
