@@ -447,14 +447,14 @@ if (preg_match("/^(.+)\\s+(\\d+)\$/", $action, $m)) {
 /* hack around the rewrite rules */
 if (isset($_GET['action']) && ($_GET['action'] == 'resetall' || $_GET['action'] == 'resetup' || $_GET['action'] == 'resetdown' || $_GET['action'] == 'deletevotes')) {
   $action = $_GET['action'];
-  $id = isset($_GET['id']) ? $_GET['id'] : null;
+  $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
 }
 
 switch($action) {
 case 'mass':
   if (!allow_mass_change($cuser)) { die("You are not allowed to take this action!"); }
   head("user notes");
-  $step = (isset($_REQUEST["step"]) ? $_REQUEST["step"] : 0);
+  $step = (isset($_REQUEST["step"]) ? (int)$_REQUEST["step"] : 0);
   $where = array();
   if (!empty($_REQUEST["old_sect"])) {
     $where[] = "sect = '". real_clean($_REQUEST["old_sect"]) ."'";
