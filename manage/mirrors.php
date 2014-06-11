@@ -37,6 +37,8 @@ $active     = isset($active)     ? 1 : 0;
 $has_stats  = isset($has_stats)  ? 1 : 0;
 $moreinfo   = empty($_GET['mi']) ? 0 : 1;
 
+$mirrortype = (int)$mirrortype;
+
 // Select last mirror check time from table
 $lct = db_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY lastchecked DESC LIMIT 1");
 list($checktime) = mysql_fetch_row($lct);
@@ -58,12 +60,13 @@ if (isset($id) && isset($hostname)) {
             // Perform a full data update on a mirror
             case "update":
 		$mod_by_time = '<b>'.strtoupper(date('d-M-Y H:i:s T')).'</b> ['.$_SESSION["username"].'] Mirror updated';
-                $query = "UPDATE mirrors SET hostname='$hostname', active=$active, " .
-                         "mirrortype=$mirrortype, cname='$cname', maintainer='".unmangle($maintainer)."', " .
-                         "providername='".unmangle($providername)."', providerurl='$providerurl', " .
-                         "cc='$cc', lang='$lang', has_stats=$has_stats, load_balanced='$load_balanced', " .
-                         "lastedited=NOW(), acmt='".unmangle($acmt_prev)."==\n" .
-                         $mod_by_time.(isset($acmt) && !empty($acmt) ? ": ".unmangle($acmt) : ".")."' WHERE id = $id";
+                $query = "UPDATE mirrors SET hostname='".unmangle($hostname)."', active=$active, " .
+                         "mirrortype=$mirrortype, cname='".unmangle($cname)."', maintainer='".unmangle($maintainer)."', " .
+                         "providername='".unmangle($providername)."', providerurl='".unmangle($providerurl)."', " .
+                         "cc='".unmangle($cc)."', lang='".unmangle($lang)."', has_stats=$has_stats, " .
+                         "load_balanced='".unmangle($load_balanced)."', lastedited=NOW(), " .
+                         "acmt='".unmangle($acmt_prev)."==\n" . $mod_by_time.(isset($acmt) && !empty($acmt) ? ": ".unmangle($acmt) : ".")."'" .
+                         "WHERE id = $id";
                 $msg = "$hostname updated";
             break;
 
@@ -78,9 +81,9 @@ if (isset($id) && isset($hostname)) {
                 $query = "INSERT INTO mirrors (hostname, active, mirrortype, " .
                          "cname, maintainer, providername, providerurl, cc, " .
                          "lang, has_stats, created, lastedited, acmt, load_balanced) " .
-                         "VALUES ('$hostname', $active, $mirrortype, '$cname', " .
-                         "'".unmangle($maintainer)."', '".unmangle($providername)."', '$providerurl', '$cc', " .
-                         "'$lang', $has_stats, NOW(), NOW(), '".unmangle($acmt)."', '$load_balanced')";
+                         "VALUES ('".unmangle($hostname)."', $active, $mirrortype, '".unmangle($cname)."', " .
+                         "'".unmangle($maintainer)."', '".unmangle($providername)."', '$providerurl', '".unmangle($cc)."', " .
+                         "'".unmangle($lang)."', $has_stats, NOW(), NOW(), '".unmangle($acmt)."', '".unmangle($load_balanced)."')";
                 $msg = "$hostname added";
             break;
         }
