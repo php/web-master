@@ -73,15 +73,20 @@ $passwd = strip($passwd);
 $svnpasswd = gen_svn_pass($username, $passwd);
 $note = hsc($note);
 
+$escaped_name = mysql_real_escape_string($name);
+$escaped_email = mysql_real_escape_string($email);
+$escaped_username = mysql_real_escape_string($username);
+
 $query = "INSERT INTO users (name,email,svnpasswd,username) VALUES ";
-$query .= "('$name','$email','$svnpasswd','$username')";
+$query .= "('$ecaped_name','$escaped_email','$svnpasswd','$escaped_username')";
 
 //echo "<!--$query-->\n";
 if (@mysql_query($query)) {
   $new_id = mysql_insert_id();
 
+  $escaped_note = mysql_real_escape_string("$note [group: $group]");
   mysql_query("INSERT INTO users_note (userid, note, entered)"
-             ." VALUES ($new_id, '$note [group: $group]', NOW())");
+             ." VALUES ($new_id, '$escaped_note', NOW())");
 
   $msg = $note;
   $from = "\"$name\" <$email>";
