@@ -32,7 +32,7 @@ if($id) $id = (int)$id;
 if ($id && $action) {
   switch ($action) {
   case 'approve':
-    if (db_query("UPDATE phpcal SET approved=1,app_by='$user' WHERE id=$id")
+    if (db_query("UPDATE phpcal SET approved=1,app_by='$cuser' WHERE id=$id")
      && mysql_affected_rows()) {
       $event = fetch_event($id);
       $message = "This event has been approved. It will appear on the PHP website shortly.";
