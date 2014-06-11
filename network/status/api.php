@@ -46,7 +46,7 @@ $lang_iso = $conf[5];
 $active = $conf[7] == '1' ? 'active' : 'inactive';
 
 // The mirror's actual CNAME, IP info, and network stats
-$cname = $row['cname'];
+$cname = escapeshellarg($row['cname']);
 $ip_info = str_replace(PHP_EOL,'; ',trim(`host $cname | grep -i address`));
 $ping_stats = nl2br(trim(`ping -c1 -i1 -w1 $cname | grep -v PING | grep -v "ping statistics"`));
 $ip_addr = gethostbyname($_GET['host']);
