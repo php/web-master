@@ -32,7 +32,7 @@ if($id) $id = (int)$id;
 if ($id && $action) {
   switch ($action) {
   case 'approve':
-    if (db_query("UPDATE phpcal SET approved=1,app_by='$cuser' WHERE id=$id")
+    if (db_query("UPDATE phpcal SET approved=1,app_by='".real_clean($cuser)."' WHERE id=$id")
      && mysql_affected_rows()) {
       $event = fetch_event($id);
       $message = "This event has been approved. It will appear on the PHP website shortly.";
@@ -231,6 +231,9 @@ $limit = "LIMIT $begin,$max";
 $orderby="";
 $forward    = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
 if ($order) {
+  if (!in_array($order, array('sdato', 'sdesc', 'email', 'country', 'category'))) {
+    $order = 'sdato';
+  }
   if ($forward) {
     $ext = "ASC";
   } else {
