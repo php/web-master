@@ -242,7 +242,7 @@ if ($order) {
   $orderby = "ORDER BY $order $ext";
 }
 
-$searchby = $search ? " WHERE MATCH(sdesc,ldesc,email) AGAINST ('$search')" : "";
+$searchby = $search ? " WHERE MATCH(sdesc,ldesc,email) AGAINST ('".real_clean($search)."')" : "";
 if (!$searchby && $unapproved) {
   $searchby = ' WHERE NOT approved';
 }
