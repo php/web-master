@@ -13,6 +13,7 @@ $words_blacklist = array(
 	'ativan',
 	'bontril',
 	'carisoprodol',
+	'coralclub24',
 	'http://cars-4-you.org',
 	'http://the-best-cars.org',
 	'casino',
