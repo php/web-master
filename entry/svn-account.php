@@ -78,7 +78,7 @@ $escaped_email = mysql_real_escape_string($email);
 $escaped_username = mysql_real_escape_string($username);
 
 $query = "INSERT INTO users (name,email,svnpasswd,username) VALUES ";
-$query .= "('$ecaped_name','$escaped_email','$svnpasswd','$escaped_username')";
+$query .= "('$escaped_name','$escaped_email','$svnpasswd','$escaped_username')";
 
 //echo "<!--$query-->\n";
 if (@mysql_query($query)) {
