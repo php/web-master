@@ -677,7 +677,7 @@ function is_mirror_site_admin($user) {
             array(
                 "jimw", "rasmus", "andrei", "zeev", "andi", "sas", "thies",
                 "rubys", "ssb", "imajes", "goba", "derick", "cortesi", "wez", 
-                "bjori", "philip", "danbrown", "tyrael", "laruence",
+                "bjori", "philip", "danbrown", "tyrael",
             )
         )
     ) {
