@@ -50,9 +50,9 @@ if (!verify_signature($body)) {
 	exit;
 }
 
+$payload = json_decode($body);
 $PR = $payload->pull_request;
 $action = $payload->action;
-$payload = json_decode($body);
 $htmlUrl = $PR->html_url;
 $repoName = $PR->base->repo->name;
 $description = $PR->body;
