@@ -21,14 +21,14 @@ function get_repo_email($repos, $repoName) {
     return $to;
 }
 
-function prep_title($action, $PR, $base) {
+function prep_title($PR, $base) {
     $PRNumber = $PR->number;
     $title = $PR->title;
 
     $repoName = $base->repo->name;
     $targetBranch = $base->ref;
 
-    $subject = sprintf('[PR][%s][#%s][%s][%s] - %s', $repoName, $PRNumber, $targetBranch, $action, $title);
+    $subject = sprintf('[PR][%s][#%s][%s] - %s', $repoName, $PRNumber, $targetBranch, $title);
 
     return $subject;
 }
@@ -52,7 +52,6 @@ if (!verify_signature($body)) {
 
 $payload = json_decode($body);
 $PR = $payload->pull_request;
-$action = $payload->action;
 $htmlUrl = $PR->html_url;
 $repoName = $PR->base->repo->name;
 $description = $PR->body;
@@ -64,7 +63,7 @@ switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 		$mergeable = $PR->mergeable;
 
         $to = get_repo_email($CONFIG["repos"], $repoName);
-        $subject = prep_title($action, $PR, $PR->base);
+        $subject = prep_title($PR, $PR->base);
 
 		$message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
 		if ($mergeable === false) {
@@ -80,7 +79,7 @@ switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 		$comment = $payload->comment->body;
 
         $to = get_repo_email($CONFIG["repos"], $repoName);
-        $subject = prep_title($action, $PR, $PR->base);
+        $subject = prep_title($PR, $PR->base);
 		$message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
 		$message .= sprintf("\r\n\r\nPull Request Comment:\r\n%s", $description);
 		$message .= sprintf("\r\nMade by: %s", $username);
