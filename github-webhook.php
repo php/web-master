@@ -50,16 +50,18 @@ if (!verify_signature($body)) {
 	exit;
 }
 
+$PR = $payload->pull_request;
+$action = $payload->action;
+$payload = json_decode($body);
+$htmlUrl = $PR->html_url;
+$repoName = $PR->base->repo->name;
+$description = $PR->body;
+
 switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 	case 'ping':
 		break;
 	case 'pull_request':
-		$payload = json_decode($body);
-		$action = $payload->action;
-		$PR = $payload->pull_request;
 		$mergeable = $PR->mergeable;
-        $htmlUrl = $PR->html_url;
-        $description = $PR->body;
 
         $to = get_repo_email($CONFIG["repos"], $repoName);
         $subject = prep_title($action, $PR, $PR->base);
@@ -74,9 +76,6 @@ switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 		break;
 
     case 'pull_request_review_comment':
-		$payload = json_decode($body);
-		$action = $payload->action;
-		$PR = $payload->pull_request;
         $username = $payload->user->login;
 		$comment = $payload->comment->body;
 
