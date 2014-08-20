@@ -544,7 +544,6 @@ function page_mirror_list($moreinfo = false)
 
 $statusscreen = <<< EOS
 
-<section>
 <dl>
  <dt>Last check time</dt>
  <dd>{$last_check_time}</dd>
@@ -602,7 +601,6 @@ $statusscreen = <<< EOS
 </ul>
 </nav>
 <section class="mirrorinfo">
-<div>
 
 <p>
  Note that the DNS table for mirror sites is updated directly from this list, without
@@ -632,8 +630,6 @@ $statusscreen = <<< EOS
 
 <p><a href="/manage/mirrors.php?id=0">Add a new mirror</a></p>
 
-
-</div>
 
 EOS;
 echo $summary;
