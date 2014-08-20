@@ -586,8 +586,17 @@ $statusscreen = <<< EOS
  <dt>Other</dt>
  <dd>{$php_other_versions}</dd>
 </dl>
-  
+
+<hr>
+
+<section class="mirrorinfo">
+ <h3>SQLite Counts</h3>
+ <table style="padding-right: 0">
   {$has_sqlite_counts}
+ </table>
+</section>
+
+<hr>
 
 <nav id="resources">
  <h1>Resources</h1>
