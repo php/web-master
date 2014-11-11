@@ -55,6 +55,7 @@ function foot($secondscreen = null) {
     $SECONDSCREEN = $secondscreen;
 
     $JS = array(
+        "/js/master.js",
     );
     if (strstr($_SERVER["SCRIPT_FILENAME"], "users.php")) {
         array_push(
@@ -73,27 +74,6 @@ function foot($secondscreen = null) {
 
 ?>
   </section>
-  <script type="text/javascript" >
-  $(document).ready(function() {
-    $('#votesdeleteform').submit(function() {
-      if (confirm("Are you sure you want to delete these votes? This will permanently delete these votes from the votes table!"))
-        return true;
-      else
-        return false;
-    });
-    $('#votesselectall').click(function() {
-      if (this.checked) {
-        $('input:checkbox.vdelids').each(function () {
-             this.checked = true;
-        });
-      } else {
-        $('input:checkbox.vdelids').each(function () {
-             this.checked = false;
-        });
-      }
-    });
-  });
-  </script>
 <?php
     include __DIR__ . "/../shared/templates/footer.inc";
 }
