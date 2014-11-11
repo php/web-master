@@ -55,7 +55,6 @@ function foot($secondscreen = null) {
     $SECONDSCREEN = $secondscreen;
 
     $JS = array(
-        "//ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js",
     );
     if (strstr($_SERVER["SCRIPT_FILENAME"], "users.php")) {
         array_push(
