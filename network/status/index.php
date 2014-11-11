@@ -233,17 +233,6 @@ function page_mirror_list($moreinfo = false)
     }
 
 echo <<<EOS
-<script type="text/javascript" src="js/curvycorners.js"></script>
-<link type="text/css" rel="stylesheet" href="js/jquery.qtip.min.css"/>
-<script type="text/javascript" src="js/jquery.qtip.min.js"></script>
-<script>
-$('.selector').qtip({
-	content: {
-		attr: 'alt'
-	}
-})
-</script>
-
 <div>
 
 <h1>PHP Global Network Infrastructure Health</h1>
