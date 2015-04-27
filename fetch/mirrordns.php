@@ -46,7 +46,6 @@ if (@mysql_connect("localhost","nobody","")) {
 
                 // Print out DNS update code
                 echo $firstChar . $row['hostname'] . ':' . $row['cname'] . "\n";
-                echo $firstChar . 'www.' . $row['hostname'] . ':' . $row['cname'] . "\n";
             }
         }
     }
