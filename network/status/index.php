@@ -45,8 +45,6 @@ function page_mirror_list($moreinfo = false)
         SELECT mirrors.*,
         UNIX_TIMESTAMP(lastupdated) AS ulastupdated,
         UNIX_TIMESTAMP(lastchecked) AS ulastchecked,
-        (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < mirrors.lastchecked) AS up,
-        (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < mirrors.lastupdated) AS current,
         country.name as countryname
         FROM mirrors LEFT JOIN country ON mirrors.cc = country.id
         ORDER BY country.name, hostname"
@@ -102,14 +100,7 @@ function page_mirror_list($moreinfo = false)
         
             // Not special, but active
             else {
-                // Not up to date or not current
-                if (!$row['up'] || !$row['current']) {
-		    $siteimage = 'pulsing_red';
-                }
-                // Up to date and current
-                else {
-                    $siteimage = 'green';
-                }
+		    $siteimage = 'green';
             }
         }
         // Not active mirror site (maybe deactivated by the
