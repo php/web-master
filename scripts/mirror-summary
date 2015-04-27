@@ -26,8 +26,7 @@ list($checktime) = mysql_fetch_row($lct);
 
 // Select all mirrors ordered by hostname
 $query = "SELECT maintainer, hostname, id, has_search, UNIX_TIMESTAMP(lastupdated) AS lastupdate, " .
-         "phpversion, (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < lastchecked) AS active, " .
-         "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < lastupdated) AS current, active AS enabled, acmt, ocmt " .
+         "phpversion, acmt, ocmt " .
          "FROM mirrors ORDER BY hostname";
 
 // Execute SQL query
@@ -62,20 +61,8 @@ if (count($inactives)) {
   $body .= wordwrap(join(', ', array_keys($inactives))) . "\n";
 }
 
-// List all mirrors which seem to be outdated
 for ($i=0; $i < $total; $i++) {
-    if ($hosts[$i]['active'] && !$hosts[$i]['current'] && !$hosts[$i]['enabled']) {
-        $cmt = !empty($hosts[$i]['ocmt']) ? $hosts[$i]['ocmt'] : $hosts[$i]['acmt'];
-        $outdated[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $cmt);
-    }
-}
-if (count($outdated)) {
-    $body .= "\nThese mirrors have not been updated in at least 7 days:\n\n";
-    $body .= wordwrap(join(', ', array_keys($outdated))) . "\n";
-}
-
-for ($i=0; $i < $total; $i++) {
-    if (!$hosts[$i]['enabled']) {
+    if (!$hosts[$i]['active']) {
         $cmt = !empty($hosts[$i]['ocmt']) ? $hosts[$i]['ocmt'] : $hosts[$i]['acmt'];
         $disabled[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $cmt);
     }
@@ -111,7 +98,7 @@ function pad($deflen, $item) {
 }
 
 for ($i=0; $i < $total; $i++) {
-    if ($hosts[$i]['active'] && $hosts[$i]['current']){
+    if ($hosts[$i]['active']){
 
         $has_search = empty($hosts[$i]['has_search']) ? 'N' : 'Y';
 
