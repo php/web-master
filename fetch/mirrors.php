@@ -44,15 +44,9 @@ if (@mysql_connect("localhost","nobody","")) {
     // Select phpmasterdb database
     if (@mysql_select_db("phpmasterdb")) {
       
-        // Select last mirror check time from table
-        $lct = mysql_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY lastchecked DESC LIMIT 1");
-        list($checktime) = mysql_fetch_row($lct);
-
         // Select mirrors list with some on-the-fly counted columns
         $res = @mysql_query(
-            "SELECT mirrors.*, country.name AS cname, " .
-            "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < mirrors.lastchecked) AS up, " .
-            "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < mirrors.lastupdated) AS current " .
+            "SELECT mirrors.*, country.name AS cname " .
             "FROM mirrors LEFT JOIN country ON mirrors.cc = country.id " .
             "ORDER BY country.name,hostname"
         );
@@ -86,8 +80,7 @@ if (@mysql_connect("localhost","nobody","")) {
                 // Provide status information for mirrors
                 // computed from current mirror details
                 if (!$row["active"])      { $status = 'MIRROR_NOTACTIVE'; }
-                elseif (!$row["up"])      { $status = 'MIRROR_DOESNOTWORK'; }
-                elseif (!$row["current"]) { $status = 'MIRROR_OUTDATED'; }
+                elseif ($row["ocmt"])     { $status = 'MIRROR_DOESNOTWORK'; }
                 
                 // Print out the array element for this mirror
                 echo "    \"$row[hostname]\" => array(\n" .
