@@ -338,7 +338,7 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
 
 	/* bug#26840 Content negotiation screwups; ".html.php" */
-	$content = fetch($row["hostname"], "/manual/en/faq.html.php", $row["hostname"], &$headers);
+	$content = fetch($row["hostname"], "/manual/en/faq.html.php", $row["hostname"], $headers);
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
 		continue;
@@ -349,7 +349,7 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	}
 	
 	/* bug#31852 Apache multiviews */
-	$content = fetch($row["hostname"], "/functions", $row["hostname"], &$headers);
+	$content = fetch($row["hostname"], "/functions", $row["hostname"], $headers);
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/functions", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
 		continue;
@@ -360,7 +360,7 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	}
 
 	/* bug#35970 `var` handler */
-	$content = fetch($row["hostname"], "/manual/en/ref.var.php", $row["hostname"], &$headers);
+	$content = fetch($row["hostname"], "/manual/en/ref.var.php", $row["hostname"], $headers);
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/manual/en/ref.var.php", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
 		continue;
@@ -371,7 +371,7 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	}
 
 	/* bug#46423 outbound connections for internal search */
-	$content = fetch($row["hostname"], "/results.php?q=example&p=manual&l=en", $row["hostname"], &$headers);
+	$content = fetch($row["hostname"], "/results.php?q=example&p=manual&l=en", $row["hostname"], $headers);
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/manual/en/ref.var.php", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
 		continue;
@@ -382,7 +382,7 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	}
 
 
-	$content = fetch($row["hostname"], "/mirror-info", $row["hostname"], &$headers);
+	$content = fetch($row["hostname"], "/mirror-info", $row["hostname"], $headers);
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
 		continue;
