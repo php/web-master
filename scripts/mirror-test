@@ -1,4 +1,4 @@
-#!/usr/local/bin/php -q
+#!/usr/bin/env php
 <?php # vim: ft=php et
 // This script is executed on master
 
@@ -10,454 +10,386 @@
  mailed to the php-mirrors mailing list periodically
  by the mirror-summary script, and the maintainers also
  get notices of deactivations weekly.
- 
- TODO: notify a maintainer 24 hours before his mirror
-       gets delisted
 */
 
 // This script will run for a long time
 set_time_limit(30 * 60);
 
-// Connect to local MySQL database
-mysql_connect("localhost", "nobody", "") or die("unable to connect to database");
-mysql_select_db("phpmasterdb");
 
-// Get mirror information for all active mirrors (regardless of their type!)
-$query = "SELECT maintainer, hostname, id, has_search, has_stats, lang,
-          UNIX_TIMESTAMP(lastchecked) as lastchecked,
-          UNIX_TIMESTAMP(lastupdated) AS lastupdated,
-	  load_balanced
-          FROM mirrors WHERE active = 1";
-$result = mysql_query($query) or die("unable to get from the database: " . mysql_error());
+function lap() {
+	static $then = 0;
+	static $now;
 
-// Get all mirror site data to the $hosts array
-$hosts = array();
-while ($row = mysql_fetch_array($result)) {
-    $hosts[] = $row;
+	$now = microtime(true);
+	$ret = $now - $then;
+	$then = $now;
+	return $ret;
+}
+function p($msg) {
+	if (getenv("PHPWEBDEV") || file_exists(".DEV")) {
+		echo $msg;
+	}
+}
+function email($address, $subject, $content) {
+	if (!getenv("PHPWEBDEV") && !file_exists(".DEV")) {
+		$headers = "From: mirrors@php.net";
+		$extrah  = "-fnoreply@php.net";
+		return mail($address, $subject, $content, $headers, $extrah);
+	}
+	echo "\n\n\nMailed $address -- $subject\n$content\n\n\n";
+}
+function emailMirror($row, $problem) {
+	$subject = "{$row["hostname"]} Disabled";
+	$content = <<<EOF
+Dear {$row["maintainer"]}
+
+The mirror you are maintaing for php.net ({$row["hostname"]}) has been disabled
+due to:
+
+	$problem
+
+
+For more information please checkout our mirroring-troubles page:
+http://{$row["hostname"]}/mirroring-troubles.php
+
+Please resolve this issue ASAP. If the reason is unclear, please contact
+php-mirrors@lists.php.net
+
+- php.net mirror surveillance
+
+EOF;
+	email($row["maintainer"], $subject, $content);
+}
+function MIRRORINFO($row, $content) {
+	$RETURN = array();
+
+	/* Parse our mirror configuration from /mirror-info */
+	$info = explode("|", trim($content));
+
+	if (count($info) != 11) {
+		FAIL($row, "/mirror-info", "Invalid data received. See: http://php.net/mirroring-troubles.php#invalid-data\n");
+		return false;
+	}
+    
+	if (preg_match("@^\d+\.\d+\.\d+@", $info[1], $matches)) {
+		$RETURN["phpversion"] = $matches[0];
+	} else {
+		FAIL($row, "/mirror-info|version", "Doesn't look like PHP version");
+		return false;
+	}
+
+	if (!version_compare($RETURN["phpversion"], "5.3.3", "ge")) {
+		FAIL($row, "/mirror-info|version", "Running pre 5.3.3");
+		return false;
+	}
+    
+	$RETURN["mirrorupdated"] = (int)$info[2];
+	$RETURN["has_search"]    = (int)$info[3];
+	$RETURN["has_stats"]     = (int)$info[4];
+
+	if ($RETURN["mirrorupdated"] < strtotime("6 hours ago")) {
+		FAIL($row, "/mirror-info|stale", "Stale mirror, not been updated for a while");
+		return false;
+	}
+	// If language value is SQL safe, update it
+	if (preg_match("!^[a-zA-Z_]+$!", $info[5])) {
+		$RETURN["lang"] = $info[5];
+	} else {
+		FAIL($row, "/mirror-info|lang", "Invalid language string");
+		return false;
+	}
+    
+	if (!(bool)$info[7]) {
+		FAIL($row, "/mirror-info|rsync", "Rsync setup problems, see /mirroring.php.");
+		return false;
+	}
+    
+
+	// Get the list of available extensions on the mirror
+	$RETURN["ext_avail"] = (string)$info[8];
+	// Get the system"s local hostname
+	$RETURN["local_hostname"] = (string)$info[9];
+	// Get the system"s IP address
+	$RETURN["ipv4_addr"] = (string)$info[10];
+
+	// Check if mirror has correct ServerName/ServerAlias entries
+	// Most likely cause is unofficial hostname as ServerName instead of ServerAlias
+	// Important to keep my php.net cookie around
+	$mysite = parse_url($info[0]);
+	if (!$mysite) {
+		FAIL($row, "/mirror-info|parsing", "Can't parse URL from mirror-info");
+		return false;
+	}
+	if ($mysite["host"] != $row["hostname"]) {
+		$errmsg = "Apache ServerName directive does not match '{$row['hostname']}'."
+			. " Consider swapping ServerName and ServerAlias, see /mirroring.php.";
+		FAIL($row, "/mirror-info|hostname", $errmsg);
+		return false;
+	}
+
+	return $RETURN;
 }
 
-// Free up the result to get more memory
-mysql_free_result($result);
+function bfetch($url, $ctx, &$headers) {
+	lap();
 
-// Check host for errors, inject data into $data and $problem
-function host_has_error($hostname, $filename, &$data, &$problem, $spoofed_hostname=FALSE) {
+	$content = file_get_contents($url, false, $ctx);
 
-    // Open port 80 on the mirror site
-    $fp = @fsockopen($hostname, 80, $errno, $errstr, 15);
-    
-    // If we were unable to open the port, continue with the next mirror
-    if (!$fp) {
-        $problem = "Unable to connect: {$errstr}({$errno}).";
-        return TRUE;
-    }
+	$base = basename($url);
+	if (strpos($base, "?")) {
+		$base = strstr($base, "?", true);
+	}
+	$msg = sprintf("\t%s: %.2f", $base, lap());
+	p($msg);
 
-    // GET the page from the registered hostname
-    $rc = fputs($fp, "GET $filename HTTP/1.0\r\n" .
-                     "Host: ".($spoofed_hostname?$spoofed_hostname:$hostname)."\r\n" .
-                     "User-Agent: PHP.net Mirror Site Check\r\n\r\n");
-    
-    // If we were unable to write to socket, skip mirror site
-    if ($rc === FALSE) {
-        $problem = "Unable to send request for file $filename.";
-        return TRUE;
-    }
-    
-    // Set timeout to 15 seconds
-    socket_set_timeout($fp, 15, 0);
+	if ($content) {
+		$headers = $http_response_header;
+	} else {
+		$headers = array();
+	}
 
-    // Get lines from the socket, until we get past the HTTP headers
-    // (HTTP headers and data have one empty line between them)
-    do {
-        $line = fgets($fp);
-    } while ($line !== FALSE && $line != "" && $line != "\r\n" && $line != "\n");
-
-    // If we were unable to pass the HTTP headers, skip mirror site
-    if ($line === FALSE || $line == "") {
-        if ($hostname == "tr.php.net") {
-            return FALSE;
-        }
-        $problem = "Unable to get past HTTP response headers for file $filename. Probably timeout.";
-        return TRUE;
-    }
-
-    // Get data row from socket
-    $data = fgets($fp);
-
-    // Close socket
-    fclose($fp);
-
-    // If unable to read that row, skip mirror site....
-    if ($data === FALSE) {
-
-        // .... but let us slide if we get a 302 on /manual/noalias.txt, which is a semi-common occurrence.
-        $_headers = get_headers('http://'.$hostname.'/manual/noalias.txt');
-        if (preg_match('/302 Found$/',trim($_headers[0]))) {
-                $data = 'HTTP Response code: 302';
-                return false;
-        }
-
-        $problem = "Unable to get data for file $filename. Probably timeout. (errno: $errno errstr: $errstr)";
-        return TRUE;
-    }
-    
-    return FALSE;
+	return $content;
 }
 
-// In case we don't have get_headers() available....
-if (!function_exists('get_headers')) {
-    function get_headers($url,$format=0) {
-        $headers = array();
-        $url = parse_url($url);
-        $host = isset($url['host']) ? $url['host'] : '';
-        $port = isset($url['port']) ? $url['port'] : 80;
-        $path = (isset($url['path']) ? $url['path'] : '/') . (isset($url['query']) ? '?' . $url['query'] : '');
-        $fp = fsockopen($host,$port,$errno,$errstr,3);
-        if (is_resource($fp)) {
-            $hdr  = "GET ".$path." HTTP/1.1\r\n";
-            $hdr .= "Host: ".$host." \r\n";
-            $hdr .= "Connection: Close\r\n\r\n";
-            fwrite($fp,$hdr);
-            while (!feof($fp) && $line = trim(fgets($fp,1024))) {
-                if ($line == "\r\n") break;
-                list($key,$val) = explode(': ',$line,2);
-                if (isset($format) && $format !== 0) {
-                    if (isset($val)) {
-                        $headers[$key] = $val;
-                    } else {
-                        $headers[] = $key;
-                    }
-                } else {
-                    $headers[] = $line;
-                }
-            }
-            fclose($fp);
-            return $headers;
-        }
-        return false;
-    }
+function fetch($host, $filename, $ashostname = NULL, &$headers = array()) {
+	$opts = array(
+		"user_agent"    => "PHP.net Mirror Site check",
+		"max_redirects" => 0,
+		"timeout"       => 15,
+		"ignore_errors" => "1",
+		"header"        => array(
+			"Host: " . ($ashostname ?: $host),
+			"Connection: close",
+		),
+	);
+	$ctx = stream_context_create(array("http" => $opts));
+
+
+	$url = "http://$host$filename";
+
+	$content = bfetch($url, $ctx, $headers);
+
+	return $content;
 }
 
-// Set default context options
-$opts = array(
-    "user_agent"    => "PHP.net Mirror Site check",
-    "max_redirects" => 0,
-    "timeout"       => 15,
-);
-$context  = stream_context_get_default(array("http" => $opts));
+function HTTPCODE($headers, $code) {
+	$code = strtolower($code);
+	foreach($headers as $header) {
+		if (strpos(strtolower($header), $code) !== false) {
+			return true;
+		}
+	}
 
-// Get all mirror sites, and count the index of them
-foreach ($hosts as $index => $host) {
-
-    // Request the exact file on www.php.net as it redirects
-    // shortcut requests to a mirror site, and we would not handle
-    // that properly. Otherwise on a mirror site we need to check
-    // the shortcut functionality too.
-    $filename = ($host['hostname'] == 'www.php.net' || $host['hostname'] == 'php.net') ? '/mirror-info.php' : '/mirror-info';
-
-    // -------------------------------------------------------------------------
-    // First HTTP request for the mirror-info file
-    $data = $problem = '';
-    if (host_has_error($host['hostname'], $filename, $data, $problem)) {
-      $hosts[$index]['disable'] = true;
-      $hosts[$index]['problem'] = $problem;
-      continue;
-    }
-
-    // if the mirror is used for the load balancing check that it can serve the mirror-info for cc.php.net also
-    $lb_data = $lb_problem = '';
-    if ($host['load_balanced']) {
-        $lb_error = host_has_error($host['hostname'], $filename, $lb_data, $lb_problem, $host['load_balanced'].'.php.net');
-        if (!$lb_error) {
-            // Explode information row by delimiter
-            $lb_info = explode("|", trim($lb_data));
-
-            // Invalid data received, skip mirror site
-            if (count($lb_info) < 8) {
-                 $lb_error = TRUE;
-                 $lb_problem = "Invalid data received from {$filename}.";
-            }
-        }
-
-        if ($lb_error) {
-            $lb_problem = "The following error occured when testing {$host['hostname']} for serving traffic for {$host['load_balanced']}.php.net:\n".$lb_problem;
-            $query = "UPDATE mirrors SET load_balanced = '' WHERE hostname = '" . $host['hostname'] . "'";
-            $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
-            // send a notification email to network-status@
-            mail(
-                "network-status@lists.php.net",
-                "[WARN] Round-robin for {$host['hostname']} is DOWN",
-                $lb_problem,
-                "From: mirrors@php.net",
-                "-fmirrors@php.net"
-            );
-        }
-    } else {
-	/**
-	  This was done in a hurry, a day after recovering from food poisoning,
-	  and should be cleaned up (the code.... the undercooked chicken is
-	  already gone, thanks).  This is just to get it going until - someday -
-	  we can overhaul these scripts and make things more modular.
-	 */
-	$lb_ccname = substr($host['hostname'],0,2);
-	$lb_error = host_has_error($host['hostname'],$filename,$lb_data,$lb_problem,$lb_ccname.'.php.net');
-	$lb_info = explode("|", trim($lb_data));
-	if (count($lb_info) >= 8) {
-		$sql = "UPDATE mirrors SET load_balanced='".mysql_real_escape_string($lb_ccname)."' WHERE hostname='".mysql_real_escape_string($host['hostname'])."'";
-		mysql_query($sql) or die('Error performing query: '.$sql.'.... MySQL said:'.PHP_EOL.mysql_error().PHP_EOL);
-		mail(
-			'network-status@lists.php.net',
-			'[ OK ] Round-robin for '.$host['hostname'].' is UP',
-			'When most recently tested, '.$lb_ccname.'.php.net was cleared for reactivation.',
-			"From: mirrors@php.net\r\nX-Mailer: PHP-".basename(__FILE__)."\r\n",
-			'-fmirrors@php.net'
-		);
-	} // We do nothing if the mirror is still an RR-only SNAFU.
-    } // End of round-robin testing
-
-    // Explode information row by delimiter
-    $info = explode("|", trim($data));
-
-    // Invalid data received, skip mirror site
-    if (count($info) < 8) {
-        // This is a *serious* error, disable it!
-        $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "Invalid data received from /mirror-info. See: http://php.net/mirroring-troubles.php#invalid-data\n";
-        continue;
-    }
-    
-    // Put pieces into the $hosts array
-    if (preg_match("@^\d+\.\d+\.\d+@", $info[1], $matches)) {
-        $hosts[$index]['phpversion'] = $matches[0];
-    } else {
-        $hosts[$index]['phpversion'] = 'Unknown';
-    }
-    
-    // The last updated date is a number [db security]
-    if (is_numeric($info[2])) {
-        $hosts[$index]['mirrorupdated'] = $info[2];
-    } else {
-        $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "Invalid last update time.";
-    }
-    
-    // If new search information is available, override previous one
-    /*if (in_array($info[3], array('0', '1', '2'))) {
-        $hosts[$index]['has_search'] = $info[3];
-    }*/
-    // Abuse the "has_search" SQL field to check for SQLite availability
-    // Currently only sqlite is used (ext/sqlite) but the future may change this
-    $hosts[$index]['has_search'] = (int) $info[3];
-
-    // Update stats availability info 
-    if (in_array($info[4], array('0', '1'))) {
-        $hosts[$index]['has_stats'] = $info[4];
-    }
-
-    // If language value is SQL safe, update it
-    if (preg_match("!^[a-zA-Z_]+$!", $info[5])) {
-        $hosts[$index]['lang'] = $info[5];
-    }
-    
-    // Set mirror's lastupdated time to a default,
-    // thus deactivating it in case of a manual
-    // alias is in effect
-    /*if ($info[6] == "manual-alias") {
-        $hosts[$index]['lastupdated'] = '0';
-        $hosts[$index]['problem'] = "Apache manual alias in effect, see /mirroring.php.";
-        continue;
-    }*/
-    
-    // Check that the mirror has all the mirror settings updated
-    if ($info[7] != '1') {
-      $hosts[$index]['problem'] = "Rsync setup problems, see /mirroring.php.";
-      continue;
-    }
-
-    // Get the list of available extensions on the mirror
-    if (isset($info[8])) {
-      $hosts[$index]['ext_avail'] = $info[8];
-    } else {
-      $hosts[$index]['ext_avail'] = 'N/A';
-    }
-
-    // Get the system's local hostname
-    if (isset($info[9])) {
-      $hosts[$index]['local_hostname'] = $info[9];
-    } else {
-      $hosts[$index]['local_hostname'] = 'unknown-host.php.net';
-    }
-
-    // Get the system's IP address
-    if (isset($info[10])) {
-      $hosts[$index]['ipv4_addr'] = $info[10];
-    } else {
-      $hosts[$index]['ipv4_addr'] = '0.0.0.0';
-    }
-
-    // Check if mirror has correct ServerName/ServerAlias entries
-    // Most likely cause is unofficial hostname as ServerName instead of ServerAlias
-    // Important to keep my php.net cookie around
-    $mysite = parse_url($info[0]);
-    if (is_array($mysite)) {
-        $mysite = $mysite['host'];
-    }
-
-    if (!$mysite || $mysite != $host['hostname']) {
-        $hosts[$index]['problem'] = "Apache ServerName directive does not match '{$host['hostname']}'."
-         . " Consider swapping ServerName and ServerAlias, see /mirroring.php.";
-        continue;
-    }
-
-    // -------------------------------------------------------------------------
-    // Second HTTP request, checking for Apache manual alias
-    $data = $problem = '';
-    if (host_has_error($host['hostname'], '/manual/noalias.txt', $data, $problem)) {
-        $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = $problem;
-        continue;
-    }
-    if (trim($data) != 'manual-noalias') {
-        $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "Apache manual alias. See: http://php.net/mirroring-troubles.php#manual-redirect";
-        continue;
-    }
-
-    // -------------------------------------------------------------------------
-    // Third HTTP request, checking for known problems that has been hunting
-    // some mirrors for years (See bug#26840)
-    $url = "http://{$host['hostname']}/manual/en/faq.html.php";
-    $headers = get_headers($url, 1);
-    if($headers == false) {
-        /* Possibly timed out, lets let it slight for now */
-        continue;
-    }
-    
-    // No. This is not a joke. Some mirrors (*hint*tw.php.net*hint*) return
-    // "Content-type" for instance, not "Content-Type"
-    $headers = array_change_key_case($headers, CASE_LOWER);
-
-    if(strpos($headers[0], "200") === false) {
-        $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "Header weirdness. Pages named '.html.php' are returning wrong status headers\n";
-        $hosts[$index]['problem'].= "Your mirror is currently returning '{$headers[0]}', not '200 OK'\n";
-        $hosts[$index]['problem'].= "(The test was ran on $url)";
-        continue;
-    }
-    if (strpos($headers["content-type"], "text/html") === false) {
-        $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "Content-Type. See: http://php.net/mirroring-troubles.php#content-type";
-        continue;
-    }
-
-    // -------------------------------------------------------------------------
-    // Fourth HTTP request, checking for apache MultiViews configuration
-    // (See bug#31852)
-
-    $url = "http://{$host['hostname']}/functions";
-    $headers = get_headers($url, 1);
-    if($headers == false) {
-        // Probably timed out, let it slight for now
-        continue;
-    }
-    $headers = array_change_key_case($headers, CASE_LOWER);
-
-    if (strpos($headers["content-type"], "text/html") === false) {
-        $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "MultiViews on. See: http://php.net/mirroring-troubles.php#multiviews";
-        continue;
-    }
-
-    // -------------------------------------------------------------------------
-    // Fifth HTTP request, checking for `var` handler
-    // (See bug#35970)
-
-    $url = "http://{$host['hostname']}/manual/en/ref.var.php";
-    $headers = get_headers($url, 1);
-    if($headers == false) {
-        // Probably timed out, let it slight
-        continue;
-    }
-
-    if(strpos($headers[0], "200 OK") === false) {
-        $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "Var Handler. See: http://php.net/mirroring-troubles.php#var";
-        continue;
-    }
-
-    // -------------------------------------------------------------------------
-    // Sixth HTTP request, checking for search capability (outbound connections)
-    // (See bug#46423)
-
-    $url = "http://{$host['hostname']}/results.php?q=mirrortest&p=manual&l=en";
-    $headers = get_headers($url, 1);
-    if($headers == false) {
-        // Probably timed out, let it slide for now
-        continue;
-    }
-
-    if(strpos($headers[0], "200") === false) {
-        $hosts[$index]['disable'] = true;
-        $hosts[$index]['problem'] = "Outbound connections appear disabled. See: http://php.net/mirroring-troubles.php#outbound";
-        continue;
-    }
-
+	return false;
 }
+function FAIL($mirror, $check, $reason) {
+	global $pdo;
 
-// Go through all mirror sites checked
-$mirrorsupdated = 0; $problems = "";
-$four_days_ago = strtotime("-4 days");
-foreach ($hosts as $host) {
-    
-    // If a "problem" is not specified, then we were able to check
-    // the mirror, so the mirror data can be updated, and the old
-    // error message need to be removed. Otherwise the previous data
-    // need to be kept.
-    if (!isset($host['problem'])) {
-        
-        $query = "UPDATE mirrors SET " .
-                 "lastchecked = NOW(), " .
-                 "lastupdated = FROM_UNIXTIME(" . $host['mirrorupdated'] . "), " .
-                 "has_search = '" . ((int) $host['has_search'])     . "', " .
-                 "has_stats = '"  . ((int) $host['has_stats'])      . "', " .
-                 "phpversion = '" . addslashes($host['phpversion']) . "', " .
-                 "lang = '"       . $host['lang']                   . "', " .
-                 "ocmt = '', " .
-                 "ext_avail = '" . mysql_real_escape_string($host['ext_avail']) . "', " .
-                 "local_hostname = '" . mysql_real_escape_string($host['local_hostname']) . "', " .
-                 "ipv4_addr = '" . mysql_real_escape_string($host['ipv4_addr']) . "' " .
-                 "WHERE hostname = '" . $host['hostname'] . "'";
+	// Try to extract something reasonable out of the content
+	$reason = htmlentities(substr(str_replace("\n", "", strip_tags($reason)), 0, 128));
+
+	switch($check) {
+	case "/mirror-info|version":
+		$help = "Your PHP version is too old";
+		break;
+	case "/mirror-info|stale":
+		$help = "Please run rsync on hourly basis";
+		break;
+	case "/mirror-info|lang":
+		$help = "Unknown language";
+		break;
+	case "/mirror-info|rsync":
+		$help = "Rsync issues";
+		break;
+	case "/mirror-info|hostname":
+		$help = "Please make sure your ServerName is configured correctly";
+		break;
+
+	case "www.php.net":
+		$help = "Does not answer to www.php.net. ";
+		$help .= "www.php.net is now experimenting with GeoDNS and we have requested all mirrors to add www.php.net as ServerAlias. ";
+		$help .= "Please see:";
+		$help = wordwrap($help, 75, "\n\t");
+		$help .= " http://grokbase.com/t/php/php-mirrors/15190w93m0/www-php-net-over-geodns-please-update-your-serveralias\n";
+		break;
+
+	case "cc.php.net":
+		$help = "Does not answer to country-code.php.net";
+		break;
+
+	case "/manual/noalias.txt":
+		$help = "Apache manual alias. See: http://php.net/mirroring-troubles.php#manual-redirect";
+		break;
+
+	case "/manual/en/faq.html.php":
+		$help = "Content-Type. See: http://php.net/mirroring-troubles.php#content-type";
+		break;
+
+	case "/functions":
+		$help = "MultiViews on. See: http://php.net/mirroring-troubles.php#multiviews";
+		break;
+
+	case "/manual/en/ref.var.php":
+		$help = "Var Handler. See: http://php.net/mirroring-troubles.php#var";
+		break;
+
+	case "/results.php?q=example&p=manual&l=en":
+		$help = "Outbound connections appear disabled. See: http://php.net/mirroring-troubles.php#outbound";
+		break;
+	default:
+		$help = "";
+	}
+
+	$errmsg = "Failed '$check' check: $reason\n\nLikely cause:\n\t$help";
+
+	$query = "
+UPDATE mirrors SET
+	ocmt = :reason,
+	lastchecked = NOW()
+WHERE id = :id
+";
+	$stmt = $pdo->prepare($query);
+
+	$params = array(
+		":reason"      => $errmsg,
+		":id"          => $mirror["id"],
+	);
+
+	/* Mail the maintainer right away if it wasn't disabled already */
+	if (!$mirror["ocmt"]) {
+		emailMirror($mirror, $errmsg);
+	}
+
+	$stmt->execute($params);
+	p("\n");
+}
+function UPDATE($mirror, $info) {
+	global $pdo;
+
+        $query = "
+UPDATE mirrors SET
+	lastchecked = NOW(),
+	lastupdated = FROM_UNIXTIME(:lastupdated),
+	has_search = :has_search,
+	has_stats = :has_stats,
+	phpversion = :phpversion,
+	lang = :lang,
+	ocmt = :ocmt,
+	ext_avail = :ext_avail,
+	local_hostname = :local_hostname,
+	ipv4_addr = :ipv4_addr
+WHERE id = :id
+";
                   
-        $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
-        if ($result) { $mirrorsupdated++; }
-        else { $problems .= $host['hostname'] . "\t- cannot be updated in database\n"; }
-    }
-
-    // Store the problem encountered in the database, and collect
-    // all the problems into one string in case it will be mailed
-    else {
-        if(isset($host['disable']) && $host['disable'] === true && $host["lastchecked"] > $four_days_ago) {
-            $query = "UPDATE mirrors SET ocmt = '" . addslashes($host['problem']) . "', " .
-                     "lastchecked = FROM_UNIXTIME($four_days_ago), " .
-                     "lastupdated = FROM_UNIXTIME(" . $host['lastupdated'] . ") " .
-                     "WHERE hostname = '" . $host['hostname'] . "'";
-        } else {
-            $query = "UPDATE mirrors SET ocmt = '" . addslashes($host['problem']) . "', " .
-                     "lastupdated = FROM_UNIXTIME(" . $host['lastupdated'] . ") " .
-                     "WHERE hostname = '" . $host['hostname'] . "'";
-        }
-        $result = mysql_query($query) or die("unable to update the database: $query: " . mysql_error());
-        $problems .= $host['hostname'] . "\t- " . $host['problem'] . "\n";
-    }
-
+	$stmt = $pdo->prepare($query);
+	$params = array(
+		":lastupdated"    => (int)$info["mirrorupdated"],
+		":has_search"     => (int)$info["has_search"],
+		":has_stats"      => (int)$info["has_stats"],
+		":phpversion"     => $info["phpversion"],
+		":lang"           => $info["lang"],
+		":ocmt"           => "",
+		":ext_avail"      => $info["ext_avail"],
+		":local_hostname" => $info["local_hostname"],
+		":ipv4_addr"      => $info["ipv4_addr"],
+		":id"             => $mirror["id"],
+	);
+	$stmt->execute($params);
 }
 
-// If less then 70 mirrors updated there is something severly wrong. mail it.
-if ($mirrorsupdated < 70) {
-    @mail(
-        "network-status@lists.php.net,php-mirrors@lists.php.net",
-        "[CRITICAL] Mirror site updates failure",
-        "$mirrorsupdated mirror sites properly updated (out of " . count($hosts) . ")\n\nProblematic mirrors:\n\n" . $problems,
-        "From: mirrors@php.net",
-        "-fmirrors@php.net"
-    );
+
+$pdo = new PDO("mysql:host=localhost;dbname=phpmasterdb", "nobody", "");
+
+
+// Get mirror information for all mirrors (except our special mirrors, such as www and docs)
+$query = "SELECT id, cc, hostname, cname, maintainer, load_balanced, ocmt FROM mirrors WHERE mirrortype = 1
+-- AND hostname IN('us1.php.net', 'us2.php.net', 'ca3.php.net', 'ua1.php.net', 'uk3.php.net')
+ORDER BY hostname";
+$stmt = $pdo->prepare($query);
+$stmt->execute();
+
+
+while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+	p($row["hostname"]);
+
+
+	$filename = "/manual/noalias.txt";
+	$content = fetch($row["hostname"], $filename);
+	if ($content != "manual-noalias") {
+		FAIL($row, "/manual/noalias.txt", "Expected 'manual-noalias', got '$content'");
+		continue;
+	}
+
+	/* GeoDNS for www.php.net */
+	$content = fetch($row["hostname"], $filename, "www.php.net");
+	if ($content != "manual-noalias") {
+		FAIL($row, "www.php.net", "Couldn't fetch $filename from www.php.net");
+		continue;
+	}
+
+	/* Round-robin for country-code.php.net */
+	if ($row["load_balanced"]) {
+		$content = fetch($row["hostname"], $filename, $row["load_balanced"] . ".php.net");
+		if ($content != "manual-noalias") {
+			FAIL($row, "cc.php.net", "Couldn't fetch $filename from {$row["load_balanced"]}.php.net");
+			continue;
+		}
+	}
+
+
+	/* bug#26840 Content negotiation screwups; ".html.php" */
+	$content = fetch($row["hostname"], "/manual/en/faq.html.php", $row["hostname"], &$headers);
+	if (!HTTPCODE($headers, "200 OK")) {
+		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
+		continue;
+	}
+	if (!HTTPCODE($headers, "Content-Type: text/html")) {
+		FAIL($row, "/manual/en/faq.html.php", "Expected Content-Type: text/html -- got:\n\t" . join("\n\t", $headers));
+		continue;
+	}
+	
+	/* bug#31852 Apache multiviews */
+	$content = fetch($row["hostname"], "/functions", $row["hostname"], &$headers);
+	if (!HTTPCODE($headers, "200 OK")) {
+		FAIL($row, "/functions", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
+		continue;
+	}
+	if (!HTTPCODE($headers, "Content-Type: text/html")) {
+		FAIL($row, "/functions", "Expected Content-Type: text/html -- got:\n\t" . join("\n\t", $headers));
+		continue;
+	}
+
+	/* bug#35970 `var` handler */
+	$content = fetch($row["hostname"], "/manual/en/ref.var.php", $row["hostname"], &$headers);
+	if (!HTTPCODE($headers, "200 OK")) {
+		FAIL($row, "/manual/en/ref.var.php", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
+		continue;
+	}
+	if (!HTTPCODE($headers, "Content-Type: text/html")) {
+		FAIL($row, "/manual/en/ref.var.php", "Expected Content-Type: text/html -- got:\n\t" . join("\n\t", $headers));
+		continue;
+	}
+
+	/* bug#46423 outbound connections for internal search */
+	$content = fetch($row["hostname"], "/results.php?q=example&p=manual&l=en", $row["hostname"], &$headers);
+	if (!HTTPCODE($headers, "200 OK")) {
+		FAIL($row, "/manual/en/ref.var.php", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
+		continue;
+	}
+	if (!HTTPCODE($headers, "Content-Type: text/html")) {
+		FAIL($row, "/manual/en/ref.var.php", "Expected Content-Type: text/html -- got:\n\t" . join("\n\t", $headers));
+		continue;
+	}
+
+
+	$content = fetch($row["hostname"], "/mirror-info", $row["hostname"], &$headers);
+	if (!HTTPCODE($headers, "200 OK")) {
+		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
+		continue;
+	}
+	if ($info = MIRRORINFO($row, $content)) {
+		UPDATE($row, $info);
+	}
+	p("\n");
 }
+
