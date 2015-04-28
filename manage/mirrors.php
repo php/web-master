@@ -108,7 +108,7 @@ if (isset($id) && isset($hostname)) {
 		    $body .= PHP_EOL.'=='.PHP_EOL.'Original log follows.'.PHP_EOL.'===='.PHP_EOL;
 		    $body .= wordwrap(unmangle($original_log),70);
                 }
-                @mail(
+                mail(
                     "network-status@lists.php.net",
                     "[mirrors] Update by " . $_SESSION["username"],
                     $body,
@@ -122,7 +122,7 @@ if (isset($id) && isset($hostname)) {
                 $body  = 'The mirror '.$hostname.' has been modified by '.$_SESSION["username"].'.  It\'s status is ';
                 $body .= isset($active) && $active == true ? 'active.' : 'inactive, and DNS will be disabled.';
 		$body .= isset($acmt) && !empty($acmt) ? '  Notes were added to the mirror\'s file.' : '';
-		@mail('network-status@lists.php.net','[mirrors] Status change for '.$hostname,$body,"From: mirrors@php.net\r\n", "-fnoreply@php.net");
+		mail('network-status@lists.php.net','[mirrors] Status change for '.$hostname,$body,"From: mirrors@php.net\r\n", "-fnoreply@php.net");
             }
         }
     } else {
@@ -140,9 +140,7 @@ elseif (isset($id)) {
           "UNIX_TIMESTAMP(created) AS ucreated, " .
           "UNIX_TIMESTAMP(lastedited) AS ulastedited, " .
           "UNIX_TIMESTAMP(lastupdated) AS ulastupdated, " .
-          "UNIX_TIMESTAMP(lastchecked) AS ulastchecked, " .
-          "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < lastchecked) AS up, " .
-          "(DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < lastupdated) AS current " .
+          "UNIX_TIMESTAMP(lastchecked) AS ulastchecked " .
           "FROM mirrors WHERE id = $id"
       );
       $row = mysql_fetch_assoc($res);
@@ -245,7 +243,7 @@ if (intval($id) !== 0) {
   <tr>
    <th colspan="2">
     <?php
-        if (!$row['up'] || !$row['current']) {
+        if (!$row['active'] || $row['ocmt']) {
             echo '<p class="error">This mirror is automatically disabled';
             $row['ocmt'] = trim($row['ocmt']);
             if (!empty($row['ocmt'])) {
@@ -266,11 +264,11 @@ if (intval($id) !== 0) {
   </tr>
   <tr>
    <th align="right">Last mirror check time:</th>
-   <td><?php echo get_print_date($row['ulastchecked']); if (!$row['up']) { echo '<br /><i>does not seem to be up!</i>'; } ?></td>
+   <td><?php echo get_print_date($row['ulastchecked']); ?></td>
   </tr>
   <tr>
    <th align="right">Last update time:</th>
-   <td><?php echo get_print_date($row['ulastupdated']); if (!$row['current']) { echo '<i><br />does not seem to be current!</i>'; } ?></td>
+   <td><?php echo get_print_date($row['ulastupdated']); ?></td>
   </tr>
   <tr>
    <th align="right">PHP version used:</th>
@@ -339,8 +337,6 @@ function page_mirror_list($moreinfo = false)
         SELECT mirrors.*,
         UNIX_TIMESTAMP(lastupdated) AS ulastupdated,
         UNIX_TIMESTAMP(lastchecked) AS ulastchecked,
-        (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 3 DAY) < mirrors.lastchecked) AS up,
-        (DATE_SUB(FROM_UNIXTIME($checktime), INTERVAL 7 DAY) < mirrors.lastupdated) AS current,
         country.name as countryname
         FROM mirrors LEFT JOIN country ON mirrors.cc = country.id
         ORDER BY country.name, hostname"
@@ -376,23 +372,14 @@ function page_mirror_list($moreinfo = false)
 
         // Active mirror site
         if ($row['active']) {
-        
-            // Not special, but active
-            if ($row['mirrortype'] == 1) {
                 // Not up to date or not current
-                if (!$row['up'] || !$row['current']) {
+                if ($row['ocmt']) {
                     if(empty($stats['autodisabled'])) $stats['autodisabled'] = 1;
                     else $stats['autodisabled']++;
                     $siteimage = "error";
-                    if (!empty($row['ocmt'])) {
-                        $errorinfo = $row['ocmt'] . " (problem since: " .
+		    $errorinfo = $row['ocmt'] . " (problem since: " .
                                      get_print_date($row['ulastchecked']) . ")";
-                    } elseif (!$row['current']) {
-                        $errorinfo = "content out of date (last updated: " .
-                                     get_print_date($row['ulastupdated']) . ")";
-                    }
                 }
-            }
         }
         // Not active mirror site (maybe deactivated by the
         // mirror check bot, because of a /manual alias,
