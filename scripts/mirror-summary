@@ -8,13 +8,23 @@
 */
 
 // Please edit this when testing to print the mail out, not send them to the list every time
-define("DEBUG", false);
+define("DEBUG", true);
 
+function email($address, $subject, $content) {
+	if (DEBUG) {
+		echo $subject, "\n", $content, "\n\n\n\n";
+		return;
+	}
+
+	$headers = "From: network-status@lists.php.net";
+	$extrah  = "-fnoreply@php.net";
+	return mail($address, $subject, $content, $headers, $extrah);
+}
 // This script will run for a long time
 set_time_limit (0);
 
 // Empty arrays by default
-$inactives = $outdated = $disabled = array();
+$inactives = $disabled = $lines = array();
  
 // Try to connect to the database and select phpmasterdb database
 mysql_connect("localhost","nobody","") or die("unable to connect to database");
@@ -25,51 +35,68 @@ $lct = mysql_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY las
 list($checktime) = mysql_fetch_row($lct);
 
 // Select all mirrors ordered by hostname
-$query = "SELECT maintainer, hostname, id, has_search, UNIX_TIMESTAMP(lastupdated) AS lastupdate, " .
+$query = "SELECT maintainer, active, hostname, id, has_search, UNIX_TIMESTAMP(lastupdated) AS lastupdate, " .
          "phpversion, acmt, ocmt " .
-         "FROM mirrors ORDER BY hostname";
+         "FROM mirrors WHERE mirrortype = 1 ORDER BY hostname";
 
 // Execute SQL query
 $result = mysql_query($query) or die("unable to get from the database");
 
-// Download data to the $hosts array, and count total number of hosts
 while ($host = mysql_fetch_assoc($result)) {
-    // skips: docs.php.net is not an official mirror (builds own manuals, empty distributions/, ...)
-    if ($host['hostname'] === 'docs.php.net') {
-        continue;
-    }
-    $hosts[] = $host;
+
+	if (!$host["active"] || $host["ocmt"]) {
+		$error = "";
+		if (!$host["active"]) {
+			$disabled[$host["hostname"]] = $host;
+			$error .= $host["acmt"];
+		}
+		if ($host["ocmt"]) {
+			$inactives[$host["hostname"]] = $host;
+			$error .= $host["ocmt"];
+		}
+
+		$message = "Hi!\n\nOur automatic mirror site check found a permanent "
+			."fatal error in your mirror setup.\n"
+			."Therefore our bot automatically disabled your listing as an\n"
+			."official PHP.net mirror site.\n"
+			."\n$error\n"
+			."Please correct the problem or reply to this mail with your\n"
+			."questions, if you think that the problem is not on your side.\n"
+			."Your mirror will be kept disabled until the error is fixed.\n\n"
+			."Mail sent out by the PHP.net automatic mirror site monitoring system";
+
+		email(
+			$host["maintainer"],
+			"{$host["hostname"]} mirror site deactivated",
+			$message
+		);
+	} else {
+		$has_search = empty($host['has_search']) ? 'N' : 'Y';
+
+		$lines[]= sprintf(" %s%s%s%s%s%s%s\n", 
+                      $host['hostname'],   pad(12,  'hostname'), 
+                      $host['phpversion'], pad(6, 'phpversion'), 
+                      $has_search,              pad(1, 'has_search'), 
+                      date('F j, Y, g:i a', $host['lastupdate'])
+                 );
+	}
 }
-$total = count($hosts);
 
 // This is the common text for the php-mirrors mail
 $body = "Following is data gathered from the various mirrors. It is ordered by those\n"
       . "that are suspected to be dead, mirrors which are alive but have errors, and\n"
-      . "finally the rest, sorted by hostname. The maintainers of inactive and outdated\n"
+      . "finally the rest, sorted by hostname. The maintainers of inactive and disabled\n"
       . "mirror sites are automatically notified the same time, as this mail goes out.\n\n"
       . "View the mirror trouble guide here: http://php.net/mirroring-troubles.php\n\n";
 
-// List mirrors which seem to be down
-for ($i=0; $i < $total; $i++) {
-    if (!$hosts[$i]['active']) {
-        $cmt = !empty($hosts[$i]['ocmt']) ? $hosts[$i]['ocmt'] : $hosts[$i]['acmt'];
-        $inactives[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $cmt);
-    }
-}
 if (count($inactives)) {
-  $body .= "These mirrors are badly broken or no response was returned within the last three days:\n\n";
-  $body .= wordwrap(join(', ', array_keys($inactives))) . "\n";
+	$body .= "These mirrors are badly broken:\n\n";
+	$body .= wordwrap(join(', ', array_keys($inactives))) . "\n";
 }
 
-for ($i=0; $i < $total; $i++) {
-    if (!$hosts[$i]['active']) {
-        $cmt = !empty($hosts[$i]['ocmt']) ? $hosts[$i]['ocmt'] : $hosts[$i]['acmt'];
-        $disabled[$hosts[$i]['hostname']] = array($hosts[$i]['maintainer'], $cmt);
-    }
-}
 if (count($disabled)) {
-    $body .= "\nThese mirrors are manually disabled:\n\n";
-    $body .= wordwrap(join(', ', array_keys($disabled))) . "\n";
+	$body .= "\nThese mirrors are manually disabled:\n\n";
+	$body .= wordwrap(join(', ', array_keys($disabled))) . "\n";
 }
 
 $body .= "\nAnd now for the rest of the mirrors:\n"
@@ -84,8 +111,8 @@ a quick strlen check, and depending on how different it is from the string lengt
 
 // Padd an item, respecting a default length
 function pad($deflen, $item) {
-    global $i, $hosts;
-    $str = strlen($hosts[$i][$item]);
+    global $host;
+    $str = strlen($host[$item]);
     if ($str >= $deflen*2) {
         $sp =" ";
     }
@@ -97,83 +124,14 @@ function pad($deflen, $item) {
     return $sp;    
 }
 
-for ($i=0; $i < $total; $i++) {
-    if ($hosts[$i]['active']){
 
-        $has_search = empty($hosts[$i]['has_search']) ? 'N' : 'Y';
-
-        $body .= sprintf(" %s%s%s%s%s%s%s\n", 
-                      $hosts[$i]['hostname'],   pad(12,  'hostname'), 
-                      $hosts[$i]['phpversion'], pad(6, 'phpversion'), 
-                      $has_search,              pad(1, 'has_search'), 
-                      date('F j, Y, g:i a', $hosts[$i]['lastupdate'])
-                 );
-    }
-}
-
+$body .= join("", $lines);
 $body . "---------------------------------------------------------------------------------------\n";
 
-if(DEBUG) {
-    echo $body . "\n\n";
-} else {
-    mail(
-        "network-status@lists.php.net",
-        "[mirrors] Status information",
-        $body,
-        "From: mirrors@php.net"
-    );
-}
+email(
+	"network-status@lists.php.net",
+	"[mirrors] Status information",
+	$body
+);
 
 
-// Mail text for those mirror maintainers with inactive mirror sites
-$inactives_text = "Hi!\n\nOur automatic mirror site check was unable to reach\n"
-                 ."the PHP.net mirror site maintained by you for three or more days\n"
-                 ."now, *or* have found a permanent fatal error in your mirror setup.\n"
-                 ."Therefore our bot automatically disabled your listing as an\n"
-                 ."official PHP.net mirror site.\n\n"
-                 ."{{lasterror}}"
-                 ."Please correct the problem or reply to this mail with your\n"
-                 ."questions, if you think that the problem is not on your side.\n"
-                 ."Your mirror will be kept disabled until the error is fixed.\n\n"
-                 ."Mail sent out by the PHP.net automatic mirror site monitoring system";
-
-// Send mail to all inactive mirror maintainers
-foreach (array_merge($inactives, $disabled) as $hostname => $hostinfo) {
-    if (!empty($hostinfo[1])) {
-        $last_error = "The last error message stored for your mirror is:\n  {$hostinfo[1]}\n\n";
-    }
-    else { $last_error = ""; }
-    if(DEBUG) {
-        echo $hostname. " - $last_error \n\n";
-    } else {
-        mail(
-            $hostinfo[0],
-            "$hostname mirror site deactivated",
-            str_replace("{{lasterror}}", $last_error, $inactives_text),
-            "From: network-status@lists.php.net"
-        );
-    }
-}
-
-// Mail text for those mirror maintainers with outdated mirror sites
-$outdated_text = "Hi!\n\nOur automatic mirror site check found out, that\n"
-                 ."the PHP.net mirror site maintained by you was not updated in\n"
-                 ."the last seven or more days, and therefore automatically disabled\n"
-                 ."your listing as a PHP.net mirror site.\n\n"
-                 ."Please correct the problem or reply to this mail with your\n"
-                 ."questions, if you think that the problem is not on your side.\n\n"
-                 ."Mail sent out by the PHP.net automatic mirror site monitoring system";
-
-// Send mail to all outdated mirror maintainers
-foreach ($outdated as $hostname => $hostinfo) {
-    if(DEBUG) {
-        echo $hostname . " - outdated\n\n";
-    } else {
-        mail(
-            $hostinfo[0],
-            "$hostname mirror site deactivated",
-            $outdated_text,
-            "From: network-status@lists.php.net"
-        );
-    }
-}
