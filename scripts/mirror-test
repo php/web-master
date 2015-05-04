@@ -431,14 +431,14 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
 if(isGeoDebug()) {
 	$filename = "/manual/noalias.txt";
-	$content = fetch($row["hostname"], $filename);
+	$content = fetch($row["cname"], $filename);
 	if ($content != "manual-noalias") {
 		FAIL($row, "/manual/noalias.txt", "Expected 'manual-noalias', got '$content'");
 		continue;
 	}
 
 	/* GeoDNS for www.php.net */
-	$content = fetch($row["hostname"], $filename, "www.php.net");
+	$content = fetch($row["cname"], $filename, "www.php.net");
 	if ($content != "manual-noalias") {
 		FAIL($row, "www.php.net", "Couldn't fetch $filename from www.php.net");
 		continue;
@@ -446,7 +446,7 @@ if(isGeoDebug()) {
 
 	/* Round-robin for country-code.php.net */
 	if ($row["load_balanced"]) {
-		$content = fetch($row["hostname"], $filename, $row["load_balanced"] . ".php.net");
+		$content = fetch($row["cname"], $filename, $row["load_balanced"] . ".php.net");
 		if ($content != "manual-noalias") {
 			FAIL($row, "cc.php.net", "Couldn't fetch $filename from {$row["load_balanced"]}.php.net");
 			continue;
@@ -455,7 +455,7 @@ if(isGeoDebug()) {
 
 
 	/* bug#26840 Content negotiation screwups; ".html.php" */
-	$content = fetch($row["hostname"], "/manual/en/faq.html.php", $row["hostname"], $headers);
+	$content = fetch($row["cname"], "/manual/en/faq.html.php", $row["hostname"], $headers);
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
 		continue;
@@ -466,7 +466,7 @@ if(isGeoDebug()) {
 	}
 	
 	/* bug#31852 Apache multiviews */
-	$content = fetch($row["hostname"], "/functions", $row["hostname"], $headers);
+	$content = fetch($row["cname"], "/functions", $row["hostname"], $headers);
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/functions", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
 		continue;
@@ -477,7 +477,7 @@ if(isGeoDebug()) {
 	}
 
 	/* bug#35970 `var` handler */
-	$content = fetch($row["hostname"], "/manual/en/ref.var.php", $row["hostname"], $headers);
+	$content = fetch($row["cname"], "/manual/en/ref.var.php", $row["hostname"], $headers);
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/manual/en/ref.var.php", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
 		continue;
@@ -488,7 +488,7 @@ if(isGeoDebug()) {
 	}
 
 	/* bug#46423 outbound connections for internal search */
-	$content = fetch($row["hostname"], "/results.php?q=example&p=manual&l=en", $row["hostname"], $headers);
+	$content = fetch($row["cname"], "/results.php?q=example&p=manual&l=en", $row["hostname"], $headers);
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/manual/en/ref.var.php", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
 		continue;
@@ -500,7 +500,7 @@ if(isGeoDebug()) {
 
 
 }
-	$content = fetch($row["hostname"], "/mirror-info", $row["hostname"], $headers);
+	$content = fetch($row["cname"], "/mirror-info", $row["hostname"], $headers);
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
 		continue;
