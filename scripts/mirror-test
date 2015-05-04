@@ -25,8 +25,14 @@ function lap() {
 	$then = $now;
 	return $ret;
 }
+function isGeoDebug() {
+	return getenv("PHPGEODEV");
+}
+function isDebug() {
+	return getenv("PHPWEBDEV") || file_exists(".DEV");
+}
 function p($msg) {
-	if (getenv("PHPWEBDEV") || file_exists(".DEV")) {
+	if (isDebug()) {
 		echo $msg;
 	}
 }
@@ -263,6 +269,7 @@ WHERE id = :id
 	$stmt->execute($params);
 	p("\n");
 }
+
 function UPDATE($mirror, $info) {
 	global $pdo;
 
@@ -297,22 +304,132 @@ WHERE id = :id
 	$stmt->execute($params);
 }
 
+function GEOLS() {
+	p(GEOLS. "\n");
+	$json = file_get_contents(GEOLS);
+
+	if ($json) {
+		return json_decode($json, true);
+	}
+
+	return array();
+}
+
+function GEORM($id) {
+sleep(1);
+
+	$opts = array(
+		"user_agent"    => "PHP.net Mirror Site check",
+		"timeout"       => 15,
+		"ignore_errors" => "1",
+		"method"        => "DELETE",
+	);
+
+	$ctx = stream_context_create(array("http" => $opts));
+	$retval = file_get_contents(sprintf(GEORM, $id), false, $ctx);
+
+	p($retval);
+	p("Removed $id\n");
+}
+
+function GEOADD($cname, $country) {
+sleep(1);
+	$countries = include __DIR__ . "/countries.inc";
+
+	if (!isset($countries[$country])) {
+		p("Can't find country code for $country\n");
+		return;
+	}
+
+	$data = array(
+		"domain"     => ZONE,
+		"host"       => "@",
+		"ttl"        => 0,
+		"geozone_id" => $countries[$country],
+		"prio"       => 0,
+		"type"       => "CNAME",
+		"rdata"      => $cname,
+	);
+	$opts = array(
+		"user_agent"    => "PHP.net Mirror Site check",
+		"timeout"       => 15,
+		"ignore_errors" => "1",
+		"method"        => "PUT",
+		"header"        => "Content-type: text/x-javascript",
+		"content"       => $t = json_encode($data),
+	);
+	$ctx = stream_context_create(array("http" => $opts));
+	$retval = file_get_contents(GEOADD, false, $ctx);
+	p("Adding $cname => " . GEOADD . ": $t\n");
+	p($retval);
+}
+
+function geoDNS($HOSTS) {
+	$GEOLIST = GEOLS();
+	if (!$GEOLIST) {
+		p("Not updating EasyDNS GeoDNS, couldn't get the list!\n");
+	}
+
+	/* Remove disabled hosts */
+	$GEO = array();
+	foreach($GEOLIST["data"] as $k => $entry) {
+		/* Only deal with records we have declared as GEO */
+		if (empty($entry["geozone_id"])) {
+			p("No GEOZONE_ID set for {$entry["rdata"]}\n");
+			continue;
+		}
+
+		if (empty($HOSTS[$entry["rdata"]])) {
+			unset($HOSTS[$entry["rdata"]]);
+			p("{$entry["rdata"]} not a current host\n");
+			GEORM($entry["id"]);
+		} else {
+			p("{$entry["rdata"]} is current host\n");
+			$GEO[$entry["rdata"]] = $entry["id"];
+		}
+	}
+
+	p("Now using mirror-check\n");
+	foreach($HOSTS as $cname => $country) {
+		if (isset($GEO[$cname]) && $country) {
+			/* CNAME listed in GEO zone and is enabled in our system */
+			continue;
+		}
+		
+		if ($country) {
+			/* CNAME enabled in our system, make new zone record for it */
+			GEOADD($cname, $country);
+			continue;
+		} elseif (isset($GEO[$cname])) {
+			/* CNAME disabled in our system, remove the zone record for it */
+			GEORM($GEO[$cname]);
+		} else {
+			/* CNAME disabled in our system, and no zone record for it */
+			continue;
+		}
+		
+	}
+}
 
 $pdo = new PDO("mysql:host=localhost;dbname=phpmasterdb", "nobody", "");
 
 
 // Get mirror information for all mirrors (except our special mirrors, such as www and docs)
-$query = "SELECT id, cc, hostname, cname, maintainer, load_balanced, ocmt FROM mirrors WHERE mirrortype = 1
+$query = "SELECT mirrors.id, cc, hostname, cname, maintainer, load_balanced, ocmt, country.alpha2 FROM mirrors,country WHERE mirrortype = 1
 -- AND hostname IN('us1.php.net', 'us2.php.net', 'ca3.php.net', 'ua1.php.net', 'uk3.php.net')
+AND mirrors.cc=country.id
 ORDER BY hostname";
 $stmt = $pdo->prepare($query);
 $stmt->execute();
 
 
+$HOSTS = array();
 while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	p($row["hostname"]);
+	$HOSTS[$row["cname"]."."] = false;
 
 
+if(isGeoDebug()) {
 	$filename = "/manual/noalias.txt";
 	$content = fetch($row["hostname"], $filename);
 	if ($content != "manual-noalias") {
@@ -382,6 +499,7 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	}
 
 
+}
 	$content = fetch($row["hostname"], "/mirror-info", $row["hostname"], $headers);
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
@@ -389,7 +507,19 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	}
 	if ($info = MIRRORINFO($row, $content)) {
 		UPDATE($row, $info);
+		$HOSTS[$row["cname"]."."] = $row["alpha2"];
 	}
 	p("\n");
+}
+
+if ($creds = getenv("EASYDNS_CREDENTIALS")) {
+	$GEOROOT = "https://{$creds}@sandbox.rest.easydns.net";
+	define("ZONE", "www.php.net");
+	define("GEOLS",  "$GEOROOT/zones/records/all/" . ZONE . "?format=json");
+	define("GEORM",  "$GEOROOT/zones/records/" . ZONE . "/%s?format=json");
+	define("GEOADD", "$GEOROOT/zones/records/add/" . ZONE . "/CNAME?format=json");
+	geoDNS($HOSTS);
+} else {
+	p("Not updating EasyDNS GeoDNS, No credentials provided");
 }
 
