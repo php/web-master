@@ -48,6 +48,7 @@ if (@mysql_connect("localhost","nobody","")) {
         $res = @mysql_query(
             "SELECT mirrors.*, country.name AS cname " .
             "FROM mirrors LEFT JOIN country ON mirrors.cc = country.id " .
+            "WHERE ocmt = '' AND active = 1 " .
             "ORDER BY country.name,hostname"
         );
         
