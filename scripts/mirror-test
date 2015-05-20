@@ -73,43 +73,43 @@ function MIRRORINFO($row, $content) {
 	$info = explode("|", trim($content));
 
 	if (count($info) != 11) {
-		FAIL($row, "/mirror-info", "Invalid data received. See: http://php.net/mirroring-troubles.php#invalid-data\n");
+		FAIL($row, "/mirror-info", "Invalid data received. See: http://php.net/mirroring-troubles.php#invalid-data\n", $row["cname"]);
 		return false;
 	}
-    
+
 	if (preg_match("@^\d+\.\d+\.\d+@", $info[1], $matches)) {
 		$RETURN["phpversion"] = $matches[0];
 	} else {
-		FAIL($row, "/mirror-info|version", "Doesn't look like PHP version");
+		FAIL($row, "/mirror-info|version", "Doesn't look like PHP version", $row["cname"]);
 		return false;
 	}
 
 	if (!version_compare($RETURN["phpversion"], "5.3.3", "ge")) {
-		FAIL($row, "/mirror-info|version", "Running pre 5.3.3");
+		FAIL($row, "/mirror-info|version", "Running pre 5.3.3", $row["cname"]);
 		return false;
 	}
-    
+
 	$RETURN["mirrorupdated"] = (int)$info[2];
 	$RETURN["has_search"]    = (int)$info[3];
 	$RETURN["has_stats"]     = (int)$info[4];
 
 	if ($RETURN["mirrorupdated"] < strtotime("6 hours ago")) {
-		FAIL($row, "/mirror-info|stale", "Stale mirror, not been updated for a while");
+		FAIL($row, "/mirror-info|stale", "Stale mirror, not been updated for a while", $row["cname"]);
 		return false;
 	}
 	// If language value is SQL safe, update it
 	if (preg_match("!^[a-zA-Z_]+$!", $info[5])) {
 		$RETURN["lang"] = $info[5];
 	} else {
-		FAIL($row, "/mirror-info|lang", "Invalid language string");
+		FAIL($row, "/mirror-info|lang", "Invalid language string", $row["cname"]);
 		return false;
 	}
-    
+  
 	if (!(bool)$info[7]) {
-		FAIL($row, "/mirror-info|rsync", "Rsync setup problems, see /mirroring.php.");
+		FAIL($row, "/mirror-info|rsync", "Rsync setup problems, see /mirroring.php.", $row["cname"]);
 		return false;
 	}
-    
+
 
 	// Get the list of available extensions on the mirror
 	$RETURN["ext_avail"] = (string)$info[8];
@@ -123,13 +123,13 @@ function MIRRORINFO($row, $content) {
 	// Important to keep my php.net cookie around
 	$mysite = parse_url($info[0]);
 	if (!$mysite) {
-		FAIL($row, "/mirror-info|parsing", "Can't parse URL from mirror-info");
+		FAIL($row, "/mirror-info|parsing", "Can't parse URL from mirror-info", $row["cname"]);
 		return false;
 	}
 	if ($mysite["host"] != $row["hostname"]) {
 		$errmsg = "Apache ServerName directive does not match '{$row['hostname']}'."
 			. " Consider swapping ServerName and ServerAlias, see /mirroring.php.";
-		FAIL($row, "/mirror-info|hostname", $errmsg);
+		FAIL($row, "/mirror-info|hostname", $errmsg, $row["cname"]);
 		return false;
 	}
 
@@ -188,7 +188,7 @@ function HTTPCODE($headers, $code) {
 
 	return false;
 }
-function FAIL($mirror, $check, $reason) {
+function FAIL($mirror, $check, $reason, $testhost) {
 	global $pdo;
 
 	// Try to extract something reasonable out of the content
@@ -197,18 +197,23 @@ function FAIL($mirror, $check, $reason) {
 	switch($check) {
 	case "/mirror-info|version":
 		$help = "Your PHP version is too old";
+		$help .= "\n\n\tTest URL: http://$testhost/mirror-info\n";
 		break;
 	case "/mirror-info|stale":
 		$help = "Please run rsync on hourly basis";
+		$help .= "\n\n\tTest URL: http://$testhost/mirror-info\n";
 		break;
 	case "/mirror-info|lang":
 		$help = "Unknown language";
+		$help .= "\n\n\tTest URL: http://$testhost/mirror-info\n";
 		break;
 	case "/mirror-info|rsync":
 		$help = "Rsync issues";
+		$help .= "\n\n\tTest URL: http://$testhost/mirror-info\n";
 		break;
 	case "/mirror-info|hostname":
 		$help = "Please make sure your ServerName is configured correctly";
+		$help .= "\n\n\tTest URL: http://$testhost/mirror-info\n";
 		break;
 
 	case "www.php.net":
@@ -225,23 +230,29 @@ function FAIL($mirror, $check, $reason) {
 
 	case "/manual/noalias.txt":
 		$help = "Apache manual alias. See: http://php.net/mirroring-troubles.php#manual-redirect";
+		$help .= "\n\n\tTest URL: http://$testhost/$check\n";
 		break;
 
 	case "/manual/en/faq.html.php":
 		$help = "Content-Type. See: http://php.net/mirroring-troubles.php#content-type";
+		$help .= "\n\n\tTest URL: http://$testhost/$check\n";
 		break;
 
 	case "/functions":
 		$help = "MultiViews on. See: http://php.net/mirroring-troubles.php#multiviews";
+		$help .= "\n\n\tTest URL: http://$testhost/$check\n";
 		break;
 
 	case "/manual/en/ref.var.php":
 		$help = "Var Handler. See: http://php.net/mirroring-troubles.php#var";
+		$help .= "\n\n\tTest URL: http://$testhost/$check\n";
 		break;
 
 	case "/results.php?q=example&p=manual&l=en":
 		$help = "Outbound connections appear disabled. See: http://php.net/mirroring-troubles.php#outbound";
+		$help .= "\n\n\tTest URL: http://$testhost/$check\n";
 		break;
+
 	default:
 		$help = "";
 	}
@@ -273,7 +284,7 @@ WHERE id = :id
 function UPDATE($mirror, $info) {
 	global $pdo;
 
-        $query = "
+	$query = "
 UPDATE mirrors SET
 	lastchecked = NOW(),
 	lastupdated = FROM_UNIXTIME(:lastupdated),
@@ -287,7 +298,7 @@ UPDATE mirrors SET
 	ipv4_addr = :ipv4_addr
 WHERE id = :id
 ";
-                  
+
 	$stmt = $pdo->prepare($query);
 	$params = array(
 		":lastupdated"    => (int)$info["mirrorupdated"],
@@ -433,14 +444,14 @@ if(isGeoDebug()) {
 	$filename = "/manual/noalias.txt";
 	$content = fetch($row["cname"], $filename);
 	if ($content != "manual-noalias") {
-		FAIL($row, "/manual/noalias.txt", "Expected 'manual-noalias', got '$content'");
+		FAIL($row, "/manual/noalias.txt", "Expected 'manual-noalias', got '$content'", $row["cname"]);
 		continue;
 	}
 
 	/* GeoDNS for www.php.net */
 	$content = fetch($row["cname"], $filename, "www.php.net");
 	if ($content != "manual-noalias") {
-		FAIL($row, "www.php.net", "Couldn't fetch $filename from www.php.net");
+		FAIL($row, "www.php.net", "Couldn't fetch $filename from www.php.net", "www.php.net");
 		continue;
 	}
 
@@ -448,7 +459,7 @@ if(isGeoDebug()) {
 	if ($row["load_balanced"]) {
 		$content = fetch($row["cname"], $filename, $row["load_balanced"] . ".php.net");
 		if ($content != "manual-noalias") {
-			FAIL($row, "cc.php.net", "Couldn't fetch $filename from {$row["load_balanced"]}.php.net");
+			FAIL($row, "cc.php.net", "Couldn't fetch $filename from {$row["load_balanced"]}.php.net", "{$row["load_balanced"]}.php.net");
 			continue;
 		}
 	}
@@ -456,53 +467,73 @@ if(isGeoDebug()) {
 
 	/* bug#26840 Content negotiation screwups; ".html.php" */
 	$content = fetch($row["cname"], "/manual/en/faq.html.php", $row["hostname"], $headers);
+	if (!$content) {
+		FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
+		continue;
+	}
 	if (!HTTPCODE($headers, "200 OK")) {
-		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
+		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
 		continue;
 	}
 	if (!HTTPCODE($headers, "Content-Type: text/html")) {
-		FAIL($row, "/manual/en/faq.html.php", "Expected Content-Type: text/html -- got:\n\t" . join("\n\t", $headers));
+		FAIL($row, "/manual/en/faq.html.php", "Expected Content-Type: text/html -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
 		continue;
 	}
 	
 	/* bug#31852 Apache multiviews */
 	$content = fetch($row["cname"], "/functions", $row["hostname"], $headers);
+	if (!$content) {
+		FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
+		continue;
+	}
 	if (!HTTPCODE($headers, "200 OK")) {
-		FAIL($row, "/functions", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
+		FAIL($row, "/functions", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
 		continue;
 	}
 	if (!HTTPCODE($headers, "Content-Type: text/html")) {
-		FAIL($row, "/functions", "Expected Content-Type: text/html -- got:\n\t" . join("\n\t", $headers));
+		FAIL($row, "/functions", "Expected Content-Type: text/html -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
 		continue;
 	}
 
 	/* bug#35970 `var` handler */
 	$content = fetch($row["cname"], "/manual/en/ref.var.php", $row["hostname"], $headers);
+	if (!$content) {
+		FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
+		continue;
+	}
 	if (!HTTPCODE($headers, "200 OK")) {
-		FAIL($row, "/manual/en/ref.var.php", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
+		FAIL($row, "/manual/en/ref.var.php", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
 		continue;
 	}
 	if (!HTTPCODE($headers, "Content-Type: text/html")) {
-		FAIL($row, "/manual/en/ref.var.php", "Expected Content-Type: text/html -- got:\n\t" . join("\n\t", $headers));
+		FAIL($row, "/manual/en/ref.var.php", "Expected Content-Type: text/html -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
 		continue;
 	}
 
 	/* bug#46423 outbound connections for internal search */
 	$content = fetch($row["cname"], "/results.php?q=example&p=manual&l=en", $row["hostname"], $headers);
+	if (!$content) {
+		FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
+		continue;
+	}
 	if (!HTTPCODE($headers, "200 OK")) {
-		FAIL($row, "/manual/en/ref.var.php", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
+		FAIL($row, "/manual/en/ref.var.php", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
 		continue;
 	}
 	if (!HTTPCODE($headers, "Content-Type: text/html")) {
-		FAIL($row, "/manual/en/ref.var.php", "Expected Content-Type: text/html -- got:\n\t" . join("\n\t", $headers));
+		FAIL($row, "/manual/en/ref.var.php", "Expected Content-Type: text/html -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
 		continue;
 	}
 
 
 }
 	$content = fetch($row["cname"], "/mirror-info", $row["hostname"], $headers);
+	if (!$content) {
+		FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
+		continue;
+	}
 	if (!HTTPCODE($headers, "200 OK")) {
-		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers));
+		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
 		continue;
 	}
 	if ($info = MIRRORINFO($row, $content)) {
