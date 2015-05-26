@@ -37,7 +37,7 @@ $active     = isset($active)     ? 1 : 0;
 $has_stats  = isset($has_stats)  ? 1 : 0;
 $moreinfo   = empty($_GET['mi']) ? 0 : 1;
 
-$mirrortype = (int)$mirrortype;
+$mirrortype = isset($mirrortype) ? (int)$mirrortype : 0;
 
 // Select last mirror check time from table
 $lct = db_query("SELECT UNIX_TIMESTAMP(lastchecked) FROM mirrors ORDER BY lastchecked DESC LIMIT 1");
