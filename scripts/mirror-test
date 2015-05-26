@@ -544,7 +544,7 @@ if(isGeoDebug()) {
 }
 
 if ($creds = getenv("EASYDNS_CREDENTIALS")) {
-	$GEOROOT = "https://{$creds}@sandbox.rest.easydns.net";
+	$GEOROOT = "https://{$creds}@rest.easydns.net";
 	define("ZONE", "www.php.net");
 	define("GEOLS",  "$GEOROOT/zones/records/all/" . ZONE . "?format=json");
 	define("GEORM",  "$GEOROOT/zones/records/" . ZONE . "/%s?format=json");
