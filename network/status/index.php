@@ -214,7 +214,7 @@ function page_mirror_list($moreinfo = false)
     $current_time    = get_print_date(time());
    
     if(empty($stats['disabled'])) $stats['disabled'] = 0;
-    $stats['ok']   = $stats['mirrors'] - $stats['autodisabled'] - $stats['disabled'];
+    $stats['ok']   = $stats['mirrors'] - $stats['disabled'];
     $moreinfo_flag = empty($moreinfo) ? 1 : 0;
     
     $has_sqlite_counts = '';
