@@ -16,7 +16,7 @@
 
 require_once dirname(dirname(dirname(__FILE__))).'/include/functions.inc';
 
-head('Network Status',0);
+head('Network Status');
 
 db_connect();
 
