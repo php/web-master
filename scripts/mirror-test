@@ -25,24 +25,20 @@ function lap() {
 	$then = $now;
 	return $ret;
 }
-function isGeoDebug() {
-	return getenv("PHPGEODEV");
-}
 function isDebug() {
 	return getenv("PHPWEBDEV") || file_exists(".DEV");
 }
 function p($msg) {
-	if (isDebug()) {
-		echo $msg;
-	}
+	return fprintf(STDERR, "%s", $msg);
 }
 function email($address, $subject, $content) {
-	if (!getenv("PHPWEBDEV") && !file_exists(".DEV")) {
-		$headers = "From: mirrors@php.net";
-		$extrah  = "-fnoreply@php.net";
-		return mail($address, $subject, $content, $headers, $extrah);
+	if (isDebug()) {
+		return fprintf(STDERR, "\n\nMailed %s -- %s\n%s\n\n", $address, $subject, $content);
 	}
-	echo "\n\n\nMailed $address -- $subject\n$content\n\n\n";
+
+	$headers = "From: mirrors@php.net";
+	$extrah  = "-fnoreply@php.net";
+	return mail($address, $subject, $content, $headers, $extrah);
 }
 function emailMirror($row, $problem) {
 	$subject = "{$row["hostname"]} Disabled";
@@ -440,7 +436,6 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	$HOSTS[$row["cname"]."."] = false;
 
 
-if(isGeoDebug()) {
 	$filename = "/manual/noalias.txt";
 	$content = fetch($row["cname"], $filename);
 	if ($content != "manual-noalias") {
@@ -526,7 +521,6 @@ if(isGeoDebug()) {
 	}
 
 
-}
 	$content = fetch($row["cname"], "/mirror-info", $row["hostname"], $headers);
 	if (!$content) {
 		FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
