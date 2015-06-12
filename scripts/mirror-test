@@ -433,30 +433,44 @@ $stmt->execute();
 
 $HOSTS = array();
 while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+	$timeoutfail = 0;
 	p($row["hostname"]);
 	$HOSTS[$row["cname"]."."] = false;
 
 
 	$filename = "/manual/noalias.txt";
-	$content = fetch($row["cname"], $filename);
+	$content = fetch($row["cname"], $filename, null, $headers);
+
 	if ($content != "manual-noalias") {
-		FAIL($row, "/manual/noalias.txt", "Expected 'manual-noalias', got '$content'", $row["cname"]);
-		continue;
+		if (!$headers && $timeoutfail < 2) {
+			$timeoutfail++;
+		} else {
+			FAIL($row, "/manual/noalias.txt", "Expected 'manual-noalias', got '$content'", $row["cname"]);
+			continue;
+		}
 	}
 
 	/* GeoDNS for www.php.net */
-	$content = fetch($row["cname"], $filename, "www.php.net");
+	$content = fetch($row["cname"], $filename, "www.php.net", $headers);
 	if ($content != "manual-noalias") {
-		FAIL($row, "www.php.net", "Couldn't fetch $filename from www.php.net", "www.php.net");
-		continue;
+		if (!$headers && $timeoutfail < 2) {
+			$timeoutfail++;
+		} else {
+			FAIL($row, "www.php.net", "Couldn't fetch $filename from www.php.net", "www.php.net");
+			continue;
+		}
 	}
 
 	/* Round-robin for country-code.php.net */
 	if ($row["load_balanced"]) {
-		$content = fetch($row["cname"], $filename, $row["load_balanced"] . ".php.net");
+		$content = fetch($row["cname"], $filename, $row["load_balanced"] . ".php.net", $headers);
 		if ($content != "manual-noalias") {
-			FAIL($row, "cc.php.net", "Couldn't fetch $filename from {$row["load_balanced"]}.php.net", "{$row["load_balanced"]}.php.net");
-			continue;
+			if (!$headers) {
+				$timeoutfail++;
+			} else {
+				FAIL($row, "cc.php.net", "Couldn't fetch $filename from {$row["load_balanced"]}.php.net", "{$row["load_balanced"]}.php.net");
+				continue;
+			}
 		}
 	}
 
@@ -464,8 +478,12 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	/* bug#26840 Content negotiation screwups; ".html.php" */
 	$content = fetch($row["cname"], "/manual/en/faq.html.php", $row["hostname"], $headers);
 	if (!$content) {
-		FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
-		continue;
+		if (!$headers && $timeoutfail < 2) {
+			$timeoutfail++;
+		} else {
+			FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
+			continue;
+		}
 	}
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
@@ -479,8 +497,12 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	/* bug#31852 Apache multiviews */
 	$content = fetch($row["cname"], "/functions", $row["hostname"], $headers);
 	if (!$content) {
-		FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
-		continue;
+		if (!$headers && $timeoutfail < 2) {
+			$timeoutfail++;
+		} else {
+			FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
+			continue;
+		}
 	}
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/functions", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
@@ -494,8 +516,12 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	/* bug#35970 `var` handler */
 	$content = fetch($row["cname"], "/manual/en/ref.var.php", $row["hostname"], $headers);
 	if (!$content) {
-		FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
-		continue;
+		if (!$headers && $timeoutfail < 2) {
+			$timeoutfail++;
+		} else {
+			FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
+			continue;
+		}
 	}
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/manual/en/ref.var.php", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
@@ -509,8 +535,12 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	/* bug#46423 outbound connections for internal search */
 	$content = fetch($row["cname"], "/results.php?q=example&p=manual&l=en", $row["hostname"], $headers);
 	if (!$content) {
-		FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
-		continue;
+		if (!$headers && $timeoutfail < 2) {
+			$timeoutfail++;
+		} else {
+			FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
+			continue;
+		}
 	}
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/manual/en/ref.var.php", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
@@ -524,8 +554,12 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 
 	$content = fetch($row["cname"], "/mirror-info", $row["hostname"], $headers);
 	if (!$content) {
-		FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
-		continue;
+		if (!$headers && $timeoutfail < 2) {
+			$timeoutfail++;
+		} else {
+			FAIL($row, "/mirror-info", "Received no response in 15 seconds", $row["hostname"]);
+			continue;
+		}
 	}
 	if (!HTTPCODE($headers, "200 OK")) {
 		FAIL($row, "/mirror-info", "Expected 200 OK -- got:\n\t" . join("\n\t", $headers), $row["hostname"]);
