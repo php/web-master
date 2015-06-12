@@ -376,6 +376,7 @@ function geoDNS($HOSTS) {
 	if (!$GEOLIST) {
 		p("Not updating EasyDNS GeoDNS, couldn't get the list!\n");
 	}
+	$HOSTS["php-web2.php.net."] = "North America";
 
 	/* Remove disabled hosts */
 	$GEO = array();
