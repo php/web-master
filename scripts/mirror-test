@@ -376,21 +376,7 @@ function geoDNS($HOSTS) {
 	if (!$GEOLIST) {
 		p("Not updating EasyDNS GeoDNS, couldn't get the list!\n");
 	}
-
-	/* We don't monitor php-web2, need to hard code it */
 	$HOSTS["php-web2.php.net."] = "North America";
-
-	/* Special cases for US mirrors -- register them by coast, not country.. */
-	$rewrites = array(
-		"php-mirror.nexcess.net." => "NA East",
-		"php.he.net."             => "NA West",
-		"phpnet.c7dc.com."        => "NA West",
-	);
-	foreach($rewrites as $cname => $geoid) {
-		if (!empty($HOSTS[$cname])) {
-			$HOSTS[$cname] = $geoid;
-		}
-	}
 
 	/* Remove disabled hosts */
 	$GEO = array();
