@@ -116,7 +116,7 @@ if (!$action) {
                "note.id, note.sect, note.user, note.note, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY up DESC, rate DESC, down DESC LIMIT $limit, 10";
+               "GROUP BY note.id ORDER BY arating DESC, up DESC, rate DESC, down DESC LIMIT $limit, 10";
       /* Bottom rated notes */
       } else if ($type == 4) {
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
@@ -125,7 +125,7 @@ if (!$action) {
                "note.id, note.sect, note.user, note.note, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY up ASC, rate ASC, down DESC LIMIT $limit, 10";
+               "GROUP BY note.id ORDER BY arating ASC, up ASC, rate ASC, down DESC LIMIT $limit, 10";
       /* Votes table view */
       } else if ($type == 5) {
         $search_votes = true; // set this only to change the output between votes table and notes table
