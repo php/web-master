@@ -75,13 +75,13 @@ switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 		break;
 
     case 'pull_request_review_comment':
-        $username = $payload->user->login;
+        $username = $payload->comment->user->login;
 		$comment = $payload->comment->body;
 
         $to = get_repo_email($CONFIG["repos"], $repoName);
         $subject = prep_title($PR, $PR->base);
 		$message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
-		$message .= sprintf("\r\n\r\nPull Request Comment:\r\n%s", $description);
+		$message .= sprintf("\r\n\r\nPull Request Comment:\r\n%s", $comment);
 		$message .= sprintf("\r\nMade by: %s", $username);
 
 		$headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
