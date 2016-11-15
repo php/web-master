@@ -51,25 +51,44 @@ if (!verify_signature($body)) {
 }
 
 $payload = json_decode($body);
+$action = $payload->action;
 $PR = $payload->pull_request;
 $htmlUrl = $PR->html_url;
 $repoName = $PR->base->repo->name;
-$description = $PR->body;
 
-switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
+switch ($_SERVER['HTTP_X_GITHUB_EVENT']) {
 	case 'ping':
 		break;
 	case 'pull_request':
-		$mergeable = $PR->mergeable;
+        $description = $PR->body;
+        $username = $PR->user->login;
 
         $to = get_repo_email($CONFIG["repos"], $repoName);
         $subject = prep_title($PR, $PR->base);
 
 		$message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
-		if ($mergeable === false) {
-			$message .= "\r\n\r\nWarning: according to github, the Pull Request cannot be merged without manual conflict resolution!";
-		}
-		$message .= sprintf("\r\n\r\nPull Request Description:\r\n%s", $description);
+        switch ($action) {
+            case 'opened':
+                $message .= sprintf(
+                    "\r\n\r\nOpened By: %s\r\nPull Request Description:\r\n%s",
+                    $username, $description);
+                break;
+            case 'closed':
+                $message .= "\r\n\r\nClosed.";
+                break;
+            case 'reopened':
+                $message .= "\r\n\r\nReopened.";
+                break;
+            case 'assigned':
+            case 'unassigned':
+            case 'labeled':
+            case 'unlabeled':
+            case 'edited':
+            case 'synchronize':
+                // Ignore these actions
+                break 2;
+        }
+
 		$headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
 		mail($to, '=?utf-8?B?'.base64_encode($subject).'?=', $message, $headers, "-fnoreply@php.net");
 		break;
@@ -81,8 +100,15 @@ switch  ($_SERVER['HTTP_X_GITHUB_EVENT']) {
         $to = get_repo_email($CONFIG["repos"], $repoName);
         $subject = prep_title($PR, $PR->base);
 		$message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
-		$message .= sprintf("\r\n\r\nPull Request Comment:\r\n%s", $comment);
-		$message .= sprintf("\r\nMade by: %s", $username);
+        switch ($action) {
+            case 'created':
+                $message .= sprintf("\r\n\r\nComment by %s:\r\n%s", $username, $comment);
+                break;
+            case 'edited':
+            case 'deleted':
+                // Ignore these actions
+                break 2;
+        }
 
 		$headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
 		mail($to, '=?utf-8?B?'.base64_encode($subject).'?=', $message, $headers, "-fnoreply@php.net");
