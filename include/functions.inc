@@ -427,6 +427,7 @@ function is_admin($user) {
     "johannes",
     "tyrael",
     "salathe",
+    "cmb",
   );
   return in_array($user, $admins);
 }
