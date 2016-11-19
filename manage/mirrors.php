@@ -330,6 +330,7 @@ function page_mirror_list($moreinfo = false)
         '55' => 0,
         '56' => 0,
         '70' => 0,
+	'71' => 0,
         'other' => 0,
     );    
     // Query the whole mirror list and display all mirrors. The query is
@@ -441,7 +442,7 @@ function page_mirror_list($moreinfo = false)
         $summary .= '<td>' . $row['phpversion']. '</td>' . "\n";
 
 	// Increment the appropriate version for our statistical overview
-	if (preg_match('/^5\.3/',$row['phpversion'])) {
+    if (preg_match('/^5\.3/',$row['phpversion'])) {
         $php_versions['53']++;
     } elseif (preg_match('/^5.4/',$row['phpversion'])) {
         $php_versions['54']++;
@@ -451,6 +452,8 @@ function page_mirror_list($moreinfo = false)
         $php_versions['56']++;
     } elseif (preg_match('/^7.0/',$row['phpversion'])) {
         $php_versions['70']++;
+    } elseif (preg_match('/^7.1/',$row['phpversion'])) {
+        $php_versions['71']++;
     } else {
         $php_versions['other']++;
     }
@@ -514,6 +517,7 @@ function page_mirror_list($moreinfo = false)
     $php55_percent = sprintf('%.1f%%',($php_versions['55'] / $stats['mirrors']) * 100);
     $php56_percent = sprintf('%.1f%%',($php_versions['56'] / $stats['mirrors']) * 100);
     $php70_percent = sprintf('%.1f%%',($php_versions['70'] / $stats['mirrors']) * 100);
+    $php71_percent = sprintf('%.1f%%',($php_versions['71'] / $stats['mirrors']) * 100);
     $php_other_versions = sprintf('%.1f%%',($php_versions['other'] / $stats['mirrors']) * 100);
     
     $stats['has_stats_percent']  = sprintf('%.1f%%', $stats['has_stats']            / $stats['mirrors'] * 100);
@@ -583,6 +587,9 @@ $statusscreen = <<< EOS
 
  <dt>PHP 7.0</dt>
  <dd>{$php70_percent}</dd>
+
+ <dt>PHP 7.1</dt>
+ <dd>{$php71_percent}</dd>
 
  <dt>Other</dt>
  <dd>{$php_other_versions}</dd>
