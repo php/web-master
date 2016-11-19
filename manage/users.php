@@ -373,7 +373,11 @@ $extra = array(
   <th><a href="?<?php echo array_to_url($extra,array("unapproved"=>!$unapproved));?>"><?php echo $unapproved ? "&otimes" : "&oplus"; ?>;</a></th>
   <th><a href="?<?php echo array_to_url($extra,array("order"=>"name"));?>">name</a></th>
   <th><a href="?<?php echo array_to_url($extra,array("order"=>"email"));?>">email</a></th>
+<?php if (!$unapproved) { ?>
   <th><a href="?<?php echo array_to_url($extra,array("order"=>"username"));?>">username</a></th>
+<?php } else { ?>
+  <th>&nbsp;</th>
+<?php } ?>
 </tr>
 <?php
 while ($userdata = mysql_fetch_array($res)) {
@@ -382,7 +386,11 @@ while ($userdata = mysql_fetch_array($res)) {
     <td><a href="?username=<?php echo $userdata["username"];?>">edit</a></td>
     <td><?php echo $userdata['name'];?></td>
     <td><?php echo $userdata['email'];?></td>
+<?php if (!$unapproved) { ?>
     <td><a href="https://people.php.net/?username=<?php echo hscr($userdata['username'])?>"><?php echo hscr($userdata['username']) ?></a></td>
+<?php } else { ?>
+    <td>&nbsp;</td>
+<?php } ?>
   </tr>
 <?php
 }
