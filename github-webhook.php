@@ -1,10 +1,8 @@
 <?php
 function verify_signature($requestBody) {
-	if(isset($_SERVER['HTTP_X_HUB_SIGNATURE'])){
-		$parts = explode("=", $_SERVER['HTTP_X_HUB_SIGNATURE'], 2);
-		if (count($parts) == 2) {
-			return hash_hmac($parts[0], $requestBody, getenv('GITHUB_SECRET')) === $parts[1];
-		}
+	if (isset($_SERVER['HTTP_X_HUB_SIGNATURE'])){
+		$sig = 'sha1=' . hash_hmac('sha1', $requestBody, getenv('GITHUB_SECRET'));
+		return $sig === $_SERVER['HTTP_X_HUB_SIGNATURE'];
 	}
 	return false;
 }
