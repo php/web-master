@@ -80,8 +80,10 @@ if (!$action) {
              'LEFT JOIN(votes) ON (note.id = votes.note_id) '.
              'WHERE ';
       if (is_numeric($_REQUEST['keyword'])) {
+        $search_heading = 'Search results for #' . (int) $_REQUEST['keyword'];
         $sql .= 'note.id = ' . (int) $_REQUEST['keyword'];
       } else {
+        $search_heading = 'Search results for <em>' . hscr($_REQUEST['keyword']) . '</em>';
         $sql .= 'note.note LIKE "%' . real_clean($_REQUEST['keyword']) . '%" GROUP BY note.id LIMIT 20';
       }
     } else {
@@ -98,18 +100,21 @@ if (!$action) {
       /* Added new voting information to be included in note from votes table. */
       /* First notes */
       if ($type == 1) {
+        $search_heading = 'First notes';
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
                "GROUP BY note.id ORDER BY note.id ASC LIMIT $limit, 10";
       /* Minor notes */
       } else if ($type == 2) {
+        $search_heading = 'Minor notes';
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
                "GROUP BY note.id ORDER BY LENGTH(note.note) ASC LIMIT $limit, 10";
       /* Top rated notes */
       } else if ($type == 3) {
+        $search_heading = 'Top rated notes';
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
                "ROUND((SUM(votes.vote) / COUNT(votes.vote)) * 100) AS rate, ".
                "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS arating, ".
@@ -119,6 +124,7 @@ if (!$action) {
                "GROUP BY note.id ORDER BY arating DESC, up DESC, rate DESC, down DESC LIMIT $limit, 10";
       /* Bottom rated notes */
       } else if ($type == 4) {
+        $search_heading = 'Bottom rated notes';
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
                "ROUND((SUM(votes.vote) / COUNT(votes.vote)) * 100) AS rate, ".
                "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS arating, ".
@@ -186,6 +192,7 @@ if (!$action) {
                "JOIN (note) ON (votes.note_id = note.id) GROUP BY votes.ip ORDER BY votes DESC LIMIT 100";
       /* Last notes */
       } else {
+        $search_heading = 'Last notes';
         $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
@@ -240,6 +247,9 @@ if (!$action) {
              "    </tr>\n".
              "  </thead>\n".
              "  <tbody>\n";
+      }
+      if (!empty($search_heading)) {
+          echo "<h2>$search_heading</h2>";
       }
       while ($row = mysql_fetch_assoc($result)) {
         /*
