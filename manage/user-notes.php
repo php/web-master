@@ -94,6 +94,10 @@ if (!$action) {
       if (is_numeric($_REQUEST['keyword'])) {
         $search_heading = 'Search results for #' . (int) $_REQUEST['keyword'];
         $sql .= 'note.id = ' . (int) $_REQUEST['keyword'];
+      } elseif (substr($_REQUEST['keyword'], 0, 5) == 'sect:') {
+        $search_heading = 'Search results for <em>' . hscr($_REQUEST['keyword']) . '</em>';
+        $section = real_clean(str_replace('*', '%', substr($_REQUEST['keyword'], 5)));
+        $sql .= "note.sect LIKE '$section' GROUP BY note.id ORDER BY note.sect, note.ts LIMIT $limit, 10";
       } else {
         $search_heading = 'Search results for <em>' . hscr($_REQUEST['keyword']) . '</em>';
         $sql .= "note.note LIKE '%" . real_clean($_REQUEST['keyword']) . "%' GROUP BY note.id LIMIT $limit, 10";
@@ -437,6 +441,7 @@ if (!$action) {
 <p><a href="<?= PHP_SELF ?>?view=notes&type=4">View bottom 10 rated notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=5">View votes table</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=6">IPs with the most votes</a></p>
+<p><a href="<?= PHP_SELF ?>?action=sect">Search notes within a section</a></p>
 <?php
   foot();
   exit;
@@ -743,6 +748,32 @@ case 'deletevotes':
            (isset($_REQUEST['votessearch']) ? '&votessearch=' . urlencode($_REQUEST['votessearch']) : null)
           );
   }
+  exit;
+case 'sect':
+  head('user notes');
+?>
+<h2>Search within a section</h2>
+<p>
+  You can search notes within specified section of the PHP manual using form below or
+  by prepending your query with <em>sect:</em> in regular search form (like <em>sect:book.mysql</em>).
+</p>
+<p>
+  You can use <em>*</em> as a wildcard, like <em>mysql.*</em>. Query like <em>function.json-*</em> should
+  show all notes for JSON functions (use <em>sect:function.json-*</em> in case of generic form).
+</p>
+<form method="get" action="<?= PHP_SELF ?>">
+  <strong>Section:</strong>
+  <input type="hidden" name="action" value="sect" />
+  <input type="text" name="query" /><br />
+  <input type="submit" value="Search" />
+</form>
+<?php
+  if (isset($_GET['query'])) {
+    header('Location: user-notes.php?keyword=sect:' . $_GET['query']);
+    exit;
+  }
+
+  foot();
   exit;
   /* falls through */
 default:

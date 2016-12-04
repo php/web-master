@@ -40,7 +40,7 @@ function head($title="", $config = array()) {
         $SEARCH = array("method" => "get", "action" => "/manage/event.php", "placeholder" => "Search Events", "name" => "search");
     }
     if (strstr($_SERVER["SCRIPT_FILENAME"], "user-notes.php")) {
-        $SEARCH = array("method" => "get", "action" => "/manage/user-notes.php", "placeholder" => "Search notes (keyword or ID)", "name" => "keyword");
+        $SEARCH = array("method" => "get", "action" => "/manage/user-notes.php", "placeholder" => "Search notes (keyword, ID or sect:)", "name" => "keyword");
     }
     if (isset($_SESSION['credentials'])) {
         array_unshift($LINKS, array("href" => "/manage/users.php?username=" . $_SESSION["credentials"][0], "text" => "My Profile"));
