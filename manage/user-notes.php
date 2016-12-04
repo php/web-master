@@ -429,7 +429,7 @@ if (!$action) {
 ?>
 
 <h2>Menu</h2>
-<p><a href="<?= PHP_SELF ?>?action=mass">Mass change of sections</a></p>
+<?php if (allow_mass_change($cuser)): ?><p><a href="<?= PHP_SELF ?>?action=mass">Mass change of sections</a></p><?php endif; ?>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=0">View last 10 notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=1">View first 10 notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=2">View minor 10 notes</a></p>
@@ -455,8 +455,12 @@ if (isset($_GET['action']) && ($_GET['action'] == 'resetall' || $_GET['action'] 
 
 switch($action) {
 case 'mass':
-  if (!allow_mass_change($cuser)) { die("You are not allowed to take this action!"); }
   head("user notes");
+  if (!allow_mass_change($cuser)) {
+    warn("You are not allowed to take this action!");
+    foot();
+    exit;
+  }
   $step = (isset($_REQUEST["step"]) ? (int)$_REQUEST["step"] : 0);
   $where = array();
   if (!empty($_REQUEST["old_sect"])) {
@@ -658,11 +662,13 @@ case 'resetall':
 case 'resetup':
 case 'resetdown':
   /* Only those with privileges in allow_mass_change may use these options */
+  head('user notes');
   if (!allow_mass_change($cuser)) {
-    die("You do not have access to use this feature!");
+    warn("You do not have access to use this feature!");
+    foot();
+    exit;
   }
   /* Reset votes for user note -- effectively deletes votes found for that note_id in the votes table:  up/down/both */
-  head('user notes');
   if ($id) {
     if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
       if ($action == 'resetall' && isset($_POST['resetall'])) {
