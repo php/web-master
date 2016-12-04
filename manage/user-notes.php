@@ -74,6 +74,18 @@ if (!$action) {
   }
   
   if (isset($_REQUEST['keyword']) || isset($_REQUEST["view"])) {
+    // Pagination start
+    $page = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
+    $NextPage = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
+    $type = isset($_REQUEST["type"]) ? intval($_REQUEST["type"]) : 0;
+
+    if($page < 0) { $page = 0; }
+    if($NextPage < 0) { $NextPage = 0; }
+    $limit = $page * 10; $page++;
+    $limitVotes = $NextPage * 25; $NextPage++;
+    $PrevPage = ($NextPage - 2) > -1 ? $NextPage - 2 : 0;
+    // Pagination end
+
     if(isset($_REQUEST['keyword'])) {
       $sql = 'SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts '.
              'FROM note '.
@@ -84,19 +96,9 @@ if (!$action) {
         $sql .= 'note.id = ' . (int) $_REQUEST['keyword'];
       } else {
         $search_heading = 'Search results for <em>' . hscr($_REQUEST['keyword']) . '</em>';
-        $sql .= 'note.note LIKE "%' . real_clean($_REQUEST['keyword']) . '%" GROUP BY note.id LIMIT 20';
+        $sql .= "note.note LIKE '%" . real_clean($_REQUEST['keyword']) . "%' GROUP BY note.id LIMIT $limit, 10";
       }
     } else {
-      $page = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
-      $NextPage = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
-      $type = isset($_REQUEST["type"]) ? intval($_REQUEST["type"]) : 0;
-      
-      if($page < 0) { $page = 0; }
-      if($NextPage < 0) { $NextPage = 0; }
-      $limit = $page * 10; $page++;
-      $limitVotes = $NextPage * 25; $NextPage++;
-      $PrevPage = ($NextPage - 2) > -1 ? $NextPage - 2 : 0;
-      
       /* Added new voting information to be included in note from votes table. */
       /* First notes */
       if ($type == 1) {
@@ -369,8 +371,12 @@ if (!$action) {
              "number of votes placed in a small timeframe to help detect spam and other potential abuse.</p>\n".
              "<p>Also note that a <em>0.0.0.0</em> IP address indicates a client IP could not be resolved at the time of voting.</p>";
       }
-      if(isset($_REQUEST["view"]) && empty($search_votes)) {
-        echo "<p><a href=\"?view=1&page=$page&type=$type\">Next 10</a>";
+      if((isset($_REQUEST["view"]) || isset($_REQUEST['keyword'])) && empty($search_votes)) {
+        $keyword = isset($_REQUEST['keyword']) ? '&keyword=' . urlencode($_REQUEST['keyword']) : '';
+        // Setting type is here only to avoid notice or more conditions.
+        // It won't cause to show last notes (type=0) as $_REQUEST['keyword'] presence has higher priority.
+        $type = 0;
+        echo "<p><a href=\"?view=1&page=$page&type=$type$keyword\">Next 10</a>";
       } elseif (isset($_REQUEST["view"]) && !empty($search_votes)) {
         echo "<p>";
         if (isset($NextPage) && $NextPage > 1) {
