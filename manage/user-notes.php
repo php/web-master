@@ -421,21 +421,8 @@ if (!$action) {
 <?php
   }
 ?>
-<p>Search the notes table.</p>
-<form method="post" action="<?= PHP_SELF ?>">
-<table>
- <tr>   
-  <th align="right">Keyword or ID:</th>
-  <td><input type="text" name="keyword" value="<?php echo (isset($_REQUEST['keyword']) ? hscr($_REQUEST['keyword']) : ''); ?>" size="10" maxlength="32" /></td>
- </tr>
- <tr> 
-  <td align="center" colspan="2">
-    <input type="submit" value="Search" />
-  </td>
- </tr>
-</table>
-</form>
 
+<h2>Menu</h2>
 <p><a href="<?= PHP_SELF ?>?action=mass">Mass change of sections</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=0">View last 10 notes</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=1">View first 10 notes</a></p>
