@@ -19,11 +19,12 @@ function get_repo_email($repos, $repoName) {
     return $to;
 }
 
-function prep_title($PR, $repoName) {
-    $PRNumber = $PR->number;
-    $title = $PR->title;
+function prep_title($issue, $repoName) {
+    $issueNumber = $issue->number;
+    $title = $issue->title;
+    $type = strpos($issue->html_url, '/pull/') !== false ? 'PR' : 'Issue';
 
-    $subject = sprintf('[PR][%s][#%s] - %s', $repoName, $PRNumber, $title);
+    $subject = sprintf('[%s][%s #%s] - %s', $repoName, $type, $issueNumber, $title);
 
     return $subject;
 }
@@ -54,14 +55,15 @@ switch ($event) {
 	case 'ping':
 		break;
 	case 'pull_request':
-        $PR = $payload->pull_request;
-        $htmlUrl = $PR->html_url;
+    case 'issues':
+        $issue = $event == 'issues' ? $payload->issue : $payload->pull_request;
+        $htmlUrl = $issue->html_url;
 
-        $description = $PR->body;
-        $username = $PR->user->login;
+        $description = $issue->body;
+        $username = $issue->user->login;
 
         $to = get_repo_email($CONFIG["repos"], $repoName);
-        $subject = prep_title($PR, $repoName);
+        $subject = prep_title($issue, $repoName);
 
 		$message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
         switch ($action) {
@@ -82,6 +84,8 @@ switch ($event) {
             case 'unlabeled':
             case 'edited':
             case 'synchronize':
+            case 'milestoned':
+            case 'demilestoned':
                 // Ignore these actions
                 break 2;
         }
@@ -92,14 +96,14 @@ switch ($event) {
 
     case 'pull_request_review_comment':
     case 'issue_comment':
-        $PR = $event == 'issue_comment' ? $payload->issue : $payload->pull_request;
-        $htmlUrl = $PR->html_url;
+        $issue = $event == 'issue_comment' ? $payload->issue : $payload->pull_request;
+        $htmlUrl = $issue->html_url;
 
         $username = $payload->comment->user->login;
 		$comment = $payload->comment->body;
 
         $to = get_repo_email($CONFIG["repos"], $repoName);
-        $subject = prep_title($PR, $repoName);
+        $subject = prep_title($issue, $repoName);
 		$message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
         switch ($action) {
             case 'created':
