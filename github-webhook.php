@@ -1,10 +1,10 @@
 <?php
 function verify_signature($requestBody) {
-	if (isset($_SERVER['HTTP_X_HUB_SIGNATURE'])){
-		$sig = 'sha1=' . hash_hmac('sha1', $requestBody, getenv('GITHUB_SECRET'));
-		return $sig === $_SERVER['HTTP_X_HUB_SIGNATURE'];
-	}
-	return false;
+    if (isset($_SERVER['HTTP_X_HUB_SIGNATURE'])){
+        $sig = 'sha1=' . hash_hmac('sha1', $requestBody, getenv('GITHUB_SECRET'));
+        return $sig === $_SERVER['HTTP_X_HUB_SIGNATURE'];
+    }
+    return false;
 }
 
 function get_repo_email($repos, $repoName) {
@@ -31,19 +31,19 @@ function prep_title($issue, $repoName) {
 
 
 $CONFIG = array(
-	'repos' => array(
-		'php-langspec' => 'standards@lists.php.net',
-		'php-src' => 'git-pulls@lists.php.net',
-		'web-' => 'php-webmaster@lists.php.net',
-		'pecl-' => 'pecl-dev@lists.php.net',
-	),
+    'repos' => array(
+        'php-langspec' => 'standards@lists.php.net',
+        'php-src' => 'git-pulls@lists.php.net',
+        'web-' => 'php-webmaster@lists.php.net',
+        'pecl-' => 'pecl-dev@lists.php.net',
+    ),
 );
 
 $body = file_get_contents("php://input");
 
 if (!verify_signature($body)) {
-	header('HTTP/1.1 403 Forbidden');
-	exit;
+    header('HTTP/1.1 403 Forbidden');
+    exit;
 }
 
 $payload = json_decode($body);
@@ -52,9 +52,9 @@ $repoName = $payload->repository->name;
 
 $event = $_SERVER['HTTP_X_GITHUB_EVENT'];
 switch ($event) {
-	case 'ping':
-		break;
-	case 'pull_request':
+    case 'ping':
+        break;
+    case 'pull_request':
     case 'issues':
         $issue = $event == 'issues' ? $payload->issue : $payload->pull_request;
         $htmlUrl = $issue->html_url;
@@ -65,7 +65,7 @@ switch ($event) {
         $to = get_repo_email($CONFIG["repos"], $repoName);
         $subject = prep_title($issue, $repoName);
 
-		$message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
+        $message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
         switch ($action) {
             case 'opened':
                 $message .= sprintf(
@@ -90,9 +90,9 @@ switch ($event) {
                 break 2;
         }
 
-		$headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
-		mail($to, '=?utf-8?B?'.base64_encode($subject).'?=', $message, $headers, "-fnoreply@php.net");
-		break;
+        $headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
+        mail($to, '=?utf-8?B?'.base64_encode($subject).'?=', $message, $headers, "-fnoreply@php.net");
+        break;
 
     case 'pull_request_review_comment':
     case 'issue_comment':
@@ -100,11 +100,11 @@ switch ($event) {
         $htmlUrl = $issue->html_url;
 
         $username = $payload->comment->user->login;
-		$comment = $payload->comment->body;
+        $comment = $payload->comment->body;
 
         $to = get_repo_email($CONFIG["repos"], $repoName);
         $subject = prep_title($issue, $repoName);
-		$message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
+        $message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
         switch ($action) {
             case 'created':
                 $message .= sprintf("\r\n\r\nComment by %s:\r\n%s", $username, $comment);
@@ -115,11 +115,11 @@ switch ($event) {
                 break 2;
         }
 
-		$headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
-		mail($to, '=?utf-8?B?'.base64_encode($subject).'?=', $message, $headers, "-fnoreply@php.net");
+        $headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
+        mail($to, '=?utf-8?B?'.base64_encode($subject).'?=', $message, $headers, "-fnoreply@php.net");
         break;
 
-	default:
-		header('HTTP/1.1 501 Not Implemented');
+    default:
+        header('HTTP/1.1 501 Not Implemented');
 }
 
