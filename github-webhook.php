@@ -19,10 +19,14 @@ function get_repo_email($repos, $repoName) {
     return $to;
 }
 
+function is_pr($issue) {
+    return strpos($issue->html_url, '/pull/') !== false;
+}
+
 function prep_title($issue, $repoName) {
     $issueNumber = $issue->number;
     $title = $issue->title;
-    $type = strpos($issue->html_url, '/pull/') !== false ? 'PR' : 'Issue';
+    $type = is_pr($issue) ? 'PR' : 'Issue';
 
     $subject = sprintf('[%s][%s #%s] - %s', $repoName, $type, $issueNumber, $title);
 
@@ -64,13 +68,14 @@ switch ($event) {
 
         $to = get_repo_email($CONFIG["repos"], $repoName);
         $subject = prep_title($issue, $repoName);
+        $type = is_pr($issue) ? 'Pull Request' : 'Issue';
 
-        $message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
+        $message = sprintf("You can view the %s on github:\r\n%s", $type, $htmlUrl);
         switch ($action) {
             case 'opened':
                 $message .= sprintf(
-                    "\r\n\r\nOpened By: %s\r\nPull Request Description:\r\n%s",
-                    $username, $description);
+                    "\r\n\r\nOpened By: %s\r\n%s Description:\r\n%s",
+                    $type, $username, $description);
                 break;
             case 'closed':
                 $message .= "\r\n\r\nClosed.";
@@ -104,7 +109,9 @@ switch ($event) {
 
         $to = get_repo_email($CONFIG["repos"], $repoName);
         $subject = prep_title($issue, $repoName);
-        $message = sprintf("You can view the Pull Request on github:\r\n%s", $htmlUrl);
+        $type = is_pr($issue) ? 'Pull Request' : 'Issue';
+
+        $message = sprintf("You can view the %s on github:\r\n%s", $type, $htmlUrl);
         switch ($action) {
             case 'created':
                 $message .= sprintf("\r\n\r\nComment by %s:\r\n%s", $username, $comment);
