@@ -33,6 +33,13 @@ function prep_title($issue, $repoName) {
     return $subject;
 }
 
+function send_mail($to, $subject, $message, $headers) {
+    printf("Sending mail...\nTo: %s\nSubject: %s\nMessage:\n%s\nHeaders:\n%s",
+        $to, $subject, $message, $headers);
+
+    mail($to, '=?utf-8?B?'.base64_encode($subject).'?=', $message, $headers, "-fnoreply@php.net");
+}
+
 
 $CONFIG = array(
     'repos' => array(
@@ -75,7 +82,7 @@ switch ($event) {
             case 'opened':
                 $message .= sprintf(
                     "\r\n\r\nOpened By: %s\r\n%s Description:\r\n%s",
-                    $type, $username, $description);
+                    $username, $type, $description);
                 break;
             case 'closed':
                 $message .= "\r\n\r\nClosed.";
@@ -96,7 +103,7 @@ switch ($event) {
         }
 
         $headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
-        mail($to, '=?utf-8?B?'.base64_encode($subject).'?=', $message, $headers, "-fnoreply@php.net");
+        send_mail($to, $subject, $message, $headers);
         break;
 
     case 'pull_request_review_comment':
@@ -123,7 +130,7 @@ switch ($event) {
         }
 
         $headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
-        mail($to, '=?utf-8?B?'.base64_encode($subject).'?=', $message, $headers, "-fnoreply@php.net");
+        send_mail($to, $subject, $message, $headers);
         break;
 
     default:
