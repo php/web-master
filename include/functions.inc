@@ -431,7 +431,8 @@ function is_admin($user) {
     "tyrael",
     "salathe",
     "cmb",
-    "kalle"
+    "kalle",
+    "krakjoe"
   );
   return in_array($user, $admins);
 }
