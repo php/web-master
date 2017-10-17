@@ -682,18 +682,3 @@ function print_version($version)
     else { echo $version; }
 }
 
-// Check if a user should modify the mirror data 
-// TODO: use acls, once implemented
-function is_mirror_site_admin($user) {
-    if (in_array(
-            $user,
-            array(
-                "jimw", "rasmus", "andrei", "zeev", "andi", "sas", "thies",
-                "rubys", "ssb", "imajes", "goba", "derick", "cortesi", "wez", 
-                "bjori", "philip", "danbrown", "tyrael", "dm",
-            )
-        )
-    ) {
-        return TRUE;
-    } else { return FALSE; }
-}

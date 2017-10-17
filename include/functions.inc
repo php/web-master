@@ -437,6 +437,32 @@ function is_admin($user) {
   return in_array($user, $admins);
 }
 
+function is_mirror_site_admin($user) {
+  $admins = array(
+    "jimw", 
+    "rasmus", 
+    "andrei", 
+    "zeev", 
+    "andi", 
+    "sas", 
+    "thies",
+    "rubys", 
+    "ssb", 
+    "imajes", 
+    "goba", 
+    "derick", 
+    "cortesi", 
+    "wez", 
+    "bjori", 
+    "philip", 
+    "danbrown", 
+    "tyrael", 
+    "dm", 
+    "kalle"
+  );
+  return in_array($user, $admins);
+}
+
 # returns false if $user is not allowed to modify $userid
 function can_modify($user,$userid) {
   if (is_admin($user)) return true;

@@ -7,19 +7,3 @@ if (!is_mirror_site_admin($cuser)) {
 }
 
 phpinfo();
-
-function is_mirror_site_admin($user) {
-    if (in_array(
-            $user,
-            array(
-                "jimw", "rasmus", "andrei", "zeev", "andi", "sas", "thies",
-                "rubys", "ssb", "imajes", "goba", "derick", "cortesi", "wez", 
-                "bjori", "philip", "danbrown", "googleguy",
-            )
-        )
-    ) {
-        return TRUE;
-    } else { 
-        return FALSE; 
-    }
-}
