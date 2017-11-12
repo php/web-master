@@ -14,7 +14,7 @@ PHP.net mail servers.
 <?php
 
 /* Explains why a message was rejected */
-$why = $_GET['why'];
+$why = (isset($_GET['why']) ? (string) $_GET['why'] : '');
 
 switch ($why) {
 	case 'SURBL':
@@ -111,7 +111,11 @@ behalf.
 <b>How do I check if I'm on a block list?</b>
 
 <p>
-You may check your IP's using <a href="http://www.spamhaus.org/sbl/index.lasso">this form, provided by Spamhaus</a>, or check a wider range of block lists (only some of which are employed by our servers) using the <a href="http://www.rulesemporium.com/cgi-bin/uribl.cgi">Rules Emporium URI Block list checker</a>
+You may check your IP's using <a href="https://www.spamhaus.org/lookup/">this form, provided by Spamhaus</a>
+<!--
+XXX: Commented out as Rules Emporium seems to no longer be functioning
+, or check a wider range of block lists (only some of which are employed by our servers) using the <a href="http://www.rulesemporium.com/cgi-bin/uribl.cgi">Rules Emporium URI Block list checker</a>
+-->
 </p>
 <p>
 The Spamhaus query page provides you with instructions on how to request removal.
