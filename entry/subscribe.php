@@ -1,5 +1,12 @@
 <?php
 
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'PHPMailer/src/Exception.php';
+require 'PHPMailer/src/PHPMailer.php';
+require 'PHPMailer/src/SMTP.php';
+
 include "email-validation.inc";
 
 // Check parameters
@@ -27,16 +34,18 @@ if (!preg_match("!^[a-z0-9-]+$!", $_POST['maillist'])) {
 // Generate needed subpart of email address
 $sub = str_replace("@", "=", $_POST['email']);
 
-// Try to send the subscription mail
-$mail_sent = mail(
-    "{$_POST['maillist']}-{$_POST['request']}-$sub@lists.php.net",
-    "PHP Mailing List Website Subscription", 
-    "This was a request generated from the form at {$_POST['referer']} by {$_POST['remoteip']}.",
-    "From: {$_POST['email']}\r\n",
-	"-fnoreply@php.net"
-);
+date_default_timezone_set('Etc/UTC');
+$mail = new PHPMailer;
+$mail->isSMTP();
+$mail->SMTPDebug = 2;
+$mail->Host = 'php-smtp2.php.net';
+$mail->Port = 25;
+$mail->setFrom($_POST['email']);
+$mail->addAddress("{$_POST['maillist']}-{$_POST['request']}-$sub@lists.php.net");
+$mail->Subject = "PHP Mailing List Website Subscription";
+$mail->Body = "This was a request generated from the form at {$_POST['referer']} by {$_POST['remoteip']}";
+$mail_sent = $mail->send();
 
-// Check if we sent mail
 if (!$mail_sent) {
-    die("Unable to send mail");
+    die("Mailer Error: " . $mail->ErrorInfo);
 }
