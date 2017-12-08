@@ -275,9 +275,9 @@ if ($id) {
 </tfoot>
 </table>
 </form>
-<script language="php">
+<?php
 if (is_admin($_SESSION["username"]) && !$userdata['cvsaccess']) {
-</script>
+?>
 <table>
 <tr>
 <td>
@@ -300,9 +300,9 @@ if (is_admin($_SESSION["username"]) && !$userdata['cvsaccess']) {
 </td>
 </tr>
 </table>
-<script language="php">
+<?php
 }
-</script>
+?>
 <h2 id="notes">Notes:</h2>
 <?php
   $res = db_query("SELECT note, UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=$id");
@@ -322,7 +322,9 @@ $forward    = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
 $search     = filter_input(INPUT_GET, "search", FILTER_CALLBACK, array("options" => "mysql_real_escape_string")) ?: "";
 $order      = filter_input(INPUT_GET, "order", FILTER_CALLBACK, array("options" => "mysql_real_escape_string")) ?: "";
 
-$query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email FROM users ";
+$query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email,GROUP_CONCAT(note) note FROM users ";
+$query .= " LEFT JOIN users_note ON users_note.userid = users.userid ";
+
 if  ($search) {
     $query .= "WHERE (MATCH(name,email,username) AGAINST ('$search') OR username = '$search') ";
 
@@ -333,6 +335,8 @@ if  ($search) {
 if ($unapproved) {
     $query .= ' AND NOT cvsaccess ';
 }
+
+$query .= " GROUP BY users.userid ";
 
 if ($order) {
   if ($forward) {
@@ -371,26 +375,30 @@ $extra = array(
 <tbody>
 <tr>
   <th><a href="?<?php echo array_to_url($extra,array("unapproved"=>!$unapproved));?>"><?php echo $unapproved ? "&otimes" : "&oplus"; ?>;</a></th>
-  <th><a href="?<?php echo array_to_url($extra,array("order"=>"name"));?>">name</a></th>
-  <th><a href="?<?php echo array_to_url($extra,array("order"=>"email"));?>">email</a></th>
-<?php if (!$unapproved) { ?>
   <th><a href="?<?php echo array_to_url($extra,array("order"=>"username"));?>">username</a></th>
+  <th><a href="?<?php echo array_to_url($extra,array("order"=>"name"));?>">name</a></th>
+<?php if (!$unapproved) { ?>
+  <th colspan="2"><a href="?<?php echo array_to_url($extra,array("order"=>"email"));?>">email</a></th>
 <?php } else { ?>
-  <th>&nbsp;</th>
+  <th><a href="?<?php echo array_to_url($extra,array("order"=>"email"));?>">email</a></th>
+  <th><a href="?<?php echo array_to_url($extra,array("order"=>"note"));?>">note</a></th>
 <?php } ?>
+  <th> </th>
 </tr>
 <?php
 while ($userdata = mysql_fetch_array($res)) {
 ?>
   <tr class="<?php if (!$userdata["cvsaccess"]) { echo "noaccess"; }?>">
     <td><a href="?username=<?php echo $userdata["username"];?>">edit</a></td>
-    <td><?php echo $userdata['name'];?></td>
-    <td><?php echo $userdata['email'];?></td>
-<?php if (!$unapproved) { ?>
     <td><a href="https://people.php.net/?username=<?php echo hscr($userdata['username'])?>"><?php echo hscr($userdata['username']) ?></a></td>
+    <td><?php echo hscr($userdata['name']);?></td>
+<?php if (!$unapproved) { ?>
+    <td colspan="2"><?php echo hscr($userdata['email']);?></td>
 <?php } else { ?>
-    <td>&nbsp;</td>
+    <td><?php echo hscr($userdata['email']);?></td>
+    <td><?php echo hscr($userdata['note'])?></td>
 <?php } ?>
+      <td> </td>
   </tr>
 <?php
 }

@@ -171,7 +171,7 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = array(), $table =
 <?php if($table): ?>
   <td>
 <?php else: ?>
-  <td colspan="2">
+  <td colspan="4">
 <?php endif; ?>
    <?php echo "Displaying ",$begin+1,"-",$begin+$rows," of $total";?>
   </td>
