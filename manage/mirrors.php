@@ -454,6 +454,8 @@ function page_mirror_list($moreinfo = false)
         $php_versions['70']++;
     } elseif (preg_match('/^7.1/',$row['phpversion'])) {
         $php_versions['71']++;
+    } elseif (preg_match('/^7.2/',$row['phpversion'])) {
+        $php_versions['72']++;
     } else {
         $php_versions['other']++;
     }
@@ -518,6 +520,7 @@ function page_mirror_list($moreinfo = false)
     $php56_percent = sprintf('%.1f%%',($php_versions['56'] / $stats['mirrors']) * 100);
     $php70_percent = sprintf('%.1f%%',($php_versions['70'] / $stats['mirrors']) * 100);
     $php71_percent = sprintf('%.1f%%',($php_versions['71'] / $stats['mirrors']) * 100);
+    $php72_percent = sprintf('%.1f%%',($php_versions['72'] / $stats['mirrors']) * 100);
     $php_other_versions = sprintf('%.1f%%',($php_versions['other'] / $stats['mirrors']) * 100);
     
     $stats['has_stats_percent']  = sprintf('%.1f%%', $stats['has_stats']            / $stats['mirrors'] * 100);
@@ -590,6 +593,9 @@ $statusscreen = <<< EOS
 
  <dt>PHP 7.1</dt>
  <dd>{$php71_percent}</dd>
+
+ <dt>PHP 7.2</dt>
+ <dd>{$php72_percent}</dd>
 
  <dt>Other</dt>
  <dd>{$php_other_versions}</dd>
