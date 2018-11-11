@@ -1,3 +1,4 @@
+SET SESSION sql_mode = '';
 /* the note table holds notes for the php manual. */
 /* TODO: there is a similar table for php-gtk's manual. it should probably be
    merged with this one. */

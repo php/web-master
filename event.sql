@@ -1,3 +1,4 @@
+SET SESSION sql_mode = '';
 #
 # Table structure for table 'phpcal'
 #

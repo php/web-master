@@ -1,3 +1,4 @@
+SET SESSION sql_mode = '';
 /* user-related tables */
 
 /* various things that may hang off the users table in the future:
