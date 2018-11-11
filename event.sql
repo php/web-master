@@ -22,5 +22,5 @@ CREATE TABLE phpcal (
   KEY country (country),
   KEY category (category),
   FULLTEXT KEY sdesc (sdesc,ldesc,email)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 

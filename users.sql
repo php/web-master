@@ -48,7 +48,7 @@ CREATE TABLE users (
   UNIQUE KEY email (email),
   UNIQUE KEY username (username),
   FULLTEXT KEY name (name,email,username)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 /* the user_note table just contains notes about each user. */
 CREATE TABLE users_note (
@@ -58,7 +58,7 @@ CREATE TABLE users_note (
   note text,
   PRIMARY KEY  (noteid),
   FULLTEXT KEY note (note)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 /* the users_profile table contains up to one profile row for each user */
 CREATE TABLE users_profile (

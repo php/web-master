@@ -30,5 +30,5 @@ CREATE TABLE mirrors (
   ipv6_addr varchar(55) default NULL,
   PRIMARY KEY  (id),
   UNIQUE KEY hostname (hostname)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 

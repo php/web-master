@@ -26,13 +26,13 @@ CREATE TABLE IF NOT EXISTS note (
   updated datetime NOT NULL default '0000-00-00 00:00:00',
   PRIMARY KEY  (id),
   KEY idx_sect (sect)
-) TYPE=MyISAM PACK_KEYS=1;
+) ENGINE=MyISAM PACK_KEYS=1;
 
 CREATE TABLE IF NOT EXISTS alerts (
   user INT NOT NULL default '0',
   sect VARCHAR(80) not NULL default '',
-  updated TIMESTAMP(14) NOT NULL
-) TYPE=MyISAM;
+  updated TIMESTAMP NOT NULL
+) ENGINE=MyISAM;
 
 -- New votes table added for keeping track of user notes ratings 
 CREATE TABLE IF NOT EXISTS `votes` (
@@ -45,4 +45,4 @@ CREATE TABLE IF NOT EXISTS `votes` (
   PRIMARY KEY (`id`),
   KEY `note_id` (`note_id`,`ip`,`vote`),
   KEY `hostip` (`hostip`)
-) TYPE=MyISAM AUTO_INCREMENT=1;
+) ENGINE=MyISAM AUTO_INCREMENT=1;
