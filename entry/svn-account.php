@@ -57,6 +57,10 @@ if (!preg_match('@^[a-z0-9_.-]+$@', $username)) {
   die("that username is invalid, use alphanumeric characters, or more specifically: [a-z0-9_.-]");
 }
 
+if (strlen($username) > 16) {
+  die('Username is too long. It must have 1-16 characters.');
+}
+
 @mysql_connect("localhost","nobody", "")
   or die("failed to connect to database");
 @mysql_select_db("phpmasterdb")
