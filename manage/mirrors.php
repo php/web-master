@@ -9,22 +9,22 @@ head("mirror administration", array("columns" => 2));
 db_connect();
 
 $valid_fields = array(
-	'hostname',
-	'mode',
-	'active',
-	'mirrortype',
-	'cname',
-	'maintainer',
-	'providername',
-	'providerurl',
-	'cc',
-	'lang',
-	'has_stats',
-	'acmt_prev',
-	'acmt',
-	'reason',
-	'original_log',
-	'load_balanced',
+    'hostname',
+    'mode',
+    'active',
+    'mirrortype',
+    'cname',
+    'maintainer',
+    'providername',
+    'providerurl',
+    'cc',
+    'lang',
+    'has_stats',
+    'acmt_prev',
+    'acmt',
+    'reason',
+    'original_log',
+    'load_balanced',
 );
 
 foreach($valid_fields as $k) {
@@ -59,7 +59,7 @@ if (isset($id) && isset($hostname)) {
 
             // Perform a full data update on a mirror
             case "update":
-		$mod_by_time = '<b>'.strtoupper(date('d-M-Y H:i:s T')).'</b> ['.$_SESSION["username"].'] Mirror updated';
+                $mod_by_time = '<b>'.strtoupper(date('d-M-Y H:i:s T')).'</b> ['.$_SESSION["username"].'] Mirror updated';
                 $query = "UPDATE mirrors SET hostname='".unmangle($hostname)."', active=$active, " .
                          "mirrortype=$mirrortype, cname='".unmangle($cname)."', maintainer='".unmangle($maintainer)."', " .
                          "providername='".unmangle($providername)."', providerurl='".unmangle($providerurl)."', " .
@@ -105,8 +105,8 @@ if (isset($id) && isset($hostname)) {
                 // Also include the reason if it is provided
                 if (!empty($reason)) {
                     $body .= "\n\nReason:\n".wordwrap(unmangle($reason),70);
-		    $body .= PHP_EOL.'=='.PHP_EOL.'Original log follows.'.PHP_EOL.'===='.PHP_EOL;
-		    $body .= wordwrap(unmangle($original_log),70);
+                    $body .= PHP_EOL.'=='.PHP_EOL.'Original log follows.'.PHP_EOL.'===='.PHP_EOL;
+                    $body .= wordwrap(unmangle($original_log),70);
                 }
                 mail(
                     "network-status@lists.php.net",
@@ -121,8 +121,8 @@ if (isset($id) && isset($hostname)) {
             } elseif ($mode == 'update') {
                 $body  = 'The mirror '.$hostname.' has been modified by '.$_SESSION["username"].'.  It\'s status is ';
                 $body .= isset($active) && $active == true ? 'active.' : 'inactive, and DNS will be disabled.';
-		$body .= isset($acmt) && !empty($acmt) ? '  Notes were added to the mirror\'s file.' : '';
-		mail('network-status@lists.php.net','[mirrors] Status change for '.$hostname,$body,"From: mirrors@php.net\r\n", "-fnoreply@php.net");
+                $body .= isset($acmt) && !empty($acmt) ? '  Notes were added to the mirror\'s file.' : '';
+                mail('network-status@lists.php.net','[mirrors] Status change for '.$hostname,$body,"From: mirrors@php.net\r\n", "-fnoreply@php.net");
             }
         }
     } else {
@@ -133,30 +133,30 @@ if (isset($id) && isset($hostname)) {
 // An $id is specified, but no $hostname, show editform
 elseif (isset($id)) {
   
-  // The $id is not zero, so get mirror information
-  if (intval($id) !== 0) {
-      $res = db_query(
-          "SELECT *, " .
-          "UNIX_TIMESTAMP(created) AS ucreated, " .
-          "UNIX_TIMESTAMP(lastedited) AS ulastedited, " .
-          "UNIX_TIMESTAMP(lastupdated) AS ulastupdated, " .
-          "UNIX_TIMESTAMP(lastchecked) AS ulastchecked " .
-          "FROM mirrors WHERE id = $id"
-      );
-      $row = mysql_fetch_assoc($res);
-  }
+    // The $id is not zero, so get mirror information
+    if (intval($id) !== 0) {
+        $res = db_query(
+            "SELECT *, " .
+            "UNIX_TIMESTAMP(created) AS ucreated, " .
+            "UNIX_TIMESTAMP(lastedited) AS ulastedited, " .
+            "UNIX_TIMESTAMP(lastupdated) AS ulastupdated, " .
+            "UNIX_TIMESTAMP(lastchecked) AS ulastchecked " .
+            "FROM mirrors WHERE id = $id"
+        );
+        $row = mysql_fetch_assoc($res);
+    }
 
-  // The $id is not valid, so provide common defaults for new mirror
-  else {
-      $row = array(
-          'providerurl' => 'http://',
-          'active'      => 1,
-          'mirrortype'  => 1,
-          'lang'        => 'en'
-      );
-  }
+    // The $id is not valid, so provide common defaults for new mirror
+    else {
+        $row = array(
+            'providerurl' => 'http://',
+            'active'      => 1,
+            'mirrortype'  => 1,
+            'lang'        => 'en'
+        );
+    }
 
-  // Print out mirror data table with or without values
+    // Print out mirror data table with or without values
 ?>
 <form method="POST" action="<?php echo PHP_SELF; ?>">
  <input type="hidden" name="id" value="<?php echo isset($row['id']) ? $row['id'] : ''; ?>" />
@@ -225,14 +225,14 @@ elseif (isset($id)) {
     <input type="hidden" name="acmt_prev" value="<?php echo empty($row['acmt']) ? '' : hscr($row['acmt']); ?>"/>
     <b>Administration Comment History:</b><br/>
     <?php
-      if (($_acmt = preg_split('/==\r?\n/',$row['acmt'])) != 0) {
-        foreach ($_acmt as $_c) {
-		$_c = preg_replace('/""(.*)""/Us','<i>$1</i>',$_c);
-		echo '<small>'.$_c.'</small><br/>'.PHP_EOL.'<hr/><br/>'.PHP_EOL;
+        if (($_acmt = preg_split('/==\r?\n/',$row['acmt'])) != 0) {
+            foreach ($_acmt as $_c) {
+                $_c = preg_replace('/""(.*)""/Us','<i>$1</i>',$_c);
+                echo '<small>'.$_c.'</small><br/>'.PHP_EOL.'<hr/><br/>'.PHP_EOL;
+            }
+        } else {
+            echo 'N/A';
         }
-      } else {
-        echo 'N/A';
-      }
     ?>
 <?php
 
@@ -330,7 +330,7 @@ function page_mirror_list($moreinfo = false)
         '55' => 0,
         '56' => 0,
         '70' => 0,
-	'71' => 0,
+        '71' => 0,
         'other' => 0,
     );    
     // Query the whole mirror list and display all mirrors. The query is
@@ -380,7 +380,7 @@ function page_mirror_list($moreinfo = false)
                     if(empty($stats['autodisabled'])) $stats['autodisabled'] = 1;
                     else $stats['autodisabled']++;
                     $siteimage = "error";
-		    $errorinfo = $row['ocmt'] . " (problem since: " .
+                    $errorinfo = $row['ocmt'] . " (problem since: " .
                                      get_print_date($row['ulastchecked']) . ")";
                 }
         }
@@ -429,7 +429,7 @@ function page_mirror_list($moreinfo = false)
         // Print out mirror site link
         $summary .= '<td><a href="http://' . $row['hostname'] . '/" target="_blank">' .
                     $row['hostname'] . '</a>'.PHP_EOL .
-		    ' <a href="http://'.$row['hostname'].'/mirror-info" target="_blank"></a><br /></td>' . "\n";
+                    ' <a href="http://'.$row['hostname'].'/mirror-info" target="_blank"></a><br /></td>' . "\n";
 
         // Print out mirror provider information
         $summary .= '<td><a href="' . $row['providerurl'] . '">' .
@@ -441,28 +441,28 @@ function page_mirror_list($moreinfo = false)
         // Print out version information for this mirror
         $summary .= '<td>' . $row['phpversion']. '</td>' . "\n";
 
-	// Increment the appropriate version for our statistical overview
-    if (preg_match('/^5\.3/',$row['phpversion'])) {
-        $php_versions['53']++;
-    } elseif (preg_match('/^5.4/',$row['phpversion'])) {
-        $php_versions['54']++;
-    } elseif (preg_match('/^5.5/',$row['phpversion'])) {
-        $php_versions['55']++;
-    } elseif (preg_match('/^5.6/',$row['phpversion'])) {
-        $php_versions['56']++;
-    } elseif (preg_match('/^7.0/',$row['phpversion'])) {
-        $php_versions['70']++;
-    } elseif (preg_match('/^7.1/',$row['phpversion'])) {
-        $php_versions['71']++;
-    } elseif (preg_match('/^7.2/',$row['phpversion'])) {
-        $php_versions['72']++;
-    } else {
-        $php_versions['other']++;
-    }
+        // Increment the appropriate version for our statistical overview
+        if (preg_match('/^5\.3/',$row['phpversion'])) {
+            $php_versions['53']++;
+        } elseif (preg_match('/^5.4/',$row['phpversion'])) {
+            $php_versions['54']++;
+        } elseif (preg_match('/^5.5/',$row['phpversion'])) {
+            $php_versions['55']++;
+        } elseif (preg_match('/^5.6/',$row['phpversion'])) {
+            $php_versions['56']++;
+        } elseif (preg_match('/^7.0/',$row['phpversion'])) {
+            $php_versions['70']++;
+        } elseif (preg_match('/^7.1/',$row['phpversion'])) {
+            $php_versions['71']++;
+        } elseif (preg_match('/^7.2/',$row['phpversion'])) {
+            $php_versions['72']++;
+        } else {
+            $php_versions['other']++;
+        }
 
-	$summary .= '<td>';
-	$summary .= preg_match('/\w{2}/',$row['load_balanced']) ? '<img src="/images/Robin.ico" height="16" width="16"/>' : '';
-	$summary .= '</td>'.PHP_EOL;
+        $summary .= '<td>';
+        $summary .= preg_match('/\w{2}/',$row['load_balanced']) ? '<img src="/images/Robin.ico" height="16" width="16"/>' : '';
+        $summary .= '</td>'.PHP_EOL;
 
         // Print out mirror stats table cell
         $summary .= '<td>' . $statscell . '</td>' . "\n";
@@ -478,12 +478,12 @@ function page_mirror_list($moreinfo = false)
         if ($errorinfo) {
             $summary .= "<tr>" .
                         "<td colspan=7><img src=\"/images/mirror_notice.png\" /> <small>";
-                       if (($errorblock = preg_split('/==\r?\n/',$errorinfo)) != 0) {
-                               $summary .= nl2br($errorblock[(count($errorblock)-1)]);
-                       } else {
-                               $summary .= nl2br($errorinfo);
-                       }
-           $summary .= '</small></td></tr>';
+                        if (($errorblock = preg_split('/==\r?\n/',$errorinfo)) != 0) {
+                                $summary .= nl2br($errorblock[(count($errorblock)-1)]);
+                        } else {
+                                $summary .= nl2br($errorinfo);
+                        }
+            $summary .= '</small></td></tr>';
         }
         // If additional details are desired
         if ($moreinfo) {
@@ -687,4 +687,3 @@ function print_version($version)
     if ($version == "") { echo 'n/a'; }
     else { echo $version; }
 }
-
