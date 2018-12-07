@@ -53,7 +53,7 @@ if (isset($id) && isset($hostname)) {
     if (is_mirror_site_admin($_SESSION["username"]) || ($mode == "update" && !$active)) {
         // No query need to be made
         $query = FALSE;
-        
+
         // What to update?
         switch($mode) {
 
@@ -75,7 +75,7 @@ if (isset($id) && isset($hostname)) {
                 $query = "DELETE FROM mirrors WHERE id = $id";
                 $msg = "$hostname deleted";
             break;
-        
+
             // Insert a new mirror site into the database
             case "insert":
                 $query = "INSERT INTO mirrors (hostname, active, mirrortype, " .
@@ -87,21 +87,21 @@ if (isset($id) && isset($hostname)) {
                 $msg = "$hostname added";
             break;
         }
-        
+
         // If there is any query to execute
         if ($query) {
-        
+
             // Try to execute query, and provide information if successfull
             if (db_query($query)) {
                 echo '<h2>'.$msg.'</h2>';
             }
-            
+
             // In case a mirror is deleted, mail a notice to the
             // php-mirrors list, so any malicious deletions can be tracked
             if ($mode == "delete" || $mode == "insert") {
                 $body = "The mirrors list was updated, and $hostname was " .
                         ($mode == "delete" ? "deleted." : "added.");
-                
+
                 // Also include the reason if it is provided
                 if (!empty($reason)) {
                     $body .= "\n\nReason:\n".wordwrap(unmangle($reason),70);
@@ -132,7 +132,7 @@ if (isset($id) && isset($hostname)) {
 
 // An $id is specified, but no $hostname, show editform
 elseif (isset($id)) {
-  
+
     // The $id is not zero, so get mirror information
     if (intval($id) !== 0) {
         $res = db_query(
@@ -306,7 +306,7 @@ if (intval($id) !== 0) {
  <input type="submit" name="mode" value="delete"/>
 </form>
 <?php }
-    
+
     // Form printed, exit script
     foot();
     exit();
@@ -331,8 +331,10 @@ function page_mirror_list($moreinfo = false)
         '56' => 0,
         '70' => 0,
         '71' => 0,
+        '72' => 0,
+        '73' => 0,
         'other' => 0,
-    );    
+    );
     // Query the whole mirror list and display all mirrors. The query is
     // similar to the one in the mirror fetch script. We need to get mirror
     // status data to show proper icons and need to order by country too
@@ -359,7 +361,7 @@ function page_mirror_list($moreinfo = false)
 
     // Go through all mirror sites
     while ($row = mysql_fetch_array($res)) {
-    
+
         // Collect statistical information
         @$stats['phpversion'][$row['phpversion']]++;
         @$stats['phpversion_counts'][$row['phpversion'][0]]++;
@@ -456,6 +458,8 @@ function page_mirror_list($moreinfo = false)
             $php_versions['71']++;
         } elseif (preg_match('/^7.2/',$row['phpversion'])) {
             $php_versions['72']++;
+        } elseif (preg_match('/^7.3/',$row['phpversion'])) {
+            $php_versions['73']++;
         } else {
             $php_versions['other']++;
         }
@@ -488,8 +492,8 @@ function page_mirror_list($moreinfo = false)
         // If additional details are desired
         if ($moreinfo) {
             $summary .= '<tr>' .
-                        '<td>' . 
-                            ' Last update: ' . date(DATE_RSS, $row['ulastupdated']) . 
+                        '<td>' .
+                            ' Last update: ' . date(DATE_RSS, $row['ulastupdated']) .
                             ' SQLites: '     . implode(' : ', decipher_available_sqlites($row['has_search'])) .
                         '</td></tr>';
         }
@@ -521,13 +525,14 @@ function page_mirror_list($moreinfo = false)
     $php70_percent = sprintf('%.1f%%',($php_versions['70'] / $stats['mirrors']) * 100);
     $php71_percent = sprintf('%.1f%%',($php_versions['71'] / $stats['mirrors']) * 100);
     $php72_percent = sprintf('%.1f%%',($php_versions['72'] / $stats['mirrors']) * 100);
+    $php73_percent = sprintf('%.1f%%',($php_versions['73'] / $stats['mirrors']) * 100);
     $php_other_versions = sprintf('%.1f%%',($php_versions['other'] / $stats['mirrors']) * 100);
-    
+
     $stats['has_stats_percent']  = sprintf('%.1f%%', $stats['has_stats']            / $stats['mirrors'] * 100);
 
     $last_check_time = get_print_date($checktime);
     $current_time    = get_print_date(time());
-   
+
     if(empty($stats['disabled'])) $stats['disabled'] = 0;
     $stats['ok']   = $stats['mirrors'] - $stats['autodisabled'] - $stats['disabled'];
     if ($moreinfo) {
@@ -537,11 +542,11 @@ function page_mirror_list($moreinfo = false)
         $moreinfo_flag = 1;
         $moreinfo_text = 'See more info';
     }
-    
+
     $has_sqlite_counts = '';
     foreach ($stats['sqlite_counts'] as $stype => $scount) {
         $has_sqlite_counts .= '<tr><td><img src="/images/mirror_search.png" /></td><td>'.$stype.'</td>';
-       $has_sqlite_counts .= '<td>'. $scount .' <small>('.round(($scount / $stats['mirrors']) * 100).'%)</small></td></tr>';
+        $has_sqlite_counts .= '<td>'. $scount .' <small>('.round(($scount / $stats['mirrors']) * 100).'%)</small></td></tr>';
     }
 
 $statusscreen = <<< EOS
@@ -596,6 +601,9 @@ $statusscreen = <<< EOS
 
  <dt>PHP 7.2</dt>
  <dd>{$php72_percent}</dd>
+
+ <dt>PHP 7.3</dt>
+ <dd>{$php73_percent}</dd>
 
  <dt>Other</dt>
  <dd>{$php_other_versions}</dd>
@@ -668,7 +676,7 @@ function show_mirrortype_options($type = 1)
 
     // Write out an <option> for all types
     foreach ($types as $code => $name) {
-        echo "<option value=\"$code\"", 
+        echo "<option value=\"$code\"",
              $type == $code ? " selected" : "",
              ">$name</option>";
     }
