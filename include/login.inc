@@ -116,7 +116,7 @@ function query_string()
 function preserve_form_fields()
 {
     if (isset($_POST['in']) && is_array($_POST['in'])) {
-        while (list($k, $v) = each($_POST['in'])) {
+        foreach ($_POST['in'] as $k => $v) {
             echo "<input type=\"hidden\" name=\"in[", hsc($k),
                  "]\" value=\"", hsc($v), "\" />\n";
         }

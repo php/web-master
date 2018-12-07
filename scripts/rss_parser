@@ -87,7 +87,7 @@ function ParseNews ($index_page = "", $aboutLink) {
     
     // Try to classify every line backed with state information
     // and patterns to recognize for news item elements
-    while (list($i, $line) = each($lines)) {
+    foreach ($lines as $i => $line) {
 
         // We are not in a news item
         if (!$news_started) {
