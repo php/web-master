@@ -71,10 +71,10 @@ function page_mirror_list($moreinfo = false)
     // Previous country code
     $prevcc = "n/a";
 
-    $stats = array(
+    $stats = [
         'mirrors'       => mysql_num_rows($res),
-        'sqlite_counts' => array('none' => 0, 'sqlite' => 0, 'pdo_sqlite' => 0, 'pdo_sqlite2' => 0, 'sqlite3' => 0),
-    );
+        'sqlite_counts' => ['none' => 0, 'sqlite' => 0, 'pdo_sqlite' => 0, 'pdo_sqlite2' => 0, 'sqlite3' => 0],
+    ];
 
     // Go through all mirror sites
     while ($row = mysql_fetch_array($res)) {

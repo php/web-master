@@ -24,7 +24,7 @@ function email($address, $subject, $content) {
 set_time_limit (0);
 
 // Empty arrays by default
-$inactives = $disabled = $lines = array();
+$inactives = $disabled = $lines = [];
  
 // Try to connect to the database and select phpmasterdb database
 mysql_connect("localhost","nobody","") or die("unable to connect to database");

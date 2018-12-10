@@ -33,7 +33,7 @@ if (!$res = @mysql_query($query, $conn)) {
   die('Query failed');
 }
 
-$notes = array();
+$notes = [];
 while ($row = mysql_fetch_array($res, MYSQL_ASSOC)) {
   $notes[$row['id']] = $row;
 }

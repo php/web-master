@@ -32,7 +32,7 @@ function pregen_flickr($apiKey, $outputPath, $limit = 100)
     // construct flickr api call
     // extras is set to 'url_sq' to get the href of the square thumbnail.
     // see http://www.flickr.com/services/api/flickr.groups.pools.getPhotos.html
-    $url = FLICKR_REST_URL . '?' . http_build_query(array(
+    $url = FLICKR_REST_URL . '?' . http_build_query([
         'api_key'        => $apiKey,
         'per_page'       => $limit,
         'extras'         => 'url_sq',
@@ -40,7 +40,7 @@ function pregen_flickr($apiKey, $outputPath, $limit = 100)
         'method'         => FLICKR_REST_METHOD,
         'format'         => FLICKR_REST_FORMAT,
         'nojsoncallback' => 1
-    ));
+    ]);
 
     // fetch photo info
     $response = file_get_contents($url);
@@ -53,7 +53,7 @@ function pregen_flickr($apiKey, $outputPath, $limit = 100)
     }
 
     // fetch all of the photos
-    $fresh  = array();
+    $fresh  = [];
     $photos = $decoded['photos']['photo'];
     foreach ($photos as $key => &$photo) {
         

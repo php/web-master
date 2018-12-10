@@ -19,10 +19,10 @@ function pregenerate_events($csvfile, $outfile, $months = 2)
 
     // Current month number, current category and categories list
     $cm = $ccat = 0;
-    $cats = array('unknown', 'User Group Events', 'Conferences', 'Training');
+    $cats = ['unknown', 'User Group Events', 'Conferences', 'Training'];
 
     // Event duplication check hash
-    $seen = array();
+    $seen = [];
 
     // Start output file with PHP code
     fwrite(
@@ -31,7 +31,7 @@ function pregenerate_events($csvfile, $outfile, $months = 2)
         "<h4>Upcoming Events <a href=\"/submit-event.php\">[add]</a></h4>\n"
     );
     
-    $content = ""; $buffer = array();
+    $content = ""; $buffer = [];
     $endts = strtotime("+$months months");
     $endm = date("n", $endts);
     $endy = date("Y", $endts);
@@ -60,10 +60,10 @@ function pregenerate_events($csvfile, $outfile, $months = 2)
             $headline = '<h4 class="eventmonth">' .
                          strftime('%B', mktime(12, 0, 0, $cm, $d, $y)) .
                          "</h4>\n";
-            $buffer[$headline] = array();
+            $buffer[$headline] = [];
 
             // We have not seen any events in this month
-            $seen = array();
+            $seen = [];
             
             // New category header needed
             $ccat = 0;
@@ -102,12 +102,12 @@ function pregenerate_events($csvfile, $outfile, $months = 2)
     $buffer[$headline][$ccat] = $content;
 
     // Organize the output
-    $order = array(
+    $order = [
         2, // Conferences
         1, // User Group Events
         3, // Training
         0, // Unkown
-    );
+    ];
 
     foreach($buffer as $headline => $categories) {
         // Prevent empty listing

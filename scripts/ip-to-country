@@ -111,7 +111,7 @@ function create_ip_to_country_index($ipdb, $ipidx, $indexby)
     $lastidx = $recnum = 0;
 
     // We store the index in a PHP array temporarily
-    $idx_list = array($indexby, "0,0");
+    $idx_list = [$indexby, "0,0"];
 
     // Open database for reading
     $ipdbf = fopen($ipdb, "r");

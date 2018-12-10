@@ -15,7 +15,7 @@ function error($text, $status)
         header("HTTP/1.0 401 Unauthorized");
         break;
     }
-    echo json_encode(array("error" => $text));
+    echo json_encode(["error" => $text]);
     exit;
 }
 

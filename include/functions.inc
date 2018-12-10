@@ -16,35 +16,35 @@ function require_token()
 
 // -----------------------------------------------------------------------------------
 
-function head($title="", $config = array()) {
-    $dconfig = array("columns" => 1);
+function head($title="", $config = []) {
+    $dconfig = ["columns" => 1];
 
     $config = array_merge($dconfig, $config);
     $SUBDOMAIN = "master";
     $TITLE = $title ?: "master";
-    $LINKS = array(
-        array("href" => "/manage/event.php",        "text" => "Events"),
-        array("href" => "/manage/mirrors.php",      "text" => "Mirrors"),
-        array("href" => "/manage/users.php",        "text" => "Users"),
-        array("href" => "/manage/user-notes.php",   "text" => "Notes"),
-        array("href" => "/manage/github.php",       "text" => "Github"),
-    );
-    $CSS = array("/styles/master.css");
-    $SEARCH = array();
+    $LINKS = [
+        ["href" => "/manage/event.php",        "text" => "Events"],
+        ["href" => "/manage/mirrors.php",      "text" => "Mirrors"],
+        ["href" => "/manage/users.php",        "text" => "Users"],
+        ["href" => "/manage/user-notes.php",   "text" => "Notes"],
+        ["href" => "/manage/github.php",       "text" => "Github"],
+    ];
+    $CSS = ["/styles/master.css"];
+    $SEARCH = [];
 
     if (strstr($_SERVER["SCRIPT_FILENAME"], "users.php")) {
-        $SEARCH = array("method" => "get", "action" => "/manage/users.php", "placeholder" => "Search profiles", "name" => "search");
+        $SEARCH = ["method" => "get", "action" => "/manage/users.php", "placeholder" => "Search profiles", "name" => "search"];
         $CSS[] = "/styles/user-autocomplete.css";
     }
     if (strstr($_SERVER["SCRIPT_FILENAME"], "event.php")) {
-        $SEARCH = array("method" => "get", "action" => "/manage/event.php", "placeholder" => "Search Events", "name" => "search");
+        $SEARCH = ["method" => "get", "action" => "/manage/event.php", "placeholder" => "Search Events", "name" => "search"];
     }
     if (strstr($_SERVER["SCRIPT_FILENAME"], "user-notes.php")) {
-        $SEARCH = array("method" => "get", "action" => "/manage/user-notes.php", "placeholder" => "Search notes (keyword, ID or sect:)", "name" => "keyword");
+        $SEARCH = ["method" => "get", "action" => "/manage/user-notes.php", "placeholder" => "Search notes (keyword, ID or sect:)", "name" => "keyword"];
     }
     if (isset($_SESSION['credentials'])) {
-        array_unshift($LINKS, array("href" => "/manage/users.php?username=" . $_SESSION["credentials"][0], "text" => "My Profile"));
-        $LINKS[] = array("href" => "/login.php?action=logout", "text" => "Logout");
+        array_unshift($LINKS, ["href" => "/manage/users.php?username=" . $_SESSION["credentials"][0], "text" => "My Profile"]);
+        $LINKS[] = ["href" => "/login.php?action=logout", "text" => "Logout"];
     }
     include __DIR__ . "/../shared/templates/header.inc";
     if ($config["columns"] > 1) {
@@ -57,9 +57,9 @@ function head($title="", $config = array()) {
 function foot($secondscreen = null) {
     $SECONDSCREEN = $secondscreen;
 
-    $JS = array(
+    $JS = [
         "/js/master.js",
-    );
+    ];
     if (strstr($_SERVER["SCRIPT_FILENAME"], "users.php")) {
         array_push(
             $JS,
@@ -134,8 +134,8 @@ function db_get_one($query)
 
 // -----------------------------------------------------------------------------------
 
-function array_to_url($array,$overlay=array()) {
-    $params = array();
+function array_to_url($array,$overlay=[]) {
+    $params = [];
     foreach($array as $k => $v) {
         $params[$k] = rawurlencode($k) . "=" . rawurlencode($v);
     }
@@ -151,7 +151,7 @@ function array_to_url($array,$overlay=array()) {
     return join($params, "&amp;");
 }
 
-function show_prev_next($begin, $rows, $skip, $total, $extra = array(), $table = true)
+function show_prev_next($begin, $rows, $skip, $total, $extra = [], $table = true)
 {?>
 <?php if ($table): ?>
 <table border="0" cellspacing="1" width="100%">
@@ -162,7 +162,7 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = array(), $table =
      if ($begin > 0) {
        printf("<a href=\"%s?%s\">&laquo; Previous %d",
               $_SERVER['PHP_SELF'],
-              array_to_url($extra, array("begin" => max(0,$begin-$skip))),
+              array_to_url($extra, ["begin" => max(0,$begin-$skip)]),
               min($skip,$begin));
      }
    ?>
@@ -181,7 +181,7 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = array(), $table =
      if ($begin+$rows < $total) {
        printf("<a href=\"%s?%s\">Next %d &raquo;",
               $_SERVER['PHP_SELF'],
-              array_to_url($extra, array("begin" => $begin+$skip)),
+              array_to_url($extra, ["begin" => $begin+$skip]),
               min($skip,$total-($begin+$skip)));
      }
    ?>
@@ -204,7 +204,7 @@ function show_country_options($cc = "")
 function is_sqlite_type_available($avails, $check) {
 
 	// All possible sqlite types associated with our assigned bitwise values
-	$all = array('sqlite' => 1, 'sqlite3' => 2, 'pdo_sqlite' => 4, 'pdo_sqlite2' => 8);
+	$all = ['sqlite' => 1, 'sqlite3' => 2, 'pdo_sqlite' => 4, 'pdo_sqlite2' => 8];
 	
 	if (!$avails || empty($all[$check])) {
 		return false;
@@ -221,8 +221,8 @@ function is_sqlite_type_available($avails, $check) {
 
 function decipher_available_sqlites($avails) {
 
-	$all    = array(1 => 'sqlite', 2 => 'sqlite3', 4 => 'pdo_sqlite', 8 => 'pdo_sqlite2');
-	$mine   = array();
+	$all    = [1 => 'sqlite', 2 => 'sqlite3', 4 => 'pdo_sqlite', 8 => 'pdo_sqlite2'];
+	$mine   = [];
 	$avails = (int) $avails;
 
 	if (($avails & 15) === 15) {
@@ -243,11 +243,11 @@ function verify_ssh_keys($string) {
 }
 
 function get_ssh_keys($string) {
-    $results = array();
+    $results = [];
     if (preg_match_all('@(ssh-(?:rsa|dss) ([^\s]+) ([^\s]*))@', $string, $matches, PREG_SET_ORDER)) {
         foreach ($matches as $match) {
-            $results[] = array('key'  => $match[1],
-                               'name' => $match[3]);
+            $results[] = ['key'  => $match[1],
+                               'name' => $match[3]];
         }
     }
 
@@ -286,36 +286,36 @@ include_once dirname(__FILE__) . '/../vendor/michelf/php-markdown-extra/markdown
 */
 function undo_magic_quotes() {
     if (!empty($_POST)) {
-        $args = array();
-        foreach ($_POST as $key => $val) $args[$key] = array('filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ? 
-                                                              FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR);
+        $args = [];
+        foreach ($_POST as $key => $val) $args[$key] = ['filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ? 
+                                                              FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR];
         $_POST = filter_input_array(INPUT_POST, $args);
         $_REQUEST = filter_input_array(INPUT_POST, $args);
     }
     if (!empty($_GET)) {
-        $args = array();
-        foreach ($_GET as $key => $val) $args[$key] = array('filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ? 
-                                                            FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR);
+        $args = [];
+        foreach ($_GET as $key => $val) $args[$key] = ['filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ? 
+                                                            FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR];
         $_GET = filter_input_array(INPUT_GET, $args);
         $_REQUEST += filter_input_array(INPUT_GET, $args);
     }
     if (!empty($_COOKIE)) {
-        $args = array();
-        foreach ($_COOKIE as $key => $val) $args[$key] = array('filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ?
-                                                               FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR);
+        $args = [];
+        foreach ($_COOKIE as $key => $val) $args[$key] = ['filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ?
+                                                               FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR];
         $_COOKIE = filter_input_array(INPUT_COOKIE, $args);
         $_REQUEST += filter_input_array(INPUT_COOKIE, $args);
     }
     if (!empty($_SERVER)) {
-        $args = array();
-        $append = array();
+        $args = [];
+        $append = [];
         foreach ($_SERVER as $key => $val) {
             if ($key == 'REQUEST_TIME' || $key == 'REQUEST_TIME_FLOAT') {
                 $append[$key] = $val;
                 continue;
             }
-            $args[$key] = array('filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ?
-                                FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR);
+            $args[$key] = ['filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ?
+                                FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR];
         }
         $_SERVER = filter_input_array(INPUT_SERVER, $args);
         $_SERVER += $append;
@@ -408,7 +408,7 @@ function user_remove($id) {
 }
 
 function is_admin($user) {
-  $admins = array(
+  $admins = [
     "jimw",
     "rasmus",
     "andrei",
@@ -433,12 +433,12 @@ function is_admin($user) {
     "cmb",
     "kalle",
     "krakjoe"
-  );
+  ];
   return in_array($user, $admins);
 }
 
 function is_mirror_site_admin($user) {
-  $admins = array(
+  $admins = [
     "jimw", 
     "rasmus", 
     "andrei", 
@@ -460,7 +460,7 @@ function is_mirror_site_admin($user) {
     "dm", 
     "kalle", 
     "googleguy"
-  );
+  ];
   return in_array($user, $admins);
 }
 

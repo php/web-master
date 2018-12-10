@@ -24,7 +24,7 @@ if (isset($_POST['confirm_them']) && isset($_POST['confirm']) && is_array($_POST
 $user_db = mysql_real_escape_string($user);
 $res     = db_query("select distinct sender from phpmasterdb.users left join accounts.quarantine on users.email = rcpt where username='$user_db' and not isnull(id)");
 
-$inmates = array();
+$inmates = [];
 while ($row = mysql_fetch_row($res)) {
 	$inmates[] = $row[0];
 }

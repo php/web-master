@@ -4,7 +4,7 @@ require dirname(__FILE__) . '/../include/email-validation.inc';
 require dirname(__FILE__) . '/../include/cvs-auth.inc';
 require dirname(__FILE__) . '/../include/functions.inc';
 
-$valid_vars = array('name','email','username','passwd','note','group','yesno');
+$valid_vars = ['name','email','username','passwd','note','group','yesno'];
 foreach($valid_vars as $k) {
     if(isset($_REQUEST[$k])) $$k = $_REQUEST[$k];
 }
@@ -50,7 +50,7 @@ $username = strtolower($username);
 # placed in qmail-smtpd's badmailfrom to block future emails.) some of these
 # latter addresses were used as examples in the documentation at one point,
 # which means they appear on all sorts of spam lists.
-if (in_array($username,array('nse','roys','php','foo','group','core','webmaster','web','aardvark','zygote','jag','sites','er','sqlite','cvs2svn','nobody','svn','git','root')))
+if (in_array($username,['nse','roys','php','foo','group','core','webmaster','web','aardvark','zygote','jag','sites','er','sqlite','cvs2svn','nobody','svn','git','root']))
   die("that username is not available");
 
 if (!preg_match('@^[a-z0-9_.-]+$@', $username)) {

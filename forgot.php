@@ -2,7 +2,7 @@
 require dirname(__FILE__) . '/include/functions.inc';
 require dirname(__FILE__) . "/include/cvs-auth.inc";
 
-$valid_vars = array('id','user','key','n1','n2');
+$valid_vars = ['id','user','key','n1','n2'];
 foreach($valid_vars as $k) {
   $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }

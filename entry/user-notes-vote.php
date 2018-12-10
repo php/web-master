@@ -28,36 +28,36 @@ undo_magic_quotes();
 */
 function undo_magic_quotes() {
     if (!empty($_POST)) {
-        $args = array();
-        foreach ($_POST as $key => $val) $args[$key] = array('filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ? 
-                                                              FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR);
+        $args = [];
+        foreach ($_POST as $key => $val) $args[$key] = ['filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ? 
+                                                              FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR];
         $_POST = filter_input_array(INPUT_POST, $args);
         $_REQUEST = filter_input_array(INPUT_POST, $args);
     }
     if (!empty($_GET)) {
-        $args = array();
-        foreach ($_GET as $key => $val) $args[$key] = array('filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ? 
-                                                            FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR);
+        $args = [];
+        foreach ($_GET as $key => $val) $args[$key] = ['filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ? 
+                                                            FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR];
         $_GET = filter_input_array(INPUT_GET, $args);
         $_REQUEST += filter_input_array(INPUT_GET, $args);
     }
     if (!empty($_COOKIE)) {
-        $args = array();
-        foreach ($_COOKIE as $key => $val) $args[$key] = array('filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ?
-                                                               FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR);
+        $args = [];
+        foreach ($_COOKIE as $key => $val) $args[$key] = ['filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ?
+                                                               FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR];
         $_COOKIE = filter_input_array(INPUT_COOKIE, $args);
         $_REQUEST += filter_input_array(INPUT_COOKIE, $args);
     }
     if (!empty($_SERVER)) {
-        $args = array();
-        $append = array();
+        $args = [];
+        $append = [];
         foreach ($_SERVER as $key => $val) {
             if ($key == 'REQUEST_TIME' || $key == 'REQUEST_TIME_FLOAT') {
                 $append[$key] = $val;
                 continue;
             }
-            $args[$key] = array('filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ?
-                                FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR);
+            $args[$key] = ['filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ?
+                                FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR];
         }
         $_SERVER = filter_input_array(INPUT_SERVER, $args);
         $_SERVER += $append;
@@ -116,7 +116,7 @@ function vote_validate_request(PDO $dbh) {
   if (!$noteStmt) {
       return false;
   }
-  if (!$noteStmt->execute(array('id' => $id))) {
+  if (!$noteStmt->execute(['id' => $id])) {
       return false;
   }
   if (false === $noteResult = $noteStmt->fetch(PDO::FETCH_ASSOC)) {
@@ -131,7 +131,7 @@ function vote_validate_request(PDO $dbh) {
   if (!$remoteStmt) {
       return false;
   }
-  if (!$remoteStmt->execute(array('ip' => $ip, 'id' => $id))) {
+  if (!$remoteStmt->execute(['ip' => $ip, 'id' => $id])) {
       return false;
   }
   if (false === $remoteResult = $remoteStmt->fetch(PDO::FETCH_ASSOC)) {
@@ -146,7 +146,7 @@ function vote_validate_request(PDO $dbh) {
   if (!$hostStmt) {
       return false;
   }
-  if (!$hostStmt->execute(array('ip' => $ip, 'id' => $id))) {
+  if (!$hostStmt->execute(['ip' => $ip, 'id' => $id])) {
       return false;
   }
   if (false === $hostResult = $hostStmt->fetch(PDO::FETCH_ASSOC)) {
@@ -161,7 +161,7 @@ function vote_validate_request(PDO $dbh) {
   if (!$voteStmt) {
       return false;
   }
-  if (!$voteStmt->execute(array('id' => $id, 'ip' => $ip, 'host' => $hostip, 'ts' => $ts, 'vote' => $vote))) {
+  if (!$voteStmt->execute(['id' => $id, 'ip' => $ip, 'host' => $hostip, 'ts' => $ts, 'vote' => $vote])) {
       return false;
   }
 
@@ -171,7 +171,7 @@ function vote_validate_request(PDO $dbh) {
   if (!$voteStmt) {
       return false;
   }
-  if (!$voteStmt->execute(array('id' => $id))) {
+  if (!$voteStmt->execute(['id' => $id])) {
       return false;
   }
   if (false === $voteResult = $voteStmt->fetch(PDO::FETCH_ASSOC)) {

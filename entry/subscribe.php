@@ -22,7 +22,7 @@ if (!is_emailable_address($_POST['email'])) {
 }
 
 // Check request mode
-if (!in_array($_POST['request'], array("subscribe", "unsubscribe"))) {
+if (!in_array($_POST['request'], ["subscribe", "unsubscribe"])) {
     die("Invalid request mode");
 }
 

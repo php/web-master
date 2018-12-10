@@ -15,15 +15,15 @@ for ($i = 1; $i <= 12; $i++) {
   $months[$i] = strftime('%B',mktime(12,0,0,$i,1,2001));
 }
 
-$re = array(1=>'First',2=>'Second',3=>'Third',4=>'Fourth',-1=>'Last',-2=>'2nd Last',-3=>'3rd Last');
-$cat = array("unknown", "User Group Event", "Conference", "Training");
+$re = [1=>'First',2=>'Second',3=>'Third',4=>'Fourth',-1=>'Last',-2=>'2nd Last',-3=>'3rd Last'];
+$cat = ["unknown", "User Group Event", "Conference", "Training"];
 
-$type = array(1=>'single',2=>'multi',3=>'recur');
+$type = [1=>'single',2=>'multi',3=>'recur'];
 
 head("event administration");
 db_connect();
 
-$valid_vars = array('id', 'action','in','begin','max','search','order','full','unapproved');
+$valid_vars = ['id', 'action','in','begin','max','search','order','full','unapproved'];
 foreach($valid_vars as $k) {
     $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
@@ -231,7 +231,7 @@ $limit = "LIMIT $begin,$max";
 $orderby="";
 $forward    = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
 if ($order) {
-  if (!in_array($order, array('sdato', 'sdesc', 'email', 'country', 'category'))) {
+  if (!in_array($order, ['sdato', 'sdesc', 'email', 'country', 'category'])) {
     $order = 'sdato';
   }
   if ($forward) {
@@ -261,7 +261,7 @@ $query = "SELECT phpcal.*,country.name AS cname FROM phpcal LEFT JOIN country ON
 #echo "<pre>$query</pre>";
 $res = db_query($query);
 
-$extra = array(
+$extra = [
   "search" => stripslashes($search),
   "order" => $order,
   "begin" => $begin,
@@ -269,18 +269,18 @@ $extra = array(
   "full" => $full,
   "unapproved" => $unapproved,
   "forward"    => $forward,
-);
+];
 
 show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
 ?>
 <table class="useredit">
 <tr>
- <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("full" => $full ? 0 : 1));?>"><?php echo $full ? "&otimes;" : "&oplus;";?></a></th>
- <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"sdato"));?>">date</a></th>
- <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"sdesc"));?>">summary</a></th>
- <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"email"));?>">email</a></th>
- <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"country"));?>">country</a></th>
- <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,array("order"=>"category"));?>">category</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,["full" => $full ? 0 : 1]);?>"><?php echo $full ? "&otimes;" : "&oplus;";?></a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,["order"=>"sdato"]);?>">date</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,["order"=>"sdesc"]);?>">summary</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,["order"=>"email"]);?>">email</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,["order"=>"country"]);?>">country</a></th>
+ <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,["order"=>"category"]);?>">category</a></th>
 </tr>
 <?php
 while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {

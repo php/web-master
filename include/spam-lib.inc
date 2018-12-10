@@ -5,7 +5,7 @@
 $spamassassin_path = '/opt/ecelerity/3rdParty/bin/spamassassin';
 
 // List of usual SPAM words
-$words_blacklist = array(
+$words_blacklist = [
 	'000webhost',
 	'adipex',
 	'alprazolam',
@@ -51,7 +51,7 @@ $words_blacklist = array(
 	'xanax',
 	'zanaflex',
 	'http://republika.pl',
-);
+];
 
 function check_spam_words ($text, $badwords) {
 	foreach($badwords as $badword) {
@@ -97,8 +97,8 @@ function is_spam_ip ($ip) {
 
     // spammers lists
     // [0] => dns server, [1] => exclude ip
-    $lists[] = array('bl.spamcop.net');
-    $lists[] = array('dnsbl.sorbs.net', '127.0.0.10'); // exclude dynamic ips list
+    $lists[] = ['bl.spamcop.net'];
+    $lists[] = ['dnsbl.sorbs.net', '127.0.0.10']; // exclude dynamic ips list
 
     foreach ($lists as $list) {
         $host = $reverse_ip . '.' . $list[0];

@@ -63,7 +63,7 @@ EOF;
 	email($row["maintainer"], $subject, $content);
 }
 function MIRRORINFO($row, $content) {
-	$RETURN = array();
+	$RETURN = [];
 
 	/* Parse our mirror configuration from /mirror-info */
 	$info = explode("|", trim($content));
@@ -147,24 +147,24 @@ function bfetch($url, $ctx, &$headers) {
 	if ($content) {
 		$headers = $http_response_header;
 	} else {
-		$headers = array();
+		$headers = [];
 	}
 
 	return $content;
 }
 
-function fetch($host, $filename, $ashostname = NULL, &$headers = array()) {
-	$opts = array(
+function fetch($host, $filename, $ashostname = NULL, &$headers = []) {
+	$opts = [
 		"user_agent"    => "PHP.net Mirror Site check",
 		"max_redirects" => 0,
 		"timeout"       => 15,
 		"ignore_errors" => "1",
-		"header"        => array(
+		"header"        => [
 			"Host: " . ($ashostname ?: $host),
 			"Connection: close",
-		),
-	);
-	$ctx = stream_context_create(array("http" => $opts));
+		],
+	];
+	$ctx = stream_context_create(["http" => $opts]);
 
 
 	$url = "http://$host$filename";
@@ -263,10 +263,10 @@ WHERE id = :id
 ";
 	$stmt = $pdo->prepare($query);
 
-	$params = array(
+	$params = [
 		":reason"      => $errmsg,
 		":id"          => $mirror["id"],
-	);
+	];
 
 	/* Mail the maintainer right away if it wasn't disabled already */
 	if (!$mirror["ocmt"]) {
@@ -296,7 +296,7 @@ WHERE id = :id
 ";
 
 	$stmt = $pdo->prepare($query);
-	$params = array(
+	$params = [
 		":lastupdated"    => (int)$info["mirrorupdated"],
 		":has_search"     => (int)$info["has_search"],
 		":has_stats"      => (int)$info["has_stats"],
@@ -307,7 +307,7 @@ WHERE id = :id
 		":local_hostname" => $info["local_hostname"],
 		":ipv4_addr"      => $info["ipv4_addr"],
 		":id"             => $mirror["id"],
-	);
+	];
 	$stmt->execute($params);
 }
 
@@ -319,20 +319,20 @@ function GEOLS() {
 		return json_decode($json, true);
 	}
 
-	return array();
+	return [];
 }
 
 function GEORM($id) {
 sleep(1);
 
-	$opts = array(
+	$opts = [
 		"user_agent"    => "PHP.net Mirror Site check",
 		"timeout"       => 15,
 		"ignore_errors" => "1",
 		"method"        => "DELETE",
-	);
+	];
 
-	$ctx = stream_context_create(array("http" => $opts));
+	$ctx = stream_context_create(["http" => $opts]);
 	$retval = file_get_contents(sprintf(GEORM, $id), false, $ctx);
 
 	p($retval);
@@ -348,7 +348,7 @@ sleep(1);
 		return;
 	}
 
-	$data = array(
+	$data = [
 		"domain"     => ZONE,
 		"host"       => "@",
 		"ttl"        => 0,
@@ -356,16 +356,16 @@ sleep(1);
 		"prio"       => 0,
 		"type"       => "CNAME",
 		"rdata"      => $cname,
-	);
-	$opts = array(
+	];
+	$opts = [
 		"user_agent"    => "PHP.net Mirror Site check",
 		"timeout"       => 15,
 		"ignore_errors" => "1",
 		"method"        => "PUT",
 		"header"        => "Content-type: text/x-javascript",
 		"content"       => $t = json_encode($data),
-	);
-	$ctx = stream_context_create(array("http" => $opts));
+	];
+	$ctx = stream_context_create(["http" => $opts]);
 	$retval = file_get_contents(GEOADD, false, $ctx);
 	p("Adding $cname => " . GEOADD . ": $t\n");
 	p($retval);
@@ -379,7 +379,7 @@ function geoDNS($HOSTS) {
 	$HOSTS["php-web2.php.net."] = "North America";
 
 	/* Remove disabled hosts */
-	$GEO = array();
+	$GEO = [];
 	foreach($GEOLIST["data"] as $k => $entry) {
 		/* Only deal with records we have declared as GEO */
 		if (empty($entry["geozone_id"])) {
@@ -431,7 +431,7 @@ $stmt = $pdo->prepare($query);
 $stmt->execute();
 
 
-$HOSTS = array();
+$HOSTS = [];
 while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 	$timeoutfail = 0;
 	p($row["hostname"]);

@@ -24,7 +24,7 @@ function pregen_atom($feed, $feedDest, $newsDest) {
 		return;
 	}
 
-	$timestamps = array();
+	$timestamps = [];
 	foreach ($dom->getElementsByTagName("updated") as $node) {
 		$timestamps[] = strtotime($node->nodeValue, $_SERVER["REQUEST_TIME"]);
 	}
@@ -44,7 +44,7 @@ function format_atom_feed($filename) {
 	$r = new XMLReader;
 	$r->XML($filename, "UTF-8");
 
-	$entries = array();
+	$entries = [];
 	while($r->read()) {
 		if ($r->nodeType === XMLReader::ELEMENT && $r->name === "entry") {
 			$entries[] = $current = format_atom_entry($r);
@@ -56,7 +56,7 @@ function format_atom_feed($filename) {
 
 // {{{ Parse the entry into array(element => value)
 function format_atom_entry($r) {
-	$retval = array();
+	$retval = [];
 
 	while($r->read()) {
 		if ($r->nodeType !== XMLReader::ELEMENT) {
@@ -153,7 +153,7 @@ function format_atom_entry($r) {
 
 // {{{ Return all attrs for current element as an array(attr-name => attr-value)
 function format_attributes($r) {
-	$retval = array();
+	$retval = [];
 
 	if (!$r->hasAttributes) {
 		return $retval;
@@ -180,7 +180,7 @@ function get_link($data, $rel = "alternate") {
 function legacy_rss($atom, $newsDest, $confDest) {
 	$sxe = new SimpleXMLElement($atom, $GLOBALS["XML_OPTIONS"], true);
 	$CONF = $CONF_ITEMS = $NEWS = $NEWS_ITEMS= "";
-	$links = array();
+	$links = [];
 
 	foreach($sxe->entry as $entry) {
 		$item = "";

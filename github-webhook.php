@@ -41,14 +41,14 @@ function send_mail($to, $subject, $message, $headers) {
 }
 
 
-$CONFIG = array(
-    'repos' => array(
+$CONFIG = [
+    'repos' => [
         'php-langspec' => 'standards@lists.php.net',
         'php-src' => 'git-pulls@lists.php.net',
         'web-' => 'php-webmaster@lists.php.net',
         'pecl-' => 'pecl-dev@lists.php.net',
-    ),
-);
+    ],
+];
 
 $body = file_get_contents("php://input");
 

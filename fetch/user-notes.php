@@ -39,7 +39,7 @@ while($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
     $row['rate'] = empty($row['rate']) ? 0 : $row['rate'];
     if ($user != "php-general@lists.php.net" && $user != "user@example.com") {
         if (preg_match("!(.+)@(.+)\.(.+)!", $user)) {
-            $user = str_replace(array('@', '.'), array(' at ', ' dot '), $user);
+            $user = str_replace(['@', '.'], [' at ', ' dot '], $user);
         }
     } else {
         $user = '';

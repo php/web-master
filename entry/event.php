@@ -3,7 +3,7 @@
 $mailto = 'php-webmaster@lists.php.net';
 #$mailto = 'jimw@apache.org';
 
-$re = array(
+$re = [
         1 => 'First',
         2 => 'Second',
         3 => 'Third',
@@ -11,8 +11,8 @@ $re = array(
        -1 => 'Last',
        -2 => 'Second to Last',
        -3 => 'Third to Last'
-      );
-$cat = array("unknown", "User Group Event", "Conference", "Training");
+];
+$cat = ["unknown", "User Group Event", "Conference", "Training"];
 
 function day($in) {
   return strftime('%A',mktime(12,0,0,4,$in,2001));
@@ -23,7 +23,7 @@ function day($in) {
 @mysql_select_db("phpmasterdb")
   or die("failed to select database");
 
-$valid_vars = array('sdesc','ldesc','email','country','category','type','url','sane','smonth','sday','syear','emonth','eday','eyear','recur','recur_day');
+$valid_vars = ['sdesc','ldesc','email','country','category','type','url','sane','smonth','sday','syear','emonth','eday','eyear','recur','recur_day'];
 foreach($valid_vars as $k) {
   $$k = isset($_REQUEST[$k]) ? mysql_real_escape_string($_REQUEST[$k]) : false;
 }

@@ -32,15 +32,15 @@ function csrf_validate(&$mydata, $name) {
   return true;
 }
 
-$indesc = array(
+$indesc = [
   "id"               => FILTER_VALIDATE_INT,
   "rawpasswd"        => FILTER_UNSAFE_RAW,
   "rawpasswd2"       => FILTER_UNSAFE_RAW,
   "svnpasswd"        => FILTER_SANITIZE_STRIPPED,
-  "cvsaccess"        => array("filter" => FILTER_CALLBACK, "options" => function($v) { if ($v == "on") { return true; } return false; }),
-  "enable"           => array("filter" => FILTER_CALLBACK, "options" => function($v) { if ($v == "on") { return true; } return false; }),
-  "spamprotect"      => array("filter" => FILTER_CALLBACK, "options" => function($v) { if ($v == "on") { return true; } return false; }),
-  "greylist"         => array("filter" => FILTER_CALLBACK, "options" => function($v) { if ($v == "on") { return true; } return false; }),
+  "cvsaccess"        => ["filter" => FILTER_CALLBACK, "options" => function($v) { if ($v == "on") { return true; } return false; }],
+  "enable"           => ["filter" => FILTER_CALLBACK, "options" => function($v) { if ($v == "on") { return true; } return false; }],
+  "spamprotect"      => ["filter" => FILTER_CALLBACK, "options" => function($v) { if ($v == "on") { return true; } return false; }],
+  "greylist"         => ["filter" => FILTER_CALLBACK, "options" => function($v) { if ($v == "on") { return true; } return false; }],
   "verified"         => FILTER_VALIDATE_INT,
   "use_sa"           => FILTER_VALIDATE_INT,
   "email"            => FILTER_SANITIZE_EMAIL,
@@ -48,10 +48,10 @@ $indesc = array(
   "sshkey"           => FILTER_SANITIZE_SPECIAL_CHARS,
   "purpose"          => FILTER_SANITIZE_SPECIAL_CHARS,
   "profile_markdown" => FILTER_UNSAFE_RAW,
-);
+];
 
-$rawin    = filter_input_array(INPUT_POST) ?: array();
-$in       = isset($rawin["in"]) ? filter_var_array($rawin["in"], $indesc, false) : array();
+$rawin    = filter_input_array(INPUT_POST) ?: [];
+$in       = isset($rawin["in"]) ? filter_var_array($rawin["in"], $indesc, false) : [];
 $id       = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT) ?: 0;
 $username = filter_input(INPUT_GET, "username", FILTER_SANITIZE_STRIPPED) ?: 0;
 
@@ -61,7 +61,7 @@ db_connect();
 
 # ?username=whatever will look up 'whatever' by email or username
 if ($username) {
-  $tmp = filter_input(INPUT_GET, "username", FILTER_CALLBACK, array("options" => "mysql_real_escape_string")) ?: "";
+  $tmp = filter_input(INPUT_GET, "username", FILTER_CALLBACK, ["options" => "mysql_real_escape_string"]) ?: "";
   $query = "SELECT userid FROM users"
          . " WHERE username='$tmp' OR email='$tmp'";
   $res = db_query($query);
@@ -79,7 +79,7 @@ if ($id) {
   }
 }
 
-$action = filter_input(INPUT_POST, "action", FILTER_CALLBACK, array("options" => "validateAction"));
+$action = filter_input(INPUT_POST, "action", FILTER_CALLBACK, ["options" => "validateAction"]);
 if ($id && $action) {
   csrf_validate($_SESSION, $action);
   if (!is_admin($_SESSION["username"])) {
@@ -138,7 +138,7 @@ if ($in) {
                  . " WHERE userid=$id";
           if (!empty($in['passwd'])) {
             // Kill the session data after updates :)
-            $_SERVER["credentials"] = array();
+            $_SERVER["credentials"] = [];
             db_query($query);
           } else {
             db_query($query);
@@ -319,8 +319,8 @@ $unapproved = filter_input(INPUT_GET, "unapproved", FILTER_VALIDATE_INT) ?: 0;
 $begin      = filter_input(INPUT_GET, "begin", FILTER_VALIDATE_INT) ?: 0;
 $max        = filter_input(INPUT_GET, "max", FILTER_VALIDATE_INT) ?: 20;
 $forward    = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
-$search     = filter_input(INPUT_GET, "search", FILTER_CALLBACK, array("options" => "mysql_real_escape_string")) ?: "";
-$order      = filter_input(INPUT_GET, "order", FILTER_CALLBACK, array("options" => "mysql_real_escape_string")) ?: "";
+$search     = filter_input(INPUT_GET, "search", FILTER_CALLBACK, ["options" => "mysql_real_escape_string"]) ?: "";
+$order      = filter_input(INPUT_GET, "order", FILTER_CALLBACK, ["options" => "mysql_real_escape_string"]) ?: "";
 
 $query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email,GROUP_CONCAT(note) note FROM users ";
 $query .= " LEFT JOIN users_note ON users_note.userid = users.userid ";
@@ -354,14 +354,14 @@ $res2 = db_query("SELECT FOUND_ROWS()");
 $total = mysql_result($res2,0);
 
 
-$extra = array(
+$extra = [
   "search"     => $search,
   "order"      => $order,
   "forward"    => $forward,
   "begin"      => $begin,
   "max"        => $max,
   "unapproved" => $unapproved,
-);
+];
 
 ?>
 <h1 class="browse">Browse users<ul>
@@ -374,14 +374,14 @@ $extra = array(
 </thead>
 <tbody>
 <tr>
-  <th><a href="?<?php echo array_to_url($extra,array("unapproved"=>!$unapproved));?>"><?php echo $unapproved ? "&otimes" : "&oplus"; ?>;</a></th>
-  <th><a href="?<?php echo array_to_url($extra,array("order"=>"username"));?>">username</a></th>
-  <th><a href="?<?php echo array_to_url($extra,array("order"=>"name"));?>">name</a></th>
+  <th><a href="?<?php echo array_to_url($extra,["unapproved"=>!$unapproved]);?>"><?php echo $unapproved ? "&otimes" : "&oplus"; ?>;</a></th>
+  <th><a href="?<?php echo array_to_url($extra,["order"=>"username"]);?>">username</a></th>
+  <th><a href="?<?php echo array_to_url($extra,["order"=>"name"]);?>">name</a></th>
 <?php if (!$unapproved) { ?>
-  <th colspan="2"><a href="?<?php echo array_to_url($extra,array("order"=>"email"));?>">email</a></th>
+  <th colspan="2"><a href="?<?php echo array_to_url($extra,["order"=>"email"]);?>">email</a></th>
 <?php } else { ?>
-  <th><a href="?<?php echo array_to_url($extra,array("order"=>"email"));?>">email</a></th>
-  <th><a href="?<?php echo array_to_url($extra,array("order"=>"note"));?>">note</a></th>
+  <th><a href="?<?php echo array_to_url($extra,["order"=>"email"]);?>">email</a></th>
+  <th><a href="?<?php echo array_to_url($extra,["order"=>"note"]);?>">note</a></th>
 <?php } ?>
   <th> </th>
 </tr>

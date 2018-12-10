@@ -11,7 +11,7 @@
 
  http://www.unicode.org/unicode/onlinedat/languages.html
 */
-$LANGUAGES = array(
+$LANGUAGES = [
     'en'    => 'English',
     'ar'    => 'Arabic',
     'pt_BR' => 'Brazilian Portuguese',
@@ -37,12 +37,12 @@ $LANGUAGES = array(
     'es'    => 'Spanish',
     'sv'    => 'Swedish',
     'tr'    => 'Turkish',
-);
+];
 
-$INACTIVE_ONLINE_LANGUAGES = array(
+$INACTIVE_ONLINE_LANGUAGES = [
     'el' => 'Greek',
     'ar' => 'Arabic',
-);
+];
 
 // Convert between language codes back and forth
 // [We use non standard languages codes and so conversion

@@ -18,13 +18,13 @@ function validateUser($user) {
     // If its not a valid email then strip all tags and \r & \n (since this will be used in the mail "from" header) /
     if(!$ret) {
         $ret = filter_var($user,    FILTER_SANITIZE_STRIPPED, FILTER_FLAG_STRIP_HIGH);
-        $ret = str_replace(array("\r", "\n"), "", $ret);
+        $ret = str_replace(["\r", "\n"], "", $ret);
     }
     return trim($ret);
 }
 
 
-$user    = filter_input(INPUT_POST, "user",     FILTER_CALLBACK,            array("filter" => FILTER_CALLBACK, "options" => "validateUser"));
+$user    = filter_input(INPUT_POST, "user",     FILTER_CALLBACK,            ["filter" => FILTER_CALLBACK, "options" => "validateUser"]);
 $note    = filter_input(INPUT_POST, "note",     FILTER_UNSAFE_RAW);
 $sect    = filter_input(INPUT_POST, "sect",     FILTER_SANITIZE_STRIPPED,   FILTER_FLAG_STRIP_HIGH);
 $ip      = filter_input(INPUT_POST, "ip",       FILTER_VALIDATE_IP,         FILTER_FLAG_NO_PRIV_RANGE|FILTER_FLAG_NO_RES_RANGE);

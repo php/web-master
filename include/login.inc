@@ -22,14 +22,14 @@ require 'functions.inc';
 $cuser = $cpw = FALSE;
 
 if (isset($_POST["user"], $_POST["pw"])) {
-    list($cuser, $cpw) = array($_POST['user'], $_POST['pw']);
+    list($cuser, $cpw) = [$_POST['user'], $_POST['pw']];
 } elseif (isset($_SESSION["credentials"]) && count($_SESSION["credentials"]) == 2) {
     list($cuser, $cpw) = $_SESSION["credentials"];
 }
 
 // Login form, if the user is not yet logged in
 if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
-    $_SESSION = array();
+    $_SESSION = [];
     session_destroy();
 
     // IS_DEV was 1 or 0 until 22 Feb 2012. It's now a @php.net username hint.
@@ -69,11 +69,11 @@ if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
  </tr>
 <?php if ($cpw): ?>
 <?php
-    $msgs = array(
+    $msgs = [
         "Nope.. Wrong (username?) password",
         "Nope.. Thats not it",
         "This isn't going very well..",
-    );
+    ];
     shuffle($msgs);
     $msg = array_pop($msgs);
 ?>
@@ -91,7 +91,7 @@ if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
 
 session_regenerate_id();
 // At this point, we have logged in successfully
-$_SESSION["credentials"] = array($cuser, $cpw);
+$_SESSION["credentials"] = [$cuser, $cpw];
 $_SESSION["username"] = $cuser;
 
 // Killing magic cookie

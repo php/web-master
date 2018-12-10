@@ -1,6 +1,6 @@
 <?php
 
-$valid_vars = array('token','cm','cy','cd','nm');
+$valid_vars = ['token','cm','cy','cd','nm'];
 foreach($valid_vars as $k) {
     if(isset($_GET[$k])) $$k = $_GET[$k];
 }
@@ -82,7 +82,7 @@ function weekday($year, $month, $day, $which)
 function load_month($year, $month, $cat)
 {
     // Empty events array
-    $events = array();
+    $events = [];
 
     // Get approved events starting or ending in the
     // specified year/month, and all recurring events
@@ -97,7 +97,7 @@ function load_month($year, $month, $cat)
     );
 
     // Cannot get results, return with event's not found
-    if (!$result) { echo mysql_error(); return array(); }
+    if (!$result) { echo mysql_error(); return []; }
 
     // Go through found events
     while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {

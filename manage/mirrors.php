@@ -5,10 +5,10 @@ include '../include/login.inc';
 define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
 
 // This page is for mirror administration
-head("mirror administration", array("columns" => 2));
+head("mirror administration", ["columns" => 2]);
 db_connect();
 
-$valid_fields = array(
+$valid_fields = [
     'hostname',
     'mode',
     'active',
@@ -25,7 +25,7 @@ $valid_fields = array(
     'reason',
     'original_log',
     'load_balanced',
-);
+];
 
 foreach($valid_fields as $k) {
     if (isset($_REQUEST[$k])) $$k = $_REQUEST[$k];
@@ -148,12 +148,12 @@ elseif (isset($id)) {
 
     // The $id is not valid, so provide common defaults for new mirror
     else {
-        $row = array(
+        $row = [
             'providerurl' => 'http://',
             'active'      => 1,
             'mirrortype'  => 1,
             'lang'        => 'en'
-        );
+        ];
     }
 
     // Print out mirror data table with or without values
@@ -324,7 +324,7 @@ function page_mirror_list($moreinfo = false)
     global $checktime;
 
     // For counting versions and building a statistical analysis
-    $php_versions = array(
+    $php_versions = [
         '53' => 0,
         '54' => 0,
         '55' => 0,
@@ -334,7 +334,7 @@ function page_mirror_list($moreinfo = false)
         '72' => 0,
         '73' => 0,
         'other' => 0,
-    );
+    ];
     // Query the whole mirror list and display all mirrors. The query is
     // similar to the one in the mirror fetch script. We need to get mirror
     // status data to show proper icons and need to order by country too
@@ -354,10 +354,10 @@ function page_mirror_list($moreinfo = false)
     // Previous country code
     $prevcc = "n/a";
 
-    $stats = array(
+    $stats = [
         'mirrors'       => mysql_num_rows($res),
-        'sqlite_counts' => array('none' => 0, 'sqlite' => 0, 'pdo_sqlite' => 0, 'pdo_sqlite2' => 0, 'sqlite3' => 0),
-    );
+        'sqlite_counts' => ['none' => 0, 'sqlite' => 0, 'pdo_sqlite' => 0, 'pdo_sqlite2' => 0, 'sqlite3' => 0],
+    ];
 
     // Go through all mirror sites
     while ($row = mysql_fetch_array($res)) {
@@ -672,7 +672,7 @@ return $statusscreen;
 function show_mirrortype_options($type = 1)
 {
     // There are two mirror types
-    $types = array(1 => "standard", 2 => "special"); //, 0 => "download");
+    $types = [1 => "standard", 2 => "special"]; //, 0 => "download");
 
     // Write out an <option> for all types
     foreach ($types as $code => $name) {

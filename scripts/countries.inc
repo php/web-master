@@ -1,7 +1,7 @@
 <?php
 	/* GeoDNS zone IDs @ EasyDNS */
 	//"country-code" => "geozone_id", //geozone_name
-return array(
+return [
 	"NA East" => 1, //North America East
 	"NA West" => 2, //North America West
 	"Europe" => "3", //Europe
@@ -258,4 +258,4 @@ return array(
 	"ZA" => "252", //South Africa
 	"ZM" => "253", //Zambia
 	"ZW" => "254", //Zimbabwe
-);
+];

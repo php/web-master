@@ -402,7 +402,7 @@ if (!$action) {
     $lastweek = !date('w') ? strtotime('midnight -1 week') : strtotime('Last Sunday -1 week');
     $lastmonth = strtotime('First Day of last month');
     /* Handle stats queries for voting here */
-    $stats_sql = $stats = array();
+    $stats_sql = $stats = [];
     $stats_sql['Total']       = "SELECT COUNT(votes.id) AS total FROM votes";
     $stats_sql['Total Up']    = "SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 1";
     $stats_sql['Total Down']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 0";
@@ -467,7 +467,7 @@ case 'mass':
     exit;
   }
   $step = (isset($_REQUEST["step"]) ? (int)$_REQUEST["step"] : 0);
-  $where = array();
+  $where = [];
   if (!empty($_REQUEST["old_sect"])) {
     $where[] = "sect = '". real_clean($_REQUEST["old_sect"]) ."'";
   }
@@ -737,7 +737,7 @@ case 'deletevotes':
   if (empty($_POST['deletevote']) || !is_array($_POST['deletevote'])) {
     die("No vote ids supplied!");
   }
-  $ids = array();
+  $ids = [];
   foreach ($_POST['deletevote'] as $id) {
     $ids[] = (int) $id;
   }
@@ -819,22 +819,22 @@ function highlight_php($code, $return = FALSE)
     
     // Fix output to use CSS classes and wrap well
     $highlighted = '<div class="phpcode">' . str_replace(
-        array(
+        [
             '&nbsp;',
             '<br />',
             '<font color="',
             '</font>',
             "\n ",
             '  '
-        ),
-        array(
+        ],
+        [
             ' ',
             "<br />\n",
             '<span class="',
             '</span>',
             "\n&nbsp;",
             '&nbsp; '
-        ),
+        ],
         $highlighted
     ) . '</div>';
     
@@ -881,9 +881,9 @@ function allow_mass_change($user)
 {
     if (in_array(
             $user,
-            array(
+            [
                 "vrana", "goba", "nlopess", "didou", "bjori", "philip", "bobby", "danbrown", "mgdm", "googleguy", "levim",
-            )
+            ]
         )
     ) {
         return TRUE;
@@ -893,11 +893,11 @@ function allow_mass_change($user)
 // Return safe to print version of email address
 function safe_email($mail)
 {
-    if (in_array($mail, array("php-general@lists.php.net", "user@example.com"))) {
+    if (in_array($mail, ["php-general@lists.php.net", "user@example.com"])) {
         return '';
     }
     elseif (preg_match("!(.+)@(.+)\.(.+)!", $mail)) {
-        return str_replace(array('@', '.'), array(' at ', ' dot '), $mail);
+        return str_replace(['@', '.'], [' at ', ' dot '], $mail);
     }
     return $mail;
 }
@@ -917,7 +917,7 @@ function wildcard_ip($ip)
             return false;
         }
     }
-    $end = array();
+    $end = [];
     foreach (array_keys($start, "*", true) as $key) {
         $start[$key] = "0";
         $end[$key] = "255";
@@ -933,5 +933,5 @@ function wildcard_ip($ip)
     if ($end - $start <= 0) {
       return false;
     }
-    return array($start, $end);
+    return [$start, $end];
 }

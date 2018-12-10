@@ -15,7 +15,7 @@ function error($text, $status)
         header("HTTP/1.0 401 Unauthorized");
         break;
     }
-    echo json_encode(array("error" => $text));
+    echo json_encode(["error" => $text]);
     exit;
 }
 
@@ -26,7 +26,7 @@ $USERNAME = filter_input(INPUT_GET, "username", FILTER_SANITIZE_STRING, FILTER_F
 $pdo = new PDO("mysql:host=localhost;dbname=phpmasterdb", "nobody", "");
 
 $stmt = $pdo->prepare("SELECT userid, name, email, username, spamprotect, use_sa, greylist, enable FROM users WHERE username = ? AND cvsaccess LIMIT 1");
-if (!$stmt->execute(array($USERNAME))) {
+if (!$stmt->execute([$USERNAME])) {
     error("This error should never happen", 500);
 }
 
@@ -36,7 +36,7 @@ if (!$results) {
 }
 
 $stmt = $pdo->prepare("SELECT note, entered FROM users_note WHERE userid = ?");
-if (!$stmt->execute(array($results["userid"]))) {
+if (!$stmt->execute([$results["userid"]])) {
     error("This error should never happen", 500);
 }
 

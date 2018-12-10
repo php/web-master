@@ -16,12 +16,12 @@ if (!defined('GITHUB_USER_AGENT')) {
   define('GITHUB_USER_AGENT', 'php.net repository management (master.php.net, systems@php.net, johannes@php.net)');
 }
 
-function github_api($endpoint, $method = 'GET', $options = array())
+function github_api($endpoint, $method = 'GET', $options = [])
 {
   $options['method'] = $method;
   $options['user_agent'] = GITHUB_USER_AGENT;
 
-  $ctxt = stream_context_create(array('http' => $options));
+  $ctxt = stream_context_create(['http' => $options]);
 
   $url = 'https://api.github.com'.$endpoint;
   $s = @file_get_contents($url, false, $ctxt);
@@ -58,24 +58,24 @@ function github_require_valid_user()
   }
 
   if (isset($_GET['code'])) {
-    $data = array(
+    $data = [
       'client_id' => GITHUB_CLIENT_ID,
       'client_secret' => GITHUB_CLIENT_SECRET,
       'code' => $_GET['code']
-    );
+    ];
     $data_encoded = http_build_query($data);
-    $opts = array(
+    $opts = [
       'method' => 'POST',
       'user_agent' => GITHUB_USER_AGENT,
       'header'  => 'Content-type: application/x-www-form-urlencoded',
       'content' => $data_encoded,
-    );
-    $ctxt = stream_context_create(array('http' => $opts));
+    ];
+    $ctxt = stream_context_create(['http' => $opts]);
     $s = @file_get_contents('https://github.com/login/oauth/access_token', false, $ctxt);
     if (!$s) {
       die('Failed while checking with GitHub,either you are trying to hack us or our configuration is wrong (GITHUB_CLIENT_SECRET outdated?)');
     }
-    $gh = array();
+    $gh = [];
     parse_str($s, $gh);
     if (empty($gh['access_token'])) {
       die("GitHub responded but didn't send an access_token");
@@ -84,8 +84,8 @@ function github_require_valid_user()
     $user = github_current_user($gh['access_token']);
 
     $endpoint = '/teams/'.urlencode(GITHUB_PHP_OWNER_TEAM_ID).'/members/'.urlencode($user->login);
-    $opts = array('user_agent' => GITHUB_USER_AGENT);
-    $ctxt = stream_context_create(array('http' => $opts));
+    $opts = ['user_agent' => GITHUB_USER_AGENT];
+    $ctxt = stream_context_create(['http' => $opts]);
     $is_member = file_get_contents('https://api.github.com'.$endpoint.'?access_token='.urlencode($gh['access_token']), false, $ctxt);
 
     if ($is_member === false) {
@@ -148,7 +148,7 @@ function action_create_repo()
 {
   github_require_valid_user();
 
-  $data = array(
+  $data = [
     'name' => $_POST['name'],
     'description' => $_POST['description'],
 
@@ -158,11 +158,11 @@ function action_create_repo()
     'has_wiki' => false,
     'has_downloads' => false,
     'team_id' => GITHUB_REPO_TEAM_ID,
-  );
+  ];
   $data_j = json_encode($data);
-  $opts = array(
+  $opts = [
     'content' => $data_j,
-  );
+  ];
   $res = github_api('/orgs/php/repos?access_token='.urlencode($_SESSION['github']['access_token']), 'POST', $opts);
 
   head("github administration");

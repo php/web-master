@@ -15,7 +15,7 @@ function error($text, $status)
         header("HTTP/1.0 401 Unauthorized");
         break;
     }
-    render(array("error" => $text));
+    render(["error" => $text]);
     exit;
 }
 
@@ -40,7 +40,7 @@ $stmt = $pdo->prepare("
   WHERE u.username =  ? AND cvsaccess
   LIMIT 1
 ");
-if (!$stmt->execute(array($USERNAME))) {
+if (!$stmt->execute([$USERNAME])) {
     error("This error should never happen", 500);
 }
 
