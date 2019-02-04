@@ -38,7 +38,7 @@ date_default_timezone_set('Etc/UTC');
 $mail = new PHPMailer;
 $mail->isSMTP();
 $mail->SMTPDebug = 0;
-$mail->Host = 'php-smtp2.php.net';
+$mail->Host = 'mailout.php.net';
 $mail->Port = 25;
 $mail->setFrom($_POST['email']);
 $mail->addAddress("{$_POST['maillist']}-{$_POST['request']}-$sub@lists.php.net");
