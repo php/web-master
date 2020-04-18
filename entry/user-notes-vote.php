@@ -1,14 +1,14 @@
 <?php
 /*
   This script acts as the backend communication API for the user notes vote feature.
-  Requests come in here from the mirrors to update the database with new votes.
+  Requests come in here from the php.net to update the database with new votes.
   master.php.net should respond with a JSON object (with one required property [status] and two optional properties
   [votes] and [message]).
   The JSON object [status] property contains a status returned by the server for that request.
-  It's value may be either a boolean true or false. If the status is true the mirror will know the vote went through successfully.
-  The optional [votes] property may then be supplied to update the mirror with the new value of the votes for that note.
-  If the status is false the mirror will know the request for voting failed and an optional [message] property may be
-  set to supply the mirror with a message string, explaining why the request failed.
+  It's value may be either a boolean true or false. If the status is true the php.net will know the vote went through successfully.
+  The optional [votes] property may then be supplied to update the php.net with the new value of the votes for that note.
+  If the status is false the php.net will know the request for voting failed and an optional [message] property may be
+  set to supply the php.net with a message string, explaining why the request failed.
 
   Example Success:
 

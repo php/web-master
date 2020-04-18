@@ -2,7 +2,7 @@
 
 /* vim: ft=php
  This code is used to pregenerate the conference teaser array displayed
- on the PHP.net (and all mirror's) homepage. It gets the filename
+ on the PHP.net homepage. It gets the filename
  of the RSS where the info is already fetched, and generates the
  PHP code ready to be included to $outfile 
 */
