@@ -393,43 +393,6 @@ if (!$action) {
       }
     }
   }
-  if (empty($_SERVER['QUERY_STRING'])) {
-    /* Calculate dates */
-    $today = strtotime('midnight');
-    $week = !date('w') ? strtotime('midnight') : strtotime('Last Sunday');
-    $month = strtotime('First Day of ' . date('F') . ' ' . date('Y'));
-    $yesterday = strtotime('midnight yesterday');
-    $lastweek = !date('w') ? strtotime('midnight -1 week') : strtotime('Last Sunday -1 week');
-    $lastmonth = strtotime('First Day of last month');
-    /* Handle stats queries for voting here */
-    $stats_sql = $stats = [];
-    $stats_sql['Total']       = "SELECT COUNT(votes.id) AS total FROM votes";
-    $stats_sql['Total Up']    = "SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 1";
-    $stats_sql['Total Down']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 0";
-    $stats_sql['Today']       = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($today);
-    $stats_sql['This Week']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($week);
-    $stats_sql['This Month']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($month);
-    $stats_sql['Yesterday']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($yesterday) . " AND UNIX_TIMESTAMP(votes.ts) < " . real_clean($today);
-    $stats_sql['Last Week']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($lastweek) . " AND UNIX_TIMESTAMP(votes.ts) < " . real_clean($week);
-    $stats_sql['Last Month']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($lastmonth) . " AND UNIX_TIMESTAMP(votes.ts) < " . real_clean($month);
-    foreach ($stats_sql as $key => $sql_code) {
-      $result = db_query($sql_code);
-      $row = mysql_fetch_assoc($result);
-      $stats[$key] = $row['total'];
-    }
-    /* Display the stats on the front page only */
-?>
-<div style="float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: #C8C8C0;">
-  <center><p><span style="color: #8A2BE2; font-size: 18px;"><strong>User Contributed Voting Statistics</strong></span></p></center>
-  <?php foreach (array_chunk($stats, 3, true) as $statset) { ?>
-  <?php foreach ($statset as $figure => $stat) { ?>
-  <div style="display: inline-block; float: left; padding: 15px; border-bottom: 1px solid white; color: #483D8B;"><strong><?= $figure ?></strong>: <?= $stat ?></div>
-  <?php } ?>
-  <p>&nbsp;</p>
-  <?php } ?>
-</div>
-<?php
-  }
 ?>
 
 <h2>Menu</h2>
@@ -442,6 +405,7 @@ if (!$action) {
 <p><a href="<?= PHP_SELF ?>?view=notes&type=5">View votes table</a></p>
 <p><a href="<?= PHP_SELF ?>?view=notes&type=6">IPs with the most votes</a></p>
 <p><a href="<?= PHP_SELF ?>?action=sect">Search notes within a section</a></p>
+<p><a href="<?= PHP_SELF ?>?action=voting_stats">User contributed voting statistics</a></p>
 <?php
   foot();
   exit;
@@ -775,6 +739,48 @@ case 'sect':
 
   foot();
   exit;
+case 'voting_stats':
+    head('user notes');
+    /* Calculate dates */
+    $today = strtotime('midnight');
+    $week = !date('w') ? strtotime('midnight') : strtotime('Last Sunday');
+    $month = strtotime('First Day of ' . date('F') . ' ' . date('Y'));
+    $yesterday = strtotime('midnight yesterday');
+    $lastweek = !date('w') ? strtotime('midnight -1 week') : strtotime('Last Sunday -1 week');
+    $lastmonth = strtotime('First Day of last month');
+    /* Handle stats queries for voting here */
+    $stats_sql = $stats = [];
+    $stats_sql['Total']       = "SELECT COUNT(votes.id) AS total FROM votes";
+    $stats_sql['Total Up']    = "SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 1";
+    $stats_sql['Total Down']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 0";
+    $stats_sql['Today']       = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($today);
+    $stats_sql['This Week']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($week);
+    $stats_sql['This Month']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($month);
+    $stats_sql['Yesterday']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($yesterday) . " AND UNIX_TIMESTAMP(votes.ts) < " . real_clean($today);
+    $stats_sql['Last Week']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($lastweek) . " AND UNIX_TIMESTAMP(votes.ts) < " . real_clean($week);
+    $stats_sql['Last Month']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($lastmonth) . " AND UNIX_TIMESTAMP(votes.ts) < " . real_clean($month);
+    foreach ($stats_sql as $key => $sql_code) {
+        $result = db_query($sql_code);
+        $row = mysql_fetch_assoc($result);
+        $stats[$key] = $row['total'];
+    }
+    ?>
+    <h2>User contributed voting statistics</h2>
+    <div style="float: left; border: 1px solid gray; padding: 5px; background-color: #C8C8C0; margin-bottom: 20px;">
+        <?php foreach (array_chunk($stats, 3, true) as $statset) { ?>
+            <?php foreach ($statset as $figure => $stat) { ?>
+                <div style="display: inline-block; float: left; padding: 15px; border-bottom: 1px solid white; color: #483D8B;"><strong><?= $figure ?></strong>: <?= $stat ?></div>
+            <?php } ?>
+            <p>&nbsp;</p>
+        <?php } ?>
+    </div>
+
+    <p style="clear: both;"><a href="<?= PHP_SELF ?>">Go back to the notes management</a></p>
+    <?php
+    // I didn't want to copy the whole menu and making it a type instead of action
+    // would mean reworking whole architecture this page has so it's an easy win tbh
+    foot();
+break;
   /* falls through */
 default:
   head('user notes');
