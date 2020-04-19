@@ -212,25 +212,6 @@ function is_sqlite_type_available($avails, $check) {
 	return false;
 }
 
-function decipher_available_sqlites($avails) {
-
-	$all    = [1 => 'sqlite', 2 => 'sqlite3', 4 => 'pdo_sqlite', 8 => 'pdo_sqlite2'];
-	$mine   = [];
-	$avails = (int) $avails;
-
-	if (($avails & 15) === 15) {
-		return $all;
-	}
-	
-	foreach ($all as $bit => $name) {
-		if (($avails & $bit) === $bit) {
-			$mine[$bit] = $name;
-		} 
-	}
-	
-	return $mine;
-}
-
 function verify_ssh_keys($string) {
     return count(get_ssh_keys($string)) > 0;
 }
@@ -245,10 +226,6 @@ function get_ssh_keys($string) {
     }
 
     return $results;
-}
-
-function unmangle($var_name,$filter_id=FILTER_UNSAFE_RAW) {
-	return real_clean(filter_var($var_name,$filter_id));
 }
 
 // We use markdown for people profiles
