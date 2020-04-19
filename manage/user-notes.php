@@ -375,6 +375,12 @@ if (!$action) {
              "number of votes placed in a small timeframe to help detect spam and other potential abuse.</p>\n".
              "<p>Also note that a <em>0.0.0.0</em> IP address indicates a client IP could not be resolved at the time of voting.</p>";
       }
+      // Temp debug
+      // @todo remove
+      echo '<!-- ';
+      print_r($_REQUEST, false);
+      print_r($search_votes, false);
+      echo ' -->';
       if((isset($_REQUEST["view"]) || isset($_REQUEST['keyword'])) && isset($search_votes) && $search_votes === true) {
         $keyword = isset($_REQUEST['keyword']) ? '&keyword=' . urlencode($_REQUEST['keyword']) : '';
         // Setting type is here only to avoid notice or more conditions.
