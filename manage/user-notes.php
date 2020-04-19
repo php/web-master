@@ -381,7 +381,7 @@ if (!$action) {
         // It won't cause to show last notes (type=0) as $_REQUEST['keyword'] presence has higher priority.
         $type = 0;
         echo "<p><a href=\"?view=notes&page=$page&type=$type$keyword\">Next 10</a>";
-      } elseif (isset($_REQUEST["view"]) && !empty($search_votes)) {
+      } elseif (isset($_REQUEST["view"]) && isset($search_votes) === false) {
         echo "<p>";
         if (isset($NextPage) && $NextPage > 1) {
           echo "<a href=\"?view=notes&page=$PrevPage&type=$type{$isSearch}\">&lt; Prev 25</a> ";
