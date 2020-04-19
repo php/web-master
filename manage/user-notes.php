@@ -375,7 +375,7 @@ if (!$action) {
              "number of votes placed in a small timeframe to help detect spam and other potential abuse.</p>\n".
              "<p>Also note that a <em>0.0.0.0</em> IP address indicates a client IP could not be resolved at the time of voting.</p>";
       }
-      if((isset($_REQUEST["view"]) || isset($_REQUEST['keyword'])) && empty($search_votes)) {
+      if((isset($_REQUEST["view"]) || isset($_REQUEST['keyword'])) && isset($search_votes) && $search_votes === true) {
         $keyword = isset($_REQUEST['keyword']) ? '&keyword=' . urlencode($_REQUEST['keyword']) : '';
         // Setting type is here only to avoid notice or more conditions.
         // It won't cause to show last notes (type=0) as $_REQUEST['keyword'] presence has higher priority.
