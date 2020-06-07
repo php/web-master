@@ -27,9 +27,16 @@ if(in_array('https', stream_get_wrappers())) {
 
 /* get user notes */
 if($SSL_fopen) {
+    $ctx = stream_context_create([
+        'ssl' => [
+            'ciphers' => 'DEFAULT:!DH',
+        ],
+    ]);
     $fp = @fopen(
         "https://master.php.net/fetch/user-notes.php?token=$token".($since?"&since=$since":""),
-        "r"
+        "r",
+        false,
+        $ctx
     );
 } else {
     $url = escapeshellarg("https://master.php.net/fetch/user-notes.php?token=$token".($since?"&since=$since":""));
