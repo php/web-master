@@ -35,7 +35,7 @@ function scanLinks($text, $rootLink) {
     // Make sure it is a full URL
     if (!preg_match('/^http:/', $link)) { 
         $rootLink = rtrim($rootLink, "/");
-        $link = ($link{0} != '/') ? "$rootLink/$link" : "$rootLink$link";
+        $link = ($link[0] != '/') ? "$rootLink/$link" : "$rootLink$link";
     }
     
     return $link;
