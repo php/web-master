@@ -81,12 +81,12 @@ if ($id && $in) {
            . ($sdato ? "sdato='".real_clean($sdato)."'," : "")
            . ($edato ? "edato='".real_clean($edato)."'," : "")
            . ($recur ? "recur='".real_clean($recur)."'," : "")
-           . "ldesc='".real_clean($in[ldesc])."',"
-           . "sdesc='".real_clean($in[sdesc])."',"
-           . "email='".real_clean($in[email])."',"
-           . "url='".real_clean($in[url])."',"
-           . "country='".real_clean($in[country])."',"
-           . "category='".real_clean($in[category])."'"
+           . "ldesc='".real_clean($in['ldesc'])."',"
+           . "sdesc='".real_clean($in['sdesc'])."',"
+           . "email='".real_clean($in['email'])."',"
+           . "url='".real_clean($in['url'])."',"
+           . "country='".real_clean($in['country'])."',"
+           . "category='".real_clean($in['category'])."'"
            . " WHERE id=".real_clean($id);
     db_query($query);
 
@@ -256,7 +256,7 @@ $query = "SELECT COUNT(id) FROM phpcal";
 if ($searchby)
   $query .= " $searchby";
 $res = db_query($query);
-$total = mysql_result($res,0);
+$total = (int)mysql_result($res,0);
 
 $query = "SELECT phpcal.*,country.name AS cname FROM phpcal LEFT JOIN country ON phpcal.country = country.id $searchby $orderby $limit";
 

@@ -49,7 +49,7 @@ if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
 </head>
 <body>
 <form method="post" action="<?php echo $_SERVER['SCRIPT_NAME'], query_string();?>">
-<?php echo preserve_form_fields();?>
+<?php preserve_form_fields();?>
 <input type="hidden" name="save" value="1" />
 <table>
  <tr>
