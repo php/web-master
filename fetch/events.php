@@ -50,7 +50,7 @@ while ($nm) {
     }
 }
 
-/*
+/**
  * Find the first, second, third, last, second-last etc. weekday of a month
  *
  * args: day   1 = Monday
@@ -61,6 +61,11 @@ while ($nm) {
  *            -1 = last
  *            -2 = second-last
  *            -3 = third-last
+ *
+ * @param int $year
+ * @param int $month
+ * @param int $day
+ * @param int $which
  */
 function weekday($year, $month, $day, $which)
 {
@@ -132,7 +137,7 @@ function load_month($year, $month, $cat)
             // Recurring event
             case 3:
                 list($which,$dd) = explode(':', $row['recur']);
-                $ts = weekday($year, $month, $dd, $which);
+                $ts = weekday((int)$year, (int)$month, (int)$dd, (int)$which);
                 $events[(int)strftime('%d', $ts)][] = $row;
                 break;
         }

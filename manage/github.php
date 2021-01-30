@@ -83,7 +83,7 @@ function github_require_valid_user()
 
     $user = github_current_user($gh['access_token']);
 
-    $endpoint = '/teams/'.urlencode(GITHUB_PHP_OWNER_TEAM_ID).'/members/'.urlencode($user->login);
+    $endpoint = '/teams/'.urlencode((string)GITHUB_PHP_OWNER_TEAM_ID).'/members/'.urlencode($user->login);
     $opts = ['user_agent' => GITHUB_USER_AGENT];
     $ctxt = stream_context_create(['http' => $opts]);
     $is_member = file_get_contents('https://api.github.com'.$endpoint.'?access_token='.urlencode($gh['access_token']), false, $ctxt);

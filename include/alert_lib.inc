@@ -33,7 +33,7 @@ function has_alert($user, $sect) {
 function do_alert_action($sql) {
 	global $alink;
 	$r = @mysql_query($sql, $alink);
-	$success = ($r && mysql_affected_rows($c) > 0);
+	$success = ($r && mysql_affected_rows($r) > 0);
 	if (!$success)
 		echo "<b>Error performing sql: ".mysql_error()." ( in do_alert_action() )";
 	return $success;
@@ -67,6 +67,7 @@ function get_emails_for_sect($sect) {
 	$sql = "select cvsusers.email from alerts,cvsusers ";
 	$sql .= "alerts.sect = '$sect' and alerts.user = cvsusers.user";
 	$r = mysql_query($sql, $alink);
+	$elist = array();
 	if (!$r) {
 		return "";
 	} else {

@@ -82,7 +82,7 @@ function check_spam_assassin ($text, $sa_path) {
 	$spam = shell_exec ('echo ' . escapeshellarg($text) . " | $sa_path -L -e 8");
 
 	$match = '';
-	if (preg_match ('/^X-Spam-Status:.+(?:\n\t.+)*'.'/m', $spam, $match)) {
+	if (preg_match ('/^X-Spam-Status:.+(?:\n\t.+)*'.'/m', (string)$spam, $match)) {
     	$spam_data = $match[0];
 	} else {
     	$spam_data = 'Error matching the SpamAssassin data';
@@ -94,6 +94,7 @@ function check_spam_assassin ($text, $sa_path) {
 // Test with 127.0.0.2 for positive and 127.0.0.1 for negative
 function is_spam_ip ($ip) {
     $reverse_ip = implode('.', array_reverse(explode('.', $ip)));
+    $lists = array();
 
     // spammers lists
     // [0] => dns server, [1] => exclude ip

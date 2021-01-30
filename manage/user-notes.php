@@ -339,7 +339,7 @@ if (!$action) {
                "<a href=\"http://php.net/manual/en/{$row['sect']}.php#{$id}\" target=\"_blank\">http://php.net/manual/en/{$row['sect']}.php#{$id}</a><br />\n",
                "<a href=\"https://master.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
           foreach ($note_del_reasons AS $reason => $text) {
-            echo '<a href="https://master.php.net/note/delete/', $id, '/', urlencode($reason), '" target=\"_blank\">', 'Delete Note: ', hscr($text), "</a><br />\n";
+            echo '<a href="https://master.php.net/note/delete/', $id, '/', urlencode((string)$reason), '" target=\"_blank\">', 'Delete Note: ', hscr($text), "</a><br />\n";
           }
           echo "<a href=\"https://master.php.net/note/delete/$id\" target=\"_blank\">Delete Note: other reason</a><br />",
                "<a href=\"https://master.php.net/note/reject/$id\" target=\"_blank\">Reject Note</a>",

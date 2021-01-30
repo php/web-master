@@ -26,10 +26,10 @@ return [
     // Thus, both first-party and third-party code being used by
     // your application should be included in this list.
     'directory_list' => [
-        '.', 'manage', 'include',
+        'include', 'manage', '.',
     ],
 
-	'analyzed_file_extensions' => ['php', 'inc'],
+	'analyzed_file_extensions' => ['php', 'inc', 'sample'],
 
     // A regex used to match every file name that you want to
     // exclude from parsing. Actual value will exclude every

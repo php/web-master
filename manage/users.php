@@ -9,7 +9,7 @@ require '../include/email-validation.inc';
 require '../include/email-templates.inc';
 
 function csrf_generate(&$mydata, $name) {
-  $mydata["CSRF"][$name] = $csrf = hash("sha512", mt_rand(0,mt_getrandmax()));
+  $mydata["CSRF"][$name] = $csrf = hash("sha512", (string)mt_rand(0,mt_getrandmax()));
   return "$name:$csrf";
 }
 function csrf_validate(&$mydata, $name) {
@@ -351,7 +351,7 @@ $res = db_query($query);
 #echo $query;
 
 $res2 = db_query("SELECT FOUND_ROWS()");
-$total = mysql_result($res2,0);
+$total = (int)mysql_result($res2,0);
 
 
 $extra = [

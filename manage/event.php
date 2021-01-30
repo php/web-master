@@ -7,6 +7,8 @@ define('PHP_SELF', hsc($_SERVER['PHP_SELF']));
 $mailto = "php-webmaster@lists.php.net";
 #$mailto = "jimw@apache.org";
 
+$days = $months = array();
+
 for ($i = 1; $i <= 7; $i++) {
   $days[$i] = strftime('%A',mktime(12,0,0,4,$i,2001));
 }

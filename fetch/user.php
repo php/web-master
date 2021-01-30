@@ -41,6 +41,7 @@ if (!$stmt->execute([$results["userid"]])) {
 }
 
 unset($results["userid"]); // Our internal ID has no meaning for anyone
+// @phan-suppress-next-line PhanTypeArraySuspicious
 $results["notes"] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 echo json_encode($results);

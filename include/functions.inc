@@ -76,10 +76,10 @@ function foot($secondscreen = null) {
 
 // -----------------------------------------------------------------------------------
 
-function hsc($str)             { return $GLOBALS['default_filter']?$str:htmlspecialchars($str,ENT_QUOTES,'UTF-8'); }
-function hscr($str)            { return htmlspecialchars($str,ENT_QUOTES,'UTF-8'); }
-function strip($var)           { return (get_magic_quotes_gpc() ? stripslashes($var) : $var); }
-function escape($var)          { return (get_magic_quotes_gpc() ? $var : addslashes($var)); }
+function hsc($str)             { return $GLOBALS['default_filter']?$str:htmlspecialchars((string)$str,ENT_QUOTES,'UTF-8'); }
+function hscr($str)            { return htmlspecialchars((string)$str,ENT_QUOTES,'UTF-8'); }
+function strip($var)           { return ((function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) ? stripslashes($var) : $var); }
+function escape($var)          { return ((function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) ? $var : addslashes($var)); }
 function clean($var)           { return $GLOBALS['default_filter']?$var:hsc(strip($var)); }
 function format_warn($message) { return "<p class=\"warning\">$message</p>"; }
 function warn($message)        { echo format_warn($message); }
@@ -141,9 +141,15 @@ function array_to_url($array,$overlay=[]) {
         $params[$k] = rawurlencode($k) . "=" . rawurlencode($v);
     }
 
-    return join($params, "&amp;");
+    return implode("&amp;", $params);
 }
 
+/**
+ * @param int $begin
+ * @param int $rows
+ * @param int $skip
+ * @param int $total
+ */
 function show_prev_next($begin, $rows, $skip, $total, $extra = [], $table = true)
 {?>
 <?php if ($table): ?>
@@ -453,7 +459,7 @@ function fetch_user($user) {
     $query .= " WHERE users.userid=$user";
   }
   else {
-    $quser = addslashes($user);
+    $quser = addslashes((string)$user);
     $query .= " WHERE username='$quser' OR email='$quser'";
   }
 

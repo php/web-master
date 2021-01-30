@@ -145,6 +145,8 @@ if (@mysql_query($query)) {
       . str_pad($reason, $note_del_reasons_pad)
       . "-- https://master.php.net/note/delete/$new_id/" . urlencode($reason) ."\n";
   }
+
+  // @phan-suppress-next-line PhanParamSuspiciousOrder - weird global padding count, but ok
   $msg .= str_pad('Del: other reasons', $note_del_reasons_pad) . "-- https://master.php.net/note/delete/$new_id\n";
   $msg .= "Reject      -- https://master.php.net/note/reject/$new_id\n";
   $msg .= "Search      -- https://master.php.net/manage/user-notes.php\n";
