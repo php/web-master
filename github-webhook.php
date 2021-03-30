@@ -84,6 +84,7 @@ MSG;
 
         echo "Closing bug #$bugId\n";
         if (!DRY_RUN) {
+            var_dump($postData);
             $context = stream_context_create(['http' => [
                 'method' => 'POST',
                 'header' => 'Content-Type: application/x-www-form-urlencoded',
