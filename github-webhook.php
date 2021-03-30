@@ -2,6 +2,8 @@
 
 const DRY_RUN = false;
 
+require __DIR__ . '/include/mailer.php';
+
 function verify_signature($requestBody) {
     if (isset($_SERVER['HTTP_X_HUB_SIGNATURE'])){
         $sig = 'sha1=' . hash_hmac('sha1', $requestBody, getenv('GITHUB_SECRET'));
@@ -42,7 +44,7 @@ function send_mail($to, $subject, $message, $headers) {
 
     if (!DRY_RUN) {
         $subject = '=?utf-8?B?'.base64_encode($subject).'?=';
-        mail($to, $subject, $message, $headers, "-fnoreply@php.net");
+        mailer($to, $subject, $message, $headers);
     }
 }
 
