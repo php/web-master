@@ -1,6 +1,7 @@
 <?php // vim: et ts=2 sw=2
 require dirname(__FILE__) . '/include/functions.inc';
 require dirname(__FILE__) . "/include/cvs-auth.inc";
+require dirname(__FILE__) . "/include/mailer.php";
 
 $valid_vars = ['id','user','key','n1','n2'];
 foreach($valid_vars as $k) {
@@ -92,7 +93,7 @@ Let us know if you have any further problems.
 -- 
 group@php.net
 ";
-      mail($row['username'] . '@php.net',"Password change instructions for $row[username]",$body,'From: PHP Group <group@php.net>', '-fnoreply@php.net');
+      mailer($row['username'] . '@php.net',"Password change instructions for $row[username]",$body,'group@php.net', 'PHP Group');
       echo '<p>Okay, instructions on how to change your password have been sent to your email address. If you don\'t receive them, you\'ll have to contact group@php.net for help.</p>';
       foot();
       exit;
