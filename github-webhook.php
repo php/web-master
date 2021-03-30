@@ -82,25 +82,16 @@ MSG;
         ];
         $postData = http_build_query($postData, '', '&');
 
-        $curlOpts =  [
-            CURLOPT_URL => 'https://bugs.php.net/rpc.php',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_POST => true,
-            CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_TIMEOUT => 5,
-            CURLOPT_POSTFIELDS => $postData,
-        ];
-
         echo "Closing bug #$bugId\n";
         if (!DRY_RUN) {
-            $ch = curl_init();
-            curl_setopt_array($ch, $curlOpts);
-            $result = curl_exec($ch);
-            if ($result === false) {
-                echo "Error: ", curl_error($ch), "\n";
-            } else {
-                echo "Response: $result\n";
-            }
+            $context = stream_context_create(['http' => [
+                'method' => 'POST',
+                'header' => 'Content-Type: application/x-www-form-urlencoded',
+                'content' => $postData,
+                'timeout' => 5,
+            ]]);
+            $result = file_get_contents('https://bugs.php.net/rpc.php', false, $context);
+            echo "Response: $result\n";
         }
     }
 }
