@@ -38,13 +38,13 @@ function prep_title($issue, $repoName) {
     return $subject;
 }
 
-function send_mail($to, $subject, $message, $headers) {
-    printf("Sending mail...\nTo: %s\nSubject: %s\nMessage:\n%s\nHeaders:\n%s",
-        $to, $subject, $message, $headers);
+function send_mail($to, $subject, $message) {
+    printf("Sending mail...\nTo: %s\nSubject: %s\nMessage:\n%s",
+        $to, $subject, $message);
 
     if (!DRY_RUN) {
         $subject = '=?utf-8?B?'.base64_encode($subject).'?=';
-        mailer($to, $subject, $message, $headers);
+        mailer($to, $subject, $message);
     }
 }
 
@@ -164,8 +164,7 @@ switch ($event) {
                 break 2;
         }
 
-        $headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
-        send_mail($to, $subject, $message, $headers);
+        send_mail($to, $subject, $message);
         break;
 
     case 'pull_request_review_comment':
@@ -192,8 +191,7 @@ switch ($event) {
                 break 2;
         }
 
-        $headers = "From: noreply@php.net\r\nContent-Type: text/plain; charset=utf-8\r\n";
-        send_mail($to, $subject, $message, $headers);
+        send_mail($to, $subject, $message);
         break;
 
     case 'push':
