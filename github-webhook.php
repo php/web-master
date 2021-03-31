@@ -107,11 +107,7 @@ MSG;
 function get_commit_mailing_list($repoName) {
     if ($repoName === 'playground') {
         return 'nikic@php.net';
-    }
-    // Only enable playground for now.
-    return null;
-
-    if ($repoName === 'php-src' || $repoName === 'karma') {
+    } else if ($repoName === 'php-src' || $repoName === 'karma') {
         return 'php-cvs@lists.php.net';
     } else if ($repoName === 'php-langspec') {
         return 'standards-vcs@lists.php.net';
@@ -242,12 +238,12 @@ function handle_commit_mail($mailingList, $repoName, $ref, $commit) {
     }
     $body .= "\n\n";
 
-    $diff = file_get_contents($diffUrl);
+    /*$diff = file_get_contents($diffUrl);
     if (strlen($diff) > 128 * 1024) {
         $body .= "Diff exceeded maximum size.";
     } else {
         $body .= "Diff:\n\n$diff";
-    }
+    }*/
 
     send_mail($mailingList, $subject, $body, 'noreply@php.net', $from);
 }
