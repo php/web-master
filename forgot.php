@@ -36,10 +36,9 @@ mysql_select_db("phpmasterdb")
 if ($id && $key) {
   if ($n1 && $n2) {
     if ($n1 == $n2) {
-      $sn1 = strip($n1);
       $key = mysql_real_escape_string($key);
       $id = mysql_real_escape_string($id);
-      $svnpasswd = gen_svn_pass(username_from_forgotten($key, $id), $sn1);
+      $svnpasswd = gen_svn_pass(username_from_forgotten($key, $id), $n1);
       $res = @mysql_query("UPDATE users SET forgot=NULL,svnpasswd='$svnpasswd',pchanged=$ts WHERE userid='$id' AND forgot='$key'");
       if ($res && mysql_affected_rows()) {
         echo '<p>Okay, your password has been changed. It could take as long as an hour before this change makes it to the VCS server and other services. To change your password again, you\'ll have to start this process over to get a new key.</p>';

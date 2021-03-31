@@ -108,7 +108,7 @@ if ($id && !$in) {
 }
 elseif ($in) {
   foreach ($in as $k => $v) {
-    $in[$k] = strip($v);
+    $in[$k] = $v;
   }
 }
 

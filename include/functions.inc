@@ -4,6 +4,10 @@
 $default_filter = (ini_get('filter.default')=='full_special_chars') ? true : false;
 $ts = $_SERVER['REQUEST_TIME'];
 
+if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
+    die("Magic quotes should not be enabled.");
+}
+
 // -----------------------------------------------------------------------------------
 
 // used in scripts which should only be called from particular machines
@@ -78,9 +82,8 @@ function foot($secondscreen = null) {
 
 function hsc($str)             { return $GLOBALS['default_filter']?$str:htmlspecialchars((string)$str,ENT_QUOTES,'UTF-8'); }
 function hscr($str)            { return htmlspecialchars((string)$str,ENT_QUOTES,'UTF-8'); }
-function strip($var)           { return ((function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) ? stripslashes($var) : $var); }
-function escape($var)          { return ((function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) ? $var : addslashes($var)); }
-function clean($var)           { return $GLOBALS['default_filter']?$var:hsc(strip($var)); }
+function escape($var)          { return addslashes($var); }
+function clean($var)           { return $GLOBALS['default_filter']?$var:hsc($var); }
 function format_warn($message) { return "<p class=\"warning\">$message</p>"; }
 function warn($message)        { echo format_warn($message); }
 function real_clean($var)      { return mysql_real_escape_string($var); }

@@ -63,13 +63,11 @@ function exit_success() {
 	exit;
 }
 
-$MQ = get_magic_quotes_gpc();
-
 // Create required variables and kill MQ
 $fields = ["token", "username", "password"];
 foreach($fields as $field) {
 	if (isset($_POST[$field])) {
-		$$field = $MQ ? stripslashes($_POST[$field]) : $_POST[$field];
+		$$field = $_POST[$field];
 	} else {
 		exit_forbidden(E_UNKNOWN);
 	}

@@ -580,10 +580,10 @@ case 'edit':
             $cuser,
             $id,
             "note {$row['id']} modified in {$row['sect']} by $cuser",
-            strip($note)."\n\n--was--\n{$row['note']}\n\nhttp://php.net/manual/en/{$row['sect']}.php"
+            $note."\n\n--was--\n{$row['note']}\n\nhttp://php.net/manual/en/{$row['sect']}.php"
         );
         if (real_clean($row["sect"]) != $sect) {
-          note_mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $cuser", "----- Copy of your note below -----\n\n".strip($note));
+          note_mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $cuser", "----- Copy of your note below -----\n\n".$note);
         }
         header('Location: user-notes.php?id=' . $id . '&was=' . $action);
         exit;

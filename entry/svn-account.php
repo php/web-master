@@ -66,14 +66,13 @@ if (strlen($username) > 16) {
 @mysql_select_db("phpmasterdb")
   or die("failed to select database");
 
-if (!is_emailable_address(strip($email)))
+if (!is_emailable_address($email))
   die("that email address does not appear to be valid");
 
 $res = @mysql_query("SELECT userid FROM users WHERE username='$username'");
 if ($res && mysql_num_rows($res))
   die("someone is already using that svn id");
 
-$passwd = strip($passwd);
 $svnpasswd = gen_svn_pass($username, $passwd);
 $note = hsc($note);
 
