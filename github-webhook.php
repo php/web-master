@@ -196,7 +196,7 @@ function handle_ref_change_mail($mailingList, $payload) {
     send_mail($mailingList, $subject, $message, 'noreply@php.net', $pusherName);
 }
 
-function handle_commit_mail($mailingList, $repoName, $ref, $commit) {
+function handle_commit_mail($mailingList, $repoName, $ref, $pusherName, $commit) {
     $author = $commit->author->username;
     $authorName = $commit->author->name;
     $committer = $commit->committer->username;
@@ -219,6 +219,9 @@ function handle_commit_mail($mailingList, $repoName, $ref, $commit) {
     $body = "Author: $authorName ($author)\n";
     if ($author !== $committer) {
         $body .= "Committer: $committerName ($committer)\n";
+    }
+    if ($committer !== $pusherName) {
+        $body .= "Pusher: $pusherName\n";
     }
     $body .= "Date: $timestamp\n\n";
 
@@ -268,8 +271,9 @@ function handle_push_mail($payload) {
         return;
     }
 
+    $pusherName = $payload->pusher->name;
     foreach ($payload->commits as $commit) {
-        handle_commit_mail($mailingList, $repoName, $ref, $commit);
+        handle_commit_mail($mailingList, $repoName, $ref, $pusherName, $commit);
     }
 }
 
