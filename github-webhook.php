@@ -196,10 +196,10 @@ function handle_ref_change_mail($mailingList, $payload) {
     send_mail($mailingList, $subject, $message, 'noreply@php.net', $pusherName);
 }
 
-function handle_commit_mail($mailingList, $repoName, $ref, $pusherName, $commit) {
-    $author = $commit->author->username;
+function handle_commit_mail($mailingList, $repoName, $ref, $pusherUser, $commit) {
+    $authorUser = isset($commit->author->username) ? $commit->author->username : null;
     $authorName = $commit->author->name;
-    $committer = $commit->committer->username;
+    $committerUser = isset($commit->committer->username) ? $commit->committer->username : null;
     $committerName = $commit->committer->name;
     $message = $commit->message;
     $timestamp = $commit->timestamp;
@@ -215,13 +215,13 @@ function handle_commit_mail($mailingList, $repoName, $ref, $pusherName, $commit)
     list(, $refName) = $parsedRef;
 
     $subject = "[$repoName] $refName: $firstLine";
-    $from = $author === $committer ? $author : "$author via $committer";
-    $body = "Author: $authorName ($author)\n";
-    if ($author !== $committer) {
-        $body .= "Committer: $committerName ($committer)\n";
+    $from = $authorName === $committerName ? $authorName : "$authorName via $committerName";
+    $body = "Author: $authorName" . ($authorUser ? " ($authorUser)" : "") . "\n";
+    if ($authorName !== $committerName) {
+        $body .= "Committer: $committerName" . ($committerUser ? " ($committerUser)" : "") . "\n";
     }
-    if ($committer !== $pusherName) {
-        $body .= "Pusher: $pusherName\n";
+    if ($committerUser !== $pusherUser) {
+        $body .= "Pusher: $pusherUser\n";
     }
     $body .= "Date: $timestamp\n\n";
 
@@ -231,13 +231,13 @@ function handle_commit_mail($mailingList, $repoName, $ref, $pusherName, $commit)
 
     $body .= "Changed paths:\n";
     foreach ($commit->added as $file) {
-        $body .= "  A  $file";
+        $body .= "  A  $file\n";
     }
     foreach ($commit->removed as $file) {
-        $body .= "  D  $file";
+        $body .= "  D  $file\n";
     }
     foreach ($commit->modified as $file) {
-        $body .= "  M  $file";
+        $body .= "  M  $file\n";
     }
     $body .= "\n\n";
 
