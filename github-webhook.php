@@ -17,7 +17,7 @@ function get_repo_email($repos, $repoName) {
     $to = 'systems@php.net';
     foreach ($repos as $repoPrefix => $email) {
         if (strpos($repoName, $repoPrefix) === 0) {
-            $to = $email;
+            $to = str_replace('#repository#', $repoName, $email);
         }
     }
 
@@ -104,6 +104,8 @@ $CONFIG = [
         'php-src' => 'git-pulls@lists.php.net',
         'web-' => 'php-webmaster@lists.php.net',
         'pecl-' => 'pecl-dev@lists.php.net',
+        'doc-' => '#repository#@lists.php.net',
+        'doc-base' => 'phpdoc@lists.php.net',
     ],
 ];
 
