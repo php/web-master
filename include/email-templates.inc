@@ -22,7 +22,7 @@ Please note: Before you can push to our repositories, please add your
 SSH Key on master (using the URL above).
 
 All our git repositories are listed at:
-    http://git.php.net/
+    https://github.com/php/
 
 SVN is still used by certain projects (most notably docs):
     http://svn.php.net/
