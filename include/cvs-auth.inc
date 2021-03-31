@@ -19,7 +19,7 @@ function verify_password($user, $pass)
 
     if ($res && mysql_num_rows($res) == 1) {
         $row = mysql_fetch_array($res);
-        return gen_svn_pass($username, $pass) == $row["svnpasswd"];
+        return gen_svn_pass($username, $pass) === $row["svnpasswd"];
     }
 
     return false;
