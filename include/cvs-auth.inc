@@ -14,7 +14,7 @@ function verify_password($user, $pass)
         or die("unable to connect to database");
     mysql_select_db("phpmasterdb");
 
-    $username = escape($user);
+    $username = real_clean($user);
     $res = mysql_query("SELECT svnpasswd FROM users WHERE cvsaccess AND username = '$username'");
 
     if ($res && mysql_num_rows($res) == 1) {
@@ -30,7 +30,7 @@ function verify_username($user) {
         or die("unable to connect to database");
     mysql_select_db("phpmasterdb");
 
-    $username = escape($user);
+    $username = real_clean($user);
     $res = mysql_query("SELECT 1 FROM users WHERE cvsaccess AND username = '$username'");
 
     if ($res && mysql_num_rows($res) == 1) {

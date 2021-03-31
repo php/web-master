@@ -82,7 +82,6 @@ function foot($secondscreen = null) {
 
 function hsc($str)             { return $GLOBALS['default_filter']?$str:htmlspecialchars((string)$str,ENT_QUOTES,'UTF-8'); }
 function hscr($str)            { return htmlspecialchars((string)$str,ENT_QUOTES,'UTF-8'); }
-function escape($var)          { return addslashes($var); }
 function clean($var)           { return $GLOBALS['default_filter']?$var:hsc($var); }
 function format_warn($message) { return "<p class=\"warning\">$message</p>"; }
 function warn($message)        { echo format_warn($message); }

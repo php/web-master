@@ -127,7 +127,7 @@ if ($in) {
         if (!empty($in['email']) && !empty($in['name'])) {
           $query = "UPDATE users SET name='$in[name]',email='$in[email]'"
                  . (!empty($in['svnpasswd']) ? ",svnpasswd='$in[svnpasswd]'" : "")
-                 . (!empty($in['sshkey']) ? ",ssh_keys='".escape(html_entity_decode($in['sshkey'],ENT_QUOTES))."'" : ",ssh_keys=''")
+                 . (!empty($in['sshkey']) ? ",ssh_keys='".real_clean(html_entity_decode($in['sshkey'],ENT_QUOTES))."'" : ",ssh_keys=''")
                  . ((is_admin($_SESSION["username"]) && !empty($in['username'])) ? ",username='$in[username]'" : "")
                  . (is_admin($_SESSION["username"]) ? ",cvsaccess=$cvsaccess" : "")
                  . ",spamprotect=$spamprotect"
@@ -243,7 +243,7 @@ if ($id) {
 <tfoot>
 <tr>
  <th>SSH Key</th>
- <td><textarea name="in[sshkey]" placeholder="Paste in the contents of your id_rsa.pub"><?php echo escape(html_entity_decode($userdata['ssh_keys'],ENT_QUOTES)); ?></textarea>
+ <td><textarea name="in[sshkey]" placeholder="Paste in the contents of your id_rsa.pub"><?php echo hscr(html_entity_decode($userdata['ssh_keys'],ENT_QUOTES)); ?></textarea>
   <p>Adding/editing the SSH key takes a few minutes to propagate to the server.<br>
   Multiple keys are allowed, separated using a newline.</p></td>
 </tr>
