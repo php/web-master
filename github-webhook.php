@@ -50,6 +50,11 @@ function send_mail($to, $subject, $message, $from = "noreply@php.net", $from_nam
     }
 }
 
+function get_first_line($message) {
+    $newLinePos = strpos($message, "\n");
+    return $newLinePos !== false ? substr($message, 0, $newLinePos) : $message;
+}
+
 function handle_bug_close($commit) {
     $message = $commit->message;
     $author = $commit->author->username;
@@ -67,8 +72,7 @@ function handle_bug_close($commit) {
         $blame = "$author (author) and $committer (committer)";
     }
 
-    $newLinePos = strpos($message, "\n");
-    $firstLine = $newLinePos !== false ? substr($message, 0, $newLinePos) : $message;
+    $firstLine = get_first_line($message);
 
     $comment = <<<MSG
 Automatic comment on behalf of $blame
@@ -137,6 +141,14 @@ function get_commit_mailing_list($repoName) {
     }
 }
 
+function parse_ref($ref) {
+    if (!preg_match('(^refs/([^/]+)/(.+)$)', $ref, $matches)) {
+        return null;
+    }
+
+    return [$matches[1], $matches[2]];
+}
+
 function handle_ref_change_mail($mailingList, $payload) {
     $repoName = $payload->repository->name;
     $ref = $payload->ref;
@@ -145,14 +157,12 @@ function handle_ref_change_mail($mailingList, $payload) {
     $compare = $payload->compare;
     $pusherName = $payload->pusher->name;
 
-    if (!preg_match('/^refs\/(.+)\/(.+)$/', $ref, $matches)) {
+    if (!$parsedRef = parse_ref($ref)) {
         echo "Unexpected ref format: $ref";
         return;
     }
 
-    $refKind = $matches[1];
-    $refName = $matches[2];
-
+    list($refKind, $refName) = $parsedRef;
     if ($refKind === 'heads') {
         $what = "branch $refName";
     } else if ($refKind === 'tags') {
@@ -190,6 +200,58 @@ function handle_ref_change_mail($mailingList, $payload) {
     send_mail($mailingList, $subject, $message, 'noreply@php.net', $pusherName);
 }
 
+function handle_commit_mail($mailingList, $repoName, $ref, $commit) {
+    $author = $commit->author->username;
+    $authorName = $commit->author->name;
+    $committer = $commit->committer->username;
+    $committerName = $commit->committer->name;
+    $message = $commit->message;
+    $timestamp = $commit->timestamp;
+    $url = $commit->url;
+    $diffUrl = $url . '.diff';
+    $firstLine = get_first_line($message);
+
+    if (!$parsedRef = parse_ref($ref)) {
+        echo "Unexpected ref format: $ref";
+        return;
+    }
+
+    list(, $refName) = $parsedRef;
+
+    $subject = "[$repoName] $refName: $firstLine";
+    $from = $author === $committer ? $author : "$author via $committer";
+    $body = "Author: $authorName ($author)\n";
+    if ($author !== $committer) {
+        $body .= "Committer: $committerName ($committer)\n";
+    }
+    $body .= "Date: $timestamp\n\n";
+
+    $body .= "Commit: $url\n";
+    $body .= "Raw diff: $diffUrl\n\n";
+    $body .= "$message\n\n";
+
+    $body .= "Changed paths:\n";
+    foreach ($commit->added as $file) {
+        $body .= "  A  $file";
+    }
+    foreach ($commit->removed as $file) {
+        $body .= "  D  $file";
+    }
+    foreach ($commit->modified as $file) {
+        $body .= "  M  $file";
+    }
+    $body .= "\n\n";
+
+    $diff = file_get_contents($diffUrl);
+    if (strlen($diff) > 128 * 1024) {
+        $body .= "Diff exceeded maximum size.";
+    } else {
+        $body .= "Diff:\n\n$diff";
+    }
+
+    send_mail($mailingList, $subject, $body, 'noreply@php.net', $from);
+}
+
 function handle_push_mail($payload) {
     $repoName = $payload->repository->name;
     $ref = $payload->ref;
@@ -205,14 +267,14 @@ function handle_push_mail($payload) {
 
     // Ignore commits to PHP-x.y branches for now, to avoid duplicate commits on upwards merges.
     // TODO: Find a better solution to this problem...
-    if ($repoName === 'php-src' && preg_match('/^refs/heads/PHP-\d\.\d$/', $ref)) {
+    if ($repoName === 'php-src' && preg_match('(^refs/heads/PHP-\d\.\d$)', $ref)) {
         echo "Skipping commit mails for push to $payload->ref of $repoName";
         return;
     }
 
-    /*foreach ($payload->commits as $commit) {
-
-    }*/
+    foreach ($payload->commits as $commit) {
+        handle_commit_mail($mailingList, $repoName, $ref, $commit);
+    }
 }
 
 $CONFIG = [
