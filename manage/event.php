@@ -241,11 +241,9 @@ $forward = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
 $searchby = new Query();
 if ($search) {
   $searchby->add(' WHERE MATCH(sdesc,ldesc,email) AGAINST (?)', [$search]);
-}
-if (!$searchby && $unapproved) {
+} elseif ($unapproved) {
   $searchby->add(' WHERE NOT approved');
-}
-if (!$searchby) {
+} else {
   $searchby->add(' WHERE NOT (tipo = 1 AND sdato < NOW()) AND NOT (tipo = 2 AND edato < NOW())');
 }
 
