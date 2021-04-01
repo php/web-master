@@ -236,12 +236,28 @@ if ($id) {
 $begin = $begin ? (int)$begin : 0;
 $full = $full ? 1 : (!$full && ($search || $unapproved) ? 1 : 0);
 $max = $max ? (int)$max : 20;
+$forward = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
 
-$limit = "LIMIT $begin,$max";
-$orderby="";
-$forward    = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
+$searchby = new Query();
+if ($search) {
+  $searchby->add(' WHERE MATCH(sdesc,ldesc,email) AGAINST (?)', [$search]);
+}
+if (!$searchby && $unapproved) {
+  $searchby->add(' WHERE NOT approved');
+}
+if (!$searchby) {
+  $searchby->add(' WHERE NOT (tipo = 1 AND sdato < NOW()) AND NOT (tipo = 2 AND edato < NOW())');
+}
+
+$query = new Query("SELECT COUNT(id) FROM phpcal");
+$query->addQuery($searchby);
+$res = db_query($query->get());
+$total = (int)mysql_result($res,0);
+
+$query = new Query("SELECT phpcal.*,country.name AS cname FROM phpcal LEFT JOIN country ON phpcal.country = country.id");
+$query->addQuery($searchby);
 if ($order) {
-  if (!in_array($order, ['sdato', 'sdesc', 'email', 'country', 'category'])) {
+  if (!in_array($order, ['sdato', 'sdesc', 'email', 'country', 'category'], true)) {
     $order = 'sdato';
   }
   if ($forward) {
@@ -249,27 +265,11 @@ if ($order) {
   } else {
     $ext = "DESC";
   }
-  $orderby = "ORDER BY $order $ext";
+  // Safe because we checked that $order is part of a fixed set.
+  $query->add(" ORDER BY $order $ext");
 }
-
-$searchby = $search ? " WHERE MATCH(sdesc,ldesc,email) AGAINST ('".real_clean($search)."')" : "";
-if (!$searchby && $unapproved) {
-  $searchby = ' WHERE NOT approved';
-}
-if (!$searchby) {
-  $searchby = ' WHERE NOT (tipo = 1 AND sdato < NOW()) AND NOT (tipo = 2 AND edato < NOW())';
-}
-
-$query = "SELECT COUNT(id) FROM phpcal";
-if ($searchby)
-  $query .= " $searchby";
-$res = db_query($query);
-$total = (int)mysql_result($res,0);
-
-$query = "SELECT phpcal.*,country.name AS cname FROM phpcal LEFT JOIN country ON phpcal.country = country.id $searchby $orderby $limit";
-
-#echo "<pre>$query</pre>";
-$res = db_query($query);
+$query->add(' LIMIT ?int, ?int', [$begin, $max]);
+$res = db_query($query->get());
 
 $extra = [
   "search" => stripslashes($search),

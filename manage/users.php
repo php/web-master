@@ -345,7 +345,7 @@ if ($unapproved) {
 $query->add(" GROUP BY users.userid ");
 
 if ($order) {
-  if (!in_array($order, ["username", "name", "email", "note"])) {
+  if (!in_array($order, ["username", "name", "email", "note"], true)) {
     die("Invalid order!");
   }
   if ($forward) {
@@ -353,6 +353,7 @@ if ($order) {
   } else {
     $ext = "DESC";
   }
+  // Safe because we checked that $order is part of a fixed set.
   $query->add(" ORDER BY $order $ext");
 }
 $query->add(" LIMIT ?int, ?int ", [$begin, $max]);

@@ -86,74 +86,79 @@ if (!$action) {
     // Pagination end
 
     if(isset($_REQUEST['keyword'])) {
-      $sql = 'SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts '.
+      $query = new Query('SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts '.
              'FROM note '.
              'LEFT JOIN(votes) ON (note.id = votes.note_id) '.
-             'WHERE ';
+             'WHERE ');
       if (is_numeric($_REQUEST['keyword'])) {
         $search_heading = 'Search results for #' . (int) $_REQUEST['keyword'];
-        $sql .= 'note.id = ' . (int) $_REQUEST['keyword'];
+        $query->add('note.id = ?', [$_REQUEST['keyword']]);
       } elseif (substr($_REQUEST['keyword'], 0, 5) == 'sect:') {
         $search_heading = 'Search results for <em>' . hsc($_REQUEST['keyword']) . '</em>';
         $section = real_clean(str_replace('*', '%', substr($_REQUEST['keyword'], 5)));
-        $sql .= "note.sect LIKE '$section' GROUP BY note.id ORDER BY note.sect, note.ts LIMIT $limit, 10";
+        $query->add("note.sect LIKE ? GROUP BY note.id ORDER BY note.sect, note.ts LIMIT ?int, 10", [$section, $limit]);
       } else {
         $search_heading = 'Search results for <em>' . hsc($_REQUEST['keyword']) . '</em>';
-        $sql .= "note.note LIKE '%" . real_clean($_REQUEST['keyword']) . "%' GROUP BY note.id LIMIT $limit, 10";
+        $query->add(
+          "note.note LIKE ? GROUP BY note.id LIMIT ?int, 10",
+          ['%' . $_REQUEST['keyword'] . '%', $limit]);
       }
+      $result = db_query_safe($query->get());
     } else {
       /* Added new voting information to be included in note from votes table. */
       /* First notes */
       if ($type == 1) {
         $search_heading = 'First notes';
-        $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+        $result = db_query_safe("SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY note.id ASC LIMIT $limit, 10";
+               "GROUP BY note.id ORDER BY note.id ASC LIMIT ?int, 10", [$limit]);
       /* Minor notes */
       } else if ($type == 2) {
         $search_heading = 'Minor notes';
-        $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+        $result = db_query_safe("SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY LENGTH(note.note) ASC LIMIT $limit, 10";
+               "GROUP BY note.id ORDER BY LENGTH(note.note) ASC LIMIT ?int, 10", [$limit]);
       /* Top rated notes */
       } else if ($type == 3) {
         $search_heading = 'Top rated notes';
-        $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
+        $result = db_query_safe("SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
                "ROUND((SUM(votes.vote) / COUNT(votes.vote)) * 100) AS rate, ".
                "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS arating, ".
                "note.id, note.sect, note.user, note.note, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY arating DESC, up DESC, rate DESC, down DESC LIMIT $limit, 10";
+               "GROUP BY note.id ORDER BY arating DESC, up DESC, rate DESC, down DESC LIMIT ?int, 10", [$limit]);
       /* Bottom rated notes */
       } else if ($type == 4) {
         $search_heading = 'Bottom rated notes';
-        $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
+        $result = db_query_safe("SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
                "ROUND((SUM(votes.vote) / COUNT(votes.vote)) * 100) AS rate, ".
                "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS arating, ".
                "note.id, note.sect, note.user, note.note, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY arating ASC, up ASC, rate ASC, down DESC LIMIT $limit, 10";
+               "GROUP BY note.id ORDER BY arating ASC, up ASC, rate ASC, down DESC LIMIT ?int, 10", [$limit]);
       /* Votes table view */
       } else if ($type == 5) {
         $search_votes = true; // set this only to change the output between votes table and notes table
         if (!empty($_GET['votessearch'])) {
           if (($iprange = wildcard_ip($_GET['votessearch'])) !== false) {
             $search = html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8');
-            $start = real_clean($iprange[0]); $end = real_clean($iprange[1]);
+            $start = $iprange[0];
+            $end = $iprange[1];
             $resultCount = db_query_safe("SELECT count(votes.id) AS total_votes FROM votes JOIN (note) ON (votes.note_id = note.id) WHERE ".
                                     "(hostip >= ? AND hostip <= ?) OR (ip >= ? AND ip <= ?)", [$start, $end, $start, $end]);
             $resultCount = mysql_fetch_assoc($resultCount);
             $resultCount = $resultCount['total_votes'];
             $isSearch = '&votessearch=' . hsc($search);
-            $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
-                   "FROM votes ".
-                   "JOIN(note) ON (votes.note_id = note.id) ".
-                   "WHERE (hostip >= $start AND hostip <= $end) OR (ip >= $start AND ip <= $end) ".
-                   "ORDER BY votes.id DESC LIMIT $limitVotes, 25";
+            $result = db_query_safe(
+              'SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip '.
+              'FROM votes JOIN(note) ON (votes.note_id = note.id) '.
+              'WHERE (hostip >= ? AND hostip <= ?) OR (ip >= ? AND ip <= ?) '.
+              'ORDER BY votes.id DESC LIMIT ?int, 25',
+              [$start, $end, $start, $end, $limitVotes]);
             
           } elseif (filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP)) {
             $searchip = (int) ip2long(filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP));
@@ -161,51 +166,56 @@ if (!$action) {
             $resultCount = mysql_fetch_assoc($resultCount);
             $resultCount = $resultCount['total_votes'];
             $isSearch = '&votessearch=' . hsc(long2ip($searchip));
-            $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
-                   "FROM votes ".
-                   "JOIN(note) ON (votes.note_id = note.id) ".
-                   "WHERE hostip = $searchip OR ip = $searchip ".
-                   "ORDER BY votes.id DESC LIMIT $limitVotes, 25";
+            $result = db_query_safe(
+              "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
+              "FROM votes JOIN(note) ON (votes.note_id = note.id) ".
+              "WHERE hostip = ? OR ip = ? ".
+              "ORDER BY votes.id DESC LIMIT ?int, 25",
+              [$searchip, $searchip, $limitVotes]);
           } else {
             $search = (int) html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8');
             $resultCount = db_query_safe("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE votes.note_id = ?", [$search]);
             $resultCount = mysql_fetch_assoc($resultCount);
             $resultCount = $resultCount['total_votes'];
             $isSearch = '&votessearch=' . hsc($search);
-            $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
-                   "FROM votes ".
-                   "JOIN(note) ON (votes.note_id = note.id) ".
-                   "WHERE votes.note_id = $search ".
-                   "ORDER BY votes.id DESC LIMIT $limitVotes, 25";
+            $result = db_query_safe(
+              "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
+              "FROM votes JOIN(note) ON (votes.note_id = note.id) ".
+              "WHERE votes.note_id = ? ".
+              "ORDER BY votes.id DESC LIMIT ?int, 25",
+              [$search, $limitVotes]);
           }
         } else {
           $isSearch = null;
           $resultCount = db_query_safe("SELECT COUNT(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id)");
           $resultCount = mysql_fetch_assoc($resultCount);
           $resultCount = $resultCount['total_votes'];
-          $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
-                 "FROM votes ".
-                 "JOIN(note) ON (votes.note_id = note.id) ".
-                 "ORDER BY votes.id DESC LIMIT $limitVotes, 25";
+          $result = db_query_safe(
+            "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
+            "FROM votes JOIN(note) ON (votes.note_id = note.id) ".
+            "ORDER BY votes.id DESC LIMIT ?int, 25",
+            [$limitVotes]);
         }
       /* IPs with the most votes -- aggregated data */
       } elseif ($type == 6) {
         $votes_by_ip = true; // only set this get the table for top IPs with votes
-        $sql = "SELECT DISTINCT(votes.ip), COUNT(votes.ip) as votes, COUNT(DISTINCT(votes.note_id)) as notes, ".
-               "INET_NTOA(votes.ip) AS ip, MIN(UNIX_TIMESTAMP(votes.ts)) AS `from`, MAX(UNIX_TIMESTAMP(votes.ts)) AS `to` ".
-               "FROM votes ".
-               "JOIN (note) ON (votes.note_id = note.id) GROUP BY votes.ip ORDER BY votes DESC LIMIT 100";
+        $result = db_query_safe(
+          "SELECT DISTINCT(votes.ip), COUNT(votes.ip) as votes, COUNT(DISTINCT(votes.note_id)) as notes, ".
+          "INET_NTOA(votes.ip) AS ip, MIN(UNIX_TIMESTAMP(votes.ts)) AS `from`, MAX(UNIX_TIMESTAMP(votes.ts)) AS `to` ".
+          "FROM votes ".
+          "JOIN (note) ON (votes.note_id = note.id) GROUP BY votes.ip ORDER BY votes DESC LIMIT 100");
       /* Last notes */
       } else {
         $search_heading = 'Last notes';
-        $sql = "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
-               "FROM note ".
-               "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY note.id DESC LIMIT $limit, 10";
+        $result = db_query_safe(
+          "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+          "FROM note LEFT JOIN(votes) ON (note.id = votes.note_id) ".
+          "GROUP BY note.id ORDER BY note.id DESC LIMIT ?int, 10",
+          [$limit]);
       }
     }
     
-    if ($result = db_query($sql)) {
+    if ($result) {
       /* This is a special table only used for viewing the most recent votes */
         $t = (isset($_GET['type']) ? '&type=' . $_GET['type'] : null);
       if (!empty($search_votes)) {

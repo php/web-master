@@ -130,6 +130,10 @@ class Query {
         }, $str);
     }
 
+    public function addQuery(Query $q) {
+        $this->query .= $q->get();
+    }
+
     public function get() {
         return $this->query;
     }
@@ -144,17 +148,6 @@ function db_query($query)
         die(format_warn("Query failed: " . hsc(mysql_error()) . "<tt>\n" . hsc($query) . "</tt><br />({$bt[0]['file']}:{$bt[0]['line']})"));
     }
     return $res;
-}
-
-function db_prepare_query($query, $params) {
-    if (substr_count($query, '?') !== count($params)) {
-        die("Incorrect number of parameters to query.");
-    }
-
-    $i = 0;
-    return preg_replace_callback('/\?/', function() use ($params, &$i) {
-        return "'" . mysql_real_escape_string($params[$i++]) . "'";
-    }, $query);
 }
 
 function db_query_safe($query, array $params = [])
