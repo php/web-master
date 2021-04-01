@@ -53,10 +53,7 @@ if (($spamip=is_spam_ip($_SERVER['REMOTE_ADDR'])) || ($spamip=is_spam_ip($ip)) |
 unset($note_lc);
 /* End SPAM Checks ******************************************/
 
-@mysql_connect("localhost","nobody", "")
-  or die("failed to connect to database");
-@mysql_select_db("phpmasterdb")
-  or die("failed to select database");
+db_connect();
 
 /*
 After a discussion in #php about the
@@ -69,7 +66,7 @@ flow of notes usually submitted.  This prevents
 a large flood of notes from coming in.
 */
 $query = 'SELECT COUNT(*) FROM note WHERE ts >= (NOW() - INTERVAL 1 MINUTE)';
-$result = @mysql_query ($query);
+$result = db_query_safe($query);
 
 if (!$result) {
   mail ($failto,
@@ -101,19 +98,11 @@ if ($count >= 3) {
 
 $sect = trim(preg_replace('/\.php$/','',$sect));
 
-$query = "INSERT INTO note (user, note, sect, ts, status) VALUES ";
-# no need to call htmlspecialchars() -- we handle it on output
-$query .= sprintf("('%s','%s','%s',NOW(), NULL)",
-                  mysql_real_escape_string($user),
-                  mysql_real_escape_string($note),
-                  mysql_real_escape_string($sect)
-);
-
 //na = not approved.  Don't display notes until they are approved by an editor
 //This has been reverted until it has been discussed further.
 
-//echo "<!--$query-->\n";
-if (@mysql_query($query)) {
+$query = "INSERT INTO note (user, note, sect, ts, status) VALUES (?, ?, ?,NOW(), NULL)";
+if (db_query_safe($query, [$user, $note, $sect])) {
   $new_id = mysql_insert_id();	
   $msg = $note;
 

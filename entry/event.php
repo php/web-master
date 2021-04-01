@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../include/functions.inc';
+
 $mailto = 'php-webmaster@lists.php.net';
 #$mailto = 'jimw@apache.org';
 
@@ -18,14 +20,11 @@ function day($in) {
   return strftime('%A',mktime(12,0,0,4,$in,2001));
 }
 
-@mysql_connect("localhost","nobody", "")
-  or die("failed to connect to database");
-@mysql_select_db("phpmasterdb")
-  or die("failed to select database");
+db_connect();
 
 $valid_vars = ['sdesc','ldesc','email','country','category','type','url','sane','smonth','sday','syear','emonth','eday','eyear','recur','recur_day'];
 foreach($valid_vars as $k) {
-  $$k = isset($_REQUEST[$k]) ? mysql_real_escape_string($_REQUEST[$k]) : false;
+  $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
 }
 
 if (empty($sdesc) || empty($email) || empty($country) || empty($category) || empty($type) || empty($url))
@@ -44,14 +43,8 @@ switch($type) {
     if (!checkdate($smonth, $sday, $syear))
       die("invalid start date");
 
-    $query = "INSERT INTO phpcal SET tipo=1,"
-           . "sdato='$syear-$smonth-$sday',"
-           . "sdesc='$sdesc',"
-           . "url='$url',"
-           . "email='$email',"
-           . "ldesc='$ldesc',"
-           . "country='$country',"
-           . "category='$category'";
+    $query = "INSERT INTO phpcal SET tipo=1, sdato=?, sdesc=?, url=?, email=?, ldesc=?, country=?, category=?";
+    db_query_safe($query, ["$syear-$smonth-$sday", $sdesc, $url, $email, $ldesc, $country, $category]);
     $msg = "Date: $syear-$smonth-$sday\n";
     break;
   case 'multi':
@@ -69,14 +62,10 @@ switch($type) {
       die("start and end dates are identical");
   
     $query = "INSERT INTO phpcal SET tipo=2,"
-           . "sdato='$syear-$smonth-$sday',"
-           . "edato='$eyear-$emonth-$eday',"
-           . "sdesc='$sdesc',"
-           . "url='$url',"
-           . "email='$email',"
-           . "ldesc='$ldesc',"
-           . "country='$country',"
-           . "category='$category'";
+           . "sdato=?, edato=?, sdesc=?, url=?, email=?, ldesc=?, country=?, category=?";
+    db_query_safe($query, [
+      "$syear-$smonth-$sday", "$eyear-$emonth-$eday", $sdesc, $url, $email, $ldesc, $country, $category
+    ]);
 
     $msg = "Start Date: $syear-$smonth-$sday\n"
          . "End Date: $eyear-$emonth-$eday\n";
@@ -86,13 +75,8 @@ switch($type) {
       die("recurring event sequence is invalid");
 
     $query = "INSERT INTO phpcal SET tipo=3,"
-           . "recur='$recur:$recur_day',"
-           . "sdesc='$sdesc',"
-           . "url='$url',"
-           . "email='$email',"
-           . "ldesc='$ldesc',"
-           . "country='$country',"
-           . "category='$category'";
+           . "recur=?, sdesc=?, url=?, email=?, ldesc=?, country=?, category=?";
+    db_query_safe($query, ["$recur:$recur_day", $sdesc, $url, $email, $ldesc, $country, $category]);
 
     $msg = "Recurs Every: $re[$recur] ".day($recur_day)."\n";
 
@@ -101,14 +85,12 @@ switch($type) {
     die("invalid type");
 }
 
-mysql_query($query) or die("query failed: ".mysql_error()."<br />$query");
-
 $new_id = mysql_insert_id();	
 
-$msg .= "Country: ".stripslashes($country)."\n"
+$msg .= "Country: ".$country."\n"
       . "Category: ".$cat[$category]."\n"
-      . ($url ? "URL: ".stripslashes($url)."\n" : "")
-      . "\n".wordwrap(stripslashes($ldesc),72);
+      . ($url ? "URL: ".$url."\n" : "")
+      . "\n".wordwrap($ldesc,72);
 
 # add signature/actions
 $msg .= "\n-- \n"

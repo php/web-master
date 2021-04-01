@@ -61,35 +61,26 @@ if (strlen($username) > 16) {
   die('Username is too long. It must have 1-16 characters.');
 }
 
-@mysql_connect("localhost","nobody", "")
-  or die("failed to connect to database");
-@mysql_select_db("phpmasterdb")
-  or die("failed to select database");
+db_connect();
 
 if (!is_emailable_address($email))
   die("that email address does not appear to be valid");
 
-$res = @mysql_query("SELECT userid FROM users WHERE username='$username'");
+$res = db_query_safe("SELECT userid FROM users WHERE username=?", [$username]);
 if ($res && mysql_num_rows($res))
   die("someone is already using that svn id");
 
 $svnpasswd = gen_svn_pass($username, $passwd);
 $note = hsc($note);
 
-$escaped_name = mysql_real_escape_string($name);
-$escaped_email = mysql_real_escape_string($email);
-$escaped_username = mysql_real_escape_string($username);
-
-$query = "INSERT INTO users (name,email,svnpasswd,username) VALUES ";
-$query .= "('$escaped_name','$escaped_email','$svnpasswd','$escaped_username')";
-
-//echo "<!--$query-->\n";
-if (@mysql_query($query)) {
+$query = "INSERT INTO users (name,email,svnpasswd,username) VALUES (?, ?, ?, ?)";
+if (db_query_safe($query, [$name, $email, $svnpasswd, $username])) {
   $new_id = mysql_insert_id();
 
-  $escaped_note = mysql_real_escape_string("$note [group: $group]");
-  mysql_query("INSERT INTO users_note (userid, note, entered)"
-             ." VALUES ($new_id, '$escaped_note', NOW())");
+  db_query_safe(
+    "INSERT INTO users_note (userid, note, entered) VALUES (?, ?, NOW())",
+    [$new_id, "$note [group: $group]"]
+  );
 
   $msg = $note;
   $from = "\"$name\" <$email>";

@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/../include/functions.inc';
+
 $valid_vars = ['token','cm','cy','cd','nm'];
 foreach($valid_vars as $k) {
     if(isset($_GET[$k])) $$k = $_GET[$k];
@@ -9,8 +11,7 @@ foreach($valid_vars as $k) {
 if (!isset($_REQUEST['token']) || md5($_REQUEST['token']) != "19a3ec370affe2d899755f005e5cd90e")
   die("token not correct.");
 
-@mysql_connect('localhost','nobody','') or exit;
-@mysql_select_db('phpmasterdb') or exit;
+db_connect();
 
 // Set default values
 if (!isset($cm)) $cm = (int)strftime('%m');
@@ -91,14 +92,15 @@ function load_month($year, $month, $cat)
 
     // Get approved events starting or ending in the
     // specified year/month, and all recurring events
-    $result = mysql_query(
+    $result = db_query_safe(
         "SELECT * FROM phpcal WHERE (
             (
-                (MONTH(sdato) = $month OR MONTH(edato) = $month)
+                (MONTH(sdato) = ? OR MONTH(edato) = ?)
                 AND
-                (YEAR(sdato) = $year OR YEAR(edato) = $year)
+                (YEAR(sdato) = ? OR YEAR(edato) = ?)
                 AND tipo < 3
-            ) OR tipo = 3) AND category = $cat AND approved = 1"
+            ) OR tipo = 3) AND category = ? AND approved = 1",
+        [$month, $month, $year, $year, $cat]
     );
 
     // Cannot get results, return with event's not found
