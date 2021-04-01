@@ -95,11 +95,11 @@ if (!$action) {
         $search_heading = 'Search results for #' . (int) $_REQUEST['keyword'];
         $sql .= 'note.id = ' . (int) $_REQUEST['keyword'];
       } elseif (substr($_REQUEST['keyword'], 0, 5) == 'sect:') {
-        $search_heading = 'Search results for <em>' . hscr($_REQUEST['keyword']) . '</em>';
+        $search_heading = 'Search results for <em>' . hsc($_REQUEST['keyword']) . '</em>';
         $section = real_clean(str_replace('*', '%', substr($_REQUEST['keyword'], 5)));
         $sql .= "note.sect LIKE '$section' GROUP BY note.id ORDER BY note.sect, note.ts LIMIT $limit, 10";
       } else {
-        $search_heading = 'Search results for <em>' . hscr($_REQUEST['keyword']) . '</em>';
+        $search_heading = 'Search results for <em>' . hsc($_REQUEST['keyword']) . '</em>';
         $sql .= "note.note LIKE '%" . real_clean($_REQUEST['keyword']) . "%' GROUP BY note.id LIMIT $limit, 10";
       }
     } else {
@@ -149,7 +149,7 @@ if (!$action) {
                                     "(hostip >= $start AND hostip <= $end) OR (ip >= $start AND ip <= $end)");
             $resultCount = mysql_fetch_assoc($resultCount);
             $resultCount = $resultCount['total_votes'];
-            $isSearch = '&votessearch=' . hscr($search);
+            $isSearch = '&votessearch=' . hsc($search);
             $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
                    "FROM votes ".
                    "JOIN(note) ON (votes.note_id = note.id) ".
@@ -161,7 +161,7 @@ if (!$action) {
             $resultCount = db_query("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE hostip = $searchip OR ip = $searchip");
             $resultCount = mysql_fetch_assoc($resultCount);
             $resultCount = $resultCount['total_votes'];
-            $isSearch = '&votessearch=' . hscr(long2ip($searchip));
+            $isSearch = '&votessearch=' . hsc(long2ip($searchip));
             $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
                    "FROM votes ".
                    "JOIN(note) ON (votes.note_id = note.id) ".
@@ -172,7 +172,7 @@ if (!$action) {
             $resultCount = db_query("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE votes.note_id = $search");
             $resultCount = mysql_fetch_assoc($resultCount);
             $resultCount = $resultCount['total_votes'];
-            $isSearch = '&votessearch=' . hscr($search);
+            $isSearch = '&votessearch=' . hsc($search);
             $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
                    "FROM votes ".
                    "JOIN(note) ON (votes.note_id = note.id) ".
@@ -322,7 +322,7 @@ if (!$action) {
         } elseif(!empty($votes_by_ip)) {
           $from = date('Y-m-d H:i:s', $row['from']);
           $to = date('Y-m-d H:i:s', $row['to']);
-          $ip = hscr($row['ip']);
+          $ip = hsc($row['ip']);
           echo "    <tr style=\"background-color: #F0F0F0;\">\n".
                "      <td style=\"padding: 5px;\"><a href=\"?view=votes&type=5&votessearch=$ip\">$ip</a></td>\n".
                "      <td style=\"padding: 5px;\">{$row['votes']}</td>\n".
@@ -334,12 +334,12 @@ if (!$action) {
         } else {
           echo "<p class=\"notepreview\">",clean_note($row['note']),
                "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
-               hscr($row['user']),"</span><br />",
+          hsc($row['user']),"</span><br />",
                "Note id: $id<br />\n",
                "<a href=\"http://php.net/manual/en/{$row['sect']}.php#{$id}\" target=\"_blank\">http://php.net/manual/en/{$row['sect']}.php#{$id}</a><br />\n",
                "<a href=\"https://master.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
           foreach ($note_del_reasons AS $reason => $text) {
-            echo '<a href="https://master.php.net/note/delete/', $id, '/', urlencode((string)$reason), '" target=\"_blank\">', 'Delete Note: ', hscr($text), "</a><br />\n";
+            echo '<a href="https://master.php.net/note/delete/', $id, '/', urlencode((string)$reason), '" target=\"_blank\">', 'Delete Note: ', hsc($text), "</a><br />\n";
           }
           echo "<a href=\"https://master.php.net/note/delete/$id\" target=\"_blank\">Delete Note: other reason</a><br />",
                "<a href=\"https://master.php.net/note/reject/$id\" target=\"_blank\">Reject Note</a>",
@@ -354,17 +354,17 @@ if (!$action) {
                "</table>\n".
                "<input type=\"submit\" name=\"deletevotes\" value=\"Delete Selected Votes\" />\n".
                "<input type=\"hidden\" name=\"votessearch\" value=\"".
-               (isset($_GET['votessearch']) ? hscr($_GET['votessearch']) : '').
+               (isset($_GET['votessearch']) ? hsc($_GET['votessearch']) : '').
                "\" />".
                "</form>\n";
         }
         echo "<form method=\"GET\" action=\"" . PHP_SELF . "\">\n".
              "  <strong>Search for votes by IP address or Note ID</strong> - (<em>wild card searches are allowed e.g. 127.0.0.*</em>): ".
              "<input type=\"text\" name=\"votessearch\" value=\"".
-             (isset($_GET['votessearch']) ? hscr($_GET['votessearch']) : '').
+             (isset($_GET['votessearch']) ? hsc($_GET['votessearch']) : '').
              "\" /> <input type=\"submit\" value=\"Search\" />\n".
              "<input type=\"hidden\" name=\"view\" value=\"notes\" />\n".
-             "<input type=\"hidden\" name=\"type\" value=\"" . (isset($_GET['type']) ? hscr($_GET['type']) : 5) . "\" />\n".
+             "<input type=\"hidden\" name=\"type\" value=\"" . (isset($_GET['type']) ? hsc($_GET['type']) : 5) . "\" />\n".
              "</form>\n";
       }
       /* This is a special table only used for viewing top IPs by votes */
@@ -452,16 +452,16 @@ case 'mass':
       } else {
         $step = 2;
         $msg = "Are you sure to change section of <b>$count note(s)</b>";
-        $msg .= (!empty($_REQUEST["ids"]) ? " with IDs <b>" . hscr($_REQUEST['ids']) . "</b>" : "");
-        $msg .= (!empty($_REQUEST["old_sect"]) ? " from section <b>" . hscr($_REQUEST['old_sect']) . "</b>" : "");
-        $msg .= " to section <b>" . hscr($_REQUEST['new_sect']) . "</b>?";
+        $msg .= (!empty($_REQUEST["ids"]) ? " with IDs <b>" . hsc($_REQUEST['ids']) . "</b>" : "");
+        $msg .= (!empty($_REQUEST["old_sect"]) ? " from section <b>" . hsc($_REQUEST['old_sect']) . "</b>" : "");
+        $msg .= " to section <b>" . hsc($_REQUEST['new_sect']) . "</b>?";
         echo "<p>$msg</p>\n";
 ?>
 <form action="<?= PHP_SELF; ?>?action=mass" method="post">
 <input type="hidden" name="step" value="2">
-<input type="hidden" name="old_sect" value="<?= hscr($_REQUEST["old_sect"]); ?>">
-<input type="hidden" name="ids" value="<?= hscr($_REQUEST["ids"]); ?>">
-<input type="hidden" name="new_sect" value="<?= hscr($_REQUEST["new_sect"]); ?>">
+<input type="hidden" name="old_sect" value="<?= hsc($_REQUEST["old_sect"]); ?>">
+<input type="hidden" name="ids" value="<?= hsc($_REQUEST["ids"]); ?>">
+<input type="hidden" name="new_sect" value="<?= hsc($_REQUEST["new_sect"]); ?>">
 <input type="submit" value="Change">
 </form>
 <?php
@@ -483,15 +483,15 @@ case 'mass':
 <table>
  <tr>
   <th align="right">Current section:</th>
-  <td><input type="text" name="old_sect" value="<?= hscr($_REQUEST["old_sect"]); ?>" size="30" maxlength="80" /> (filename without extension)</td>
+  <td><input type="text" name="old_sect" value="<?= hsc($_REQUEST["old_sect"]); ?>" size="30" maxlength="80" /> (filename without extension)</td>
  </tr>
  <tr>
   <th align="right">Notes IDs:</th>
-  <td><input type="text" name="ids" value="<?= hscr($_REQUEST["ids"]); ?>" size="30" maxlength="80" /> (comma separated list)</td>
+  <td><input type="text" name="ids" value="<?= hsc($_REQUEST["ids"]); ?>" size="30" maxlength="80" /> (comma separated list)</td>
  </tr>
  <tr>
   <th align="right">Move to section:</th>
-  <td><input type="text" name="new_sect" value="<?= hscr($_REQUEST["new_sect"]); ?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="new_sect" value="<?= hsc($_REQUEST["new_sect"]); ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr> 
   <td align="center" colspan="2">
@@ -595,7 +595,7 @@ case 'edit':
     if ($action == "preview") {
       echo "<p class=\"notepreview\">",clean_note($note),
            "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
-           hscr($email),"</span></p>";
+      hsc($email),"</span></p>";
     }
 ?>
 <form method="post" action="<?= PHP_SELF ?>">
@@ -603,14 +603,14 @@ case 'edit':
 <table>
  <tr>
   <th align="right">Section:</th>
-  <td><input type="text" name="sect" value="<?= hscr($sect) ?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="sect" value="<?= hsc($sect) ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
   <th align="right">email:</th>
-  <td><input type="text" name="email" value="<?= hscr($email) ?>" size="30" maxlength="80" /></td>
+  <td><input type="text" name="email" value="<?= hsc($email) ?>" size="30" maxlength="80" /></td>
  </tr>
  <tr>
-  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= hscr($note) ?></textarea></td>
+  <td colspan="2"><textarea name="note" cols="70" rows="15"><?= hsc($note) ?></textarea></td>
  </tr>
  <tr>
   <td align="center" colspan="2">
@@ -650,7 +650,7 @@ case 'resetdown':
       $result = db_query("SELECT COUNT(id) AS id FROM votes WHERE note_id = " . real_clean($id));
       $rows = mysql_fetch_assoc($result);
       if (!$rows['id']) {
-        echo "<p>No votes exist for Note ID ".hscr($id)."!</p>";
+        echo "<p>No votes exist for Note ID ". hsc($id) ."!</p>";
       } elseif (db_query($sql)) {
         header('Location: user-notes.php?id=' . urlencode($id) . '&was=' . urlencode($action));
       }
@@ -662,26 +662,26 @@ case 'resetdown':
       $result = db_query($sql);
       if (mysql_num_rows($result)) {
         $row = mysql_fetch_assoc($result);
-        $out = "<p>\nAre you sure you want to reset all votes for <strong>Note #".hscr($row['id'])."</strong>? ";
+        $out = "<p>\nAre you sure you want to reset all votes for <strong>Note #". hsc($row['id']) ."</strong>? ";
         if ($action == 'resetall') {
-          $out .= "This will permanently delete all <em>".hscr($row['up'])."</em> up votes and <em>".hscr($row['down'])."</em> down votes for this note.\n</p>\n".
+          $out .= "This will permanently delete all <em>". hsc($row['up']) ."</em> up votes and <em>". hsc($row['down']) ."</em> down votes for this note.\n</p>\n".
                   "<form method=\"POST\" action=\"\">\n".
                   "  <input type=\"submit\" value\"Yes Reset!\" name=\"resetall\" />\n".
                   "</form>\n";
         } elseif ($action == 'resetup') {
-          $out .= "This will permanently delete all <em>".hscr($row['up'])."</em> up votes for this note.\n</p>\n".
+          $out .= "This will permanently delete all <em>". hsc($row['up']) ."</em> up votes for this note.\n</p>\n".
                   "<form method=\"POST\" action=\"\">\n".
                   "  <input type=\"submit\" value\"Yes Reset!\" name=\"resetup\" />\n".
                   "</form>\n";
         } elseif ($action == 'resetdown') {
-          $out .= "This will permanently delete all <em>".hscr($row['down'])."</em> down votes for this note.\n</p>\n".
+          $out .= "This will permanently delete all <em>". hsc($row['down']) ."</em> down votes for this note.\n</p>\n".
                   "<form method=\"POST\" action=\"\">\n".
                   "  <input type=\"submit\" value\"Yes Reset!\" name=\"resetdown\" />\n".
                   "</form>\n";
         }
         echo $out;
       } else {
-        echo "<p>Note ".hscr($id)." does not exist!</p>";
+        echo "<p>Note ". hsc($id) ." does not exist!</p>";
       }
     }
   } else {

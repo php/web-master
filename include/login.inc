@@ -35,10 +35,10 @@ if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
     // IS_DEV was 1 or 0 until 22 Feb 2012. It's now a @php.net username hint.
     $cuser = '';
     if (isset($_COOKIE['IS_DEV']) && !is_numeric($_COOKIE['IS_DEV'])) {
-        $cuser = clean($_COOKIE['IS_DEV']);
+        $cuser = hsc($_COOKIE['IS_DEV']);
     } else {
         if (!empty($_POST['user'])) {
-            $cuser = clean($_POST['user']);
+            $cuser = hsc($_POST['user']);
         }
     }
 ?>
@@ -58,7 +58,7 @@ if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
  </tr>
  <tr>
   <th align="right">Password:</th>
-  <td><input type="password" name="pw" value="<?php echo clean($cpw);?>" />
+  <td><input type="password" name="pw" value="<?php echo hsc($cpw);?>" />
 <?php if ($cpw): ?>
         <a href="/forgot.php" /> Forgot your password?</a>
 <?php endif ?>

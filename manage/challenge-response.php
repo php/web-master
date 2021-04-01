@@ -63,9 +63,9 @@ foreach ($inmates as $prisoner) {
 	$bgcolor = ($i & 1) ? '#eeeeee' : '#ffffff';
 ?>
 <tr bgcolor="<?php echo $bgcolor; ?>">
-	<td><input type="checkbox" name="confirm[]" value="<?php echo hscr($prisoner) ?>"/></td>
-	<td align="right"><?php echo hscr($localpart) ?></td>
-	<td align="left">@ <?php echo hscr($domain) ?></td>
+	<td><input type="checkbox" name="confirm[]" value="<?php echo hsc($prisoner) ?>"/></td>
+	<td align="right"><?php echo hsc($localpart) ?></td>
+	<td align="left">@ <?php echo hsc($domain) ?></td>
 </tr>
 <?php
 }

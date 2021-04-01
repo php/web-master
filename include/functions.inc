@@ -1,11 +1,15 @@
 <?php
 // $Id$
 
-$default_filter = (ini_get('filter.default')=='full_special_chars') ? true : false;
 $ts = $_SERVER['REQUEST_TIME'];
 
+// TODO: While magic_quotes is not enabled, default.filter=magic_quotes right now :(
 if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
     die("Magic quotes should not be enabled.");
+}
+
+if (ini_get('filter.default') == 'full_special_chars') {
+    die("filter.default should not be set to full_special_chars.");
 }
 
 // -----------------------------------------------------------------------------------
@@ -80,9 +84,7 @@ function foot($secondscreen = null) {
 
 // -----------------------------------------------------------------------------------
 
-function hsc($str)             { return $GLOBALS['default_filter']?$str:htmlspecialchars((string)$str,ENT_QUOTES,'UTF-8'); }
-function hscr($str)            { return htmlspecialchars((string)$str,ENT_QUOTES,'UTF-8'); }
-function clean($var)           { return $GLOBALS['default_filter']?$var:hsc($var); }
+function hsc($str)             { return htmlspecialchars((string)$str,ENT_QUOTES,'UTF-8'); }
 function format_warn($message) { return "<p class=\"warning\">$message</p>"; }
 function warn($message)        { echo format_warn($message); }
 function real_clean($var)      { return mysql_real_escape_string($var); }
@@ -473,10 +475,10 @@ function fetch_user($user) {
 }
 function invalid_input($in) {
   if (!empty($in['email']) && strlen($in['email']) && !is_emailable_address($in['email'])) {
-    return "'".clean($in['email'])."' does not look like a valid email address";
+    return "'". hsc($in['email']) ."' does not look like a valid email address";
   }
   if (!empty($in['username']) && !preg_match("/^[-\w]+\$/",$in['username'])) {
-    return "'".clean($in['username'])."' is not a valid username";
+    return "'". hsc($in['username']) ."' is not a valid username";
   }
   if (!empty($in['rawpasswd']) && $in['rawpasswd'] != $in['rawpasswd2']) {
     return "the passwords you specified did not match!";

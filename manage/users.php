@@ -187,9 +187,9 @@ if ($id) {
 <tr>
  <th>VCS username:</th>
 <?php if (is_admin($_SESSION["username"])): ?>
- <td><input type="text" name="in[username]" value="<?php echo hscr($userdata['username']);?>" size="16" maxlength="16" /></td>
+ <td><input type="text" name="in[username]" value="<?php echo hsc($userdata['username']);?>" size="16" maxlength="16" /></td>
 <?php else: ?>
- <td><?php echo hscr($userdata['username']);?></td>
+ <td><?php echo hsc($userdata['username']);?></td>
 <?php endif ?>
 </tr>
 <tr>
@@ -243,7 +243,7 @@ if ($id) {
 <tfoot>
 <tr>
  <th>SSH Key</th>
- <td><textarea name="in[sshkey]" placeholder="Paste in the contents of your id_rsa.pub"><?php echo hscr(html_entity_decode($userdata['ssh_keys'],ENT_QUOTES)); ?></textarea>
+ <td><textarea name="in[sshkey]" placeholder="Paste in the contents of your id_rsa.pub"><?php echo hsc(html_entity_decode($userdata['ssh_keys'], ENT_QUOTES)); ?></textarea>
   <p>Adding/editing the SSH key takes a few minutes to propagate to the server.<br>
   Multiple keys are allowed, separated using a newline.</p></td>
 </tr>
@@ -256,10 +256,10 @@ if ($id) {
     }
 ?>
 <tr>
- <th>People Profile<br>(<a href="http://people.php.net/user.php?username=<?php echo urlencode($userdata['username']);?>"><?php echo hscr($userdata['username']);?>'s page</a>)</th>
+ <th>People Profile<br>(<a href="http://people.php.net/user.php?username=<?php echo urlencode($userdata['username']);?>"><?php echo hsc($userdata['username']);?>'s page</a>)</th>
  <td>
      <p>Use <a href="http://michelf.ca/projects/php-markdown/dingus/" title="PHP Markdown: Dingus">Markdown</a>. Type as much as you like.</p>
-     <div><textarea name="in[profile_markdown]" placeholder="My PHP People page content"><?php echo clean($userdata['profile_markdown']); ?></textarea></div>
+     <div><textarea name="in[profile_markdown]" placeholder="My PHP People page content"><?php echo hsc($userdata['profile_markdown']); ?></textarea></div>
  </td>
 </tr>
 <?php
@@ -390,13 +390,13 @@ while ($userdata = mysql_fetch_array($res)) {
 ?>
   <tr class="<?php if (!$userdata["cvsaccess"]) { echo "noaccess"; }?>">
     <td><a href="?username=<?php echo $userdata["username"];?>">edit</a></td>
-    <td><a href="https://people.php.net/?username=<?php echo hscr($userdata['username'])?>"><?php echo hscr($userdata['username']) ?></a></td>
-    <td><?php echo hscr($userdata['name']);?></td>
+    <td><a href="https://people.php.net/?username=<?php echo hsc($userdata['username']) ?>"><?php echo hsc($userdata['username']) ?></a></td>
+    <td><?php echo hsc($userdata['name']);?></td>
 <?php if (!$unapproved) { ?>
-    <td colspan="2"><?php echo hscr($userdata['email']);?></td>
+    <td colspan="2"><?php echo hsc($userdata['email']);?></td>
 <?php } else { ?>
-    <td><?php echo hscr($userdata['email']);?></td>
-    <td><?php echo hscr($userdata['note'])?></td>
+    <td><?php echo hsc($userdata['email']);?></td>
+    <td><?php echo hsc($userdata['note']) ?></td>
 <?php } ?>
       <td> </td>
   </tr>
