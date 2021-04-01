@@ -1,7 +1,7 @@
 #!/usr/local/bin/php -q
 <?php /* vim: set noet ts=2 sw=2 ft=php: : */
 
-// We protect the master server with this token, so
+// We protect the main server with this token, so
 // only who knows the token can fetch data from the server
 $token = getenv("TOKEN");
 if (!$token && file_exists(".token")) $token = file_get_contents(".token");
@@ -17,7 +17,7 @@ $root = $argv[1];
 set_time_limit(30 * 60);
 
 // Get list of upcoming events
-fetch_into_file("https://master.php.net/fetch/events.php?token=$token",
+fetch_into_file("https://main.php.net/fetch/events.php?token=$token",
                 "$root/backend/events.csv");
 
 // Pregenerate event listing sidebar for homepage
@@ -46,7 +46,7 @@ $flickr_api_key = getenv("TOKEN_FLICKR");
 if (!$flickr_api_key && file_exists(".token_flickr")) $flickr_api_key = file_get_contents(".token_flickr");
 if (!$flickr_api_key) die("you have to set the TOKEN_FLICKR environment variable or create a .token_flickr file");
 pregen_flickr(
-    $flickr_api_key, 
+    $flickr_api_key,
     $root . '/images/elephpants',
     100
 );

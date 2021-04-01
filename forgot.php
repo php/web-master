@@ -81,10 +81,10 @@ be safe.)
 To change your password, simply use the URL below and choose a new
 password.
 
-  https://master.php.net/forgot.php?id=$row[userid]&key=$newpass
+  https://main.php.net/forgot.php?id=$row[userid]&key=$newpass
 
 Let us know if you have any further problems.
--- 
+--
 group@php.net
 ";
       mailer($row['username'] . '@php.net',"Password change instructions for $row[username]",$body,'group@php.net', 'PHP Group');

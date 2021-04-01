@@ -125,18 +125,18 @@ if (db_query_safe($query, [$user, $note, $sect])) {
 //  $msg .= "\n----\n";
 
   $msg .= "Manual Page -- http://php.net/manual/en/$sect.php\n";
-  $msg .= "Edit        -- https://master.php.net/note/edit/$new_id\n";
-  //$msg .= "Approve     -- https://master.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
+  $msg .= "Edit        -- https://main.php.net/note/edit/$new_id\n";
+  //$msg .= "Approve     -- https://main.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
   foreach ($note_del_reasons AS $reason) {
     $msg .= "Del: "
       . str_pad($reason, $note_del_reasons_pad)
-      . "-- https://master.php.net/note/delete/$new_id/" . urlencode($reason) ."\n";
+      . "-- https://main.php.net/note/delete/$new_id/" . urlencode($reason) ."\n";
   }
 
   // @phan-suppress-next-line PhanParamSuspiciousOrder - weird global padding count, but ok
-  $msg .= str_pad('Del: other reasons', $note_del_reasons_pad) . "-- https://master.php.net/note/delete/$new_id\n";
-  $msg .= "Reject      -- https://master.php.net/note/reject/$new_id\n";
-  $msg .= "Search      -- https://master.php.net/manage/user-notes.php\n";
+  $msg .= str_pad('Del: other reasons', $note_del_reasons_pad) . "-- https://main.php.net/note/delete/$new_id\n";
+  $msg .= "Reject      -- https://main.php.net/note/reject/$new_id\n";
+  $msg .= "Search      -- https://main.php.net/manage/user-notes.php\n";
   # make sure we have a return address.
   if (!$user) $user = "php-general@lists.php.net";
   # strip spaces in email address, or will get a bad To: field

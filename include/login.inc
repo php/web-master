@@ -4,9 +4,9 @@
 if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
     $name = basename($_SERVER["SCRIPT_NAME"]);
     if ($name === 'login.php') {
-        header("Location: https://master.php.net/" . $name);
+        header("Location: https://main.php.net/" . $name);
     } else {
-        header("Location: https://master.php.net/manage/" . $name);
+        header("Location: https://main.php.net/manage/" . $name);
     }
     exit;
 }

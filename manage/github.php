@@ -13,7 +13,7 @@ if (!defined('GITHUB_CLIENT_ID') || !defined('GITHUB_CLIENT_SECRET')) {
 define('GITHUB_PHP_OWNER_TEAM_ID', 65141);
 define('GITHUB_REPO_TEAM_ID', 138591);
 if (!defined('GITHUB_USER_AGENT')) {
-  define('GITHUB_USER_AGENT', 'php.net repository management (master.php.net, systems@php.net, johannes@php.net)');
+  define('GITHUB_USER_AGENT', 'php.net repository management (main.php.net, systems@php.net, johannes@php.net)');
 }
 
 function github_api($endpoint, $method = 'GET', $options = [])
@@ -28,11 +28,11 @@ function github_api($endpoint, $method = 'GET', $options = [])
   if ($s === false) {
     die('Request to GitHub failed. Endpoint: '.$endpoint);
   }
-  
+
   $retval = json_decode($s);
   return $retval;
 }
-  
+
 function github_current_user($access_token = false)
 {
   if (!$access_token) {

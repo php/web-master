@@ -336,7 +336,7 @@ if (!$action) {
                "      <td style=\"padding: 5px;\">{$row['notes']}</td>\n".
                "      <td style=\"padding: 5px;\">{$from}</td>\n".
                "      <td style=\"padding: 5px;\">{$to}</td>\n".
-               "    </tr>\n";        
+               "    </tr>\n";
         /* Everything else in search should fall through here */
         } else {
           echo "<p class=\"notepreview\">",clean_note($row['note']),
@@ -344,12 +344,12 @@ if (!$action) {
           hsc($row['user']),"</span><br />",
                "Note id: $id<br />\n",
                "<a href=\"http://php.net/manual/en/{$row['sect']}.php#{$id}\" target=\"_blank\">http://php.net/manual/en/{$row['sect']}.php#{$id}</a><br />\n",
-               "<a href=\"https://master.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
+               "<a href=\"https://main.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
           foreach ($note_del_reasons AS $reason => $text) {
-            echo '<a href="https://master.php.net/note/delete/', $id, '/', urlencode((string)$reason), '" target=\"_blank\">', 'Delete Note: ', hsc($text), "</a><br />\n";
+            echo '<a href="https://main.php.net/note/delete/', $id, '/', urlencode((string)$reason), '" target=\"_blank\">', 'Delete Note: ', hsc($text), "</a><br />\n";
           }
-          echo "<a href=\"https://master.php.net/note/delete/$id\" target=\"_blank\">Delete Note: other reason</a><br />",
-               "<a href=\"https://master.php.net/note/reject/$id\" target=\"_blank\">Reject Note</a>",
+          echo "<a href=\"https://main.php.net/note/delete/$id\" target=\"_blank\">Delete Note: other reason</a><br />",
+               "<a href=\"https://main.php.net/note/reject/$id\" target=\"_blank\">Reject Note</a>",
                "</p>",
                "<hr />";
         }

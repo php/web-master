@@ -27,8 +27,8 @@ function head($title="", $config = []) {
     $dconfig = ["columns" => 1];
 
     $config = array_merge($dconfig, $config);
-    $SUBDOMAIN = "master";
-    $TITLE = $title ?: "master";
+    $SUBDOMAIN = "main";
+    $TITLE = $title ?: "main";
     $LINKS = [
         ["href" => "/manage/event.php",        "text" => "Events"],
         ["href" => "/manage/users.php",        "text" => "Users"],
@@ -91,7 +91,7 @@ function warn($message)        { echo format_warn($message); }
 
 function db_connect($dieonerror = TRUE)
 {
-    if (!mysql_connect("localhost", "nobody", "")) {
+    if (!@mysql_connect("localhost", "nobody", "")) {
         if ($dieonerror) {
             die(format_warn("Unable to connect to database!"));
         }

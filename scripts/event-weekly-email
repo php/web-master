@@ -1,7 +1,7 @@
 <?php
-/* 
-	This checks for unapproved events, and emails php-webmaster@ if they exist. 
-	It should be checked weekly (via cron). 
+/*
+	This checks for unapproved events, and emails php-webmaster@ if they exist.
+	It should be checked weekly (via cron).
 */
 require dirname(dirname(__FILE__)).'/include/functions.inc';
 
@@ -18,7 +18,7 @@ Greetings PHP Webmasters;
 
 There are roughly [$count] unapproved events awaiting moderation.  Please check the queue:
 
-	https://master.php.net/manage/event.php?unapproved=1
+	https://main.php.net/manage/event.php?unapproved=1
 
 Thanks!";
 

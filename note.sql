@@ -7,10 +7,10 @@
    but we're not really using it yet, so maybe we don't want it at all. */
 
 /* used by:
-   master.php.net/entry/user-note.php
-   master.php.net/entry/user-notes-vote.php
-   master.php.net/fetch/user-notes.php
-   master.php.net/manage/user-notes.php
+   main.php.net/entry/user-note.php
+   main.php.net/entry/user-notes-vote.php
+   main.php.net/fetch/user-notes.php
+   main.php.net/manage/user-notes.php
 */
 
 CREATE TABLE IF NOT EXISTS note (
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS note (
   KEY idx_sect (sect)
 ) ENGINE=MyISAM PACK_KEYS=1;
 
--- New votes table added for keeping track of user notes ratings 
+-- New votes table added for keeping track of user notes ratings
 CREATE TABLE IF NOT EXISTS `votes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `note_id` mediumint(9) NOT NULL,

@@ -2,7 +2,7 @@
 /*
   This script acts as the backend communication API for the user notes vote feature.
   Requests come in here from the php.net to update the database with new votes.
-  master.php.net should respond with a JSON object (with one required property [status] and two optional properties
+  main.php.net should respond with a JSON object (with one required property [status] and two optional properties
   [votes] and [message]).
   The JSON object [status] property contains a status returned by the server for that request.
   It's value may be either a boolean true or false. If the status is true the php.net will know the vote went through successfully.
@@ -32,31 +32,31 @@ function vote_validate_request(PDO $dbh) {
                                                    FILTER_FLAG_NO_PRIV_RANGE |
                                                    FILTER_FLAG_IPV4))
   {
-      $ip = sprintf("%u", ip2long($_POST['ip']));      
+      $ip = sprintf("%u", ip2long($_POST['ip']));
   } else {
       // If the IP can't be validated use a non routable IP for loose validation (i.e. IPv6 and clients that couldn't send back proper IPs)
-      $ip = 0; 
+      $ip = 0;
   }
-  
+
   if (isset($_SERVER['REMOTE_ADDR']) &&
       filter_var($_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP, FILTER_FLAG_NO_RES_RANGE  |
                                                               FILTER_FLAG_NO_PRIV_RANGE |
                                                               FILTER_FLAG_IPV4))
   {
-      $hostip = sprintf("%u", ip2long($_SERVER['REMOTE_ADDR']));      
+      $hostip = sprintf("%u", ip2long($_SERVER['REMOTE_ADDR']));
   } else {
       // If the IP can't be validated use a non routable IP for loose validation (i.e. IPv6 and clients that couldn't send back proper IPs)
       $hostip = 0;
 
   }
-  
+
   if (!empty($_POST['noteid']) && filter_var($_POST['noteid'], FILTER_VALIDATE_INT))
   {
       $id = filter_var($_POST['noteid'], FILTER_VALIDATE_INT);
   } else {
       return false;
   }
-  
+
   if (!empty($_POST['vote']) && ($_POST['vote'] === 'up' || $_POST['vote'] === 'down'))
   {
       $vote = $_POST['vote'] === 'up' ? 1 : 0;
@@ -81,7 +81,7 @@ function vote_validate_request(PDO $dbh) {
   if ($noteResult['sect'] !== $_POST['sect']) {
       return false;
   }
-  
+
   // Validate remote IP has not exceeded voting limits
   $remoteStmt = $dbh->prepare("SELECT COUNT(*) AS num FROM votes WHERE ip = :ip AND ts >= (NOW() - INTERVAL 1 DAY) AND note_id = :id");
   if (!$remoteStmt) {
@@ -96,7 +96,7 @@ function vote_validate_request(PDO $dbh) {
   if ($remoteResult['num'] >= 1) { // Limit of 1 vote, per note, per remote IP, per day.
       return false;
   }
-  
+
   // Validate host IP has not exceeded voting limits
   $hostStmt = $dbh->prepare("SELECT COUNT(*) AS num FROM votes WHERE hostip = :ip AND ts >= (NOW() - INTERVAL 1 HOUR) AND note_id = :id");
   if (!$hostStmt) {

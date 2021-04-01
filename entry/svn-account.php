@@ -91,9 +91,9 @@ if (db_query_safe($query, [$name, $email, $svnpasswd, $username])) {
   }
 
   $msg .= "\n-- \n";
-  $msg .= "approve: https://master.php.net/manage/users.php?action=approve&id=$new_id\n";
-  $msg .= "reject:  https://master.php.net/manage/users.php?action=remove&id=$new_id\n";
-  $msg .= "view:    https://master.php.net/manage/users.php?id=$new_id\n";
+  $msg .= "approve: https://main.php.net/manage/users.php?action=approve&id=$new_id\n";
+  $msg .= "reject:  https://main.php.net/manage/users.php?action=remove&id=$new_id\n";
+  $msg .= "view:    https://main.php.net/manage/users.php?id=$new_id\n";
 
   mail($failto,"VCS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id-admin@php.net>", "-fnoreply@php.net");
 } else {

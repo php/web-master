@@ -6,10 +6,10 @@ function mt_approve_user($userinfo, $mailtext) {
 "Your VCS account ($userinfo[username]) was created.
 
 If you ever forget your password, you can reset it at:
-    https://master.php.net/forgot.php
+    https://main.php.net/forgot.php
 
 To change your password, or other information about you please login on:
-    https://master.php.net/manage/users.php?username=$userinfo[username]
+    https://main.php.net/manage/users.php?username=$userinfo[username]
 
 Your profile page will be created shortly and can be found at:
     https://people.php.net/$userinfo[username]
@@ -19,7 +19,7 @@ be active within the next 24 hours.
 
 
 Please note: Before you can push to our repositories, please add your
-SSH Key on master (using the URL above).
+SSH Key on main (using the URL above).
 
 All our git repositories are listed at:
     https://github.com/php/

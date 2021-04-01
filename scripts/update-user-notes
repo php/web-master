@@ -33,13 +33,13 @@ if($SSL_fopen) {
         ],
     ]);
     $fp = @fopen(
-        "https://master.php.net/fetch/user-notes.php?token=$token".($since?"&since=$since":""),
+        "https://main.php.net/fetch/user-notes.php?token=$token".($since?"&since=$since":""),
         "r",
         false,
         $ctx
     );
 } else {
-    $url = escapeshellarg("https://master.php.net/fetch/user-notes.php?token=$token".($since?"&since=$since":""));
+    $url = escapeshellarg("https://main.php.net/fetch/user-notes.php?token=$token".($since?"&since=$since":""));
     $fp = popen("curl -s $url",'r');
 }
 

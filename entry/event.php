@@ -60,7 +60,7 @@ switch($type) {
 
     if ($smonth == $emonth && $sday == $eday && $syear == $eyear)
       die("start and end dates are identical");
-  
+
     $query = "INSERT INTO phpcal SET tipo=2,"
            . "sdato=?, edato=?, sdesc=?, url=?, email=?, ldesc=?, country=?, category=?";
     db_query_safe($query, [
@@ -85,7 +85,7 @@ switch($type) {
     die("invalid type");
 }
 
-$new_id = mysql_insert_id();	
+$new_id = mysql_insert_id();
 
 $msg .= "Country: ".$country."\n"
       . "Category: ".$cat[$category]."\n"
@@ -94,6 +94,6 @@ $msg .= "Country: ".$country."\n"
 
 # add signature/actions
 $msg .= "\n-- \n"
-      . "https://master.php.net/manage/event.php?id=$new_id&action=approve\n"
-      . "https://master.php.net/manage/event.php?id=$new_id&action=reject\n"
-      . "https://master.php.net/manage/event.php?id=$new_id\n";
+      . "https://main.php.net/manage/event.php?id=$new_id&action=approve\n"
+      . "https://main.php.net/manage/event.php?id=$new_id&action=reject\n"
+      . "https://main.php.net/manage/event.php?id=$new_id\n";
