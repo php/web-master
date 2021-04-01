@@ -87,7 +87,6 @@ function foot($secondscreen = null) {
 function hsc($str)             { return htmlspecialchars((string)$str,ENT_QUOTES,'UTF-8'); }
 function format_warn($message) { return "<p class=\"warning\">$message</p>"; }
 function warn($message)        { echo format_warn($message); }
-function real_clean($var)      { return mysql_real_escape_string($var); }
 
 // -----------------------------------------------------------------------------------
 
@@ -139,8 +138,9 @@ class Query {
     }
 }
 
-function db_query($query)
+function db_query(Query $query)
 {
+    $query = $query->get();
 	//var_dump($query);
     $res = mysql_query($query);
     if (!$res) {
@@ -152,8 +152,7 @@ function db_query($query)
 
 function db_query_safe($query, array $params = [])
 {
-    $q = new Query($query, $params);
-    return db_query($q->get());
+    return db_query(new Query($query, $params));
 }
 
 function db_get_one($query)

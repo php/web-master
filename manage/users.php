@@ -148,7 +148,7 @@ if ($in) {
             // Kill the session data after updates :)
             $_SERVER["credentials"] = [];
           }
-          db_query($query->get());
+          db_query($query);
 
           if(!empty($in['purpose'])) {
               $purpose = hsc($in['purpose']);
@@ -159,8 +159,6 @@ if ($in) {
           if(!empty($in['profile_markdown'])) {
             $profile_markdown = $in['profile_markdown'];
             $profile_html = Markdown($profile_markdown);
-            $profile_markdown = mysql_real_escape_string($profile_markdown);
-            $profile_html = mysql_real_escape_string($profile_html);
             $query = "INSERT INTO users_profile (userid, markdown, html) VALUES (?, ?, ?)
                       ON DUPLICATE KEY UPDATE markdown=?, html=?";
             db_query_safe($query, [$id, $profile_markdown, $profile_html, $profile_markdown, $profile_html]);
@@ -325,8 +323,8 @@ $unapproved = filter_input(INPUT_GET, "unapproved", FILTER_VALIDATE_INT) ?: 0;
 $begin      = filter_input(INPUT_GET, "begin", FILTER_VALIDATE_INT) ?: 0;
 $max        = filter_input(INPUT_GET, "max", FILTER_VALIDATE_INT) ?: 20;
 $forward    = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
-$search     = filter_input(INPUT_GET, "search", FILTER_CALLBACK, ["options" => "mysql_real_escape_string"]) ?: "";
-$order      = filter_input(INPUT_GET, "order", FILTER_CALLBACK, ["options" => "mysql_real_escape_string"]) ?: "";
+$search     = filter_input(INPUT_GET, "search", FILTER_UNSAFE_RAW) ?: "";
+$order      = filter_input(INPUT_GET, "order", FILTER_UNSAFE_RAW) ?: "";
 
 $query = new Query("SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email,GROUP_CONCAT(note) note FROM users ");
 $query->add(" LEFT JOIN users_note ON users_note.userid = users.userid ");
@@ -357,7 +355,7 @@ if ($order) {
   $query->add(" ORDER BY $order $ext");
 }
 $query->add(" LIMIT ?int, ?int ", [$begin, $max]);
-$res = db_query($query->get());
+$res = db_query($query);
 
 $res2 = db_query_safe("SELECT FOUND_ROWS()");
 $total = (int)mysql_result($res2,0);

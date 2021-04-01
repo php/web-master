@@ -96,7 +96,7 @@ if ($id && $in) {
       "tipo=?, ldesc=?, sdesc=?, email=?, url=?, country=?, category=? WHERE id=?",
       [$tipo, $in['ldesc'], $in['sdesc'], $in['email'], $in['url'], $in['country'], $in['category'], $id]
     );
-    db_query($query->get());
+    db_query($query);
 
     warn("record $id updated");
     unset($id);
@@ -249,7 +249,7 @@ if ($search) {
 
 $query = new Query("SELECT COUNT(id) FROM phpcal");
 $query->addQuery($searchby);
-$res = db_query($query->get());
+$res = db_query($query);
 $total = (int)mysql_result($res,0);
 
 $query = new Query("SELECT phpcal.*,country.name AS cname FROM phpcal LEFT JOIN country ON phpcal.country = country.id");
@@ -267,10 +267,10 @@ if ($order) {
   $query->add(" ORDER BY $order $ext");
 }
 $query->add(' LIMIT ?int, ?int', [$begin, $max]);
-$res = db_query($query->get());
+$res = db_query($query);
 
 $extra = [
-  "search" => stripslashes($search),
+  "search" => $search,
   "order" => $order,
   "begin" => $begin,
   "max" => $max,

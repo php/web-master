@@ -24,7 +24,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 $query->add(" ORDER BY sect,ts DESC");
 $query->add(" LIMIT ?", [$limit]);
 
-$res = db_query($query->get());
+$res = db_query($query);
 
 $notes = [];
 while ($row = mysql_fetch_array($res, MYSQL_ASSOC)) {

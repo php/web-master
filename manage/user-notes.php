@@ -95,7 +95,7 @@ if (!$action) {
         $query->add('note.id = ?', [$_REQUEST['keyword']]);
       } elseif (substr($_REQUEST['keyword'], 0, 5) == 'sect:') {
         $search_heading = 'Search results for <em>' . hsc($_REQUEST['keyword']) . '</em>';
-        $section = real_clean(str_replace('*', '%', substr($_REQUEST['keyword'], 5)));
+        $section = str_replace('*', '%', substr($_REQUEST['keyword'], 5));
         $query->add("note.sect LIKE ? GROUP BY note.id ORDER BY note.sect, note.ts LIMIT ?int, 10", [$section, $limit]);
       } else {
         $search_heading = 'Search results for <em>' . hsc($_REQUEST['keyword']) . '</em>';
@@ -437,13 +437,17 @@ case 'mass':
     exit;
   }
   $step = (isset($_REQUEST["step"]) ? (int)$_REQUEST["step"] : 0);
-  $where = [];
+  $where = new Query();
   if (!empty($_REQUEST["old_sect"])) {
-    $where[] = "sect = '". real_clean($_REQUEST["old_sect"]) ."'";
+    $where->add("sect = ?", [$_REQUEST["old_sect"]]);
   }
   if (!empty($_REQUEST["ids"])) {
     if (preg_match('~^([0-9]+, *)*[0-9]+$~i', $_REQUEST["ids"])) {
-      $where[] = "id IN (".real_clean($_REQUEST['ids']).")";
+      if ($where->get() !== '') {
+        $where->add(' AND ');
+      }
+      // Safe because we checked that ids is a comma-separated list of numbers.
+      $where->add("id IN (".$_REQUEST['ids'].")");
     } else {
       echo "<p><b>Incorrect format of notes IDs.</b></p>\n";
       $step = 0;
@@ -451,11 +455,15 @@ case 'mass':
   }
   
   if ($step == 2) {
-    db_query("UPDATE note SET sect = '". real_clean($_REQUEST["new_sect"]) ."' WHERE " . implode(" AND ", $where));
+    $query = new Query('UPDATE note SET sect = ? WHERE ', [$_REQUEST["new_sect"]]);
+    $query->addQuery($where);
+    db_query($query);
     echo "<p>Mass change succeeded.</p>\n";
   } elseif ($step == 1) {
     if (!empty($_REQUEST["new_sect"]) && $where) {
-      $result = db_query("SELECT COUNT(*) FROM note WHERE " . implode(" AND ", $where));
+      $query = new Query('SELECT COUNT(*) FROM note WHERE ');
+      $query->addQuery($where);
+      $result = db_query($query);
       if (!($count = mysql_result($result, 0, 0))) {
         echo "<p>There are no such notes.</p>\n";
       } else {
@@ -575,8 +583,8 @@ case 'edit':
 
     $row = note_get_by_id($id);
 
-    $email = (isset($_POST['email']) ? real_clean(html_entity_decode($_POST['email'],ENT_QUOTES)) : real_clean($row['user']));
-    $sect = (isset($_POST['sect']) ? real_clean(html_entity_decode($_POST['sect'],ENT_QUOTES)) : real_clean($row['sect']));
+    $email = (isset($_POST['email']) ? html_entity_decode($_POST['email'],ENT_QUOTES) : $row['user']);
+    $sect = (isset($_POST['sect']) ? html_entity_decode($_POST['sect'],ENT_QUOTES) : $row['sect']);
 
     if (isset($note) && $action == "edit") {
       if (db_query_safe('UPDATE note SET note=?,user=?,sect=?,updated=NOW() WHERE id=?', [html_entity_decode($note,ENT_QUOTES), $email, $sect, $id])) {
@@ -586,7 +594,7 @@ case 'edit':
             "note {$row['id']} modified in {$row['sect']} by $cuser",
             $note."\n\n--was--\n{$row['note']}\n\nhttp://php.net/manual/en/{$row['sect']}.php"
         );
-        if (real_clean($row["sect"]) != $sect) {
+        if ($row["sect"] != $sect) {
           note_mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $cuser", "----- Copy of your note below -----\n\n".$note);
         }
         header('Location: user-notes.php?id=' . $id . '&was=' . $action);
@@ -762,7 +770,7 @@ case 'voting_stats':
     $stats_sql['Last Week']   = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ? AND UNIX_TIMESTAMP(votes.ts) < ?', [$lastweek, $week]);
     $stats_sql['Last Month']  = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ? AND UNIX_TIMESTAMP(votes.ts) < ?', [$lastmonth, $month]);
     foreach ($stats_sql as $key => $query) {
-        $result = db_query($query->get());
+        $result = db_query($query);
         $row = mysql_fetch_assoc($result);
         $stats[$key] = $row['total'];
     }
