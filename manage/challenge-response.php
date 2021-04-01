@@ -13,13 +13,14 @@ db_connect();
 
 if (isset($_POST['confirm_them']) && isset($_POST['confirm']) && is_array($_POST['confirm'])) {
 	foreach ($_POST['confirm'] as $address) {
-		$addr = mysql_real_escape_string($address);
-		db_query("insert into accounts.confirmed (email, ts) values ('$addr', NOW())");
+		db_query_safe("insert into accounts.confirmed (email, ts) values (?, NOW())", [$address]);
 	}
 }
 
-$user_db = mysql_real_escape_string($user);
-$res     = db_query("select distinct sender from phpmasterdb.users left join accounts.quarantine on users.email = rcpt where username='$user_db' and not isnull(id)");
+// TODO: Where does $user come from here?
+$res = db_query_safe(
+  "select distinct sender from phpmasterdb.users left join accounts.quarantine on users.email = rcpt " .
+  "where username=? and not isnull(id)", [$user]);
 
 $inmates = [];
 while ($row = mysql_fetch_row($res)) {
@@ -81,7 +82,9 @@ wait that long before the mail is delivered.
 </form>
 
 <?php
-$res = db_query("select count(id) from phpmasterdb.users left join accounts.quarantine on users.email = rcpt where username='$user_db'");
+$res = db_query_safe(
+  "select count(id) from phpmasterdb.users left join accounts.quarantine on users.email = rcpt " .
+  " where username=?", [$user]);
 
 $n = 0;
 if (mysql_num_rows($res) > 0) {

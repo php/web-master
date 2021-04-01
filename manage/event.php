@@ -25,16 +25,22 @@ $type = [1=>'single',2=>'multi',3=>'recur'];
 head("event administration");
 db_connect();
 
-$valid_vars = ['id', 'action','in','begin','max','search','order','full','unapproved'];
-foreach($valid_vars as $k) {
-    $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
-}
+$id = isset($_REQUEST['id']) ? $_REQUEST['id'] : false;
+$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : false;
+$in = isset($_REQUEST['in']) ? $_REQUEST['in'] : false;
+$begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : false;
+$max = isset($_REQUEST['max']) ? $_REQUEST['max'] : false;
+$search = isset($_REQUEST['search']) ? $_REQUEST['search'] : false;
+$order = isset($_REQUEST['order']) ? $_REQUEST['order'] : false;
+$full = isset($_REQUEST['full']) ? $_REQUEST['full'] : false;
+$unapproved = isset($_REQUEST['unapproved']) ? $_REQUEST['unapproved'] : false;
+
 if($id) $id = (int)$id;
 
 if ($id && $action) {
   switch ($action) {
   case 'approve':
-    if (db_query("UPDATE phpcal SET approved=1,app_by='".real_clean($cuser)."' WHERE id=$id")
+    if (db_query_safe("UPDATE phpcal SET approved=1,app_by=? WHERE id=?", [$cuser, $id])
      && mysql_affected_rows()) {
       $event = fetch_event($id);
       $message = "This event has been approved. It will appear on the PHP website shortly.";
@@ -48,7 +54,7 @@ if ($id && $action) {
     break;
   case 'reject':
     $event = fetch_event($id);
-    if (db_query("DELETE FROM phpcal WHERE id=$id")
+    if (db_query_safe("DELETE FROM phpcal WHERE id=?", [$id])
      && mysql_affected_rows()) {
       $message = $event['approved'] ?  "This event has been deleted." : "This event has been rejected.";
       $did = $event['approved'] ? 'Deleted' : 'Rejected';

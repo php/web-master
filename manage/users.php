@@ -61,18 +61,17 @@ db_connect();
 
 # ?username=whatever will look up 'whatever' by email or username
 if ($username) {
-  $tmp = filter_input(INPUT_GET, "username", FILTER_CALLBACK, ["options" => "mysql_real_escape_string"]) ?: "";
   $query = "SELECT userid FROM users"
-         . " WHERE username='$tmp' OR email='$tmp'";
-  $res = db_query($query);
+         . " WHERE username=? OR email=?";
+  $res = db_query_safe($query, [$username, $username]);
 
   if (!($id = @mysql_result($res, 0))) {
     warn("wasn't able to find user matching '$username'");
   }
 }
 if ($id) {
-  $query = "SELECT * FROM users WHERE users.userid=$id";
-  $res = db_query($query);
+  $query = "SELECT * FROM users WHERE users.userid=?";
+  $res = db_query_safe($query, [$id]);
   $userdata = mysql_fetch_array($res);
   if (!$userdata) {
     warn("Can't find user#$id");
@@ -249,7 +248,7 @@ if ($id) {
 </tr>
 <?php
   if ($id) {
-    $res = db_query("SELECT markdown FROM users_profile WHERE userid=$id");
+    $res = db_query_safe("SELECT markdown FROM users_profile WHERE userid=?", [$id]);
     $userdata['profile_markdown'] = '';
     if ($profile_row = mysql_fetch_assoc($res)) {
         $userdata['profile_markdown'] = $profile_row['markdown'];
@@ -305,7 +304,7 @@ if (is_admin($_SESSION["username"]) && !$userdata['cvsaccess']) {
 ?>
 <h2 id="notes">Notes:</h2>
 <?php
-  $res = db_query("SELECT note, UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=$id");
+  $res = db_query_safe("SELECT note, UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=?", [$id]);
   while ($res && $userdata = mysql_fetch_assoc($res)) {
     echo "<div class='note'>", date("r",$userdata['ts']), "<br />".$userdata['note']."</div>";
   }
@@ -350,7 +349,7 @@ $query .= " LIMIT $begin,$max ";
 $res = db_query($query);
 #echo $query;
 
-$res2 = db_query("SELECT FOUND_ROWS()");
+$res2 = db_query_safe("SELECT FOUND_ROWS()");
 $total = (int)mysql_result($res2,0);
 
 

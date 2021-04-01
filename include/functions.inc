@@ -119,6 +119,21 @@ function db_query($query)
     return $res;
 }
 
+function db_prepare_query($query, $params) {
+    if (substr_count($query, '?') !== count($params)) {
+        die("Incorrect number of parameters to query.");
+    }
+
+    $i = 0;
+    return preg_replace_callback('/\?/', function() use ($params, &$i) {
+        return "'" . mysql_real_escape_string($params[$i++]) . "'";
+    }, $query);
+}
+
+function db_query_safe($query, array $params = [])
+{
+    return db_query(db_prepare_query($query, $params));
+}
 
 function db_get_one($query)
 {
@@ -198,7 +213,7 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = [], $table = true
 
 function show_country_options($cc = "")
 {
-    $res = db_query("SELECT id, name FROM country ORDER BY name");
+    $res = db_query_safe("SELECT id, name FROM country ORDER BY name");
     while ($row = mysql_fetch_assoc($res)) {
         echo "<option value=\"{$row['id']}\"", $cc == $row['id'] ? " selected" : "", ">{$row['name']}</option>";
     }
@@ -291,7 +306,7 @@ function undo_magic_quotes() {
 
 
 function find_group_address_from_notes_for($id) {
-    $res = db_query("SELECT note FROM users_note WHERE userid=$id LIMIT 1");
+    $res = db_query_safe("SELECT note FROM users_note WHERE userid = ? LIMIT 1", [$id]);
     $row = mysql_fetch_assoc($res);
     $cc = "";
     if (preg_match("/\[group: (\w+)\]/", $row["note"], $matches)) {
@@ -316,7 +331,7 @@ function find_group_address_from_notes_for($id) {
 define("MT_USER_APPROVE_MAIL", "group@php.net");
 define("MT_USER_REMOVE_MAIL", "group@php.net");
 function user_approve($id) {
-    $res = db_query("UPDATE users SET cvsaccess=1, enable=1 WHERE userid=$id");
+    $res = db_query_safe("UPDATE users SET cvsaccess=1, enable=1 WHERE userid=?", [$id]);
     if ($res && mysql_affected_rows()) {
       $cc = find_group_address_from_notes_for($id);
       $mailtext = $cc ? $cc : EMAIL_DEFAULT_CC;
@@ -343,7 +358,7 @@ function user_approve($id) {
 
 function user_remove($id) {
     $userinfo = fetch_user($id);
-    $res = db_query("DELETE FROM users WHERE userid=$id");
+    $res = db_query_safe("DELETE FROM users WHERE userid=?", [$id]);
     if ($res && mysql_affected_rows()) {
       $cc = find_group_address_from_notes_for($id);
 
@@ -360,8 +375,8 @@ function user_remove($id) {
 
       /* Notify public records */
       mail($to, $subject, $message,"From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
-      db_query("DELETE FROM users_note WHERE userid=$id");
-      db_query("DELETE FROM users_profile WHERE userid=$id");
+      db_query_safe("DELETE FROM users_note WHERE userid=?", [$id]);
+      db_query_safe("DELETE FROM users_profile WHERE userid=?", [$id]);
       warn("record $id ($userinfo[username]) removed");
       return true;
     }
@@ -446,32 +461,23 @@ function is_mirror_site_admin($user) {
 function can_modify($user,$userid) {
   if (is_admin($user)) return true;
 
-  $userid = (int)$userid;
-
-  $quser = addslashes($user);
-  $query = "SELECT userid FROM users"
-         . " WHERE userid=$userid"
-         . "   AND (email='$quser' OR username='$quser')";
-
-  $res = db_query($query);
+  $query = "SELECT userid FROM users WHERE userid = ? AND (email = ? OR username = ?)";
+  $res = db_query_safe($query, [$userid, $user, $user]);
   return $res ? mysql_num_rows($res) : false;
 }
 
 function fetch_user($user) {
-  $query = "SELECT * FROM users LEFT JOIN users_note USING (userid)";
   if ((int)$user) {
-    $query .= " WHERE users.userid=$user";
-  }
-  else {
-    $quser = addslashes((string)$user);
-    $query .= " WHERE username='$quser' OR email='$quser'";
-  }
-
-  if ($res = db_query($query)) {
-    return mysql_fetch_array($res);
+    $res = db_query_safe(
+      "SELECT * FROM users LEFT JOIN users_note USING (userid) WHERE users.userid = ?",
+      [$user]);
+  } else {
+    $res = db_query_safe(
+      "SELECT * FROM users LEFT JOIN users_note USING (userid) WHERE username = ? OR email = ?",
+      [$user, $user]);
   }
 
-  return false;
+  return mysql_fetch_array($res);
 }
 function invalid_input($in) {
   if (!empty($in['email']) && strlen($in['email']) && !is_emailable_address($in['email'])) {
@@ -503,13 +509,8 @@ function validateAction($k) {
 }
 
 function fetch_event($id) {
-  $query = "SELECT * FROM phpcal WHERE id=$id";
-
-  if ($res = db_query($query)) {
-    return mysql_fetch_array($res,MYSQL_ASSOC);
-  }
-
-  return false;
+  $res = db_query_safe("SELECT * FROM phpcal WHERE id = ?", [$id]);
+  return mysql_fetch_array($res,MYSQL_ASSOC);
 }
 
 function display_options($options,$current) {

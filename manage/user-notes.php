@@ -145,8 +145,8 @@ if (!$action) {
           if (($iprange = wildcard_ip($_GET['votessearch'])) !== false) {
             $search = html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8');
             $start = real_clean($iprange[0]); $end = real_clean($iprange[1]);
-            $resultCount = db_query("SELECT count(votes.id) AS total_votes FROM votes JOIN (note) ON (votes.note_id = note.id) WHERE ".
-                                    "(hostip >= $start AND hostip <= $end) OR (ip >= $start AND ip <= $end)");
+            $resultCount = db_query_safe("SELECT count(votes.id) AS total_votes FROM votes JOIN (note) ON (votes.note_id = note.id) WHERE ".
+                                    "(hostip >= ? AND hostip <= ?) OR (ip >= ? AND ip <= ?)", [$start, $end, $start, $end]);
             $resultCount = mysql_fetch_assoc($resultCount);
             $resultCount = $resultCount['total_votes'];
             $isSearch = '&votessearch=' . hsc($search);
@@ -158,7 +158,7 @@ if (!$action) {
             
           } elseif (filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP)) {
             $searchip = (int) ip2long(filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP));
-            $resultCount = db_query("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE hostip = $searchip OR ip = $searchip");
+            $resultCount = db_query_safe("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE hostip = ? OR ip = ?", [$searchip, $searchip]);
             $resultCount = mysql_fetch_assoc($resultCount);
             $resultCount = $resultCount['total_votes'];
             $isSearch = '&votessearch=' . hsc(long2ip($searchip));
@@ -169,7 +169,7 @@ if (!$action) {
                    "ORDER BY votes.id DESC LIMIT $limitVotes, 25";
           } else {
             $search = (int) html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8');
-            $resultCount = db_query("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE votes.note_id = $search");
+            $resultCount = db_query_safe("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE votes.note_id = ?", [$search]);
             $resultCount = mysql_fetch_assoc($resultCount);
             $resultCount = $resultCount['total_votes'];
             $isSearch = '&votessearch=' . hsc($search);
@@ -181,7 +181,7 @@ if (!$action) {
           }
         } else {
           $isSearch = null;
-          $resultCount = db_query("SELECT COUNT(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id)");
+          $resultCount = db_query_safe("SELECT COUNT(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id)");
           $resultCount = mysql_fetch_assoc($resultCount);
           $resultCount = $resultCount['total_votes'];
           $sql = "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
@@ -513,7 +513,7 @@ case 'approve':
         die ("Note #$id has already been approved");
       }
       
-      if ($row['id'] && db_query("UPDATE note SET status=NULL WHERE id=".real_clean($id))) {
+      if ($row['id'] && db_query_safe("UPDATE note SET status=NULL WHERE id=?", [$id])) {
         note_mail_on_action(
             $cuser,
             $id,
@@ -530,7 +530,7 @@ case 'reject':
 case 'delete':
   if ($id) {
     if ($row = note_get_by_id($id)) {
-      if ($row['id'] && db_query("DELETE note,votes FROM note LEFT JOIN (votes) ON (note.id = votes.note_id) WHERE note.id = ".real_clean($id))) {
+      if ($row['id'] && db_query_safe("DELETE note,votes FROM note LEFT JOIN (votes) ON (note.id = votes.note_id) WHERE note.id = ?", [$id])) {
         // ** alerts **
         //$mailto .= get_emails_for_sect($row["sect"]);
         $action_taken = ($action == "reject" ? "rejected" : "deleted");
@@ -647,7 +647,7 @@ case 'resetdown':
         $sql = 'DELETE FROM votes WHERE votes.note_id = ' . real_clean($id) . ' AND votes.vote = 0';
       }
       /* Make sure the note has votes before we attempt to delete them */
-      $result = db_query("SELECT COUNT(id) AS id FROM votes WHERE note_id = " . real_clean($id));
+      $result = db_query_safe("SELECT COUNT(id) AS id FROM votes WHERE note_id = ?", [$id]);
       $rows = mysql_fetch_assoc($result);
       if (!$rows['id']) {
         echo "<p>No votes exist for Note ID ". hsc($id) ."!</p>";
