@@ -1,12 +1,8 @@
 <?php
 
-if (!$conn = @mysql_connect("localhost","nobody","")) {
-  die('Failed to connect to DB');
-}
+require_once __DIR__ . '/../include/functions.inc';
 
-if (!@mysql_select_db("phpmasterdb")) {
-  die('Failed to select DB');
-}
+db_connect();
 
 if (isset($_GET['limit']) && is_numeric($_GET['limit']) && $_GET['limit'] <= 1000) {
   $limit = $_GET['limit'];
@@ -14,24 +10,21 @@ if (isset($_GET['limit']) && is_numeric($_GET['limit']) && $_GET['limit'] <= 100
   $limit = 100;
 }
 
-$query  = "SELECT DISTINCT id,sect,user,note,UNIX_TIMESTAMP(ts) AS ts";
-$query .= " FROM note";
+$query = new Query('SELECT DISTINCT id,sect,user,note,UNIX_TIMESTAMP(ts) AS ts FROM note');
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-  $query .= " WHERE id = {$_GET['id']}";
+  $query->add(" WHERE id = ?", [$_GET['id']]);
 } elseif (isset($_GET['section'])) {
-  $query .= " WHERE sect LIKE '";
+  $query->add(" WHERE sect LIKE ");
   $sect = explode(',', $_GET['section']);
   for ($i=0; $i<count($sect) - 1; $i++) {
-    $query .= mysql_real_escape_string(strtr($sect[$i],'*','%')) ."' OR sect LIKE '";
+    $query->add('? OR sect LIKE ', [strtr($sect[$i],'*','%')]);
   }
-  $query .= mysql_real_escape_string(strtr($sect[count($sect) - 1],'*','%')) ."'";
+  $query->add('?', [strtr($sect[count($sect) - 1],'*','%')]);
 }
-$query .= " ORDER BY sect,ts DESC";
-$query .= " LIMIT $limit";
+$query->add(" ORDER BY sect,ts DESC");
+$query->add(" LIMIT ?", [$limit]);
 
-if (!$res = @mysql_query($query, $conn)) {
-  die('Query failed');
-}
+$res = db_query($query->get());
 
 $notes = [];
 while ($row = mysql_fetch_array($res, MYSQL_ASSOC)) {

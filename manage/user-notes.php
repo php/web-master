@@ -569,7 +569,7 @@ case 'edit':
     $sect = (isset($_POST['sect']) ? real_clean(html_entity_decode($_POST['sect'],ENT_QUOTES)) : real_clean($row['sect']));
 
     if (isset($note) && $action == "edit") {
-      if (db_query("UPDATE note SET note='".real_clean(html_entity_decode($note,ENT_QUOTES))."',user='$email',sect='$sect',updated=NOW() WHERE id=".real_clean($id))) {
+      if (db_query_safe('UPDATE note SET note=?,user=?,sect=?,updated=NOW() WHERE id=?', [html_entity_decode($note,ENT_QUOTES), $email, $sect, $id])) {
         note_mail_on_action(
             $cuser,
             $id,
@@ -631,29 +631,29 @@ case 'resetdown':
   /* Reset votes for user note -- effectively deletes votes found for that note_id in the votes table:  up/down/both */
   if ($id) {
     if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
-      if ($action == 'resetall' && isset($_POST['resetall'])) {
-        $sql = 'DELETE FROM votes WHERE votes.note_id = ' . real_clean($id);
-      /* 1 for up votes */
-      } elseif ($action == 'resetup' && isset($_POST['resetup'])) {
-        $sql = 'DELETE FROM votes WHERE votes.note_id = ' . real_clean($id) . ' AND votes.vote = 1';
-      /* 0 for down votes */
-      } elseif ($action == 'resetdown' && isset($_POST['resetdown'])) {
-        $sql = 'DELETE FROM votes WHERE votes.note_id = ' . real_clean($id) . ' AND votes.vote = 0';
-      }
       /* Make sure the note has votes before we attempt to delete them */
       $result = db_query_safe("SELECT COUNT(id) AS id FROM votes WHERE note_id = ?", [$id]);
       $rows = mysql_fetch_assoc($result);
       if (!$rows['id']) {
         echo "<p>No votes exist for Note ID ". hsc($id) ."!</p>";
-      } elseif (db_query($sql)) {
+      } else {
+        if ($action == 'resetall' && isset($_POST['resetall'])) {
+          db_query_safe('DELETE FROM votes WHERE votes.note_id = ?', [$id]);
+          /* 1 for up votes */
+        } elseif ($action == 'resetup' && isset($_POST['resetup'])) {
+          db_query_safe('DELETE FROM votes WHERE votes.note_id = ? AND votes.vote = 1', [$id]);
+          /* 0 for down votes */
+        } elseif ($action == 'resetdown' && isset($_POST['resetdown'])) {
+          db_query_safe('DELETE FROM votes WHERE votes.note_id = ? AND votes.vote = 0', [$id]);
+        }
         header('Location: user-notes.php?id=' . urlencode($id) . '&was=' . urlencode($action));
       }
     } else {
       $sql = 'SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts '.
              'FROM note '.
              'JOIN(votes) ON (note.id = votes.note_id) '.
-             'WHERE note.id = ' . real_clean($id);
-      $result = db_query($sql);
+             'WHERE note.id = ?';
+      $result = db_query_safe($sql, [$id]);
       if (mysql_num_rows($result)) {
         $row = mysql_fetch_assoc($result);
         $out = "<p>\nAre you sure you want to reset all votes for <strong>Note #". hsc($row['id']) ."</strong>? ";
@@ -697,7 +697,8 @@ case 'deletevotes':
     $ids[] = (int) $id;
   }
   $ids = implode(',',$ids);
-  if (db_query("DELETE FROM votes WHERE id IN ($ids)")) {
+  // This is safe, because $ids is an array of integers.
+  if (db_query_safe("DELETE FROM votes WHERE id IN ($ids)")) {
     header('Location: user-notes.php?id=1&view=notes&was=' . urlencode($action) .
            (isset($_REQUEST['type']) ? ('&type=' . urlencode($_REQUEST['type'])) : null) .
            (isset($_REQUEST['votessearch']) ? '&votessearch=' . urlencode($_REQUEST['votessearch']) : null)
@@ -741,17 +742,17 @@ case 'voting_stats':
     $lastmonth = strtotime('First Day of last month');
     /* Handle stats queries for voting here */
     $stats_sql = $stats = [];
-    $stats_sql['Total']       = "SELECT COUNT(votes.id) AS total FROM votes";
-    $stats_sql['Total Up']    = "SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 1";
-    $stats_sql['Total Down']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 0";
-    $stats_sql['Today']       = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($today);
-    $stats_sql['This Week']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($week);
-    $stats_sql['This Month']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($month);
-    $stats_sql['Yesterday']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($yesterday) . " AND UNIX_TIMESTAMP(votes.ts) < " . real_clean($today);
-    $stats_sql['Last Week']   = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($lastweek) . " AND UNIX_TIMESTAMP(votes.ts) < " . real_clean($week);
-    $stats_sql['Last Month']  = "SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= " . real_clean($lastmonth) . " AND UNIX_TIMESTAMP(votes.ts) < " . real_clean($month);
-    foreach ($stats_sql as $key => $sql_code) {
-        $result = db_query($sql_code);
+    $stats_sql['Total']       = new Query('SELECT COUNT(votes.id) AS total FROM votes');
+    $stats_sql['Total Up']    = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 1');
+    $stats_sql['Total Down']  = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 0');
+    $stats_sql['Today']       = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ?', [$today]);
+    $stats_sql['This Week']   = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ?', [$week]);
+    $stats_sql['This Month']  = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ?' . [$month]);
+    $stats_sql['Yesterday']   = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ? AND UNIX_TIMESTAMP(votes.ts) < ?', [$yesterday, $today]);
+    $stats_sql['Last Week']   = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ? AND UNIX_TIMESTAMP(votes.ts) < ?', [$lastweek, $week]);
+    $stats_sql['Last Month']  = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ? AND UNIX_TIMESTAMP(votes.ts) < ?', [$lastmonth, $month]);
+    foreach ($stats_sql as $key => $query) {
+        $result = db_query($query->get());
         $row = mysql_fetch_assoc($result);
         $stats[$key] = $row['total'];
     }
@@ -857,7 +858,7 @@ function note_mail_user($mailto, $subject, $message)
 // Return data about a note by its ID
 function note_get_by_id($id)
 {
-    if ($result = db_query("SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id='".real_clean($id)."'")) {
+    if ($result = db_query_safe('SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id=?', [$id])) {
         if (!mysql_num_rows($result)) {
             die("Note #$id doesn't exist. It has probably been deleted/rejected already.");
         }

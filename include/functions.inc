@@ -108,6 +108,33 @@ function db_connect($dieonerror = TRUE)
     return TRUE;
 }
 
+class Query {
+    private $query = '';
+
+    public function __construct($str = '', $params = []) {
+        $this->add($str, $params);
+    }
+
+    public function add($str, $params = []) {
+        if (substr_count($str, '?') !== count($params)) {
+            die("Incorrect number of parameters to query.");
+        }
+
+        $i = 0;
+        $this->query .= preg_replace_callback('/\?(int)?/', function($matches) use ($params, &$i) {
+            if (isset($matches[1]) && $matches[1] === 'int') {
+                return (int) $params[$i++];
+            } else {
+                return "'" . mysql_real_escape_string($params[$i++]) . "'";
+            }
+        }, $str);
+    }
+
+    public function get() {
+        return $this->query;
+    }
+}
+
 function db_query($query)
 {
 	//var_dump($query);
@@ -132,7 +159,8 @@ function db_prepare_query($query, $params) {
 
 function db_query_safe($query, array $params = [])
 {
-    return db_query(db_prepare_query($query, $params));
+    $q = new Query($query, $params);
+    return db_query($q->get());
 }
 
 function db_get_one($query)

@@ -124,29 +124,36 @@ if ($in) {
       if ($id) {
         # update main table data
         if (!empty($in['email']) && !empty($in['name'])) {
-          $query = "UPDATE users SET name='$in[name]',email='$in[email]'"
-                 . (!empty($in['svnpasswd']) ? ",svnpasswd='$in[svnpasswd]'" : "")
-                 . (!empty($in['sshkey']) ? ",ssh_keys='".real_clean(html_entity_decode($in['sshkey'],ENT_QUOTES))."'" : ",ssh_keys=''")
-                 . ((is_admin($_SESSION["username"]) && !empty($in['username'])) ? ",username='$in[username]'" : "")
-                 . (is_admin($_SESSION["username"]) ? ",cvsaccess=$cvsaccess" : "")
-                 . ",spamprotect=$spamprotect"
-                 . ",enable=$enable"
-                 . ",use_sa=$use_sa"
-                 . ",greylist=$greylist"
-                 . (!empty($in['rawpasswd']) ? ",pchanged=" . $ts : "")
-                 . " WHERE userid=$id";
+          $query = new Query("UPDATE users SET name=?,email=?", [$in['name'], $in['email']]);
+          if (!empty($in['svnpasswd'])) {
+              $query->add(',svnpasswd=?', [$in['svnpasswd']]);
+          }
+          if (!empty($in['sshkey'])) {
+              $query->add(',ssh_keys=?', [html_entity_decode($in['sshkey'],ENT_QUOTES)]);
+          }
+          if (is_admin($_SESSION["username"]) && !empty($in['username'])) {
+              $query->add(',username=?', [$in['username']]);
+          }
+          if (is_admin($_SESSION["username"])) {
+              $query->add(',cvsaccess=?', [$cvsaccess]);
+          }
+          $query->add(
+            ',spamprotect=?, enable=?, use_sa=?, greylist=?',
+            [$spamprotect, $enable, $use_sa, $greylist]);
+          if (!empty($in['rawpasswd'])) {
+              $query->add(',pchanged=?', [$ts]);
+          }
+          $query->add(' WHERE userid=?', [$id]);
           if (!empty($in['passwd'])) {
             // Kill the session data after updates :)
             $_SERVER["credentials"] = [];
-            db_query($query);
-          } else {
-            db_query($query);
           }
+          db_query($query->get());
 
           if(!empty($in['purpose'])) {
               $purpose = hsc($in['purpose']);
-              $query = "INSERT INTO users_note (userid, note, entered) VALUES ($id, '$purpose', NOW())";
-              db_query($query);
+              $query = "INSERT INTO users_note (userid, note, entered) VALUES (?, ?, NOW())";
+              db_query_safe($query, [$id, $purpose]);
           }
 
           if(!empty($in['profile_markdown'])) {
@@ -154,9 +161,9 @@ if ($in) {
             $profile_html = Markdown($profile_markdown);
             $profile_markdown = mysql_real_escape_string($profile_markdown);
             $profile_html = mysql_real_escape_string($profile_html);
-            $query = "INSERT INTO users_profile (userid, markdown, html) VALUES ($id, '$profile_markdown', '$profile_html')
-                      ON DUPLICATE KEY UPDATE markdown='$profile_markdown', html='$profile_html'";
-            db_query($query);
+            $query = "INSERT INTO users_profile (userid, markdown, html) VALUES (?, ?, ?)
+                      ON DUPLICATE KEY UPDATE markdown=?, html=?";
+            db_query_safe($query, [$id, $profile_markdown, $profile_html, $profile_markdown, $profile_html]);
           }
         }
 
@@ -321,33 +328,35 @@ $forward    = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
 $search     = filter_input(INPUT_GET, "search", FILTER_CALLBACK, ["options" => "mysql_real_escape_string"]) ?: "";
 $order      = filter_input(INPUT_GET, "order", FILTER_CALLBACK, ["options" => "mysql_real_escape_string"]) ?: "";
 
-$query = "SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email,GROUP_CONCAT(note) note FROM users ";
-$query .= " LEFT JOIN users_note ON users_note.userid = users.userid ";
+$query = new Query("SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email,GROUP_CONCAT(note) note FROM users ");
+$query->add(" LEFT JOIN users_note ON users_note.userid = users.userid ");
 
 if  ($search) {
-    $query .= "WHERE (MATCH(name,email,username) AGAINST ('$search') OR username = '$search') ";
+    $query->add("WHERE (MATCH(name,email,username) AGAINST (?) OR username = ?) ", [$search, $search]);
 
 } else {
-    $query .= ' WHERE 1=1 ';
+    $query->add(' WHERE 1=1 ');
 }
 
 if ($unapproved) {
-    $query .= ' AND NOT cvsaccess ';
+    $query->add(' AND NOT cvsaccess ');
 }
 
-$query .= " GROUP BY users.userid ";
+$query->add(" GROUP BY users.userid ");
 
 if ($order) {
+  if (!in_array($order, ["username", "name", "email", "note"])) {
+    die("Invalid order!");
+  }
   if ($forward) {
     $ext = "ASC";
   } else {
     $ext = "DESC";
   }
-  $query .= " ORDER BY $order $ext";
+  $query->add(" ORDER BY $order $ext");
 }
-$query .= " LIMIT $begin,$max ";
-$res = db_query($query);
-#echo $query;
+$query->add(" LIMIT ?int, ?int ", [$begin, $max]);
+$res = db_query($query->get());
 
 $res2 = db_query_safe("SELECT FOUND_ROWS()");
 $total = (int)mysql_result($res2,0);

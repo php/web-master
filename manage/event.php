@@ -82,19 +82,21 @@ if ($id && $in) {
       $edato = "$in[eyear]-$in[emonth]-$in[eday]";
     if ($in['recur'] && $in['recur_day'])
       $recur = "$in[recur]:$in[recur_day]";
-    $query = "UPDATE phpcal SET "
-           . "tipo=".real_clean($tipo).","
-           . ($sdato ? "sdato='".real_clean($sdato)."'," : "")
-           . ($edato ? "edato='".real_clean($edato)."'," : "")
-           . ($recur ? "recur='".real_clean($recur)."'," : "")
-           . "ldesc='".real_clean($in['ldesc'])."',"
-           . "sdesc='".real_clean($in['sdesc'])."',"
-           . "email='".real_clean($in['email'])."',"
-           . "url='".real_clean($in['url'])."',"
-           . "country='".real_clean($in['country'])."',"
-           . "category='".real_clean($in['category'])."'"
-           . " WHERE id=".real_clean($id);
-    db_query($query);
+    $query = new Query('UPDATE phpcal SET ');
+    if ($sdato) {
+      $query->add('sdato=?, ', [$sdato]);
+    }
+    if ($edato) {
+      $query->add('edato=?, ', [$edato]);
+    }
+    if ($recur) {
+      $query->add('recur=?, ', [$recur]);
+    }
+    $query->add(
+      "tipo=?, ldesc=?, sdesc=?, email=?, url=?, country=?, category=? WHERE id=?",
+      [$tipo, $in['ldesc'], $in['sdesc'], $in['email'], $in['url'], $in['country'], $in['category'], $id]
+    );
+    db_query($query->get());
 
     warn("record $id updated");
     unset($id);
