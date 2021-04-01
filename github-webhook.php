@@ -61,7 +61,7 @@ function handle_bug_close($commit) {
     $committer = $commit->committer->username;
     $url = $commit->url;
 
-    if (!preg_match_all('/^Fix(?:ed)? (?:bug )?\#([0-9]+)/m', $message, $matches)) {
+    if (!preg_match_all('/^Fix(?:ed)? (?:bug )?\#([0-9]+)/mi', $message, $matches)) {
         return;
     }
     $bugIds = $matches[1];
