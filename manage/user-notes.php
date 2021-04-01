@@ -6,8 +6,6 @@ include '../include/login.inc';
 include '../include/email-validation.inc';
 include '../include/note-reasons.inc';
 
-undo_magic_quotes();
-
 define("NOTES_MAIL", "php-notes@lists.php.net");
 define("PHP_SELF", hsc($_SERVER['PHP_SELF']));
 

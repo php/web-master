@@ -20,50 +20,6 @@
                    { "status": false, "message": "Invalid request..." }
 */
 
-undo_magic_quotes();
-
-/*
-    This function will revert the GPCRS superglobals to their raw state if the default.filter/magic_quotes is on.
-    Please do not use this function unless your code has no dependency on magic_quotes and is properly escaping data.
-*/
-function undo_magic_quotes() {
-    if (!empty($_POST)) {
-        $args = [];
-        foreach ($_POST as $key => $val) $args[$key] = ['filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ? 
-                                                              FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR];
-        $_POST = filter_input_array(INPUT_POST, $args);
-        $_REQUEST = filter_input_array(INPUT_POST, $args);
-    }
-    if (!empty($_GET)) {
-        $args = [];
-        foreach ($_GET as $key => $val) $args[$key] = ['filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ? 
-                                                            FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR];
-        $_GET = filter_input_array(INPUT_GET, $args);
-        $_REQUEST += filter_input_array(INPUT_GET, $args);
-    }
-    if (!empty($_COOKIE)) {
-        $args = [];
-        foreach ($_COOKIE as $key => $val) $args[$key] = ['filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ?
-                                                               FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR];
-        $_COOKIE = filter_input_array(INPUT_COOKIE, $args);
-        $_REQUEST += filter_input_array(INPUT_COOKIE, $args);
-    }
-    if (!empty($_SERVER)) {
-        $args = [];
-        $append = [];
-        foreach ($_SERVER as $key => $val) {
-            if ($key == 'REQUEST_TIME' || $key == 'REQUEST_TIME_FLOAT') {
-                $append[$key] = $val;
-                continue;
-            }
-            $args[$key] = ['filter' => FILTER_UNSAFE_RAW, 'flags' => is_array($val) ?
-                                FILTER_REQUIRE_ARRAY : FILTER_REQUIRE_SCALAR];
-        }
-        $_SERVER = filter_input_array(INPUT_SERVER, $args);
-        $_SERVER += $append;
-    }
-}
-
 // Validate that the request to vote on a user note is OK (ip limits, post variables, and db info must pass validation)
 function vote_validate_request(PDO $dbh) {
   // Initialize local variables
