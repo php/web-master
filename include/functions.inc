@@ -473,7 +473,8 @@ function is_mirror_site_admin($user) {
     "tyrael", 
     "dm", 
     "kalle", 
-    "googleguy"
+    "googleguy",
+    "nikic"
   ];
   return in_array($user, $admins);
 }
