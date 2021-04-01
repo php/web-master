@@ -48,22 +48,22 @@ CREATE TABLE users (
   UNIQUE KEY email (email),
   UNIQUE KEY username (username),
   FULLTEXT KEY name (name,email,username)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 /* the user_note table just contains notes about each user. */
 CREATE TABLE users_note (
   noteid int(11) NOT NULL auto_increment,
   userid int(11) NOT NULL default '0',
-  entered datetime NOT NULL default '0000-00-00 00:00:00',
+  entered datetime NOT NULL,
   note text,
   PRIMARY KEY  (noteid),
   FULLTEXT KEY note (note)
-) TYPE=MyISAM;
+) ENGINE=MyISAM;
 
 /* the users_profile table contains up to one profile row for each user */
 CREATE TABLE users_profile (
   userid int(11) NOT NULL,
-  markdown TEXT NOT NULL default '',
-  html TEXT NOT NULL default '',
+  markdown TEXT NOT NULL,
+  html TEXT NOT NULL,
   PRIMARY KEY (userid)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
