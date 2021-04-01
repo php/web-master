@@ -3,10 +3,11 @@ require dirname(__FILE__) . '/include/functions.inc';
 require dirname(__FILE__) . "/include/cvs-auth.inc";
 require dirname(__FILE__) . "/include/mailer.php";
 
-$valid_vars = ['id','user','key','n1','n2'];
-foreach($valid_vars as $k) {
-  $$k = isset($_REQUEST[$k]) ? $_REQUEST[$k] : false;
-}
+$id = isset($_REQUEST['id']) ? $_REQUEST['id'] : false;
+$user = isset($_REQUEST['user']) ? $_REQUEST['user'] : false;
+$key = isset($_REQUEST['key']) ? $_REQUEST['key'] : false;
+$n1 = isset($_REQUEST['n1']) ? $_REQUEST['n1'] : false;
+$n2 = isset($_REQUEST['n2']) ? $_REQUEST['n2'] : false;
 
 $ts = $_SERVER["REQUEST_TIME"];
 
@@ -21,7 +22,7 @@ function random_password() {
 }
 
 function username_from_forgotten($key, $id) {
-  $res = @mysql_query("SELECT username FROM users WHERE userid='$id' AND forgot='$key'");
+  $res = db_query_safe("SELECT username FROM users WHERE userid=? AND forgot=?", [$id, $key]);
   if ($res && ($row = mysql_fetch_array($res,MYSQL_ASSOC))) {
     return $row["username"];
   }
@@ -33,10 +34,8 @@ db_connect();
 if ($id && $key) {
   if ($n1 && $n2) {
     if ($n1 == $n2) {
-      $key = mysql_real_escape_string($key);
-      $id = mysql_real_escape_string($id);
       $svnpasswd = gen_svn_pass(username_from_forgotten($key, $id), $n1);
-      $res = @mysql_query("UPDATE users SET forgot=NULL,svnpasswd='$svnpasswd',pchanged=$ts WHERE userid='$id' AND forgot='$key'");
+      $res = db_query_safe("UPDATE users SET forgot=NULL,svnpasswd=?,pchanged=? WHERE userid=? AND forgot=?", [$svnpasswd, $ts, $id, $key]);
       if ($res && mysql_affected_rows()) {
         echo '<p>Okay, your password has been changed. It could take as long as an hour before this change makes it to the VCS server and other services. To change your password again, you\'ll have to start this process over to get a new key.</p>';
         foot();
@@ -66,12 +65,11 @@ password: <input type="password" name="n1" value="<?= hsc($n1)?>" />
   exit;
 }
 elseif ($user) {
-  $user = mysql_real_escape_string($user);
-  $res = @mysql_query("SELECT * FROM users WHERE username = '$user'");
+  $res = db_query_safe("SELECT * FROM users WHERE username = ?", [$user]);
   if ($res && ($row = mysql_fetch_array($res,MYSQL_ASSOC))) {
     $newpass = random_password();
-    $query = "UPDATE users SET forgot='$newpass' WHERE userid=$row[userid]";
-    $res = @mysql_query($query);
+    $query = "UPDATE users SET forgot=? WHERE userid=?";
+    $res = db_query_safe($query, [$newpass, $row['userid']]);
     if ($res) {
       $body =
 "Someone filled out the form that says you forgot your php.net VCS
