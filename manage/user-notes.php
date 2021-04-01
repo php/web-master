@@ -757,7 +757,7 @@ case 'voting_stats':
     $stats_sql['Total Down']  = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE votes.vote = 0');
     $stats_sql['Today']       = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ?', [$today]);
     $stats_sql['This Week']   = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ?', [$week]);
-    $stats_sql['This Month']  = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ?' . [$month]);
+    $stats_sql['This Month']  = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ?', [$month]);
     $stats_sql['Yesterday']   = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ? AND UNIX_TIMESTAMP(votes.ts) < ?', [$yesterday, $today]);
     $stats_sql['Last Week']   = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ? AND UNIX_TIMESTAMP(votes.ts) < ?', [$lastweek, $week]);
     $stats_sql['Last Month']  = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ? AND UNIX_TIMESTAMP(votes.ts) < ?', [$lastmonth, $month]);
