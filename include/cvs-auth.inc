@@ -10,9 +10,7 @@ function gen_svn_pass($username, $password) {
 
 function verify_password($user, $pass)
 {
-    mysql_connect("localhost","nobody","")
-        or die("unable to connect to database");
-    mysql_select_db("phpmasterdb");
+    db_connect();
 
     $username = real_clean($user);
     $res = mysql_query("SELECT svnpasswd FROM users WHERE cvsaccess AND username = '$username'");
@@ -26,9 +24,7 @@ function verify_password($user, $pass)
 }
 
 function verify_username($user) {
-    mysql_connect("localhost","nobody","")
-        or die("unable to connect to database");
-    mysql_select_db("phpmasterdb");
+    db_connect();
 
     $username = real_clean($user);
     $res = mysql_query("SELECT 1 FROM users WHERE cvsaccess AND username = '$username'");

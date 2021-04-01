@@ -28,10 +28,7 @@ function username_from_forgotten($key, $id) {
 }
 head("forgotten password");
 
-mysql_connect("localhost","nobody","")
-  or die("unable to connect to database");
-mysql_select_db("phpmasterdb")
-  or die("unable to select database");
+db_connect();
 
 if ($id && $key) {
   if ($n1 && $n2) {

@@ -9,10 +9,7 @@ require_once 'email-validation.inc';
 
 head("challenge response anti-spam thingamy");
 
-mysql_connect("localhost","nobody","")
-  or die("unable to connect to database");
-mysql_select_db("phpmasterdb")
-  or die("unable to select database");
+db_connect();
 
 if (isset($_POST['confirm_them']) && isset($_POST['confirm']) && is_array($_POST['confirm'])) {
 	foreach ($_POST['confirm'] as $address) {
