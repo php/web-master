@@ -28,12 +28,6 @@ CREATE TABLE IF NOT EXISTS note (
   KEY idx_sect (sect)
 ) TYPE=MyISAM PACK_KEYS=1;
 
-CREATE TABLE IF NOT EXISTS alerts (
-  user INT NOT NULL default '0',
-  sect VARCHAR(80) not NULL default '',
-  updated TIMESTAMP(14) NOT NULL
-) TYPE=MyISAM;
-
 -- New votes table added for keeping track of user notes ratings 
 CREATE TABLE IF NOT EXISTS `votes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

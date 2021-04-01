@@ -3,8 +3,6 @@
 // service closed until we can filter spam
 //die ('[CLOSED]');
 
-// ** alerts ** remove comment when alerts are on-line
-//require_once 'alert_lib.inc';
 include_once 'note-reasons.inc';
 include_once 'spam-lib.inc';
 include_once 'functions.inc';
@@ -154,9 +152,6 @@ if (@mysql_query($query)) {
   if (!$user) $user = "php-general@lists.php.net";
   # strip spaces in email address, or will get a bad To: field
   $user = str_replace(' ','',$user);
-  // see who requested an alert
-  // ** alerts **
-  //$mailto .=  get_emails_for_sect($sect);
   mail($mailto,"note $new_id added to $sect",$msg,"From: $user\r\nMessage-ID: <note-$new_id@php.net>", "-fnoreply@php.net");
 } else {
   // mail it.

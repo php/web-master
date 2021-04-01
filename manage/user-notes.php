@@ -5,7 +5,6 @@
 include '../include/login.inc';
 include '../include/email-validation.inc';
 include '../include/note-reasons.inc';
-//require_once 'alert_lib.inc'; // remove comment if alerts are needed
 
 undo_magic_quotes();
 
@@ -531,8 +530,6 @@ case 'delete':
   if ($id) {
     if ($row = note_get_by_id($id)) {
       if ($row['id'] && db_query_safe("DELETE note,votes FROM note LEFT JOIN (votes) ON (note.id = votes.note_id) WHERE note.id = ?", [$id])) {
-        // ** alerts **
-        //$mailto .= get_emails_for_sect($row["sect"]);
         $action_taken = ($action == "reject" ? "rejected" : "deleted");
         note_mail_on_action(
             $cuser,
@@ -573,9 +570,6 @@ case 'edit':
 
     if (isset($note) && $action == "edit") {
       if (db_query("UPDATE note SET note='".real_clean(html_entity_decode($note,ENT_QUOTES))."',user='$email',sect='$sect',updated=NOW() WHERE id=".real_clean($id))) {
-
-        // ** alerts **
-        //$mailto .= get_emails_for_sect($row["sect"]);
         note_mail_on_action(
             $cuser,
             $id,
