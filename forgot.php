@@ -12,13 +12,7 @@ $n2 = isset($_REQUEST['n2']) ? $_REQUEST['n2'] : false;
 $ts = $_SERVER["REQUEST_TIME"];
 
 function random_password() {
-  $alphanum = array_merge(range("a","z"),range("A","Z"),range(0,9));
-
-  $return = '';
-  for ($i = 0; $i < 12; $i++) {
-    $return .= $alphanum[rand(0,count($alphanum)-1)];
-  }
-  return $return;
+  return bin2hex(random_bytes(16));
 }
 
 function username_from_forgotten($key, $id) {

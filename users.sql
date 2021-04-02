@@ -32,7 +32,7 @@ CREATE TABLE users (
   username varchar(16) default NULL,
   cvsaccess int(1) NOT NULL default '0',
   spamprotect int(1) NOT NULL default '1',
-  forgot varchar(16) default NULL,
+  forgot varchar(32) default NULL,
   dns_allow int(1) NOT NULL default '1',
   dns_type varchar(5) NOT NULL default 'NONE',
   dns_target varchar(255) NOT NULL default '',
