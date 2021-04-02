@@ -13,6 +13,7 @@ function mailer($to, $subject, $body, $from = "noreply@php.net", $from_name = ""
     $mail->SMTPDebug = 0;
     $mail->Host = 'mailout.php.net';
     $mail->Port = 25;
+    $mail->CharSet = 'utf-8';
     $mail->setFrom($from, $from_name);
     $mail->addAddress($to);
     $mail->Subject = $subject;

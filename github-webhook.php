@@ -45,7 +45,6 @@ function send_mail($to, $subject, $message, $from = "noreply@php.net", $from_nam
         $to, $from_name, $from, $subject, $message);
 
     if (!DRY_RUN) {
-        $subject = '=?utf-8?B?'.base64_encode($subject).'?=';
         mailer($to, $subject, $message, $from, $from_name);
     }
 }
