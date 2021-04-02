@@ -27,8 +27,8 @@ db_connect();
 
 if ($id && $key) {
   if ($n1 && $n2) {
-    if ($n1 == $n2) {
-      $svnpasswd = gen_svn_pass(username_from_forgotten($key, $id), $n1);
+    if ($n1 === $n2) {
+      $svnpasswd = gen_pass($n1);
       $res = db_query_safe("UPDATE users SET forgot=NULL,svnpasswd=?,pchanged=? WHERE userid=? AND forgot=?", [$svnpasswd, $ts, $id, $key]);
       if ($res && mysql_affected_rows()) {
         echo '<p>Okay, your password has been changed. It could take as long as an hour before this change makes it to the VCS server and other services. To change your password again, you\'ll have to start this process over to get a new key.</p>';

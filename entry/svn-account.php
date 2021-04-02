@@ -70,7 +70,7 @@ $res = db_query_safe("SELECT userid FROM users WHERE username=?", [$username]);
 if ($res && mysql_num_rows($res))
   die("someone is already using that svn id");
 
-$svnpasswd = gen_svn_pass($username, $passwd);
+$svnpasswd = gen_pass($passwd);
 $note = hsc($note);
 
 $query = "INSERT INTO users (name,email,svnpasswd,username) VALUES (?, ?, ?, ?)";

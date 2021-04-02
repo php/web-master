@@ -112,7 +112,7 @@ if ($in) {
     else {
       if (!empty($in['rawpasswd'])) {
         $userinfo = fetch_user($id);
-        $in['svnpasswd'] = gen_svn_pass($userinfo["username"], $in['rawpasswd']);
+        $in['svnpasswd'] = gen_pass($in['rawpasswd']);
       }
 
       $cvsaccess   = empty($in['cvsaccess'])   ? 0 : 1;
@@ -292,10 +292,6 @@ if (is_admin($_SESSION["username"]) && !$userdata['cvsaccess']) {
  </form>
 </td>
 <td>
-<?php
-  $hash = gen_svn_pass($_SESSION["credentials"][0], $_SESSION["credentials"][1]);
-  $csrf = "approve:$hash:";
-?>
  <form method="post" action="users.php?id=<?php echo $id?>">
   <input type="hidden" name="csrf" value="<?php echo csrf_generate($_SESSION, "approve") ?>" />
   <input type="hidden" name="action" value="approve" />

@@ -4,8 +4,12 @@
 
 define("REALM", "PHP Subversion Repository");
 
-function gen_svn_pass($username, $password) {
-	return md5(sprintf("%s:%s:%s", $username, REALM, $password));
+function gen_legacy_svn_pass($username, $password) {
+	  return md5(sprintf("%s:%s:%s", $username, REALM, $password));
+}
+
+function gen_pass($password) {
+    return password_hash($password, PASSWORD_BCRYPT);
 }
 
 function verify_password($user, $pass)
@@ -16,7 +20,19 @@ function verify_password($user, $pass)
 
     if ($res && mysql_num_rows($res) == 1) {
         $row = mysql_fetch_array($res);
-        return gen_svn_pass($user, $pass) === $row["svnpasswd"];
+        if (strlen($row['svnpasswd']) == 32) {
+            // Legacy md5 password.
+            if (gen_legacy_svn_pass($user, $pass) !== $row["svnpasswd"]) {
+                return false;
+            }
+
+            // Upgrade to new password hash.
+            $newHash = gen_pass($pass);
+            db_query_safe("UPDATE users SET svnpasswd = ? WHERE username = ?", [$newHash, $user]);
+            return true;
+        }
+
+        return password_verify($pass, $row['svnpasswd']);
     }
 
     return false;
