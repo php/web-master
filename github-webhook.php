@@ -245,12 +245,12 @@ function handle_commit_mail($mailingList, $repoName, $ref, $pusherUser, $commit)
     }
     $body .= "\n\n";
 
-    /*$diff = file_get_contents($diffUrl);
+    $diff = file_get_contents($diffUrl);
     if (strlen($diff) > 128 * 1024) {
         $body .= "Diff exceeded maximum size.";
     } else {
         $body .= "Diff:\n\n$diff";
-    }*/
+    }
 
     send_mail($mailingList, $subject, $body, MailAddress::noReply($from), $replyTos);
 }
