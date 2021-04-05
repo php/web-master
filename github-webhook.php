@@ -40,13 +40,12 @@ function prep_title($issue, $repoName) {
     return $subject;
 }
 
-function send_mail($to, $subject, $message, $from = "noreply@php.net", $from_name = "") {
+function send_mail($to, $subject, $message, MailAddress $from, array $replyTos = []) {
     printf("Sending mail...\nTo: %s\nFrom: %s <%s>\nSubject: %s\nMessage:\n%s",
-        $to, $from_name, $from, $subject, $message);
+        $to, $from->name, $from->email, $subject, $message);
 
     if (!DRY_RUN) {
-        $subject = '=?utf-8?B?'.base64_encode($subject).'?=';
-        mailer($to, $subject, $message, $from, $from_name);
+        mailer($to, $subject, $message, $from, $replyTos);
     }
 }
 
@@ -193,7 +192,7 @@ function handle_ref_change_mail($mailingList, $payload) {
         $message .= "Tag: https://github.com/php/$repoName/releases/tag/$refName\n";
     }
 
-    send_mail($mailingList, $subject, $message, 'noreply@php.net', $pusherName);
+    send_mail($mailingList, $subject, $message, MailAddress::noReply($pusherName));
 }
 
 function handle_commit_mail($mailingList, $repoName, $ref, $pusherUser, $commit) {
@@ -214,8 +213,13 @@ function handle_commit_mail($mailingList, $repoName, $ref, $pusherUser, $commit)
 
     list(, $refName) = $parsedRef;
 
-    $subject = "[$repoName] $refName: $firstLine";
     $from = $authorName === $committerName ? $authorName : "$authorName via $committerName";
+    $replyTos = [new MailAddress($commit->author->email, $authorName)];
+    if ($commit->committer->email !== 'noreply@github.com') {
+        $replyTos[] = new MailAddress($commit->committer->email, $committerName);
+    }
+
+    $subject = "[$repoName] $refName: $firstLine";
     $body = "Author: $authorName" . ($authorUser ? " ($authorUser)" : "") . "\n";
     if ($authorName !== $committerName) {
         $body .= "Committer: $committerName" . ($committerUser ? " ($committerUser)" : "") . "\n";
@@ -248,7 +252,7 @@ function handle_commit_mail($mailingList, $repoName, $ref, $pusherUser, $commit)
         $body .= "Diff:\n\n$diff";
     }*/
 
-    send_mail($mailingList, $subject, $body, 'noreply@php.net', $from);
+    send_mail($mailingList, $subject, $body, MailAddress::noReply($from), $replyTos);
 }
 
 function handle_push_mail($payload) {
@@ -343,7 +347,7 @@ switch ($event) {
                 break 2;
         }
 
-        send_mail($to, $subject, $message);
+        send_mail($to, $subject, $message, MailAddress::noReply());
         break;
 
     case 'pull_request_review_comment':
@@ -370,7 +374,7 @@ switch ($event) {
                 break 2;
         }
 
-        send_mail($to, $subject, $message);
+        send_mail($to, $subject, $message, MailAddress::noReply());
         break;
 
     case 'push':
