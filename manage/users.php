@@ -92,16 +92,16 @@ if ($id && $action) {
     user_approve((int)$id);
     break;
 
-      case 'remove':
-          user_remove((int)$id);
-          break;
+  case 'remove':
+    user_remove((int)$id);
+    break;
 
-      default:
-          warn("that action ('$action') is not understood.");
+  default:
+    warn("that action ('$action') is not understood.");
   }
 }
 
-if ($id && $githubUnlinkAction) {
+if($id && $githubUnlinkAction) {
     $query = new Query('UPDATE users SET github = ? WHERE userid = ?', [null, (int)$id]);
     db_query($query);
 
@@ -110,13 +110,14 @@ if ($id && $githubUnlinkAction) {
 }
 
 if ($in) {
-    csrf_validate($_SESSION, "useredit");
-    if (!can_modify($_SESSION["username"], $id)) {
-        warn("you're not allowed to modify this user.");
-    } else {
-        if ($error = invalid_input($in)) {
-            warn($error);
-        }
+  csrf_validate($_SESSION, "useredit");
+  if (!can_modify($_SESSION["username"],$id)) {
+    warn("you're not allowed to modify this user.");
+  }
+  else {
+    if ($error = invalid_input($in)) {
+      warn($error);
+    }
     else {
       if (!empty($in['rawpasswd'])) {
         $userinfo = fetch_user($id);
@@ -193,41 +194,39 @@ if ($id) {
 <tr>
  <th>Email:</th>
  <td><input type="text" name="in[email]" value="<?php echo $userdata['email'];?>" size="40" maxlength="255" /><br/>
-     <input type="checkbox" name="in[enable]"<?php echo $userdata['enable'] ? " checked" : ""; ?> /> Enable email for my
-     account.
+  	<input type="checkbox" name="in[enable]"<?php echo $userdata['enable'] ? " checked" : "";?> /> Enable email for my account.
  </td>
 </tr>
 <tr>
-    <th>VCS username:</th>
-    <?php if (is_admin($_SESSION["username"])): ?>
-        <td><input type="text" name="in[username]" value="<?php echo hsc($userdata['username']); ?>" size="16"
-                   maxlength="16"/></td>
-    <?php else: ?>
-        <td><?php echo hsc($userdata['username']); ?></td>
-    <?php endif ?>
+ <th>VCS username:</th>
+<?php if (is_admin($_SESSION["username"])): ?>
+ <td><input type="text" name="in[username]" value="<?php echo hsc($userdata['username']);?>" size="16" maxlength="16" /></td>
+<?php else: ?>
+ <td><?php echo hsc($userdata['username']);?></td>
+<?php endif ?>
 </tr>
 <tr>
     <th>GitHub account:</th>
     <?php if ($github = $userdata['github']): ?>
-        <td><?php echo hsc($github); ?>
+        <td><?php echo hsc($github);?> 
             (<a href="/manage/github.php?login=1">Update</a> |
-            <a href="users.php?id=<?php echo $id ?>&github_unlink=1">Unlink</a>)
+            <a href="users.php?id=<?php echo $id?>&github_unlink=1">Unlink</a>)
         </td>
-    <?php elseif (can_modify($_SESSION["username"], $id)): ?>
+    <?php elseif(can_modify($_SESSION["username"],$id)): ?>
         <td><a href="/manage/github.php?login=1">Link GitHub account</a></td>
     <?php else: ?>
         <td>&mdash;</td>
     <?php endif ?>
 </tr>
 <tr>
-    <td colspan="2">Leave password fields blank to leave password unchanged.</td>
+ <td colspan="2">Leave password fields blank to leave password unchanged.</td>
 </tr>
 <tr>
-    <th>Password:</th>
-    <td><input type="password" name="in[rawpasswd]" value="" size="20" maxlength="120"/></td>
+ <th>Password:</th>
+ <td><input type="password" name="in[rawpasswd]" value="" size="20" maxlength="120" /></td>
 </tr>
 <tr>
-    <th>Password (again):</th>
+ <th>Password (again):</th>
  <td><input type="password" name="in[rawpasswd2]" value="" size="20" maxlength="120" /></td>
 </tr>
 <?php if (is_admin($_SESSION["username"])) {?>

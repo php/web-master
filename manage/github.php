@@ -22,13 +22,13 @@ function github_api($endpoint, $method = 'GET', $options = [])
   $options['user_agent'] = GITHUB_USER_AGENT;
 
   $context = stream_context_create(['http' => $options]);
-    $url = 'https://api.github.com' . $endpoint;
-    $s = @file_get_contents($url, false, $context);
+  $url = 'https://api.github.com'.$endpoint;
+  $s = @file_get_contents($url, false, $context);
   if ($s === false) {
     die('Request to GitHub failed. Endpoint: '.$endpoint);
   }
-
-    return json_decode($s);
+  
+  return json_decode($s);
 }
   
 function github_current_user($access_token = false)
@@ -38,18 +38,14 @@ function github_current_user($access_token = false)
   }
 
   if (empty($_SESSION['github']['current_user'])) {
-      $user = github_api(
-          '/user',
-          'GET',
-          [
-              'header' => 'Authorization: token ' . urlencode($access_token)
-          ]
-      );
-      if (!$user->login) {
-          die('Failed to get current user');
-      }
+    $user = github_api('/user', 'GET', [
+        'header' => 'Authorization: token '. urlencode($access_token)
+    ]);
+    if (!$user->login) {
+      die('Failed to get current user');
+    }
 
-      $_SESSION['github']['current_user'] = $user;
+    $_SESSION['github']['current_user'] = $user;
   }
 
   return $_SESSION['github']['current_user'];
@@ -64,87 +60,74 @@ function github_require_valid_user()
   if (isset($_GET['code'])) {
     $data = [
       'client_id' => GITHUB_CLIENT_ID,
-        'client_secret' => GITHUB_CLIENT_SECRET,
-        'code' => $_GET['code']
+      'client_secret' => GITHUB_CLIENT_SECRET,
+      'code' => $_GET['code']
     ];
-      $data_encoded = http_build_query($data);
-      $opts = [
-          'method' => 'POST',
-          'user_agent' => GITHUB_USER_AGENT,
-          'header' => 'Content-type: application/x-www-form-urlencoded',
-          'content' => $data_encoded,
-      ];
-      $context = stream_context_create(['http' => $opts]);
-      $s = @file_get_contents('https://github.com/login/oauth/access_token', false, $context);
-      if (!$s) {
-          die('Failed while checking with GitHub,either you are trying to hack us or our configuration is wrong (GITHUB_CLIENT_SECRET outdated?)');
-      }
-      $gh = [];
-      parse_str($s, $gh);
-      if (empty($gh['access_token'])) {
-          die("GitHub responded but didn't send an access_token");
-      }
+    $data_encoded = http_build_query($data);
+    $opts = [
+      'method' => 'POST',
+      'user_agent' => GITHUB_USER_AGENT,
+      'header'  => 'Content-type: application/x-www-form-urlencoded',
+      'content' => $data_encoded,
+    ];
+    $context = stream_context_create(['http' => $opts]);
+    $s = @file_get_contents('https://github.com/login/oauth/access_token', false, $context);
+    if (!$s) {
+      die('Failed while checking with GitHub,either you are trying to hack us or our configuration is wrong (GITHUB_CLIENT_SECRET outdated?)');
+    }
+    $gh = [];
+    parse_str($s, $gh);
+    if (empty($gh['access_token'])) {
+      die("GitHub responded but didn't send an access_token");
+    }
 
-      $user = github_current_user($gh['access_token']);
+    $user = github_current_user($gh['access_token']);
 
-      $opts = [
-          'user_agent' => GITHUB_USER_AGENT,
-          'header' => 'Authorization: token ' . urlencode($gh['access_token']) . "\r\n"
-      ];
-      $context = stream_context_create(['http' => $opts]);
-      file_get_contents('https://api.github.com/orgs/php/members/' . urlencode($user->login), false, $context);
-      $statusLine = $http_response_header[0];
-      preg_match('{HTTP\/\S*\s(\d{3})}', $statusLine, $match);
-      $status = $match[1];
-      $is_member = (int)$status === 204;
+    $opts = ['user_agent' => GITHUB_USER_AGENT, 'header' => 'Authorization: token '. urlencode($gh['access_token'])."\r\n"];
+    $context = stream_context_create(['http' => $opts]);
+    file_get_contents('https://api.github.com/orgs/php/members/'.urlencode($user->login), false, $context);
+    $statusLine = $http_response_header[0];
+    preg_match('{HTTP\/\S*\s(\d{3})}', $statusLine, $match);
+    $status = $match[1];
+    $is_member = (int)$status === 204;
 
-      $opts = ['user_agent' => GITHUB_USER_AGENT];
-      $context = stream_context_create(['http' => $opts]);
-      $is_admin = file_get_contents(
-          'https://api.github.com/teams/' . urlencode((string)GITHUB_PHP_OWNER_TEAM_ID) . '/members/' . urlencode(
-              $user->login
-          ) . '?access_token=' . urlencode($gh['access_token']),
-          false,
-          $context
-      );
+    $opts = ['user_agent' => GITHUB_USER_AGENT];
+    $context = stream_context_create(['http' => $opts]);
+    $is_admin = file_get_contents('https://api.github.com/teams/'.urlencode((string)GITHUB_PHP_OWNER_TEAM_ID).'/members/'.urlencode($user->login).'?access_token='.urlencode($gh['access_token']), false, $context);
 
-      if ($is_member === false) {
-          head("github administration");
-          echo '<h1>You (Authenticated GitHub user: ' . htmlentities(
-                  $user->login
-              ) . ') are no member of the php organization on github.</h1>' .
-              '<p>Please contact an existing member if you see need.</p>';
-          foot();
-          exit;
-      }
-
-      // UPDATE GitHub profile
-      $username = $_SESSION['credentials'][0];
-      $query = "SELECT userid FROM users WHERE username = ?";
-      $res = db_query_safe($query, [$username]);
-      $id = @mysql_result($res, 0);
-      if (!$id) {
-          warn("wasn't able to find user matching '$username'");
-          exit();
-      }
-
-      $query = new Query('UPDATE users SET github = ? WHERE userid = ?', [$user->login, $id]);
-      db_query($query);
-
-      if ($is_admin === false) {
-          head("github administration");
-          echo '<h1>You (Authenticated GitHub user: ' . htmlentities(
-                  $user->login
-              ) . ') are member of the php organization on github.</h1>' .
-              '<p>We linked your GitHub account with your profile.</p>' .
-              '<p><a href="/manage/users.php?username=' . $username . '">Back to profile</a></p>';
-          foot();
-          exit;
-      }
-      // SUCCESS
-      $_SESSION['github']['access_token'] = $gh['access_token'];
-      header('Location: github.php');
+    if ($is_member === false) {
+      head("github administration");
+      echo '<h1>You (Authenticated GitHub user: '.htmlentities($user->login). ') are no member of the php organization on github.</h1>'.
+          '<p>Please contact an existing member if you see need.</p>';
+      foot();
       exit;
+    }
+    
+    // UPDATE GitHub profile
+    $username = $_SESSION['credentials'][0];
+    $query = "SELECT userid FROM users WHERE username = ?";
+    $res = db_query_safe($query, [$username]);
+    $id = @mysql_result($res, 0);
+    if (!$id) {
+      warn("wasn't able to find user matching '$username'");
+      exit();
+    }
+    
+    $query = new Query('UPDATE users SET github = ? WHERE userid = ?', [$user->login, $id]);
+    db_query($query);
+
+    if ($is_admin === false) {
+      head("github administration");
+      echo '<h1>You (Authenticated GitHub user: '.htmlentities($user->login). ') are member of the php organization on github.</h1>'.
+        '<p>We linked your GitHub account with your profile.</p>'.
+        '<p><a href="/manage/users.php?username='.$username.'">Back to profile</a></p>';
+      foot();
+      exit;
+    }
+    // SUCCESS
+    $_SESSION['github']['access_token'] = $gh['access_token'];
+    header('Location: github.php');
+    exit;
   }
 
   // Start oauth
