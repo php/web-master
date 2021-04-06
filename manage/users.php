@@ -344,7 +344,7 @@ $forward    = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
 $search     = filter_input(INPUT_GET, "search", FILTER_UNSAFE_RAW) ?: "";
 $order      = filter_input(INPUT_GET, "order", FILTER_UNSAFE_RAW) ?: "";
 
-$query = new Query("SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email,GROUP_CONCAT(note) note FROM users ");
+$query = new Query("SELECT DISTINCT SQL_CALC_FOUND_ROWS users.userid,cvsaccess,username,name,email,github,GROUP_CONCAT(note) note FROM users ");
 $query->add(" LEFT JOIN users_note ON users_note.userid = users.userid ");
 
 if  ($search) {
@@ -361,7 +361,7 @@ if ($unapproved) {
 $query->add(" GROUP BY users.userid ");
 
 if ($order) {
-  if (!in_array($order, ["username", "name", "email", "note"], true)) {
+  if (!in_array($order, ["username", "name", "email", "note", "github"], true)) {
     die("Invalid order!");
   }
   if ($forward) {
@@ -403,7 +403,8 @@ $extra = [
   <th><a href="?<?php echo array_to_url($extra,["order"=>"username"]);?>">username</a></th>
   <th><a href="?<?php echo array_to_url($extra,["order"=>"name"]);?>">name</a></th>
 <?php if (!$unapproved) { ?>
-  <th colspan="2"><a href="?<?php echo array_to_url($extra,["order"=>"email"]);?>">email</a></th>
+  <th><a href="?<?php echo array_to_url($extra,["order"=>"email"]);?>">email</a></th>
+  <th><a href="?<?php echo array_to_url($extra,["order"=>"github"]);?>">github</a></th>
 <?php } else { ?>
   <th><a href="?<?php echo array_to_url($extra,["order"=>"email"]);?>">email</a></th>
   <th><a href="?<?php echo array_to_url($extra,["order"=>"note"]);?>">note</a></th>
@@ -418,7 +419,8 @@ while ($userdata = mysql_fetch_array($res)) {
     <td><a href="https://people.php.net/?username=<?php echo hsc($userdata['username']) ?>"><?php echo hsc($userdata['username']) ?></a></td>
     <td><?php echo hsc($userdata['name']);?></td>
 <?php if (!$unapproved) { ?>
-    <td colspan="2"><?php echo hsc($userdata['email']);?></td>
+    <td><?php echo hsc($userdata['email']);?></td>
+    <td><a href="https://github.com/<?php echo hsc($userdata['github']) ?>"><?php echo hsc($userdata['github']);?></a></td>
 <?php } else { ?>
     <td><?php echo hsc($userdata['email']);?></td>
     <td><?php echo hsc($userdata['note']) ?></td>
