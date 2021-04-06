@@ -30,6 +30,7 @@ CREATE TABLE users (
   name varchar(255) NOT NULL default '',
   email varchar(255) NOT NULL default '',
   username varchar(16) default NULL,
+  github varchar(39) default NULL,
   cvsaccess int(1) NOT NULL default '0',
   spamprotect int(1) NOT NULL default '1',
   forgot varchar(32) default NULL,
