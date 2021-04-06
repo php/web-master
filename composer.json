@@ -1,0 +1,12 @@
+{
+    "name": "php/web-master",
+    "description": "The user management system",
+    "keywords": [
+        "php"
+    ],
+    "type": "project",
+    "homepage": "https://github.com/php/web-master",
+    "require": {
+        "michelf/php-markdown": "^1.9"
+    }
+}
