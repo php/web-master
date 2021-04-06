@@ -112,6 +112,16 @@ function github_require_valid_user()
       warn("wasn't able to find user matching '$username'");
       exit();
     }
+
+    $query = "SELECT userid FROM users WHERE github = ?";
+    $res = db_query_safe($query, [$user->login]);
+    $id = @mysql_result($res, 0);
+    if ($id) {
+      head("github administration");
+      warn("GitHub account '" . $user->login . "' is already linked");
+      foot();
+      exit();
+    }
     
     $query = new Query('UPDATE users SET github = ? WHERE userid = ?', [$user->login, $id]);
     db_query($query);
