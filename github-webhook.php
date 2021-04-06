@@ -127,8 +127,8 @@ function get_commit_mailing_list($repoName) {
         return 'pecl-cvs@lists.php.net';
     } else if (strpos($repoName, 'web-') === 0) {
         return 'php-webmaster@lists.php.net';
-    } else if (strpos($repoName, 'pecl-') === 0) {
-        return 'pecl-cvs@lists.php.net';
+    //} else if (strpos($repoName, 'pecl-') === 0) {
+        //return 'pecl-cvs@lists.php.net';
     } else if (strpos($repoName, 'doc-') === 0 && $repoName !== 'doc-gtk') {
         return str_replace('-', '_', $repoName) . '@lists.php.net';
     } else {
