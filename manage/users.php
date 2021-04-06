@@ -221,10 +221,6 @@ if ($id) {
 <tr>
  <th>Use Challenge/Response spam protection?</th>
  <td><input type="checkbox" name="in[spamprotect]"<?php echo $userdata['spamprotect'] ? " checked" : "";?> />
- <?php if ($userdata['username'] == $_SESSION["username"]) { ?>
- <br/>
- <a href="challenge-response.php">Show people on my quarantine list</a>
- <?php } ?>
  </td>
 </tr>
 <tr>
