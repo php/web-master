@@ -167,7 +167,7 @@ if ($in) {
 
           if(!empty($in['profile_markdown'])) {
             $profile_markdown = $in['profile_markdown'];
-            $profile_html = Markdown($profile_markdown);
+            $profile_html = \Michelf\MarkdownExtra::defaultTransform($profile_markdown);
             $query = "INSERT INTO users_profile (userid, markdown, html) VALUES (?, ?, ?)
                       ON DUPLICATE KEY UPDATE markdown=?, html=?";
             db_query_safe($query, [$id, $profile_markdown, $profile_html, $profile_markdown, $profile_html]);

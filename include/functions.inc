@@ -273,7 +273,7 @@ function get_ssh_keys($string) {
 }
 
 // We use markdown for people profiles
-include_once __DIR__ . '/../vendor/michelf/php-markdown-extra/markdown.php';
+include_once __DIR__ . '/../vendor/autoload.php';
 
 // -----------------------------------------------------------------------------------
 //
