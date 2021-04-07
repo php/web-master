@@ -183,6 +183,7 @@ CREATE TABLE `users` (
   `name` varchar(255) NOT NULL DEFAULT '',
   `email` varchar(255) NOT NULL DEFAULT '',
   `username` varchar(16) DEFAULT NULL,
+  `github` varchar(39) DEFAULT NULL,
   `cvsaccess` int(1) NOT NULL DEFAULT 0,
   `spamprotect` int(1) NOT NULL DEFAULT 1,
   `forgot` varchar(32) DEFAULT NULL,
