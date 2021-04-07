@@ -2,9 +2,7 @@
 
 const DRY_RUN = false;
 
-if (!DRY_RUN) {
-    require __DIR__ . '/../include/mailer.php';
-}
+require __DIR__ . '/../include/mailer.php';
 
 function verify_signature($requestBody) {
     if (isset($_SERVER['HTTP_X_HUB_SIGNATURE'])){
@@ -195,7 +193,25 @@ function handle_ref_change_mail($mailingList, $payload) {
     send_mail($mailingList, $subject, $message, MailAddress::noReply($pusherName));
 }
 
-function handle_commit_mail($mailingList, $repoName, $ref, $pusherUser, $commit) {
+function handle_commit_mail(PDO $dbh, $mailingList, $repoName, $ref, $pusherUser, $commit) {
+    $query = $dbh->prepare('INSERT INTO commits (repo, hash) VALUES (?, ?)');
+    try {
+        $query->execute([$repoName, $commit->id]);
+    } catch (PDOException $e) {
+        if ($e->errorInfo[1] === 1062) {
+            // We don't want to send a mail when an existing commit gets merged into a new branch.
+            // In that case, only a mail for the merge commit should be sent (or a mail for the
+            // new branch). Unfortunately, the "distinct" flag that GitHub provides for this purpose
+            // is buggy: If multiple branches are pushed at the same time, then the commits will
+            // have distict=false for all pushes, rather than having the first push with
+            // distinct=true and the rest with distinct=false. For this reason, we store all the
+            // commit hashes we saw in the database and only send a mail for new commits.
+            return;
+        }
+
+        throw $e;
+    }
+
     $authorUser = isset($commit->author->username) ? $commit->author->username : null;
     $authorName = $commit->author->name;
     $committerUser = isset($commit->committer->username) ? $commit->committer->username : null;
@@ -268,16 +284,12 @@ function handle_push_mail($payload) {
         handle_ref_change_mail($mailingList, $payload);
     }
 
-    // Ignore commits to PHP-x.y branches for now, to avoid duplicate commits on upwards merges.
-    // TODO: Find a better solution to this problem...
-    if ($repoName === 'php-src' && preg_match('(^refs/heads/PHP-\d\.\d$)', $ref)) {
-        echo "Skipping commit mails for push to $payload->ref of $repoName";
-        return;
-    }
+    $dbh = new PDO('mysql:host=localhost;dbname=phpmasterdb', 'nobody', '');
+    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     $pusherName = $payload->pusher->name;
     foreach ($payload->commits as $commit) {
-        handle_commit_mail($mailingList, $repoName, $ref, $pusherName, $commit);
+        handle_commit_mail($dbh, $mailingList, $repoName, $ref, $pusherName, $commit);
     }
 }
 

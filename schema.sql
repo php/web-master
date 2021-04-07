@@ -26,6 +26,20 @@ CREATE TABLE `auth` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `commits`
+--
+
+DROP TABLE IF EXISTS `commits`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `commits` (
+  `repo` varchar(100) NOT NULL,
+  `hash` binary(40) NOT NULL,
+  UNIQUE KEY `repo` (`repo`,`hash`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `country`
 --
 
