@@ -1,7 +1,7 @@
 <?php // vim: et ts=2 sw=2
-require dirname(__FILE__) . '/include/functions.inc';
-require dirname(__FILE__) . "/include/cvs-auth.inc";
-require dirname(__FILE__) . "/include/mailer.php";
+require __DIR__ . '/../include/functions.inc';
+require __DIR__ . "/../include/cvs-auth.inc";
+require __DIR__ . "/../include/mailer.php";
 
 $id = isset($_REQUEST['id']) ? $_REQUEST['id'] : false;
 $user = isset($_REQUEST['user']) ? $_REQUEST['user'] : false;

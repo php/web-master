@@ -6,6 +6,7 @@ Local setup:
 ```shell
 # TODO: This is supposed to be submodule, but not actually registered as one.
 git clone git@github.com:php/web-shared.git shared
+ln -s ../shared public/shared
 
 # Create database and users:
 CREATE DATABASE phpmasterdb;
@@ -13,11 +14,11 @@ CREATE USER 'nobody'@'localhost';
 GRANT ALL PRIVILEGES ON phpmasterdb.* TO 'nobody'@'localhost';
 
 # Create tables
-mysql -unobody phpmasterdb < users.sql
+mysql -unobody phpmasterdb < schema.sql
 
 # Create user test:test
-INSERT INTO users (username, svnpasswd, cvsaccess) VALUES ('test', 'd45a6c7dfc5b0dbb3567e28900d47f50', 1);
+INSERT INTO users (username, svnpasswd, cvsaccess) VALUES ('test', '$2y$10$iGHyxmfHI62Xyr3DPf8faOPCvmU1UMVMlhJQ/FqooqgPJ3STMHTyG', 1);
 
 # Run server (must have mysql ext)
-php -S localhost:8000 -d include_path="include/" -derror_reporting="E_ALL&~E_DEPRECATED"
+php -S localhost:8000 -d include_path="include/" -derror_reporting="E_ALL&~E_DEPRECATED" -t public
 ```
