@@ -7,7 +7,10 @@ require __DIR__ . '/../../include/login.inc';
 
 @include __DIR__ . '/../../github-config.php';
 if (!defined('GITHUB_CLIENT_ID') || !defined('GITHUB_CLIENT_SECRET')) {
-  die('GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET not defined. Please verify ./github-config.php');
+  head("github administration");
+  warn('GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET not defined. Please verify ./github-config.php');
+  foot();
+  exit;
 }
 
 define('GITHUB_PHP_OWNER_TEAM_ID', 65141);
@@ -25,7 +28,10 @@ function github_api($endpoint, $method = 'GET', $options = [])
   $url = 'https://api.github.com'.$endpoint;
   $s = @file_get_contents($url, false, $context);
   if ($s === false) {
-    die('Request to GitHub failed. Endpoint: '.$endpoint);
+    head("github administration");
+    warn('Request to GitHub failed. Endpoint: '.$endpoint);
+    foot();
+    exit;
   }
   
   return json_decode($s);
@@ -42,7 +48,10 @@ function github_current_user($access_token = false)
         'header' => 'Authorization: token '. urlencode($access_token)
     ]);
     if (!$user->login) {
-      die('Failed to get current user');
+      head("github administration");
+      warn("Failed to get current user");
+      foot();
+      exit;
     }
 
     $_SESSION['github']['current_user'] = $user;
@@ -73,15 +82,21 @@ function github_require_valid_user()
     $context = stream_context_create(['http' => $opts]);
     $s = @file_get_contents('https://github.com/login/oauth/access_token', false, $context);
     if (!$s) {
-      die('Failed while checking with GitHub,either you are trying to hack us or our configuration is wrong (GITHUB_CLIENT_SECRET outdated?)');
+      head("github administration");
+      warn("Failed while checking with GitHub,either you are trying to hack us or our configuration is wrong (GITHUB_CLIENT_SECRET outdated?)");
+      foot();
+      exit;
     }
     $gh = [];
     parse_str($s, $gh);
     if (empty($gh['access_token'])) {
-      die("GitHub responded but didn't send an access_token");
+      head("github administration");
+      warn("GitHub responded but didn't send an access_token");
+      foot();
+      exit;
     }
 
-    $user = github_current_user($gh['access_token']);
+    $user = github_current_user($gh["access_token"]);
 
     $opts = ['user_agent' => GITHUB_USER_AGENT, 'header' => 'Authorization: token '. urlencode($gh['access_token'])."\r\n"];
     $context = stream_context_create(['http' => $opts]);
@@ -109,14 +124,16 @@ function github_require_valid_user()
     $res = db_query_safe($query, [$username]);
     $id = @mysql_result($res, 0);
     if (!$id) {
+      head("github administration");
       warn("wasn't able to find user matching '$username'");
+      foot();
       exit();
     }
 
     $query = "SELECT userid FROM users WHERE github = ?";
     $res = db_query_safe($query, [$user->login]);
-    $id = @mysql_result($res, 0);
-    if ($id) {
+    $githubUserId = @mysql_result($res, 0);
+    if ($githubUserId) {
       head("github administration");
       warn("GitHub account '" . $user->login . "' is already linked");
       foot();
@@ -141,7 +158,7 @@ function github_require_valid_user()
   }
 
   // Start oauth
-  header('Location: https://github.com/login/oauth/authorize?scope=repo&client_id='.urlencode(GITHUB_CLIENT_ID));
+  header('Location: https://github.com/login/oauth/authorize?client_id='.urlencode(GITHUB_CLIENT_ID));
   exit;
 }
 
