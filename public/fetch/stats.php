@@ -1,7 +1,7 @@
 <?php
 // $Id$
 
-include_once '../include/functions.inc';
+include_once '../../include/functions.inc';
 
 require_token();
 

@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../include/functions.inc';
+require_once __DIR__ . '/../../include/functions.inc';
 
 $valid_vars = ['token','cm','cy','cd','nm'];
 foreach($valid_vars as $k) {

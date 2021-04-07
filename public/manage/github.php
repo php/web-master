@@ -3,9 +3,9 @@
 // This script evolved from a quick'n'dirty shell script. If you are reading
 // this feel free to clean it!
 
-require '../include/login.inc';
+require __DIR__ . '/../../include/login.inc';
 
-@include './github-config.php';
+@include __DIR__ . '/../../github-config.php';
 if (!defined('GITHUB_CLIENT_ID') || !defined('GITHUB_CLIENT_SECRET')) {
   die('GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET not defined. Please verify ./github-config.php');
 }

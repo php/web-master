@@ -3,7 +3,7 @@
 const DRY_RUN = false;
 
 if (!DRY_RUN) {
-    require __DIR__ . '/include/mailer.php';
+    require __DIR__ . '/../include/mailer.php';
 }
 
 function verify_signature($requestBody) {

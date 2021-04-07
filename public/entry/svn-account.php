@@ -1,8 +1,8 @@
 <?php
 
-require dirname(__FILE__) . '/../include/email-validation.inc';
-require dirname(__FILE__) . '/../include/cvs-auth.inc';
-require dirname(__FILE__) . '/../include/functions.inc';
+require __DIR__ . '/../../include/email-validation.inc';
+require __DIR__ . '/../../include/cvs-auth.inc';
+require __DIR__ . '/../../include/functions.inc';
 
 $valid_vars = ['name','email','username','passwd','note','group','yesno'];
 foreach($valid_vars as $k) {

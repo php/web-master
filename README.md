@@ -6,6 +6,7 @@ Local setup:
 ```shell
 # TODO: This is supposed to be submodule, but not actually registered as one.
 git clone git@github.com:php/web-shared.git shared
+ln -s ../shared public/shared
 
 # Create database and users:
 CREATE DATABASE phpmasterdb;
@@ -19,5 +20,5 @@ mysql -unobody phpmasterdb < schema.sql
 INSERT INTO users (username, svnpasswd, cvsaccess) VALUES ('test', '$2y$10$iGHyxmfHI62Xyr3DPf8faOPCvmU1UMVMlhJQ/FqooqgPJ3STMHTyG', 1);
 
 # Run server (must have mysql ext)
-php -S localhost:8000 -d include_path="include/" -derror_reporting="E_ALL&~E_DEPRECATED"
+php -S localhost:8000 -d include_path="include/" -derror_reporting="E_ALL&~E_DEPRECATED" -t public
 ```

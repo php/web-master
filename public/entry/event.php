@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../include/functions.inc';
+require_once __DIR__ . '/../../include/functions.inc';
 
 $mailto = 'php-webmaster@lists.php.net';
 #$mailto = 'jimw@apache.org';

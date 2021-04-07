@@ -4,9 +4,9 @@
 # acls
 # handle flipping of the sort views
 
-require '../include/login.inc';
-require '../include/email-validation.inc';
-require '../include/email-templates.inc';
+require __DIR__ . '/../../include/login.inc';
+require __DIR__ . '/../../include/email-validation.inc';
+require __DIR__ . '/../../include/email-templates.inc';
 
 function csrf_generate(&$mydata, $name) {
   $mydata["CSRF"][$name] = $csrf = bin2hex(random_bytes(16));

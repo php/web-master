@@ -2,9 +2,9 @@
 // $Id$
 
 // Force login before action can be taken
-include '../include/login.inc';
-include '../include/email-validation.inc';
-include '../include/note-reasons.inc';
+include __DIR__ . '/../../include/login.inc';
+include __DIR__ . '/../../include/email-validation.inc';
+include __DIR__ . '/../../include/note-reasons.inc';
 
 define("NOTES_MAIL", "php-notes@lists.php.net");
 define("PHP_SELF", hsc($_SERVER['PHP_SELF']));
