@@ -158,7 +158,7 @@ function github_require_valid_user()
   }
 
   // Start oauth
-  header('Location: https://github.com/login/oauth/authorize?client_id='.urlencode(GITHUB_CLIENT_ID));
+  header('Location: https://github.com/login/oauth/authorize?scope=read:org&client_id='.urlencode(GITHUB_CLIENT_ID));
   exit;
 }
 
