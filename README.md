@@ -13,7 +13,7 @@ CREATE USER 'nobody'@'localhost';
 GRANT ALL PRIVILEGES ON phpmasterdb.* TO 'nobody'@'localhost';
 
 # Create tables
-mysql -unobody phpmasterdb < users.sql
+mysql -unobody phpmasterdb < schema.sql
 
 # Create user test:test
 INSERT INTO users (username, svnpasswd, cvsaccess) VALUES ('test', '$2y$10$iGHyxmfHI62Xyr3DPf8faOPCvmU1UMVMlhJQ/FqooqgPJ3STMHTyG', 1);
