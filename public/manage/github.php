@@ -130,8 +130,8 @@ function github_require_valid_user()
       exit();
     }
 
-    $query = "SELECT userid FROM users WHERE github = ?";
-    $res = db_query_safe($query, [$user->login]);
+    $query = "SELECT userid FROM users WHERE github = ? AND userid != ?";
+    $res = db_query_safe($query, [$user->login, $id]);
     $githubUserId = @mysql_result($res, 0);
     if ($githubUserId) {
       head("github administration");
@@ -158,13 +158,17 @@ function github_require_valid_user()
   }
 
   // Start oauth
-  header('Location: https://github.com/login/oauth/authorize?scope=read:org&client_id='.urlencode(GITHUB_CLIENT_ID));
+  $scope = 'read:org';  
+  if($_GET['action'] === 'manage') {
+      $scope = 'repo';
+  }
+  header('Location: https://github.com/login/oauth/authorize?scope=' . $scope . '&client_id='.urlencode(GITHUB_CLIENT_ID));
   exit;
 }
 
 if (isset($_POST['description']) && isset($_SESSION['github']['access_token'])) {
   action_create_repo();
-} elseif (isset($_GET['login']) || isset($_GET['code']) || isset($_SESSION['github']['access_token'])) {
+} elseif (isset($_GET['action']) || isset($_GET['code']) || isset($_SESSION['github']['access_token'])) {
   action_form();
 } else {
   action_default();
@@ -175,7 +179,7 @@ function action_default()
   head("github administration");
   echo '<p>This tool is for administrating PHP repos on GitHub. Currently it is used for adding repos only.</p>';
   echo '<p><b>NOTE:</b> Only members of the PHP organisation on GitHub can use this tool. We try to keep the number of members limited.</p>';
-  echo '<p>In case you are a member you can <a href="github.php?login=1">login using GitHub</a>.</p>';
+  echo '<p>In case you are a member you can <a href="github.php?action=manage">login using GitHub</a>.</p>';
   foot();
 }
 
@@ -218,8 +222,9 @@ function action_create_repo()
   $data_j = json_encode($data);
   $opts = [
     'content' => $data_j,
+    'header' => 'Authorization: token '. urlencode($_SESSION['github']['access_token'])
   ];
-  $res = github_api('/orgs/php/repos?access_token='.urlencode($_SESSION['github']['access_token']), 'POST', $opts);
+  $res = github_api('/orgs/php/repos', 'POST', $opts);
 
   head("github administration");
   if (isset($res->html_url)) {

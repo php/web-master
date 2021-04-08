@@ -209,11 +209,11 @@ if ($id) {
     <th>GitHub account:</th>
     <?php if ($github = $userdata['github']): ?>
         <td><?php echo hsc($github);?> 
-            (<a href="/manage/github.php?login=1">Update</a> |
+            (<a href="/manage/github.php?action=link">Update</a> |
             <a href="users.php?id=<?php echo $id?>&github_unlink=1">Unlink</a>)
         </td>
     <?php elseif(can_modify($_SESSION["username"],$id)): ?>
-        <td><a href="/manage/github.php?login=1">Link GitHub account</a></td>
+        <td><a href="/manage/github.php?action=link">Link GitHub account</a></td>
     <?php else: ?>
         <td>&mdash;</td>
     <?php endif ?>
