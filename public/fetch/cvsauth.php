@@ -64,11 +64,6 @@ function exit_success() {
 }
 
 function is_valid_cvsauth_token($token) {
-    // Legacy token.
-    if (md5($token) === "73864a7c89d97a13368fc213075036d1") {
-        true;
-    }
-
     $hash = sha1($token);
     return $hash === 'c3d7b24474fc689f7144bb5c2fd403d939634b7e' // bugs.php.net
         || $hash === 'd4d4d68b78dc80fff48967ce8dc67e74bb87e903' // wiki.php.net
