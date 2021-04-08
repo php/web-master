@@ -20,5 +20,5 @@ mysql -unobody phpmasterdb < schema.sql
 INSERT INTO users (username, svnpasswd, cvsaccess) VALUES ('test', '$2y$10$iGHyxmfHI62Xyr3DPf8faOPCvmU1UMVMlhJQ/FqooqgPJ3STMHTyG', 1);
 
 # Run server (must have mysql ext)
-php -S localhost:8000 -d include_path="include/" -derror_reporting="E_ALL&~E_DEPRECATED" -t public
+php -S localhost:8000 -d include_path="$PWD/include/" -derror_reporting="E_ALL&~E_DEPRECATED" -t public
 ```

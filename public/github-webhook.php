@@ -2,6 +2,7 @@
 
 const DRY_RUN = false;
 
+require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../include/mailer.php';
 
 function verify_signature($requestBody) {
