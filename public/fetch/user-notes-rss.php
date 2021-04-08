@@ -55,7 +55,7 @@ header('Content-type: text/xml');
   </channel>
   <image rdf:about="http://php.net/images/php.gif">
     <title>PHP Manual User Notes</title>
-    <url>http://php.net/images/php.gif</url>
+    <url>https://www.php.net/images/php.gif</url>
     <link>https://main.php.net/manage/user-notes.php</link>
   </image>
 <?php

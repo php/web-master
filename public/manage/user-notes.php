@@ -21,16 +21,16 @@ those issues.
 
 The user contributed notes are not an appropriate place to
 ask questions, report bugs or suggest new features; please
-use the resources listed on <http://php.net/support>
+use the resources listed on <https://php.net/support>
 for those purposes. This was clearly stated in the page
 you used to submit your note, please carefully re-read
 those instructions before submitting future contributions.
 
 Bug submissions and feature requests should be entered at
-<http://bugs.php.net/>. For documentation errors use the
+<https://bugs.php.net/>. For documentation errors use the
 bug system, and classify the bug as "Documentation problem".
 Support and ways to find answers to your questions can be found
-at <http://php.net/support>.
+at <https://php.net/support>.
 
 Your note has been removed from the online manual.';
 
@@ -314,8 +314,8 @@ if (!$action) {
           $row['vote'] = '<span style="color: ' . ($row['vote'] ? 'green;">+1' : 'red;">-1') . '</span>';
           $row['hostip'] = long2ip($row['hostip']);
           $row['ip'] = long2ip($row['ip']);
-          $notelink = "http://php.net/{$row['sect']}#{$row['note_id']}";
-          $sectlink = "http://php.net/{$row['sect']}";
+          $notelink = "https://php.net/{$row['sect']}#{$row['note_id']}";
+          $sectlink = "https://php.net/{$row['sect']}";
           echo "    <tr style=\"background-color: #F0F0F0;\">\n".
                "      <td style=\"padding: 5px;\"><input type=\"checkbox\" name=\"deletevote[]\" class=\"vdelids\" value=\"{$row['id']}\" /></td>\n".
                "      <td style=\"padding: 5px;\">{$row['ts']}</td>\n".
@@ -343,7 +343,7 @@ if (!$action) {
                "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
           hsc($row['user']),"</span><br />",
                "Note id: $id<br />\n",
-               "<a href=\"http://php.net/manual/en/{$row['sect']}.php#{$id}\" target=\"_blank\">http://php.net/manual/en/{$row['sect']}.php#{$id}</a><br />\n",
+               "<a href=\"https://php.net/manual/en/{$row['sect']}.php#{$id}\" target=\"_blank\">http://php.net/manual/en/{$row['sect']}.php#{$id}</a><br />\n",
                "<a href=\"https://main.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
           foreach ($note_del_reasons AS $reason => $text) {
             echo '<a href="https://main.php.net/note/delete/', $id, '/', urlencode((string)$reason), '" target=\"_blank\">', 'Delete Note: ', hsc($text), "</a><br />\n";
@@ -590,7 +590,7 @@ case 'edit':
             $cuser,
             $id,
             "note {$row['id']} modified in {$row['sect']} by $cuser",
-            $note."\n\n--was--\n{$row['note']}\n\nhttp://php.net/manual/en/{$row['sect']}.php"
+            $note."\n\n--was--\n{$row['note']}\n\nhttps://php.net/manual/en/{$row['sect']}.php"
         );
         if ($row["sect"] != $sect) {
           note_mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $cuser", "----- Copy of your note below -----\n\n".$note);

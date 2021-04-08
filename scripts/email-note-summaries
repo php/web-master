@@ -17,7 +17,7 @@ $body = "Notes  |  Page\n"
 
 $top20 = 0;
 while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
-  $body .= sprintf("%5d  | http://php.net/manual/en/%s.php\n", $row['count'], $row['sect']);
+  $body .= sprintf("%5d  | https://php.net/manual/en/%s.php\n", $row['count'], $row['sect']);
   $top20 += $row['count'];
 }
 
