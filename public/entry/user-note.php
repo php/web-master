@@ -124,7 +124,7 @@ if (db_query_safe($query, [$user, $note, $sect])) {
 //  $msg .= $spam_data;
 //  $msg .= "\n----\n";
 
-  $msg .= "Manual Page -- http://php.net/manual/en/$sect.php\n";
+  $msg .= "Manual Page -- https://php.net/manual/en/$sect.php\n";
   $msg .= "Edit        -- https://main.php.net/note/edit/$new_id\n";
   //$msg .= "Approve     -- https://main.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
   foreach ($note_del_reasons AS $reason) {

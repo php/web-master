@@ -1,4 +1,4 @@
 <?php
 
-header('Location: http://php.net');
+header('Location: https://php.net');
 exit;

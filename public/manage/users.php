@@ -256,7 +256,7 @@ if ($id) {
     }
 ?>
 <tr>
- <th>People Profile<br>(<a href="http://people.php.net/user.php?username=<?php echo urlencode($userdata['username']);?>"><?php echo hsc($userdata['username']);?>'s page</a>)</th>
+ <th>People Profile<br>(<a href="https://people.php.net/user.php?username=<?php echo urlencode($userdata['username']);?>"><?php echo hsc($userdata['username']);?>'s page</a>)</th>
  <td>
      <p>Use <a href="http://michelf.ca/projects/php-markdown/dingus/" title="PHP Markdown: Dingus">Markdown</a>. Type as much as you like.</p>
      <div><textarea name="in[profile_markdown]" placeholder="My PHP People page content"><?php echo hsc($userdata['profile_markdown']); ?></textarea></div>
