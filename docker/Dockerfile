@@ -10,4 +10,5 @@ RUN apt-get update && apt-get install -y \
     && ./configure \
     && make -j$(nproc) install \
     && docker-php-ext-enable mysql \
+    && docker-php-ext-install pdo_mysql \
     && docker-php-source delete
