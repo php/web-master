@@ -1,25 +1,22 @@
-<?php // vim: et ts=4 sw=4
+<?php
+
+use App\DB;
 
 function gen_pass($password) {
     return password_hash($password, PASSWORD_BCRYPT);
 }
 
-function verify_password($user, $pass)
-{
-    db_connect();
-
-    $res = db_query_safe("SELECT svnpasswd FROM users WHERE cvsaccess AND username = ?", [$user]);
-
-    if ($res && mysql_num_rows($res) == 1) {
-        $row = mysql_fetch_array($res);
-        return password_verify($pass, $row['svnpasswd']);
+function verify_password(DB $db, $user, $pass) {
+    $stmt = $db->prepare("SELECT svnpasswd FROM users WHERE cvsaccess AND username = ?");
+    $stmt->execute([$user]);
+    if (false === $row = $stmt->fetch()) {
+        return false;
     }
-
-    return false;
+    return password_verify($pass, $row['svnpasswd']);
 }
 
-function verify_username($user) {
-    db_connect();
-    $res = db_query_safe("SELECT 1 FROM users WHERE cvsaccess AND username = ?", [$user]);
-    return $res && mysql_num_rows($res) == 1;
+function verify_username(DB $db, $user) {
+    $stmt = $db->prepare("SELECT 1 FROM users WHERE cvsaccess AND username = ?");
+    $stmt->execute([$user]);
+    return $stmt->fetch() !== false;
 }

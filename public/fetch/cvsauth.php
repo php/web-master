@@ -33,6 +33,8 @@ if (isset($a["errno"])) {
 echo $a["SUCCESS"], "\n";
 */
 
+use App\DB;
+
 require 'functions.inc';
 require 'cvs-auth.inc';
 
@@ -84,11 +86,12 @@ if (!is_valid_cvsauth_token($token)) {
 	exit_forbidden(E_UNKNOWN);
 }
 
-if (!verify_username($username)) {
+$db = DB::connect();
+if (!verify_username($db, $username)) {
 	exit_forbidden(E_USERNAME);
 }
 
-if (!verify_password($username, $password)) {
+if (!verify_password($db, $username, $password)) {
 	exit_forbidden(E_PASSWORD);
 }
 
