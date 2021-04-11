@@ -1,4 +1,9 @@
-<?php // vim: et ts=4 sw=4
+<?php
+
+use App\DB;
+
+require __DIR__ . '/../../vendor/autoload.php';
+
 function error($text, $status)
 {
     switch((int)$status) {
@@ -21,7 +26,7 @@ function error($text, $status)
 
 (!isset($_GET['token']) || md5($_GET['token']) != "d3fbcabfcf3648095037175fdeef322f") && error("token not correct.", 401);
 
-$pdo = new PDO("mysql:host=localhost;dbname=phpmasterdb", "nobody", "");
+$pdo = DB::connect();
 
 $stmt = $pdo->prepare("SELECT name, username FROM users WHERE enable AND cvsaccess");
 if (!$stmt->execute()) {

@@ -8,6 +8,9 @@
     "homepage": "https://github.com/php/web-master",
     "require": {
         "php": ">=8.0",
+        "ext-pdo": "*",
+        "ext-json": "*",
+        "ext-zlib": "*",
         "michelf/php-markdown": "^1.9",
         "phpmailer/phpmailer": "^6.4"
     },

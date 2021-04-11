@@ -20,6 +20,10 @@
                    { "status": false, "message": "Invalid request..." }
 */
 
+use App\DB;
+
+require __DIR__ . '/../../vendor/autoload.php';
+
 // Validate that the request to vote on a user note is OK (ip limits, post variables, and db info must pass validation)
 function vote_validate_request(PDO $dbh) {
   // Initialize local variables
@@ -151,7 +155,7 @@ if (!isset($_SERVER['REQUEST_METHOD']) || strtoupper($_SERVER['REQUEST_METHOD'])
 
 // Initialize global PDO database handle
 try {
-    $dbh = new PDO('mysql:host=localhost;dbname=phpmasterdb', 'nobody', '');
+    $dbh = DB::connect();
 } catch(PDOException $e) {
     $jsonResponse->message = "The server could not complete this request. Please try again later...";
     echo json_encode($jsonResponse);

@@ -6,7 +6,7 @@
     'aliases' => 
     array (
     ),
-    'reference' => '9117dcd75112492365254c93ea40f0137916a851',
+    'reference' => '6d94ee66d392e36e925e984dc43058e71e86c8a4',
     'name' => 'php/web-master',
   ),
   'versions' => 
@@ -27,7 +27,7 @@
       'aliases' => 
       array (
       ),
-      'reference' => '9117dcd75112492365254c93ea40f0137916a851',
+      'reference' => '6d94ee66d392e36e925e984dc43058e71e86c8a4',
     ),
     'phpmailer/phpmailer' => 
     array (

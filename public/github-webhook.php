@@ -1,5 +1,7 @@
 <?php
 
+use App\DB;
+
 const DRY_RUN = false;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -285,8 +287,7 @@ function handle_push_mail($payload) {
         handle_ref_change_mail($mailingList, $payload);
     }
 
-    $dbh = new PDO('mysql:host=localhost;dbname=phpmasterdb', 'nobody', '');
-    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $dbh = DB::connect();
 
     $pusherName = $payload->pusher->name;
     foreach ($payload->commits as $commit) {
