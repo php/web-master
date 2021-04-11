@@ -92,18 +92,20 @@ function warn($message)        { echo format_warn($message); }
 
 function db_connect($dieonerror = TRUE)
 {
-    if (!@mysql_connect("localhost", "nobody", "")) {
+    if (!@mysql_connect(\getenv("DATABASE_HOST") ?: "localhost", \getenv("DATABASE_USER") ?: "nobody", \getenv("DATABASE_PASSWORD") ?: "")) {
         if ($dieonerror) {
             die(format_warn("Unable to connect to database!"));
         }
         return FALSE;
     }
-    elseif (!mysql_select_db("phpmasterdb")) {
+
+    if (!mysql_select_db(\getenv("DATABASE_NAME") ?: "phpmasterdb")) {
         if ($dieonerror) {
             die(format_warn("Unable to select database!"));
         }
         return FALSE;
     }
+
     return TRUE;
 }
 
@@ -165,7 +167,7 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = [], $table = true
 <?php endif ?>
  <tr>
   <td>
-   <?php 
+   <?php
      if ($begin > 0) {
        printf("<a href=\"%s?%s\">&laquo; Previous %d",
               $_SERVER['PHP_SELF'],
@@ -184,7 +186,7 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = [], $table = true
   </td>
   <td>
    &nbsp;
-   <?php 
+   <?php
      if ($begin+$rows < $total) {
        printf("<a href=\"%s?%s\">Next %d &raquo;",
               $_SERVER['PHP_SELF'],
@@ -212,14 +214,14 @@ function is_sqlite_type_available($avails, $check) {
 
 	// All possible sqlite types associated with our assigned bitwise values
 	$all = ['sqlite' => 1, 'sqlite3' => 2, 'pdo_sqlite' => 4, 'pdo_sqlite2' => 8];
-	
+
 	if (!$avails || empty($all[$check])) {
 		return false;
 	}
 
 	$avail  = (int) $all[$check];
 	$avails = (int) $avails;
-	
+
 	if (($avails & $avail) === $avail) {
 		return true;
 	}
@@ -373,26 +375,26 @@ function is_admin($user) {
 
 function is_mirror_site_admin($user) {
   $admins = [
-    "jimw", 
-    "rasmus", 
-    "andrei", 
-    "zeev", 
-    "andi", 
-    "sas", 
+    "jimw",
+    "rasmus",
+    "andrei",
+    "zeev",
+    "andi",
+    "sas",
     "thies",
-    "rubys", 
-    "ssb", 
-    "imajes", 
-    "goba", 
-    "derick", 
-    "cortesi", 
-    "wez", 
-    "bjori", 
-    "philip", 
-    "danbrown", 
-    "tyrael", 
-    "dm", 
-    "kalle", 
+    "rubys",
+    "ssb",
+    "imajes",
+    "goba",
+    "derick",
+    "cortesi",
+    "wez",
+    "bjori",
+    "philip",
+    "danbrown",
+    "tyrael",
+    "dm",
+    "kalle",
     "googleguy",
     "nikic"
   ];

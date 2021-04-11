@@ -1,12 +1,18 @@
 PHP user management system
 ==========================
 
-Local setup:
+#### Docker
 
 ```shell
-# TODO: This is supposed to be submodule, but not actually registered as one.
-git clone git@github.com:php/web-shared.git shared
-ln -s ../shared public/shared
+docker-compose up --build
+```
+
+You can reset the data volumes using `docker-compose down -v`.
+
+#### Manual
+
+```shell
+git submodule update --init
 
 # Create database and users:
 CREATE DATABASE phpmasterdb;
