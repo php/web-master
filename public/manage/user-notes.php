@@ -275,10 +275,10 @@ if (!$action) {
           echo "<p>No results found...</p>";
           continue;
         }
-        $id = isset($row['id']) ? $row['id'] : null;
+        $id = $row['id'] ?? null;
         /* This div is only available in cases where the query includes the voting info */
         if (isset($row['up']) && isset($row['down'])) {
-          $rating = isset($row['arating']) ? $row['arating'] : ($row['up'] - $row['down']);
+          $rating = $row['arating'] ?? ($row['up'] - $row['down']);
           if ($rating < 0) {
             $rating = "<span style=\"color: red;\">$rating</span>";
           } elseif ($rating > 0) {
@@ -576,7 +576,7 @@ case 'delete':
 case 'preview':
 case 'edit':
   if ($id) {
-    $note = (isset($_POST['note']) ? $_POST['note'] : null);
+    $note = $_POST['note'] ?? null;
     if (!isset($note) || $action == 'preview') {
       head("user notes");
     }
@@ -602,7 +602,7 @@ case 'edit':
       }
     }
 
-    $note = isset($note) ? $note : $row['note'];
+    $note = $note ?? $row['note'];
 
     if ($action == "preview") {
       echo "<p class=\"notepreview\">",clean_note($note),
@@ -814,13 +814,11 @@ function clean_note($text)
     $text = highlight_php(trim($text), TRUE);
 
     // Turn urls into links
-    $text = preg_replace(
+    return preg_replace(
         '!((mailto:|(http|ftp|nntp|news):\/\/).*?)(\s|<|\)|"|\\|\'|$)!',
         '<a href="\1" target="_blank">\1</a>\4',
         $text
     );
-    
-    return $text;
 }
 
 // Highlight PHP code
@@ -940,7 +938,7 @@ function wildcard_ip($ip)
     }
     foreach ($start as $key => $part) {
         if (!isset($end[$key])) {
-            $end[$key] = $start[$key];
+            $end[$key] = $part;
         }
     }
     ksort($end);

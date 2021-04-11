@@ -28,15 +28,15 @@ $type = [1=>'single',2=>'multi',3=>'recur'];
 head("event administration");
 db_connect();
 
-$id = isset($_REQUEST['id']) ? $_REQUEST['id'] : false;
-$action = isset($_REQUEST['action']) ? $_REQUEST['action'] : false;
-$in = isset($_REQUEST['in']) ? $_REQUEST['in'] : false;
-$begin = isset($_REQUEST['begin']) ? $_REQUEST['begin'] : false;
-$max = isset($_REQUEST['max']) ? $_REQUEST['max'] : false;
-$search = isset($_REQUEST['search']) ? $_REQUEST['search'] : false;
-$order = isset($_REQUEST['order']) ? $_REQUEST['order'] : false;
-$full = isset($_REQUEST['full']) ? $_REQUEST['full'] : false;
-$unapproved = isset($_REQUEST['unapproved']) ? $_REQUEST['unapproved'] : false;
+$id = $_REQUEST['id'] ?? false;
+$action = $_REQUEST['action'] ?? false;
+$in = $_REQUEST['in'] ?? false;
+$begin = $_REQUEST['begin'] ?? false;
+$max = $_REQUEST['max'] ?? false;
+$search = $_REQUEST['search'] ?? false;
+$order = $_REQUEST['order'] ?? false;
+$full = $_REQUEST['full'] ?? false;
+$unapproved = $_REQUEST['unapproved'] ?? false;
 
 if($id) $id = (int)$id;
 
@@ -237,7 +237,7 @@ if ($id) {
 <?php
 
 $begin = $begin ? (int)$begin : 0;
-$full = $full ? 1 : (!$full && ($search || $unapproved) ? 1 : 0);
+$full = $full ? 1 : (($search || $unapproved) ? 1 : 0);
 $max = $max ? (int)$max : 20;
 $forward = filter_input(INPUT_GET, "forward", FILTER_VALIDATE_INT) ?: 0;
 

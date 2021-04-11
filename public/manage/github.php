@@ -29,8 +29,7 @@ function github_api($endpoint, $method = 'GET', $options = [])
     die('Request to GitHub failed. Endpoint: '.$endpoint);
   }
 
-  $retval = json_decode($s);
-  return $retval;
+  return json_decode($s);
 }
 
 function github_current_user($access_token = false)

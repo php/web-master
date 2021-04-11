@@ -152,11 +152,5 @@ if (db_query_safe($query, [$user, $note, $sect])) {
   die("failed to insert record");
 }
 
-
-
-
-
 //var_dump(is_spammer('127.0.0.1')); // false
 //var_dump(is_spammer('127.0.0.2')); // true
-
-?>
