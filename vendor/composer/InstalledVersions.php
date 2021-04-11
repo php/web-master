@@ -30,7 +30,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => '6d94ee66d392e36e925e984dc43058e71e86c8a4',
+    'reference' => 'f062ccb6ae876e33bdaebc5ccf5ec2dab53862e3',
     'name' => 'php/web-master',
   ),
   'versions' => 
@@ -51,7 +51,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => '6d94ee66d392e36e925e984dc43058e71e86c8a4',
+      'reference' => 'f062ccb6ae876e33bdaebc5ccf5ec2dab53862e3',
     ),
     'phpmailer/phpmailer' => 
     array (

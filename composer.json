@@ -9,6 +9,7 @@
     "require": {
         "php": ">=8.0",
         "ext-pdo": "*",
+        "ext-mysql": "*",
         "ext-json": "*",
         "ext-zlib": "*",
         "michelf/php-markdown": "^1.9",
