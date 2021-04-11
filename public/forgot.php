@@ -1,6 +1,7 @@
 <?php // vim: et ts=2 sw=2
+
+require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../include/functions.inc';
-require __DIR__ . "/../include/cvs-auth.inc";
 require __DIR__ . "/../include/mailer.php";
 
 $id = $_REQUEST['id'] ?? false;

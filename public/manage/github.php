@@ -3,6 +3,7 @@
 // This script evolved from a quick'n'dirty shell script. If you are reading
 // this feel free to clean it!
 
+require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../include/login.inc';
 
 @include __DIR__ . '/../../github-config.php';

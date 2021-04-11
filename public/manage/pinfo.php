@@ -1,4 +1,6 @@
 <?php
+
+require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../include/login.inc';
 
 if (!is_mirror_site_admin($cuser)) {

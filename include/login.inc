@@ -16,7 +16,6 @@ use App\DB;
 
 session_start();
 
-require 'cvs-auth.inc';
 require 'functions.inc';
 
 // User not logged in

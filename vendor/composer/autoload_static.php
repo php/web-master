@@ -6,6 +6,10 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit555eac2be6304e201001ec17b2028db4
 {
+    public static $files = array (
+        'f255b2695f755667cfcdad73757aa298' => __DIR__ . '/../..' . '/src/cvs-auth.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
         'P' => 
         array (

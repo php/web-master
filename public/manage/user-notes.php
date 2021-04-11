@@ -1,9 +1,10 @@
 <?php
-// $Id$
 
-// Force login before action can be taken
 use App\Query;
 
+require __DIR__ . '/../../vendor/autoload.php';
+
+// Force login before action can be taken
 include __DIR__ . '/../../include/login.inc';
 include __DIR__ . '/../../include/email-validation.inc';
 include __DIR__ . '/../../include/note-reasons.inc';
@@ -44,7 +45,7 @@ $id = (isset($_REQUEST['id']) ? intval($_REQUEST['id']) : '');
 /*------ BEGIN SEARCH ------*/
 if (!$action) {
   head("user notes");
-  
+
   // someting done before ?
   if ($id) {
     $str = 'Note #' . $id . ' has been ';
@@ -71,7 +72,7 @@ if (!$action) {
     }
     echo $str . '<br />';
   }
-  
+
   if (isset($_REQUEST['keyword']) || isset($_REQUEST["view"])) {
     // Pagination start
     $page = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
@@ -159,7 +160,7 @@ if (!$action) {
               'WHERE (hostip >= ? AND hostip <= ?) OR (ip >= ? AND ip <= ?) '.
               'ORDER BY votes.id DESC LIMIT ?int, 25',
               [$start, $end, $start, $end, $limitVotes]);
-            
+
           } elseif (filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP)) {
             $searchip = (int) ip2long(filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP));
             $resultCount = db_query_safe("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE hostip = ? OR ip = ?", [$searchip, $searchip]);
@@ -214,7 +215,7 @@ if (!$action) {
           [$limit]);
       }
     }
-    
+
     if ($result) {
       /* This is a special table only used for viewing the most recent votes */
         $t = (isset($_GET['type']) ? '&type=' . $_GET['type'] : null);
@@ -286,7 +287,7 @@ if (!$action) {
           } else {
             $rating = "<span style=\"color: blue;\">$rating</span>";
           }
-          
+
           if (isset($row['rate'])) { // not all queries select the rate
             $percentage = $row['rate'];
           } else {
@@ -297,7 +298,7 @@ if (!$action) {
             }
           }
           $percentage = sprintf('%d%%', $percentage);
-          
+
           echo "<div style=\"float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: lightgray;\">\n".
                "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Up votes</strong>: {$row['up']}</div>\n".
                "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Down votes</strong>: {$row['down']}</div>\n".
@@ -453,7 +454,7 @@ case 'mass':
       $step = 0;
     }
   }
-  
+
   if ($step == 2) {
     $query = new Query('UPDATE note SET sect = ? WHERE ', [$_REQUEST["new_sect"]]);
     $query->addQuery($where);
@@ -510,7 +511,7 @@ case 'mass':
   <th align="right">Move to section:</th>
   <td><input type="text" name="new_sect" value="<?= hsc($_REQUEST["new_sect"]); ?>" size="30" maxlength="80" /></td>
  </tr>
- <tr> 
+ <tr>
   <td align="center" colspan="2">
     <input type="submit" value="Change" />
   </td>
@@ -525,11 +526,11 @@ case 'mass':
 case 'approve':
   if ($id) {
     if ($row = note_get_by_id($id)) {
-      
+
       if ($row['status'] != 'na') {
         die ("Note #$id has already been approved");
       }
-      
+
       if ($row['id'] && db_query_safe("UPDATE note SET status=NULL WHERE id=?", [$id])) {
         note_mail_on_action(
             $cuser,
@@ -538,7 +539,7 @@ case 'approve':
             "This note has been approved and will appear in the manual.\n\n----\n\n{$row['note']}"
         );
       }
-      
+
       print "Note #$id has been approved and will appear in the manual";
       exit;
     }
@@ -553,14 +554,14 @@ case 'delete':
             $cuser,
             $id,
             "note {$row['id']} $action_taken from {$row['sect']} by $cuser",
-            "Note Submitter: " . safe_email($row['user']) . 
+            "Note Submitter: " . safe_email($row['user']) .
         (isset($reason) ? "\nReason: $reason" : " ") .
         "\n\n----\n\n{$row['note']}");
         if ($action == 'reject') {
           note_mail_user($row['user'], "note $row[id] rejected and deleted from $row[sect] by notes editor $cuser",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
         }
       }
-      
+
       //if we came from an email, report _something_
       if (isset($_GET['report'])) {
         header('Location: user-notes.php?id=' . $id . '&was=' . $action);
@@ -830,7 +831,7 @@ function highlight_php($code, $return = FALSE)
     highlight_string($code);
     $highlighted = ob_get_contents();
     ob_end_clean();
-    
+
     // Fix output to use CSS classes and wrap well
     $highlighted = '<div class="phpcode">' . str_replace(
         [
@@ -851,7 +852,7 @@ function highlight_php($code, $return = FALSE)
         ],
         $highlighted
     ) . '</div>';
-    
+
     if ($return) { return $highlighted; }
     else { echo $highlighted; }
 }
