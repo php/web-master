@@ -212,24 +212,6 @@ function show_country_options($cc = "")
     }
 }
 
-function is_sqlite_type_available($avails, $check) {
-
-	// All possible sqlite types associated with our assigned bitwise values
-	$all = ['sqlite' => 1, 'sqlite3' => 2, 'pdo_sqlite' => 4, 'pdo_sqlite2' => 8];
-
-	if (!$avails || empty($all[$check])) {
-		return false;
-	}
-
-	$avail  = (int) $all[$check];
-	$avails = (int) $avails;
-
-	if (($avails & $avail) === $avail) {
-		return true;
-	}
-	return false;
-}
-
 function verify_ssh_keys($string) {
     return count(get_ssh_keys($string)) > 0;
 }
