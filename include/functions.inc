@@ -1,5 +1,6 @@
 <?php
-// $Id$
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $ts = $_SERVER['REQUEST_TIME'];
 
@@ -106,38 +107,7 @@ function db_connect($dieonerror = TRUE)
     return TRUE;
 }
 
-class Query {
-    private $query = '';
-
-    public function __construct($str = '', $params = []) {
-        $this->add($str, $params);
-    }
-
-    public function add($str, $params = []) {
-        if (substr_count($str, '?') !== count($params)) {
-            die("Incorrect number of parameters to query.");
-        }
-
-        $i = 0;
-        $this->query .= preg_replace_callback('/\?(int)?/', function($matches) use ($params, &$i) {
-            if (isset($matches[1]) && $matches[1] === 'int') {
-                return (int) $params[$i++];
-            } else {
-                return "'" . mysql_real_escape_string($params[$i++]) . "'";
-            }
-        }, $str);
-    }
-
-    public function addQuery(Query $q) {
-        $this->query .= $q->get();
-    }
-
-    public function get() {
-        return $this->query;
-    }
-}
-
-function db_query(Query $query)
+function db_query(App\Query $query)
 {
     $query = $query->get();
 	//var_dump($query);
@@ -151,7 +121,7 @@ function db_query(Query $query)
 
 function db_query_safe($query, array $params = [])
 {
-    return db_query(new Query($query, $params));
+    return db_query(new App\Query($query, $params));
 }
 
 function db_get_one($query)
@@ -271,9 +241,6 @@ function get_ssh_keys($string) {
 
     return $results;
 }
-
-// We use markdown for people profiles
-include_once __DIR__ . '/../vendor/autoload.php';
 
 // -----------------------------------------------------------------------------------
 //

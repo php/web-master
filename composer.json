@@ -7,7 +7,13 @@
     "type": "project",
     "homepage": "https://github.com/php/web-master",
     "require": {
+        "php": ">=8.0",
         "michelf/php-markdown": "^1.9",
         "phpmailer/phpmailer": "^6.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
     }
 }

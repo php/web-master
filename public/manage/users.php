@@ -4,6 +4,8 @@
 # acls
 # handle flipping of the sort views
 
+use App\Query;
+
 require __DIR__ . '/../../include/login.inc';
 require __DIR__ . '/../../include/email-validation.inc';
 require __DIR__ . '/../../include/email-templates.inc';

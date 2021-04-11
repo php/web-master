@@ -2,6 +2,8 @@
 // $Id$
 
 // Force login before action can be taken
+use App\Query;
+
 include __DIR__ . '/../../include/login.inc';
 include __DIR__ . '/../../include/email-validation.inc';
 include __DIR__ . '/../../include/note-reasons.inc';

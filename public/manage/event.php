@@ -1,4 +1,7 @@
 <?php
+
+use App\Query;
+
 require __DIR__ . '/../../include/login.inc';
 require __DIR__ . '/../../include/email-validation.inc';
 

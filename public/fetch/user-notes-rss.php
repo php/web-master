@@ -1,5 +1,7 @@
 <?php
 
+use App\Query;
+
 require_once __DIR__ . '/../../include/functions.inc';
 
 db_connect();
