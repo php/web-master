@@ -21,7 +21,7 @@ services:
     build:
       context: ./docker
     restart: always
-    command: php -S 0.0.0.0:8000 -d include_path="/app/include/" -derror_reporting="E_ALL&~E_DEPRECATED" -t /app/public
+    command: php -S 0.0.0.0:8000 -d include_path="/app/include/" -derror_reporting="E_ALL&~E_DEPRECATED" -t /app/public /app/docker/controller.php
     ports:
       - "127.0.0.1:8000:8000"
     volumes:
@@ -31,6 +31,15 @@ services:
       DATABASE_USER: 'php_main'
       DATABASE_PASSWORD: 'test_51ebe2993a2568c6fbb1cfb4c4277991'
       DATABASE_NAME: 'php_main'
+
+  static:
+    image: caddy:2
+    restart: always
+    command: caddy file-server --listen :8002 --root /app
+    ports:
+      - "127.0.0.1:8002:8002"
+    volumes:
+      - ${PWD}/shared:/app
 
 volumes:
   db_data: {}
