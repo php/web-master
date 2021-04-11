@@ -1,5 +1,7 @@
 <?php
 
+use App\DB;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $ts = $_SERVER['REQUEST_TIME'];
@@ -8,7 +10,7 @@ if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
     die("Magic quotes should not be enabled.");
 }
 
-if (ini_get('filter.default') != 'unsafe_raw') {
+if (ini_get('filter.default') !== 'unsafe_raw') {
     die("filter.default should not be set.");
 }
 
@@ -17,7 +19,7 @@ if (ini_get('filter.default') != 'unsafe_raw') {
 // used in scripts which should only be called from particular machines
 function require_token()
 {
-  if (!isset($_GET['token']) || md5($_GET['token']) != "19a3ec370affe2d899755f005e5cd90e") {
+  if (!isset($_GET['token']) || md5($_GET['token']) !== "19a3ec370affe2d899755f005e5cd90e") {
     die("Token not correct.");
   }
 }
@@ -92,14 +94,14 @@ function warn($message)        { echo format_warn($message); }
 
 function db_connect($dieonerror = TRUE)
 {
-    if (!@mysql_connect(\getenv("DATABASE_HOST") ?: "localhost", \getenv("DATABASE_USER") ?: "nobody", \getenv("DATABASE_PASSWORD") ?: "")) {
+    if (!@mysql_connect(DB::getHost(), DB::getUser(), DB::getPassword())) {
         if ($dieonerror) {
             die(format_warn("Unable to connect to database!"));
         }
         return FALSE;
     }
 
-    if (!mysql_select_db(\getenv("DATABASE_NAME") ?: "phpmasterdb")) {
+    if (!mysql_select_db(DB::getDatabase())) {
         if ($dieonerror) {
             die(format_warn("Unable to select database!"));
         }
