@@ -6,7 +6,7 @@ use App\DB;
 
 class Password
 {
-    public static function generate($password)
+    public static function hash($password)
     {
         return password_hash($password, PASSWORD_BCRYPT);
     }

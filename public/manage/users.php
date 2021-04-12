@@ -104,7 +104,7 @@ if ($in) {
     else {
       if (!empty($in['rawpasswd'])) {
         $userinfo = fetch_user($id);
-        $in['svnpasswd'] = Password::generate($in['rawpasswd']);
+        $in['svnpasswd'] = Password::hash($in['rawpasswd']);
       }
 
       $cvsaccess   = empty($in['cvsaccess'])   ? 0 : 1;
