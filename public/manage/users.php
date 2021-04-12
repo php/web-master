@@ -4,36 +4,15 @@
 # acls
 # handle flipping of the sort views
 
+use App\Access;
 use App\Query;
+use App\Security\Csrf;
+use App\Security\Password;
+use Michelf\MarkdownExtra;
 
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../include/login.inc';
-require __DIR__ . '/../../include/email-validation.inc';
 require __DIR__ . '/../../include/email-templates.inc';
-
-function csrf_generate(&$mydata, $name) {
-  $mydata["CSRF"][$name] = $csrf = bin2hex(random_bytes(16));
-  return "$name:$csrf";
-}
-function csrf_validate(&$mydata, $name) {
-  $val = filter_input(INPUT_POST, "csrf", FILTER_UNSAFE_RAW);
-  list($which, $hash) = explode(":", $val, 2);
-
-  if ($which != $name) {
-    warn("Failed CSRF Check");
-    foot();
-    exit;
-  }
-
-  if ($mydata["CSRF"][$name] != $hash) {
-    warn("Failed CSRF Check");
-    foot();
-    exit;
-  }
-
-  csrf_generate($mydata, $name);
-  return true;
-}
 
 $indesc = [
   "id"               => FILTER_VALIDATE_INT,
@@ -83,8 +62,13 @@ if ($id) {
 
 $action = filter_input(INPUT_POST, "action", FILTER_CALLBACK, ["options" => "validateAction"]);
 if ($id && $action) {
-  csrf_validate($_SESSION, $action);
-  if (!is_admin($_SESSION["username"])) {
+  try {
+    Csrf::validate($_SESSION, $action);    
+  } catch (Exception $e) {
+    warn($e->getMessage());
+    exit;
+  }
+  if (!Access::isAdmin($_SESSION["username"])) {
     warn("you're not allowed to take actions on users.");
     exit;
   }
@@ -104,8 +88,13 @@ if ($id && $action) {
 }
 
 if ($in) {
-  csrf_validate($_SESSION, "useredit");
-  if (!can_modify($_SESSION["username"],$id)) {
+  try {
+    Csrf::validate($_SESSION, 'useredit');      
+  } catch (Exception $e) {
+    warn($e->getMessage());
+    exit;
+  }
+  if (!Access::canUserEdit($_SESSION["username"], $id)) {
     warn("you're not allowed to modify this user.");
   }
   else {
@@ -115,7 +104,7 @@ if ($in) {
     else {
       if (!empty($in['rawpasswd'])) {
         $userinfo = fetch_user($id);
-        $in['svnpasswd'] = gen_pass($in['rawpasswd']);
+        $in['svnpasswd'] = Password::generate($in['rawpasswd']);
       }
 
       $cvsaccess   = empty($in['cvsaccess'])   ? 0 : 1;
@@ -134,10 +123,10 @@ if ($in) {
           if (!empty($in['sshkey'])) {
               $query->add(',ssh_keys=?', [html_entity_decode($in['sshkey'],ENT_QUOTES)]);
           }
-          if (is_admin($_SESSION["username"]) && !empty($in['username'])) {
+          if (Access::isAdmin($_SESSION["username"]) && !empty($in['username'])) {
               $query->add(',username=?', [$in['username']]);
           }
-          if (is_admin($_SESSION["username"])) {
+          if (Access::isAdmin($_SESSION["username"])) {
               $query->add(',cvsaccess=?', [$cvsaccess]);
           }
           $query->add(
@@ -161,7 +150,7 @@ if ($in) {
 
           if(!empty($in['profile_markdown'])) {
             $profile_markdown = $in['profile_markdown'];
-            $profile_html = \Michelf\MarkdownExtra::defaultTransform($profile_markdown);
+            $profile_html = MarkdownExtra::defaultTransform($profile_markdown);
             $query = "INSERT INTO users_profile (userid, markdown, html) VALUES (?, ?, ?)
                       ON DUPLICATE KEY UPDATE markdown=?, html=?";
             db_query_safe($query, [$id, $profile_markdown, $profile_html, $profile_markdown, $profile_html]);
@@ -178,7 +167,7 @@ if ($in) {
 if ($id) {
 ?>
 <form method="post" action="users.php?id=<?php echo $userdata["userid"]?>">
- <input type="hidden" name="csrf" value="<?php echo csrf_generate($_SESSION, "useredit") ?>" />
+ <input type="hidden" name="csrf" value="<?php echo Csrf::generate($_SESSION, 'useredit') ?>" />
 <table class="useredit">
 <tbody>
 <tr>
@@ -193,7 +182,7 @@ if ($id) {
 </tr>
 <tr>
  <th>VCS username:</th>
-<?php if (is_admin($_SESSION["username"])): ?>
+<?php if (Access::isAdmin($_SESSION["username"])): ?>
  <td><input type="text" name="in[username]" value="<?php echo hsc($userdata['username']);?>" size="16" maxlength="16" /></td>
 <?php else: ?>
  <td><?php echo hsc($userdata['username']);?></td>
@@ -210,7 +199,7 @@ if ($id) {
  <th>Password (again):</th>
  <td><input type="password" name="in[rawpasswd2]" value="" size="20" maxlength="120" /></td>
 </tr>
-<?php if (is_admin($_SESSION["username"])) {?>
+<?php if (Access::isAdmin($_SESSION["username"])) {?>
 <tr>
  <th>VCS access?</th>
  <td><input type="checkbox" name="in[cvsaccess]"<?php echo $userdata['cvsaccess'] ? " checked" : "";?> /></td>
@@ -279,20 +268,20 @@ if ($id) {
 </table>
 </form>
 <?php
-if (is_admin($_SESSION["username"]) && !$userdata['cvsaccess']) {
+if (Access::isAdmin($_SESSION["username"]) && !$userdata['cvsaccess']) {
 ?>
 <table>
 <tr>
 <td>
  <form method="post" action="users.php?id=<?php echo $id?>">
-  <input type="hidden" name="csrf" value="<?php echo csrf_generate($_SESSION, "remove") ?>" />
+  <input type="hidden" name="csrf" value="<?php echo Csrf::generate($_SESSION, 'remove') ?>" />
   <input type="hidden" name="action" value="remove" />
   <input type="submit" value="Reject" />
  </form>
 </td>
 <td>
  <form method="post" action="users.php?id=<?php echo $id?>">
-  <input type="hidden" name="csrf" value="<?php echo csrf_generate($_SESSION, "approve") ?>" />
+  <input type="hidden" name="csrf" value="<?php echo Csrf::generate($_SESSION, 'approve') ?>" />
   <input type="hidden" name="action" value="approve" />
   <input type="submit" value="Approve" />
  </form>

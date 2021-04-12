@@ -1,12 +1,12 @@
 <?php
 
+use App\Email;
 use App\Query;
 
 require __DIR__ . '/../../vendor/autoload.php';
 
 // Force login before action can be taken
 include __DIR__ . '/../../include/login.inc';
-include __DIR__ . '/../../include/email-validation.inc';
 include __DIR__ . '/../../include/note-reasons.inc';
 
 define("NOTES_MAIL", "php-notes@lists.php.net");
@@ -860,8 +860,8 @@ function highlight_php($code, $return = FALSE)
 // Send out a mail to the note submitter, with an envelope sender ignoring bounces
 function note_mail_user($mailto, $subject, $message)
 {
-    $mailto = clean_antispam($mailto);
-    if (is_emailable_address($mailto)) {
+    $mailto = Email::clean($mailto);
+    if (Email::isValid($mailto)) {
         mail(
             $mailto,
             $subject,

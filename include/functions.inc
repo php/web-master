@@ -1,6 +1,7 @@
 <?php
 
 use App\DB;
+use App\Email;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -313,87 +314,6 @@ function user_remove($id) {
     }
 }
 
-function is_admin($user) {
-  $admins = [
-    "jimw",
-    "rasmus",
-    "andrei",
-    "zeev",
-    "andi",
-    "sas",
-    "thies",
-    "rubys",
-    "ssb",
-    "wez",
-    "shane",
-    "sterling",
-    "goba",
-    "imajes",
-    "jon",
-    "alan_k",
-    "stas",
-    "iliaa",
-    "jmcastagnetto",
-    "mj",
-    "gwynne",
-    "lsmith",
-    "dsp",
-    "philip",
-    "davidc",
-    "helly",
-    "derick",
-    "bjori",
-    "pajoye",
-    "danbrown",
-    "felipe",
-    "johannes",
-    "tyrael",
-    "salathe",
-    "cmb",
-    "kalle",
-    "krakjoe",
-    "nikic"
-  ];
-  return in_array($user, $admins);
-}
-
-function is_mirror_site_admin($user) {
-  $admins = [
-    "jimw",
-    "rasmus",
-    "andrei",
-    "zeev",
-    "andi",
-    "sas",
-    "thies",
-    "rubys",
-    "ssb",
-    "imajes",
-    "goba",
-    "derick",
-    "cortesi",
-    "wez",
-    "bjori",
-    "philip",
-    "danbrown",
-    "tyrael",
-    "dm",
-    "kalle",
-    "googleguy",
-    "nikic"
-  ];
-  return in_array($user, $admins);
-}
-
-# returns false if $user is not allowed to modify $userid
-function can_modify($user,$userid) {
-  if (is_admin($user)) return true;
-
-  $query = "SELECT userid FROM users WHERE userid = ? AND (email = ? OR username = ?)";
-  $res = db_query_safe($query, [$userid, $user, $user]);
-  return $res ? mysql_num_rows($res) : false;
-}
-
 function fetch_user($user) {
   if ((int)$user) {
     $res = db_query_safe(
@@ -408,7 +328,7 @@ function fetch_user($user) {
   return mysql_fetch_array($res);
 }
 function invalid_input($in) {
-  if (!empty($in['email']) && strlen($in['email']) && !is_emailable_address($in['email'])) {
+  if (!empty($in['email']) && strlen($in['email']) && !Email::isValid($in['email'])) {
     return "'". hsc($in['email']) ."' does not look like a valid email address";
   }
   if (!empty($in['username']) && !preg_match("/^[-\w]+\$/",$in['username'])) {

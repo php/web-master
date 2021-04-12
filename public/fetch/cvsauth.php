@@ -34,6 +34,7 @@ echo $a["SUCCESS"], "\n";
 */
 
 use App\DB;
+use App\Security\Password;
 
 require_once __DIR__.'/../../vendor/autoload.php';
 
@@ -90,7 +91,7 @@ if (!verify_username($db, $username)) {
 	exit_forbidden(E_USERNAME);
 }
 
-if (!verify_password($db, $username, $password)) {
+if (!Password::verify($username, $password)) {
 	exit_forbidden(E_PASSWORD);
 }
 

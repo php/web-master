@@ -1,5 +1,7 @@
 <?php // vim: et ts=2 sw=2
 
+use App\Security\Password;
+
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../include/functions.inc';
 require __DIR__ . "/../include/mailer.php";
@@ -23,7 +25,7 @@ db_connect();
 if ($id && $key) {
   if ($n1 && $n2) {
     if ($n1 === $n2) {
-      $svnpasswd = gen_pass($n1);
+      $svnpasswd = Password::generate($n1);
       $res = db_query_safe("UPDATE users SET forgot=NULL,svnpasswd=?,pchanged=? WHERE userid=? AND forgot=?", [$svnpasswd, $ts, $id, $key]);
       if ($res && mysql_affected_rows()) {
         echo '<p>Okay, your password has been changed. It could take as long as an hour before this change makes it to the VCS server and other services. To change your password again, you\'ll have to start this process over to get a new key.</p>';

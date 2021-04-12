@@ -1,10 +1,9 @@
 <?php
 
+use App\Email;
 use PHPMailer\PHPMailer\PHPMailer;
 
 require __DIR__ . '/../../vendor/autoload.php';
-
-include "email-validation.inc";
 
 // Check parameters
 if (empty($_POST['request']) || empty($_POST['email']) ||
@@ -14,7 +13,7 @@ if (empty($_POST['request']) || empty($_POST['email']) ||
 }
 
 // Check email address
-if (!is_emailable_address($_POST['email'])) {
+if (!Email::isValid($_POST['email'])) {
     die("Invalid email address");
 }
 

@@ -1,7 +1,9 @@
 <?php
 
+use App\Email;
+use App\Security\Password;
+
 require __DIR__ . '/../../vendor/autoload.php';
-require __DIR__ . '/../../include/email-validation.inc';
 require __DIR__ . '/../../include/functions.inc';
 
 $valid_vars = ['name','email','username','passwd','note','group','yesno'];
@@ -63,14 +65,14 @@ if (strlen($username) > 16) {
 
 db_connect();
 
-if (!is_emailable_address($email))
+if (!Email::isValid($email))
   die("that email address does not appear to be valid");
 
 $res = db_query_safe("SELECT userid FROM users WHERE username=?", [$username]);
 if ($res && mysql_num_rows($res))
   die("someone is already using that svn id");
 
-$svnpasswd = gen_pass($passwd);
+$svnpasswd = Password::generate($passwd);
 $note = hsc($note);
 
 $query = "INSERT INTO users (name,email,svnpasswd,username) VALUES (?, ?, ?, ?)";
