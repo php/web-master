@@ -35,8 +35,7 @@ echo $a["SUCCESS"], "\n";
 
 use App\DB;
 
-require 'functions.inc';
-require 'cvs-auth.inc';
+require_once __DIR__.'/../../vendor/autoload.php';
 
 # Error constants
 define("E_UNKNOWN", 0);
