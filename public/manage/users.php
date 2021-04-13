@@ -57,7 +57,6 @@ $rawin    = filter_input_array(INPUT_POST) ?: [];
 $in       = isset($rawin["in"]) ? filter_var_array($rawin["in"], $indesc, false) : [];
 $id       = filter_input(INPUT_GET, "id", FILTER_VALIDATE_INT) ?: 0;
 $username = filter_input(INPUT_GET, "username", FILTER_SANITIZE_STRIPPED) ?: 0;
-$githubUnlinkAction = filter_input(INPUT_GET, "github_unlink", FILTER_VALIDATE_INT) ?: 0;
 
 head("user administration");
 
