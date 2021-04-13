@@ -85,11 +85,6 @@ if ($id) {
 $action = filter_input(INPUT_POST, "action", FILTER_CALLBACK, ["options" => "validateAction"]);
 if ($id && $action) {
   csrf_validate($_SESSION, $action);
-  if (!is_admin($_SESSION["username"])) {
-    warn("you're not allowed to take actions on users.");
-    exit;
-  }
-
   switch ($action) {
   case 'approve':
     user_approve((int)$id);
@@ -99,17 +94,13 @@ if ($id && $action) {
     user_remove((int)$id);
     break;
 
+  case 'github_unlink':
+      user_unlink_github((int)$id);
+      break;
+      
   default:
     warn("that action ('$action') is not understood.");
   }
-}
-
-if($id && $githubUnlinkAction) {
-    $query = new Query('UPDATE users SET github = ? WHERE userid = ?', [null, (int)$id]);
-    db_query($query);
-
-    header('Location: users.php?id=' . $id);
-    exit;
 }
 
 if ($in) {
@@ -212,11 +203,16 @@ if ($id) {
     <th>GitHub account:</th>
     <?php if ($github = $userdata['github']): ?>
         <td><?php echo hsc($github);?> 
-            (<a href="/manage/github.php?action=link">Update</a> |
-            <a href="users.php?id=<?php echo $id?>&github_unlink=1">Unlink</a>)
+            <?php if(can_modify($_SESSION['username'], $id)) {?>
+                <form method="post" action="users.php?id=<?php echo $id?>">
+                    <input type="hidden" name="csrf" value="<?php echo csrf_generate($_SESSION, 'github_unlink') ?>" />
+                    <input type="hidden" name="action" value="github_unlink" />
+                    <input type="submit" value="Unlink" />
+                </form>
+            <?php } ?>
         </td>
     <?php elseif(can_modify($_SESSION["username"],$id)): ?>
-        <td><a href="/manage/github.php?action=link">Link GitHub account</a></td>
+        <td><a href="/manage/github.php">Link GitHub account</a></td>
     <?php else: ?>
         <td>&mdash;</td>
     <?php endif ?>

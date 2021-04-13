@@ -36,7 +36,6 @@ function head($title="", $config = []) {
         ["href" => "/manage/event.php",        "text" => "Events"],
         ["href" => "/manage/users.php",        "text" => "Users"],
         ["href" => "/manage/user-notes.php",   "text" => "Notes"],
-        ["href" => "/manage/github.php",       "text" => "Github"],
     ];
     $CSS = ["/styles/master.css"];
     $SEARCH = [];
@@ -258,6 +257,11 @@ function find_group_address_from_notes_for($id) {
 define("MT_USER_APPROVE_MAIL", "group@php.net");
 define("MT_USER_REMOVE_MAIL", "group@php.net");
 function user_approve($id) {
+    if (!is_admin($_SESSION["username"])) {
+        warn("you're not allowed to take actions on users.");
+        exit;
+    }
+    
     $res = db_query_safe("UPDATE users SET cvsaccess=1, enable=1 WHERE userid=?", [$id]);
     if ($res && mysql_affected_rows()) {
       $cc = find_group_address_from_notes_for($id);
@@ -284,6 +288,10 @@ function user_approve($id) {
 }
 
 function user_remove($id) {
+    if (!is_admin($_SESSION["username"])) {
+        warn("you're not allowed to take actions on users.");
+        exit;
+    }
     $userinfo = fetch_user($id);
     $res = db_query_safe("DELETE FROM users WHERE userid=?", [$id]);
     if ($res && mysql_affected_rows()) {
@@ -311,6 +319,21 @@ function user_remove($id) {
       warn("wasn't able to delete id $id.");
       return false;
     }
+}
+
+function user_unlink_github($id) {
+    $db = DB::connect();
+    
+    if(!can_modify($_SESSION['username'], $id)) {
+        warn("you're not allowed to take actions on users.");
+        exit;
+    }
+
+    $query = $db->prepare('UPDATE users SET github = ? WHERE userid = ?');
+    $query->execute([null, (int)$id]);
+
+    warn("record $id updated");
+    exit;
 }
 
 function is_admin($user) {
@@ -428,6 +451,7 @@ function validateAction($k) {
   switch($k) {
   case "approve":
   case "remove":
+  case "github_unlink":
     return $k;
   default:
     warn("that action ('" . hsc($k) . "') is not understood.");
