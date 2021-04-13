@@ -18,14 +18,11 @@ The $userinfo[username]@php.net forward to $userinfo[email] should
 be active within the next 24 hours.
 
 
-Please note: Before you can push to our repositories, please add your
-SSH Key on main (using the URL above).
+Please note: Before you can push to our repositories, you will have to
+be added to the PHP organization on GitHub.
 
 All our git repositories are listed at:
     https://github.com/php/
-
-SVN is still used by certain projects (most notably docs):
-    http://svn.php.net/
 
 
 Welcome to the PHP development team! If you encounter any problems

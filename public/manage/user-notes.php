@@ -1,5 +1,8 @@
 <?php
-// $Id$
+
+use App\Query;
+
+require __DIR__ . '/../../vendor/autoload.php';
 
 // Force login before action can be taken
 include __DIR__ . '/../../include/login.inc';
@@ -21,16 +24,16 @@ those issues.
 
 The user contributed notes are not an appropriate place to
 ask questions, report bugs or suggest new features; please
-use the resources listed on <http://php.net/support>
+use the resources listed on <https://php.net/support>
 for those purposes. This was clearly stated in the page
 you used to submit your note, please carefully re-read
 those instructions before submitting future contributions.
 
 Bug submissions and feature requests should be entered at
-<http://bugs.php.net/>. For documentation errors use the
+<https://bugs.php.net/>. For documentation errors use the
 bug system, and classify the bug as "Documentation problem".
 Support and ways to find answers to your questions can be found
-at <http://php.net/support>.
+at <https://php.net/support>.
 
 Your note has been removed from the online manual.';
 
@@ -42,7 +45,7 @@ $id = (isset($_REQUEST['id']) ? intval($_REQUEST['id']) : '');
 /*------ BEGIN SEARCH ------*/
 if (!$action) {
   head("user notes");
-  
+
   // someting done before ?
   if ($id) {
     $str = 'Note #' . $id . ' has been ';
@@ -69,7 +72,7 @@ if (!$action) {
     }
     echo $str . '<br />';
   }
-  
+
   if (isset($_REQUEST['keyword']) || isset($_REQUEST["view"])) {
     // Pagination start
     $page = isset($_REQUEST["page"]) ? intval($_REQUEST["page"]) : 0;
@@ -157,7 +160,7 @@ if (!$action) {
               'WHERE (hostip >= ? AND hostip <= ?) OR (ip >= ? AND ip <= ?) '.
               'ORDER BY votes.id DESC LIMIT ?int, 25',
               [$start, $end, $start, $end, $limitVotes]);
-            
+
           } elseif (filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP)) {
             $searchip = (int) ip2long(filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP));
             $resultCount = db_query_safe("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE hostip = ? OR ip = ?", [$searchip, $searchip]);
@@ -212,7 +215,7 @@ if (!$action) {
           [$limit]);
       }
     }
-    
+
     if ($result) {
       /* This is a special table only used for viewing the most recent votes */
         $t = (isset($_GET['type']) ? '&type=' . $_GET['type'] : null);
@@ -273,10 +276,10 @@ if (!$action) {
           echo "<p>No results found...</p>";
           continue;
         }
-        $id = isset($row['id']) ? $row['id'] : null;
+        $id = $row['id'] ?? null;
         /* This div is only available in cases where the query includes the voting info */
         if (isset($row['up']) && isset($row['down'])) {
-          $rating = isset($row['arating']) ? $row['arating'] : ($row['up'] - $row['down']);
+          $rating = $row['arating'] ?? ($row['up'] - $row['down']);
           if ($rating < 0) {
             $rating = "<span style=\"color: red;\">$rating</span>";
           } elseif ($rating > 0) {
@@ -284,7 +287,7 @@ if (!$action) {
           } else {
             $rating = "<span style=\"color: blue;\">$rating</span>";
           }
-          
+
           if (isset($row['rate'])) { // not all queries select the rate
             $percentage = $row['rate'];
           } else {
@@ -295,7 +298,7 @@ if (!$action) {
             }
           }
           $percentage = sprintf('%d%%', $percentage);
-          
+
           echo "<div style=\"float: right; clear: both; border: 1px solid gray; padding: 5px; background-color: lightgray;\">\n".
                "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Up votes</strong>: {$row['up']}</div>\n".
                "<div style=\"display: inline-block; float: left; padding: 15px;\"><strong>Down votes</strong>: {$row['down']}</div>\n".
@@ -314,8 +317,8 @@ if (!$action) {
           $row['vote'] = '<span style="color: ' . ($row['vote'] ? 'green;">+1' : 'red;">-1') . '</span>';
           $row['hostip'] = long2ip($row['hostip']);
           $row['ip'] = long2ip($row['ip']);
-          $notelink = "http://php.net/{$row['sect']}#{$row['note_id']}";
-          $sectlink = "http://php.net/{$row['sect']}";
+          $notelink = "https://php.net/{$row['sect']}#{$row['note_id']}";
+          $sectlink = "https://php.net/{$row['sect']}";
           echo "    <tr style=\"background-color: #F0F0F0;\">\n".
                "      <td style=\"padding: 5px;\"><input type=\"checkbox\" name=\"deletevote[]\" class=\"vdelids\" value=\"{$row['id']}\" /></td>\n".
                "      <td style=\"padding: 5px;\">{$row['ts']}</td>\n".
@@ -343,7 +346,7 @@ if (!$action) {
                "<br /><span class=\"author\">",date("d-M-Y h:i",$row['ts'])," ",
           hsc($row['user']),"</span><br />",
                "Note id: $id<br />\n",
-               "<a href=\"http://php.net/manual/en/{$row['sect']}.php#{$id}\" target=\"_blank\">http://php.net/manual/en/{$row['sect']}.php#{$id}</a><br />\n",
+               "<a href=\"https://php.net/manual/en/{$row['sect']}.php#{$id}\" target=\"_blank\">http://php.net/manual/en/{$row['sect']}.php#{$id}</a><br />\n",
                "<a href=\"https://main.php.net/note/edit/$id\" target=\"_blank\">Edit Note</a><br />";
           foreach ($note_del_reasons AS $reason => $text) {
             echo '<a href="https://main.php.net/note/delete/', $id, '/', urlencode((string)$reason), '" target=\"_blank\">', 'Delete Note: ', hsc($text), "</a><br />\n";
@@ -451,7 +454,7 @@ case 'mass':
       $step = 0;
     }
   }
-  
+
   if ($step == 2) {
     $query = new Query('UPDATE note SET sect = ? WHERE ', [$_REQUEST["new_sect"]]);
     $query->addQuery($where);
@@ -508,7 +511,7 @@ case 'mass':
   <th align="right">Move to section:</th>
   <td><input type="text" name="new_sect" value="<?= hsc($_REQUEST["new_sect"]); ?>" size="30" maxlength="80" /></td>
  </tr>
- <tr> 
+ <tr>
   <td align="center" colspan="2">
     <input type="submit" value="Change" />
   </td>
@@ -523,11 +526,11 @@ case 'mass':
 case 'approve':
   if ($id) {
     if ($row = note_get_by_id($id)) {
-      
+
       if ($row['status'] != 'na') {
         die ("Note #$id has already been approved");
       }
-      
+
       if ($row['id'] && db_query_safe("UPDATE note SET status=NULL WHERE id=?", [$id])) {
         note_mail_on_action(
             $cuser,
@@ -536,7 +539,7 @@ case 'approve':
             "This note has been approved and will appear in the manual.\n\n----\n\n{$row['note']}"
         );
       }
-      
+
       print "Note #$id has been approved and will appear in the manual";
       exit;
     }
@@ -551,14 +554,14 @@ case 'delete':
             $cuser,
             $id,
             "note {$row['id']} $action_taken from {$row['sect']} by $cuser",
-            "Note Submitter: " . safe_email($row['user']) . 
+            "Note Submitter: " . safe_email($row['user']) .
         (isset($reason) ? "\nReason: $reason" : " ") .
         "\n\n----\n\n{$row['note']}");
         if ($action == 'reject') {
           note_mail_user($row['user'], "note $row[id] rejected and deleted from $row[sect] by notes editor $cuser",$reject_text."\n\n----- Copy of your note below -----\n\n".$row['note']);
         }
       }
-      
+
       //if we came from an email, report _something_
       if (isset($_GET['report'])) {
         header('Location: user-notes.php?id=' . $id . '&was=' . $action);
@@ -574,7 +577,7 @@ case 'delete':
 case 'preview':
 case 'edit':
   if ($id) {
-    $note = (isset($_POST['note']) ? $_POST['note'] : null);
+    $note = $_POST['note'] ?? null;
     if (!isset($note) || $action == 'preview') {
       head("user notes");
     }
@@ -590,7 +593,7 @@ case 'edit':
             $cuser,
             $id,
             "note {$row['id']} modified in {$row['sect']} by $cuser",
-            $note."\n\n--was--\n{$row['note']}\n\nhttp://php.net/manual/en/{$row['sect']}.php"
+            $note."\n\n--was--\n{$row['note']}\n\nhttps://php.net/manual/en/{$row['sect']}.php"
         );
         if ($row["sect"] != $sect) {
           note_mail_user($email, "note $id moved from $row[sect] to $sect by notes editor $cuser", "----- Copy of your note below -----\n\n".$note);
@@ -600,7 +603,7 @@ case 'edit':
       }
     }
 
-    $note = isset($note) ? $note : $row['note'];
+    $note = $note ?? $row['note'];
 
     if ($action == "preview") {
       echo "<p class=\"notepreview\">",clean_note($note),
@@ -812,13 +815,11 @@ function clean_note($text)
     $text = highlight_php(trim($text), TRUE);
 
     // Turn urls into links
-    $text = preg_replace(
+    return preg_replace(
         '!((mailto:|(http|ftp|nntp|news):\/\/).*?)(\s|<|\)|"|\\|\'|$)!',
         '<a href="\1" target="_blank">\1</a>\4',
         $text
     );
-    
-    return $text;
 }
 
 // Highlight PHP code
@@ -830,7 +831,7 @@ function highlight_php($code, $return = FALSE)
     highlight_string($code);
     $highlighted = ob_get_contents();
     ob_end_clean();
-    
+
     // Fix output to use CSS classes and wrap well
     $highlighted = '<div class="phpcode">' . str_replace(
         [
@@ -851,7 +852,7 @@ function highlight_php($code, $return = FALSE)
         ],
         $highlighted
     ) . '</div>';
-    
+
     if ($return) { return $highlighted; }
     else { echo $highlighted; }
 }
@@ -938,7 +939,7 @@ function wildcard_ip($ip)
     }
     foreach ($start as $key => $part) {
         if (!isset($end[$key])) {
-            $end[$key] = $start[$key];
+            $end[$key] = $part;
         }
     }
     ksort($end);

@@ -33,8 +33,9 @@ if (isset($a["errno"])) {
 echo $a["SUCCESS"], "\n";
 */
 
-require 'functions.inc';
-require 'cvs-auth.inc';
+use App\DB;
+
+require_once __DIR__.'/../../vendor/autoload.php';
 
 # Error constants
 define("E_UNKNOWN", 0);
@@ -63,26 +64,33 @@ function exit_success() {
 	exit;
 }
 
-// Create required variables and kill MQ
-$fields = ["token", "username", "password"];
-foreach($fields as $field) {
-	if (isset($_POST[$field])) {
-		$$field = $_POST[$field];
-	} else {
-		exit_forbidden(E_UNKNOWN);
-	}
+function is_valid_cvsauth_token($token) {
+    $hash = sha1($token);
+    return $hash === 'c3d7b24474fc689f7144bb5c2fd403d939634b7e' // bugs.php.net
+        || $hash === 'd4d4d68b78dc80fff48967ce8dc67e74bb87e903' // wiki.php.net
+        || $hash === 'e201419bb48da4d427eb67e5f3fd108506360e89' // edit.php.net
+        ;
 }
 
-# token required since this should only get accessed from .php.net sites
-if (!isset($_REQUEST['token']) || md5($_REQUEST['token']) != "73864a7c89d97a13368fc213075036d1") {
+// Create required variables
+if (!isset($_POST['token']) || !isset($_POST['username']) || !isset($_POST['password'])) {
+    exit_forbidden(E_UNKNOWN);
+}
+
+$token = $_POST['token'];
+$username = $_POST['username'];
+$password = $_POST['password'];
+
+if (!is_valid_cvsauth_token($token)) {
 	exit_forbidden(E_UNKNOWN);
 }
 
-if (!verify_username($username)) {
+$db = DB::connect();
+if (!verify_username($db, $username)) {
 	exit_forbidden(E_USERNAME);
 }
 
-if (!verify_password($username, $password)) {
+if (!verify_password($db, $username, $password)) {
 	exit_forbidden(E_PASSWORD);
 }
 

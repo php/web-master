@@ -1,5 +1,4 @@
 <?php
-/* $Id: */
 
 // stock reasons for deleting notes
 $note_del_reasons = [
@@ -17,4 +16,3 @@ foreach ($note_del_reasons AS $r) {
   }
 }
 ++$note_del_reasons_pad;
-?>

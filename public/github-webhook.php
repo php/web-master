@@ -1,7 +1,10 @@
 <?php
 
+use App\DB;
+
 const DRY_RUN = false;
 
+require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../include/mailer.php';
 
 function verify_signature($requestBody) {
@@ -33,9 +36,7 @@ function prep_title($issue, $repoName) {
     $title = $issue->title;
     $type = is_pr($issue) ? 'PR' : 'Issue';
 
-    $subject = sprintf('[%s][%s #%s] - %s', $repoName, $type, $issueNumber, $title);
-
-    return $subject;
+    return sprintf('[%s][%s #%s] - %s', $repoName, $type, $issueNumber, $title);
 }
 
 function send_mail($to, $subject, $message, MailAddress $from, array $replyTos = []) {
@@ -212,9 +213,9 @@ function handle_commit_mail(PDO $dbh, $mailingList, $repoName, $ref, $pusherUser
         throw $e;
     }
 
-    $authorUser = isset($commit->author->username) ? $commit->author->username : null;
+    $authorUser = $commit->author->username ?? null;
     $authorName = $commit->author->name;
-    $committerUser = isset($commit->committer->username) ? $commit->committer->username : null;
+    $committerUser = $commit->committer->username ?? null;
     $committerName = $commit->committer->name;
     $message = $commit->message;
     $timestamp = $commit->timestamp;
@@ -284,8 +285,7 @@ function handle_push_mail($payload) {
         handle_ref_change_mail($mailingList, $payload);
     }
 
-    $dbh = new PDO('mysql:host=localhost;dbname=phpmasterdb', 'nobody', '');
-    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $dbh = DB::connect();
 
     $pusherName = $payload->pusher->name;
     foreach ($payload->commits as $commit) {

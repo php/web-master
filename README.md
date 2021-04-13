@@ -1,12 +1,18 @@
 PHP user management system
 ==========================
 
-Local setup:
+#### Docker
 
 ```shell
-# TODO: This is supposed to be submodule, but not actually registered as one.
-git clone git@github.com:php/web-shared.git shared
-ln -s ../shared public/shared
+docker-compose up --build
+```
+
+You can reset the data volumes using `docker-compose down -v`.
+
+#### Manual
+
+```shell
+git submodule update --init
 
 # Create database and users:
 CREATE DATABASE phpmasterdb;
@@ -20,5 +26,5 @@ mysql -unobody phpmasterdb < schema.sql
 INSERT INTO users (username, svnpasswd, cvsaccess) VALUES ('test', '$2y$10$iGHyxmfHI62Xyr3DPf8faOPCvmU1UMVMlhJQ/FqooqgPJ3STMHTyG', 1);
 
 # Run server (must have mysql ext)
-php -S localhost:8000 -d include_path="include/" -derror_reporting="E_ALL&~E_DEPRECATED" -t public
+php -S localhost:8000 -d include_path="$PWD/include/" -derror_reporting="E_ALL&~E_DEPRECATED" -t public
 ```

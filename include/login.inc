@@ -12,10 +12,10 @@ if (!isset($_SERVER["HTTPS"]) || $_SERVER["HTTPS"] != "on") {
 }
  */
 
-session_start();
-/* $Id$ */
+use App\DB;
 
-require 'cvs-auth.inc';
+session_start();
+
 require 'functions.inc';
 
 // User not logged in
@@ -28,7 +28,7 @@ if (isset($_POST["user"], $_POST["pw"])) {
 }
 
 // Login form, if the user is not yet logged in
-if (!$cuser || !$cpw || !verify_password($cuser,$cpw)) {
+if (!$cuser || !$cpw || !verify_password(DB::connect(), $cuser,$cpw)) {
     $_SESSION = [];
     session_destroy();
 

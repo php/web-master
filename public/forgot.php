@@ -1,13 +1,14 @@
 <?php // vim: et ts=2 sw=2
+
+require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../include/functions.inc';
-require __DIR__ . "/../include/cvs-auth.inc";
 require __DIR__ . "/../include/mailer.php";
 
-$id = isset($_REQUEST['id']) ? $_REQUEST['id'] : false;
-$user = isset($_REQUEST['user']) ? $_REQUEST['user'] : false;
-$key = isset($_REQUEST['key']) ? $_REQUEST['key'] : false;
-$n1 = isset($_REQUEST['n1']) ? $_REQUEST['n1'] : false;
-$n2 = isset($_REQUEST['n2']) ? $_REQUEST['n2'] : false;
+$id = $_REQUEST['id'] ?? false;
+$user = $_REQUEST['user'] ?? false;
+$key = $_REQUEST['key'] ?? false;
+$n1 = $_REQUEST['n1'] ?? false;
+$n2 = $_REQUEST['n2'] ?? false;
 
 $ts = $_SERVER["REQUEST_TIME"];
 
@@ -15,12 +16,6 @@ function random_password() {
   return bin2hex(random_bytes(16));
 }
 
-function username_from_forgotten($key, $id) {
-  $res = db_query_safe("SELECT username FROM users WHERE userid=? AND forgot=?", [$id, $key]);
-  if ($res && ($row = mysql_fetch_array($res,MYSQL_ASSOC))) {
-    return $row["username"];
-  }
-}
 head("forgotten password");
 
 db_connect();

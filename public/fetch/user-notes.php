@@ -1,14 +1,16 @@
 <?php
 
+use App\DB;
+
+require __DIR__ . '/../../vendor/autoload.php';
+
 # token required, since this should only get accessed from rsync.php.net
 if (!isset($_REQUEST['token']) || md5($_REQUEST['token']) != "19a3ec370affe2d899755f005e5cd90e")
   die("token not correct.");
 
 // Changed old mysql_* stuff to PDO
 try {
-    $dbh = new PDO('mysql:host=localhost;dbname=phpmasterdb', 'nobody', '');
-    $dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $dbh->setAttribute(PDO::ATTR_EMULATE_PREPARES, 0);
+    $dbh = DB::connect();
 } catch (PDOException $e) {
     // Old error handling was to simply exit. Do we want to log anything here???
     exit;

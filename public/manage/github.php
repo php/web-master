@@ -3,6 +3,7 @@
 // This script evolved from a quick'n'dirty shell script. If you are reading
 // this feel free to clean it!
 
+require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../include/login.inc';
 
 @include __DIR__ . '/../../github-config.php';
@@ -195,7 +196,7 @@ includes disabling the GitHub wiki and issue tracker as well as enabling the
 php-pulls user to push changes made on git.php.net.</p>
 <p>The name, description and homepage should follow other existing repositories.</p>
 <form method="post" action="github.php">
-Github repo name: http://github.com/php/<input name="name"> (i.e. pecl-category-foobar)<br>
+Github repo name: https://github.com/php/<input name="name"> (i.e. pecl-category-foobar)<br>
 Description: <input name="description"> (i.e. PECL foobar extension)<br>
 Homepage: <input name="homepage"> (i.e. http://pecl.php.net/package/foobar)<br>
 <input type="submit" value="Create Repository on GitHub">

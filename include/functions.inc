@@ -1,5 +1,8 @@
 <?php
-// $Id$
+
+use App\DB;
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $ts = $_SERVER['REQUEST_TIME'];
 
@@ -7,7 +10,7 @@ if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
     die("Magic quotes should not be enabled.");
 }
 
-if (ini_get('filter.default') != 'unsafe_raw') {
+if (ini_get('filter.default') !== 'unsafe_raw') {
     die("filter.default should not be set.");
 }
 
@@ -16,7 +19,7 @@ if (ini_get('filter.default') != 'unsafe_raw') {
 // used in scripts which should only be called from particular machines
 function require_token()
 {
-  if (!isset($_GET['token']) || md5($_GET['token']) != "19a3ec370affe2d899755f005e5cd90e") {
+  if (!isset($_GET['token']) || md5($_GET['token']) !== "19a3ec370affe2d899755f005e5cd90e") {
     die("Token not correct.");
   }
 }
@@ -91,53 +94,24 @@ function warn($message)        { echo format_warn($message); }
 
 function db_connect($dieonerror = TRUE)
 {
-    if (!@mysql_connect("localhost", "nobody", "")) {
+    if (!@mysql_connect(DB::getHost(), DB::getUser(), DB::getPassword())) {
         if ($dieonerror) {
             die(format_warn("Unable to connect to database!"));
         }
         return FALSE;
     }
-    elseif (!mysql_select_db("phpmasterdb")) {
+
+    if (!mysql_select_db(DB::getDatabase())) {
         if ($dieonerror) {
             die(format_warn("Unable to select database!"));
         }
         return FALSE;
     }
+
     return TRUE;
 }
 
-class Query {
-    private $query = '';
-
-    public function __construct($str = '', $params = []) {
-        $this->add($str, $params);
-    }
-
-    public function add($str, $params = []) {
-        if (substr_count($str, '?') !== count($params)) {
-            die("Incorrect number of parameters to query.");
-        }
-
-        $i = 0;
-        $this->query .= preg_replace_callback('/\?(int)?/', function($matches) use ($params, &$i) {
-            if (isset($matches[1]) && $matches[1] === 'int') {
-                return (int) $params[$i++];
-            } else {
-                return "'" . mysql_real_escape_string($params[$i++]) . "'";
-            }
-        }, $str);
-    }
-
-    public function addQuery(Query $q) {
-        $this->query .= $q->get();
-    }
-
-    public function get() {
-        return $this->query;
-    }
-}
-
-function db_query(Query $query)
+function db_query(App\Query $query)
 {
     $query = $query->get();
 	//var_dump($query);
@@ -151,7 +125,7 @@ function db_query(Query $query)
 
 function db_query_safe($query, array $params = [])
 {
-    return db_query(new Query($query, $params));
+    return db_query(new App\Query($query, $params));
 }
 
 function db_get_one($query)
@@ -195,7 +169,7 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = [], $table = true
 <?php endif ?>
  <tr>
   <td>
-   <?php 
+   <?php
      if ($begin > 0) {
        printf("<a href=\"%s?%s\">&laquo; Previous %d",
               $_SERVER['PHP_SELF'],
@@ -214,7 +188,7 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = [], $table = true
   </td>
   <td>
    &nbsp;
-   <?php 
+   <?php
      if ($begin+$rows < $total) {
        printf("<a href=\"%s?%s\">Next %d &raquo;",
               $_SERVER['PHP_SELF'],
@@ -238,24 +212,6 @@ function show_country_options($cc = "")
     }
 }
 
-function is_sqlite_type_available($avails, $check) {
-
-	// All possible sqlite types associated with our assigned bitwise values
-	$all = ['sqlite' => 1, 'sqlite3' => 2, 'pdo_sqlite' => 4, 'pdo_sqlite2' => 8];
-	
-	if (!$avails || empty($all[$check])) {
-		return false;
-	}
-
-	$avail  = (int) $all[$check];
-	$avails = (int) $avails;
-	
-	if (($avails & $avail) === $avail) {
-		return true;
-	}
-	return false;
-}
-
 function verify_ssh_keys($string) {
     return count(get_ssh_keys($string)) > 0;
 }
@@ -271,9 +227,6 @@ function get_ssh_keys($string) {
 
     return $results;
 }
-
-// We use markdown for people profiles
-include_once __DIR__ . '/../vendor/autoload.php';
 
 // -----------------------------------------------------------------------------------
 //
@@ -406,26 +359,26 @@ function is_admin($user) {
 
 function is_mirror_site_admin($user) {
   $admins = [
-    "jimw", 
-    "rasmus", 
-    "andrei", 
-    "zeev", 
-    "andi", 
-    "sas", 
+    "jimw",
+    "rasmus",
+    "andrei",
+    "zeev",
+    "andi",
+    "sas",
     "thies",
-    "rubys", 
-    "ssb", 
-    "imajes", 
-    "goba", 
-    "derick", 
-    "cortesi", 
-    "wez", 
-    "bjori", 
-    "philip", 
-    "danbrown", 
-    "tyrael", 
-    "dm", 
-    "kalle", 
+    "rubys",
+    "ssb",
+    "imajes",
+    "goba",
+    "derick",
+    "cortesi",
+    "wez",
+    "bjori",
+    "philip",
+    "danbrown",
+    "tyrael",
+    "dm",
+    "kalle",
     "googleguy",
     "nikic"
   ];
