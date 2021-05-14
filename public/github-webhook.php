@@ -191,6 +191,10 @@ function handle_ref_change_mail($mailingList, $payload) {
         $message .= "Tag: https://github.com/php/$repoName/releases/tag/$refName\n";
     }
 
+    if ($payload->forced) {
+        $message .= "\nCommit mails will not be sent for force-pushed commits!\n";
+    }
+
     send_mail($mailingList, $subject, $message, MailAddress::noReply($pusherName));
 }
 
@@ -283,6 +287,12 @@ function handle_push_mail($payload) {
 
     if ($payload->created || $payload->deleted || $payload->forced) {
         handle_ref_change_mail($mailingList, $payload);
+    }
+
+    if ($payload->forced) {
+        // Do not send commit mails for force-pushed branches. These are generally rebases
+        // of existing commits and cause a lot of noise.
+        return;
     }
 
     $dbh = DB::connect();
