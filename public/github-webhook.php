@@ -309,6 +309,7 @@ $CONFIG = [
         'php-src' => 'git-pulls@lists.php.net',
         'web-' => 'php-webmaster@lists.php.net',
         'pecl-' => 'pecl-dev@lists.php.net',
+        'playground' => 'nikic@php.net',
     ],
 ];
 
