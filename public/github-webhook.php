@@ -15,28 +15,16 @@ function verify_signature($requestBody) {
     return false;
 }
 
-function get_repo_email($repos, $repoName) {
-    // if we somehow end up receiving a PR for a repo not matching anything send it to systems so that we can fix it
-    $to = 'systems@php.net';
-    foreach ($repos as $repoPrefix => $email) {
-        if (strpos($repoName, $repoPrefix) === 0) {
-            $to = $email;
-        }
-    }
-
-    return $to;
-}
-
 function is_pr($issue) {
     return strpos($issue->html_url, '/pull/') !== false;
 }
 
-function prep_title($issue, $repoName) {
+function prep_title(object $issue, string $repoName): string {
     $issueNumber = $issue->number;
     $title = $issue->title;
     $type = is_pr($issue) ? 'PR' : 'Issue';
 
-    return sprintf('[%s][%s #%s] - %s', $repoName, $type, $issueNumber, $title);
+    return sprintf('[%s] %s #%s: %s', $repoName, $type, $issueNumber, $title);
 }
 
 function send_mail($to, $subject, $message, MailAddress $from, array $replyTos = []) {
@@ -130,6 +118,24 @@ function get_commit_mailing_list($repoName) {
         return 'pecl-cvs@lists.php.net';
     } else if (strpos($repoName, 'doc-') === 0 && $repoName !== 'doc-gtk') {
         return str_replace('-', '_', $repoName) . '@lists.php.net';
+    } else {
+        return null;
+    }
+}
+
+function get_issue_mailing_list(string $repoName, bool $isPR) {
+    if ($repoName === 'playground') {
+        return 'nikic@php.net';
+    } else if ($repoName === 'php-src') {
+        if ($isPR) {
+            return 'git-pulls@lists.php.net';
+        } else {
+            return 'php-bugs@lists.php.net';
+        }
+    } else if (strpos($repoName, 'web-') === 0) {
+        return 'php-webmaster@lists.php.net';
+    } else if (strpos($repoName, 'pecl-') === 0) {
+        return 'pecl-dev@lists.php.net';
     } else {
         return null;
     }
@@ -303,16 +309,6 @@ function handle_push_mail($payload) {
     }
 }
 
-$CONFIG = [
-    'repos' => [
-        'php-langspec' => 'standards@lists.php.net',
-        'php-src' => 'git-pulls@lists.php.net',
-        'web-' => 'php-webmaster@lists.php.net',
-        'pecl-' => 'pecl-dev@lists.php.net',
-        'playground' => 'nikic@php.net',
-    ],
-];
-
 if (DRY_RUN) {
     $body = file_get_contents("php://stdin");
     $event = $argv[1];
@@ -347,11 +343,12 @@ switch ($event) {
         $description = $issue->body;
         $username = $issue->user->login;
 
-        $to = get_repo_email($CONFIG["repos"], $repoName);
+        $isPR = is_pr($issue);
+        $to = get_issue_mailing_list($repoName, $isPR);
         $subject = prep_title($issue, $repoName);
-        $type = is_pr($issue) ? 'Pull Request' : 'Issue';
+        $type = $isPR ? 'Pull Request' : 'Issue';
 
-        $message = sprintf("You can view the %s on github:\r\n%s", $type, $htmlUrl);
+        $message = sprintf("%s: %s", $type, $htmlUrl);
         switch ($action) {
             case 'opened':
                 $message .= sprintf(
@@ -388,11 +385,12 @@ switch ($event) {
         $username = $payload->comment->user->login;
         $comment = $payload->comment->body;
 
-        $to = get_repo_email($CONFIG["repos"], $repoName);
+        $isPR = is_pr($issue);
+        $to = get_issue_mailing_list($repoName, $isPR);
         $subject = prep_title($issue, $repoName);
-        $type = is_pr($issue) ? 'Pull Request' : 'Issue';
+        $type = $isPR ? 'Pull Request' : 'Issue';
 
-        $message = sprintf("You can view the %s on github:\r\n%s", $type, $htmlUrl);
+        $message = sprintf("%s: %s", $type, $htmlUrl);
         switch ($action) {
             case 'created':
                 $message .= sprintf("\r\n\r\nComment by %s:\r\n%s", $username, $comment);
