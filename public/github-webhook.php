@@ -373,6 +373,7 @@ switch ($event) {
             case 'synchronize':
             case 'milestoned':
             case 'demilestoned':
+            case 'ready_for_review':
                 // Ignore these actions
                 break 2;
         }
