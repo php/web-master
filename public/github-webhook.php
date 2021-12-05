@@ -327,8 +327,14 @@ if (DRY_RUN) {
 }
 
 $payload = json_decode($body);
-$repoName = $payload->repository->name;
+if ($payload === null) {
+    header("HTTP/1.1 400 Bad Request");
+    echo "Failed to decode payload: ", json_last_error_msg(), "\n";
+    echo "Body:\n", $body, "\n";
+    exit;
+}
 
+$repoName = $payload->repository->name;
 switch ($event) {
     case 'ping':
         break;
