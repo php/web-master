@@ -345,6 +345,11 @@ switch ($event) {
 
         $isPR = is_pr($issue);
         $to = get_issue_mailing_list($repoName, $isPR);
+        if ($to === null) {
+            echo "Not sending mail for $repoName (no mailing list)";
+            return;
+        }
+
         $subject = prep_title($issue, $repoName);
         $type = $isPR ? 'Pull Request' : 'Issue';
 
@@ -386,6 +391,11 @@ switch ($event) {
 
         $isPR = is_pr($issue);
         $to = get_issue_mailing_list($repoName, $isPR);
+        if ($to === null) {
+            echo "Not sending mail for $repoName (no mailing list)";
+            return;
+        }
+
         $subject = prep_title($issue, $repoName);
         $type = $isPR ? 'Pull Request' : 'Issue';
 
