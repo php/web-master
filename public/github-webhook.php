@@ -341,25 +341,24 @@ switch ($event) {
         $htmlUrl = $issue->html_url;
 
         $description = $issue->body;
-        $username = $issue->user->login;
+        $username = $payload->sender->login;
 
         $isPR = is_pr($issue);
         $to = get_issue_mailing_list($repoName, $isPR);
         $subject = prep_title($issue, $repoName);
         $type = $isPR ? 'Pull Request' : 'Issue';
 
-        $message = sprintf("%s: %s", $type, $htmlUrl);
+        $message = sprintf("%s: %s\r\n", $type, $htmlUrl);
         switch ($action) {
             case 'opened':
                 $message .= sprintf(
-                    "\r\n\r\nOpened By: %s\r\n%s Description:\r\n%s",
-                    $username, $type, $description);
+                    "Author: %s\r\n\r\n%s", $username, $description);
                 break;
             case 'closed':
-                $message .= "\r\n\r\nClosed.";
+                $message .= "\r\nClosed by $username.";
                 break;
             case 'reopened':
-                $message .= "\r\n\r\nReopened.";
+                $message .= "\r\nReopened by $username.";
                 break;
             case 'assigned':
             case 'unassigned':
@@ -390,10 +389,10 @@ switch ($event) {
         $subject = prep_title($issue, $repoName);
         $type = $isPR ? 'Pull Request' : 'Issue';
 
-        $message = sprintf("%s: %s", $type, $htmlUrl);
+        $message = sprintf("%s: %s\r\n", $type, $htmlUrl);
         switch ($action) {
             case 'created':
-                $message .= sprintf("\r\n\r\nComment by %s:\r\n%s", $username, $comment);
+                $message .= sprintf("Comment Author: %s\r\n\r\n%s", $username, $comment);
                 break;
             case 'edited':
             case 'deleted':
