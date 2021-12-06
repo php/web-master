@@ -365,6 +365,10 @@ switch ($event) {
             case 'reopened':
                 $message .= "\r\nReopened by $username.";
                 break;
+            case 'transferred':
+                $new_url = $payload->changes->new_issue->html_url;
+                $message .= "\r\nTransferred to $new_url by $username.";
+                break;
             case 'assigned':
             case 'unassigned':
             case 'labeled':
@@ -376,6 +380,9 @@ switch ($event) {
             case 'ready_for_review':
                 // Ignore these actions
                 break 2;
+            default:
+                $message .= "\r\nUnknown action: $action";
+                break;
         }
 
         send_mail($to, $subject, $message, MailAddress::noReply());
