@@ -385,7 +385,7 @@ switch ($event) {
                 break;
         }
 
-        send_mail($to, $subject, $message, MailAddress::noReply());
+        send_mail($to, $subject, $message, MailAddress::noReply($username));
         break;
 
     case 'pull_request_review_comment':
@@ -418,7 +418,7 @@ switch ($event) {
                 break 2;
         }
 
-        send_mail($to, $subject, $message, MailAddress::noReply());
+        send_mail($to, $subject, $message, MailAddress::noReply($username));
         break;
 
     case 'push':
