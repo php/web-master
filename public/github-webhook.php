@@ -388,39 +388,6 @@ switch ($event) {
         send_mail($to, $subject, $message, MailAddress::noReply($username));
         break;
 
-    case 'pull_request_review_comment':
-    case 'issue_comment':
-        $action = $payload->action;
-        $issue = $event == 'issue_comment' ? $payload->issue : $payload->pull_request;
-        $htmlUrl = $issue->html_url;
-
-        $username = $payload->comment->user->login;
-        $comment = $payload->comment->body;
-
-        $isPR = is_pr($issue);
-        $to = get_issue_mailing_list($repoName, $isPR);
-        if ($to === null) {
-            echo "Not sending mail for $repoName (no mailing list)";
-            return;
-        }
-
-        $subject = prep_title($issue, $repoName);
-        $type = $isPR ? 'Pull Request' : 'Issue';
-
-        $message = sprintf("%s: %s\r\n", $type, $htmlUrl);
-        switch ($action) {
-            case 'created':
-                $message .= sprintf("Comment Author: %s\r\n\r\n%s", $username, $comment);
-                break;
-            case 'edited':
-            case 'deleted':
-                // Ignore these actions
-                break 2;
-        }
-
-        send_mail($to, $subject, $message, MailAddress::noReply($username));
-        break;
-
     case 'push':
         if ($payload->ref === 'refs/heads/master') {
             // Only close bugs for pushes to master.
