@@ -1,5 +1,6 @@
 <?php
 
+use App\DB;
 use App\Query;
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -37,7 +38,7 @@ at <https://php.net/support>.
 
 Your note has been removed from the online manual.';
 
-db_connect();
+$pdo = DB::connect();
 
 $action = (isset($_REQUEST['action']) ? preg_replace('/[^\w\d\s_]/', '', $_REQUEST['action']) : '');
 $id = (isset($_REQUEST['id']) ? intval($_REQUEST['id']) : '');
@@ -97,50 +98,50 @@ if (!$action) {
       } elseif (substr($_REQUEST['keyword'], 0, 5) == 'sect:') {
         $search_heading = 'Search results for <em>' . hsc($_REQUEST['keyword']) . '</em>';
         $section = str_replace('*', '%', substr($_REQUEST['keyword'], 5));
-        $query->add("note.sect LIKE ? GROUP BY note.id ORDER BY note.sect, note.ts LIMIT ?int, 10", [$section, $limit]);
+        $query->add("note.sect LIKE ? GROUP BY note.id ORDER BY note.sect, note.ts LIMIT ?, 10", [$section, $limit]);
       } else {
         $search_heading = 'Search results for <em>' . hsc($_REQUEST['keyword']) . '</em>';
         $query->add(
-          "note.note LIKE ? GROUP BY note.id LIMIT ?int, 10",
+          "note.note LIKE ? GROUP BY note.id LIMIT ?, 10",
           ['%' . $_REQUEST['keyword'] . '%', $limit]);
       }
-      $result = db_query_safe($query->get());
+      $result = $pdo->safeQuery($query->get(), $query->getParams());
     } else {
       /* Added new voting information to be included in note from votes table. */
       /* First notes */
       if ($type == 1) {
         $search_heading = 'First notes';
-        $result = db_query_safe("SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+        $result = $pdo->safeQuery("SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY note.id ASC LIMIT ?int, 10", [$limit]);
+               "GROUP BY note.id ORDER BY note.id ASC LIMIT ?, 10", [$limit]);
       /* Minor notes */
       } else if ($type == 2) {
         $search_heading = 'Minor notes';
-        $result = db_query_safe("SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
+        $result = $pdo->safeQuery("SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "LEFT JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY LENGTH(note.note) ASC LIMIT ?int, 10", [$limit]);
+               "GROUP BY note.id ORDER BY LENGTH(note.note) ASC LIMIT ?, 10", [$limit]);
       /* Top rated notes */
       } else if ($type == 3) {
         $search_heading = 'Top rated notes';
-        $result = db_query_safe("SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
+        $result = $pdo->safeQuery("SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
                "ROUND((SUM(votes.vote) / COUNT(votes.vote)) * 100) AS rate, ".
                "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS arating, ".
                "note.id, note.sect, note.user, note.note, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY arating DESC, up DESC, rate DESC, down DESC LIMIT ?int, 10", [$limit]);
+               "GROUP BY note.id ORDER BY arating DESC, up DESC, rate DESC, down DESC LIMIT ?, 10", [$limit]);
       /* Bottom rated notes */
       } else if ($type == 4) {
         $search_heading = 'Bottom rated notes';
-        $result = db_query_safe("SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
+        $result = $pdo->safeQuery("SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, ".
                "ROUND((SUM(votes.vote) / COUNT(votes.vote)) * 100) AS rate, ".
                "(SUM(votes.vote) - (COUNT(votes.vote) - SUM(votes.vote))) AS arating, ".
                "note.id, note.sect, note.user, note.note, UNIX_TIMESTAMP(note.ts) AS ts ".
                "FROM note ".
                "JOIN(votes) ON (note.id = votes.note_id) ".
-               "GROUP BY note.id ORDER BY arating ASC, up ASC, rate ASC, down DESC LIMIT ?int, 10", [$limit]);
+               "GROUP BY note.id ORDER BY arating ASC, up ASC, rate ASC, down DESC LIMIT ?, 10", [$limit]);
       /* Votes table view */
       } else if ($type == 5) {
         $search_votes = true; // set this only to change the output between votes table and notes table
@@ -149,58 +150,50 @@ if (!$action) {
             $search = html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8');
             $start = $iprange[0];
             $end = $iprange[1];
-            $resultCount = db_query_safe("SELECT count(votes.id) AS total_votes FROM votes JOIN (note) ON (votes.note_id = note.id) WHERE ".
+            $resultCount = $pdo->single("SELECT count(votes.id) AS total_votes FROM votes JOIN (note) ON (votes.note_id = note.id) WHERE ".
                                     "(hostip >= ? AND hostip <= ?) OR (ip >= ? AND ip <= ?)", [$start, $end, $start, $end]);
-            $resultCount = mysql_fetch_assoc($resultCount);
-            $resultCount = $resultCount['total_votes'];
             $isSearch = '&votessearch=' . hsc($search);
-            $result = db_query_safe(
+            $result = $pdo->safeQuery(
               'SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip '.
               'FROM votes JOIN(note) ON (votes.note_id = note.id) '.
               'WHERE (hostip >= ? AND hostip <= ?) OR (ip >= ? AND ip <= ?) '.
-              'ORDER BY votes.id DESC LIMIT ?int, 25',
+              'ORDER BY votes.id DESC LIMIT ?, 25',
               [$start, $end, $start, $end, $limitVotes]);
 
           } elseif (filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP)) {
             $searchip = (int) ip2long(filter_var(html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8'), FILTER_VALIDATE_IP));
-            $resultCount = db_query_safe("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE hostip = ? OR ip = ?", [$searchip, $searchip]);
-            $resultCount = mysql_fetch_assoc($resultCount);
-            $resultCount = $resultCount['total_votes'];
+            $resultCount = $pdo->single("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE hostip = ? OR ip = ?", [$searchip, $searchip]);
             $isSearch = '&votessearch=' . hsc(long2ip($searchip));
-            $result = db_query_safe(
+            $result = $pdo->safeQuery(
               "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
               "FROM votes JOIN(note) ON (votes.note_id = note.id) ".
               "WHERE hostip = ? OR ip = ? ".
-              "ORDER BY votes.id DESC LIMIT ?int, 25",
+              "ORDER BY votes.id DESC LIMIT ?, 25",
               [$searchip, $searchip, $limitVotes]);
           } else {
             $search = (int) html_entity_decode($_GET['votessearch'], ENT_QUOTES, 'UTF-8');
-            $resultCount = db_query_safe("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE votes.note_id = ?", [$search]);
-            $resultCount = mysql_fetch_assoc($resultCount);
-            $resultCount = $resultCount['total_votes'];
+            $resultCount = $pdo->single("SELECT count(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id) WHERE votes.note_id = ?", [$search]);
             $isSearch = '&votessearch=' . hsc($search);
-            $result = db_query_safe(
+            $result = $pdo->safeQuery(
               "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
               "FROM votes JOIN(note) ON (votes.note_id = note.id) ".
               "WHERE votes.note_id = ? ".
-              "ORDER BY votes.id DESC LIMIT ?int, 25",
+              "ORDER BY votes.id DESC LIMIT ?, 25",
               [$search, $limitVotes]);
           }
         } else {
           $isSearch = null;
-          $resultCount = db_query_safe("SELECT COUNT(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id)");
-          $resultCount = mysql_fetch_assoc($resultCount);
-          $resultCount = $resultCount['total_votes'];
-          $result = db_query_safe(
+          $resultCount = $pdo->single("SELECT COUNT(votes.id) AS total_votes FROM votes JOIN(note) ON (votes.note_id = note.id)");
+          $result = $pdo->safeQuery(
             "SELECT votes.id, UNIX_TIMESTAMP(votes.ts) AS ts, votes.vote, votes.note_id, note.sect, votes.hostip, votes.ip ".
             "FROM votes JOIN(note) ON (votes.note_id = note.id) ".
-            "ORDER BY votes.id DESC LIMIT ?int, 25",
+            "ORDER BY votes.id DESC LIMIT ?, 25",
             [$limitVotes]);
         }
       /* IPs with the most votes -- aggregated data */
       } elseif ($type == 6) {
         $votes_by_ip = true; // only set this get the table for top IPs with votes
-        $result = db_query_safe(
+        $result = $pdo->safeQuery(
           "SELECT DISTINCT(votes.ip), COUNT(votes.ip) as votes, COUNT(DISTINCT(votes.note_id)) as notes, ".
           "INET_NTOA(votes.ip) AS ip, MIN(UNIX_TIMESTAMP(votes.ts)) AS `from`, MAX(UNIX_TIMESTAMP(votes.ts)) AS `to` ".
           "FROM votes ".
@@ -208,10 +201,10 @@ if (!$action) {
       /* Last notes */
       } else {
         $search_heading = 'Last notes';
-        $result = db_query_safe(
+        $result = $pdo->safeQuery(
           "SELECT SUM(votes.vote) AS up, (COUNT(votes.vote) - SUM(votes.vote)) AS down, note.*, UNIX_TIMESTAMP(note.ts) AS ts ".
           "FROM note LEFT JOIN(votes) ON (note.id = votes.note_id) ".
-          "GROUP BY note.id ORDER BY note.id DESC LIMIT ?int, 10",
+          "GROUP BY note.id ORDER BY note.id DESC LIMIT ?, 10",
           [$limit]);
       }
     }
@@ -267,12 +260,13 @@ if (!$action) {
       if (!empty($search_heading)) {
           echo "<h2>$search_heading</h2>";
       }
-      while ($row = mysql_fetch_assoc($result)) {
+      $numberOfNotes = count($result);
+      foreach ($result as $row) {
         /*
            I had to do this because the JOIN queries will return a single row of NULL values even when no rows match.
            So the `if (mysql_num_rows($result))` check earlier becomes useless and as such I had to replace it with this.
         */
-        if (mysql_num_rows($result) == 1 && !array_filter($row)) {
+        if ($numberOfNotes == 1 && !array_filter($row)) {
           echo "<p>No results found...</p>";
           continue;
         }
@@ -458,14 +452,14 @@ case 'mass':
   if ($step == 2) {
     $query = new Query('UPDATE note SET sect = ? WHERE ', [$_REQUEST["new_sect"]]);
     $query->addQuery($where);
-    db_query($query);
+    $pdo->safeQuery($query->get(), $query->getParams());
     echo "<p>Mass change succeeded.</p>\n";
   } elseif ($step == 1) {
     if (!empty($_REQUEST["new_sect"]) && $where) {
       $query = new Query('SELECT COUNT(*) FROM note WHERE ');
       $query->addQuery($where);
-      $result = db_query($query);
-      if (!($count = mysql_result($result, 0, 0))) {
+      $count = $pdo->single($query->get(), $query->getParams());
+      if (!$count) {
         echo "<p>There are no such notes.</p>\n";
       } else {
         $step = 2;
@@ -525,13 +519,13 @@ case 'mass':
   exit;
 case 'approve':
   if ($id) {
-    if ($row = note_get_by_id($id)) {
+    if ($row = note_get_by_id($pdo, $id)) {
 
       if ($row['status'] != 'na') {
         die ("Note #$id has already been approved");
       }
 
-      if ($row['id'] && db_query_safe("UPDATE note SET status=NULL WHERE id=?", [$id])) {
+      if ($row['id'] && $pdo->safeQuery("UPDATE note SET status=NULL WHERE id=?", [$id])) {
         note_mail_on_action(
             $cuser,
             $id,
@@ -547,8 +541,8 @@ case 'approve':
 case 'reject':
 case 'delete':
   if ($id) {
-    if ($row = note_get_by_id($id)) {
-      if ($row['id'] && db_query_safe("DELETE note,votes FROM note LEFT JOIN (votes) ON (note.id = votes.note_id) WHERE note.id = ?", [$id])) {
+    if ($row = note_get_by_id($pdo, $id)) {
+      if ($row['id'] && $pdo->safeQuery("DELETE note,votes FROM note LEFT JOIN (votes) ON (note.id = votes.note_id) WHERE note.id = ?", [$id])) {
         $action_taken = ($action == "reject" ? "rejected" : "deleted");
         note_mail_on_action(
             $cuser,
@@ -582,13 +576,13 @@ case 'edit':
       head("user notes");
     }
 
-    $row = note_get_by_id($id);
+    $row = note_get_by_id($pdo, $id);
 
     $email = (isset($_POST['email']) ? html_entity_decode($_POST['email'],ENT_QUOTES) : $row['user']);
     $sect = (isset($_POST['sect']) ? html_entity_decode($_POST['sect'],ENT_QUOTES) : $row['sect']);
 
     if (isset($note) && $action == "edit") {
-      if (db_query_safe('UPDATE note SET note=?,user=?,sect=?,updated=NOW() WHERE id=?', [html_entity_decode($note,ENT_QUOTES), $email, $sect, $id])) {
+      if ($pdo->safeQuery('UPDATE note SET note=?,user=?,sect=?,updated=NOW() WHERE id=?', [html_entity_decode($note,ENT_QUOTES), $email, $sect, $id])) {
         note_mail_on_action(
             $cuser,
             $id,
@@ -651,19 +645,18 @@ case 'resetdown':
   if ($id) {
     if (strtoupper($_SERVER['REQUEST_METHOD']) == 'POST') {
       /* Make sure the note has votes before we attempt to delete them */
-      $result = db_query_safe("SELECT COUNT(id) AS id FROM votes WHERE note_id = ?", [$id]);
-      $rows = mysql_fetch_assoc($result);
-      if (!$rows['id']) {
+      $result = $pdo->single("SELECT 1 FROM votes WHERE note_id = ?", [$id]);
+      if (!$result) {
         echo "<p>No votes exist for Note ID ". hsc($id) ."!</p>";
       } else {
         if ($action == 'resetall' && isset($_POST['resetall'])) {
-          db_query_safe('DELETE FROM votes WHERE votes.note_id = ?', [$id]);
+          $pdo->safeQuery('DELETE FROM votes WHERE votes.note_id = ?', [$id]);
           /* 1 for up votes */
         } elseif ($action == 'resetup' && isset($_POST['resetup'])) {
-          db_query_safe('DELETE FROM votes WHERE votes.note_id = ? AND votes.vote = 1', [$id]);
+          $pdo->safeQuery('DELETE FROM votes WHERE votes.note_id = ? AND votes.vote = 1', [$id]);
           /* 0 for down votes */
         } elseif ($action == 'resetdown' && isset($_POST['resetdown'])) {
-          db_query_safe('DELETE FROM votes WHERE votes.note_id = ? AND votes.vote = 0', [$id]);
+          $pdo->safeQuery('DELETE FROM votes WHERE votes.note_id = ? AND votes.vote = 0', [$id]);
         }
         header('Location: user-notes.php?id=' . urlencode($id) . '&was=' . urlencode($action));
       }
@@ -672,9 +665,8 @@ case 'resetdown':
              'FROM note '.
              'JOIN(votes) ON (note.id = votes.note_id) '.
              'WHERE note.id = ?';
-      $result = db_query_safe($sql, [$id]);
-      if (mysql_num_rows($result)) {
-        $row = mysql_fetch_assoc($result);
+      $row = $pdo->row($sql, [$id]);
+      if ($row) {
         $out = "<p>\nAre you sure you want to reset all votes for <strong>Note #". hsc($row['id']) ."</strong>? ";
         if ($action == 'resetall') {
           $out .= "This will permanently delete all <em>". hsc($row['up']) ."</em> up votes and <em>". hsc($row['down']) ."</em> down votes for this note.\n</p>\n".
@@ -717,7 +709,7 @@ case 'deletevotes':
   }
   $ids = implode(',',$ids);
   // This is safe, because $ids is an array of integers.
-  if (db_query_safe("DELETE FROM votes WHERE id IN ($ids)")) {
+  if ($pdo->safeQuery("DELETE FROM votes WHERE id IN ($ids)")) {
     header('Location: user-notes.php?id=1&view=notes&was=' . urlencode($action) .
            (isset($_REQUEST['type']) ? ('&type=' . urlencode($_REQUEST['type'])) : null) .
            (isset($_REQUEST['votessearch']) ? '&votessearch=' . urlencode($_REQUEST['votessearch']) : null)
@@ -771,9 +763,7 @@ case 'voting_stats':
     $stats_sql['Last Week']   = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ? AND UNIX_TIMESTAMP(votes.ts) < ?', [$lastweek, $week]);
     $stats_sql['Last Month']  = new Query('SELECT COUNT(votes.id) AS total FROM votes WHERE UNIX_TIMESTAMP(votes.ts) >= ? AND UNIX_TIMESTAMP(votes.ts) < ?', [$lastmonth, $month]);
     foreach ($stats_sql as $key => $query) {
-        $result = db_query($query);
-        $row = mysql_fetch_assoc($result);
-        $stats[$key] = $row['total'];
+      $stats[$key] = $pdo->single($query->get(), $query->getParams());
     }
     ?>
     <h2>User contributed voting statistics</h2>
@@ -873,15 +863,12 @@ function note_mail_user($mailto, $subject, $message)
 }
 
 // Return data about a note by its ID
-function note_get_by_id($id)
+function note_get_by_id(DB $pdo, $id)
 {
-    if ($result = db_query_safe('SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id=?', [$id])) {
-        if (!mysql_num_rows($result)) {
-            die("Note #$id doesn't exist. It has probably been deleted/rejected already.");
-        }
-        return mysql_fetch_assoc($result);
+    if ($result = $pdo->row('SELECT *, UNIX_TIMESTAMP(ts) AS ts FROM note WHERE id=?', [$id])) {
+      return $result;
     }
-    return FALSE;
+    die("Note #$id doesn't exist. It has probably been deleted/rejected already.");
 }
 
 // Sends out a notification to the mailing list when

@@ -1,5 +1,7 @@
 <?php // vim: et ts=2 sw=2
 
+use App\DB;
+
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../include/functions.inc';
 require __DIR__ . "/../include/mailer.php";
@@ -18,14 +20,14 @@ function random_password() {
 
 head("forgotten password");
 
-db_connect();
+$pdo = DB::connect();
 
 if ($id && $key) {
   if ($n1 && $n2) {
     if ($n1 === $n2) {
       $svnpasswd = gen_pass($n1);
-      $res = db_query_safe("UPDATE users SET forgot=NULL,svnpasswd=?,pchanged=? WHERE userid=? AND forgot=?", [$svnpasswd, $ts, $id, $key]);
-      if ($res && mysql_affected_rows()) {
+      $res = $pdo->safeQueryReturnsAffectedRows("UPDATE users SET forgot=NULL,svnpasswd=?,pchanged=? WHERE userid=? AND forgot=?", [$svnpasswd, $ts, $id, $key]);
+      if ($res) {
         echo '<p>Okay, your password has been changed. It could take as long as an hour before this change makes it to the VCS server and other services. To change your password again, you\'ll have to start this process over to get a new key.</p>';
         foot();
         exit;
@@ -54,13 +56,12 @@ password: <input type="password" name="n1" value="<?= hsc($n1)?>" />
   exit;
 }
 elseif ($user) {
-  $res = db_query_safe("SELECT * FROM users WHERE username = ?", [$user]);
-  if ($res && ($row = mysql_fetch_array($res,MYSQL_ASSOC))) {
+  $row = $pdo->row("SELECT * FROM users WHERE username = ?", [$user]);
+  if ($row) {
     $newpass = random_password();
     $query = "UPDATE users SET forgot=? WHERE userid=?";
-    $res = db_query_safe($query, [$newpass, $row['userid']]);
-    if ($res) {
-      $body =
+    $pdo->safeQuery($query, [$newpass, $row['userid']]);
+    $body =
 "Someone filled out the form that says you forgot your php.net VCS
 password. If it wasn't you, don't worry too much about it. Unless
 someone is reading your mail, there's not much they can do. (But you
@@ -76,17 +77,13 @@ Let us know if you have any further problems.
 --
 group@php.net
 ";
-      mailer(
-        $row['username'] . '@php.net',
-        "Password change instructions for $row[username]", $body,
-        new MailAddress('group@php.net', 'PHP Group'));
-      echo '<p>Okay, instructions on how to change your password have been sent to your email address. If you don\'t receive them, you\'ll have to contact group@php.net for help.</p>';
-      foot();
-      exit;
-    }
-    else {
-      echo '<p class="warning">Something strange happened. You\'ll have to contact group@php.net for help.</p>';
-    }
+    mailer(
+      $row['username'] . '@php.net',
+      "Password change instructions for $row[username]", $body,
+      new MailAddress('group@php.net', 'PHP Group'));
+    echo '<p>Okay, instructions on how to change your password have been sent to your email address. If you don\'t receive them, you\'ll have to contact group@php.net for help.</p>';
+    foot();
+    exit;
   }
   else {?>
 <p class="warning">There's nobody named <?php echo hsc($user)?> around here. Perhaps you need to contact

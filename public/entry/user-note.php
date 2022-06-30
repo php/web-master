@@ -3,9 +3,12 @@
 // service closed until we can filter spam
 //die ('[CLOSED]');
 
+use App\DB;
+
 include_once 'note-reasons.inc';
 include_once 'spam-lib.inc';
 include_once 'functions.inc';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $mailto = 'php-notes@lists.php.net';
 $failto = 'jimw@php.net, alindeman@php.net, danbrown@php.net';
@@ -53,7 +56,7 @@ if (($spamip=is_spam_ip($_SERVER['REMOTE_ADDR'])) || ($spamip=is_spam_ip($ip)) |
 unset($note_lc);
 /* End SPAM Checks ******************************************/
 
-db_connect();
+$pdo = DB::connect();
 
 /*
 After a discussion in #php about the
@@ -66,19 +69,7 @@ flow of notes usually submitted.  This prevents
 a large flood of notes from coming in.
 */
 $query = 'SELECT COUNT(*) FROM note WHERE ts >= (NOW() - INTERVAL 1 MINUTE)';
-$result = db_query_safe($query);
-
-if (!$result) {
-  mail ($failto,
-       'failed manual note query',
-       "Query Failed: $query\nError: ".mysql_error(),
-       'From: php-webmaster@lists.php.net',
-	   '-fnoreply@php.net'
-  );
-  die("failed to query note db");
-}
-
-list ($count) = mysql_fetch_row ($result);
+$count = $pdo->single($query);
 
 if ($count >= 3) {
   //Send error to myself.  If this happens too many times, I'll increase
@@ -102,55 +93,46 @@ $sect = trim(preg_replace('/\.php$/','',$sect));
 //This has been reverted until it has been discussed further.
 
 $query = "INSERT INTO note (user, note, sect, ts, status) VALUES (?, ?, ?,NOW(), NULL)";
-if (db_query_safe($query, [$user, $note, $sect])) {
-  $new_id = mysql_insert_id();	
-  $msg = $note;
+$pdo->safeQuery($query, [$user, $note, $sect]);
+$new_id = $pdo->lastInsertId();	
+$msg = $note;
 
-  $msg .= "\n----\n";
-  $msg .= "Server IP: {$_SERVER['REMOTE_ADDR']}";
-  if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) || isset($_SERVER['HTTP_VIA'])) {
-    $msg .= " (proxied:";
-    if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-      $msg .= " " . hsc($_SERVER['HTTP_X_FORWARDED_FOR']);
-    }
-    if (isset($_SERVER['HTTP_VIA'])) {
-      $msg .= " " . hsc($_SERVER['HTTP_VIA']);
-    }
-    $msg .= ")";
+$msg .= "\n----\n";
+$msg .= "Server IP: {$_SERVER['REMOTE_ADDR']}";
+if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) || isset($_SERVER['HTTP_VIA'])) {
+  $msg .= " (proxied:";
+  if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    $msg .= " " . hsc($_SERVER['HTTP_X_FORWARDED_FOR']);
   }
-  $msg .= "\nProbable Submitter: {$ip}" . ($redirip ? ' (proxied: '.htmlspecialchars($redirip).')' : '');
+  if (isset($_SERVER['HTTP_VIA'])) {
+    $msg .= " " . hsc($_SERVER['HTTP_VIA']);
+  }
+  $msg .= ")";
+}
+$msg .= "\nProbable Submitter: {$ip}" . ($redirip ? ' (proxied: '.htmlspecialchars($redirip).')' : '');
 
-  $msg .= "\n----\n";
+$msg .= "\n----\n";
 //  $msg .= $spam_data;
 //  $msg .= "\n----\n";
 
-  $msg .= "Manual Page -- https://php.net/manual/en/$sect.php\n";
-  $msg .= "Edit        -- https://main.php.net/note/edit/$new_id\n";
-  //$msg .= "Approve     -- https://main.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
-  foreach ($note_del_reasons AS $reason) {
-    $msg .= "Del: "
-      . str_pad($reason, $note_del_reasons_pad)
-      . "-- https://main.php.net/note/delete/$new_id/" . urlencode($reason) ."\n";
-  }
-
-  // @phan-suppress-next-line PhanParamSuspiciousOrder - weird global padding count, but ok
-  $msg .= str_pad('Del: other reasons', $note_del_reasons_pad) . "-- https://main.php.net/note/delete/$new_id\n";
-  $msg .= "Reject      -- https://main.php.net/note/reject/$new_id\n";
-  $msg .= "Search      -- https://main.php.net/manage/user-notes.php\n";
-  # make sure we have a return address.
-  if (!$user) $user = "php-general@lists.php.net";
-  # strip spaces in email address, or will get a bad To: field
-  $user = str_replace(' ','',$user);
-  mail($mailto,"note $new_id added to $sect",$msg,"From: $user\r\nMessage-ID: <note-$new_id@php.net>", "-fnoreply@php.net");
-} else {
-  // mail it.
-  mail($failto,
-      'failed manual note query',
-      "Query Failed: $query\nError: ".mysql_error(),
-      'From: php-webmaster@lists.php.net',
-	  "-fnoreply@php.net");
-  die("failed to insert record");
+$msg .= "Manual Page -- https://php.net/manual/en/$sect.php\n";
+$msg .= "Edit        -- https://main.php.net/note/edit/$new_id\n";
+//$msg .= "Approve     -- https://main.php.net/manage/user-notes.php?action=approve+$new_id&report=yes\n";
+foreach ($note_del_reasons AS $reason) {
+  $msg .= "Del: "
+    . str_pad($reason, $note_del_reasons_pad)
+    . "-- https://main.php.net/note/delete/$new_id/" . urlencode($reason) ."\n";
 }
+
+// @phan-suppress-next-line PhanParamSuspiciousOrder - weird global padding count, but ok
+$msg .= str_pad('Del: other reasons', $note_del_reasons_pad) . "-- https://main.php.net/note/delete/$new_id\n";
+$msg .= "Reject      -- https://main.php.net/note/reject/$new_id\n";
+$msg .= "Search      -- https://main.php.net/manage/user-notes.php\n";
+# make sure we have a return address.
+if (!$user) $user = "php-general@lists.php.net";
+# strip spaces in email address, or will get a bad To: field
+$user = str_replace(' ','',$user);
+mail($mailto,"note $new_id added to $sect",$msg,"From: $user\r\nMessage-ID: <note-$new_id@php.net>", "-fnoreply@php.net");
 
 //var_dump(is_spammer('127.0.0.1')); // false
 //var_dump(is_spammer('127.0.0.2')); // true

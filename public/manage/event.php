@@ -1,5 +1,6 @@
 <?php
 
+use App\DB;
 use App\Query;
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -27,7 +28,7 @@ $cat = ["unknown", "User Group Event", "Conference", "Training"];
 $type = [1=>'single',2=>'multi',3=>'recur'];
 
 head("event administration");
-db_connect();
+$pdo = DB::connect();
 
 $id = $_REQUEST['id'] ?? false;
 $action = $_REQUEST['action'] ?? false;
@@ -44,9 +45,8 @@ if($id) $id = (int)$id;
 if ($id && $action) {
   switch ($action) {
   case 'approve':
-    if (db_query_safe("UPDATE phpcal SET approved=1,app_by=? WHERE id=?", [$cuser, $id])
-     && mysql_affected_rows()) {
-      $event = fetch_event($id);
+    if ($pdo->safeQueryReturnsAffectedRows("UPDATE phpcal SET approved=1,app_by=? WHERE id=?", [$cuser, $id])) {
+      $event = $pdo->row("SELECT * FROM phpcal WHERE id = ?", [$id]);
       $message = "This event has been approved. It will appear on the PHP website shortly.";
       if ($event['email']) mail($event['email'],"Event #$id Approved: $event[sdesc]",$message,"From: PHP Webmasters <php-webmaster@lists.php.net>", "-fnoreply@php.net -O DeliveryMode=b");
 
@@ -57,9 +57,8 @@ if ($id && $action) {
     }
     break;
   case 'reject':
-    $event = fetch_event($id);
-    if (db_query_safe("DELETE FROM phpcal WHERE id=?", [$id])
-     && mysql_affected_rows()) {
+    $event = $pdo->row("SELECT * FROM phpcal WHERE id = ?", [$id]);
+    if ($pdo->safeQueryReturnsAffectedRows("DELETE FROM phpcal WHERE id=?", [$id])) {
       $message = $event['approved'] ?  "This event has been deleted." : "This event has been rejected.";
       $did = $event['approved'] ? 'Deleted' : 'Rejected';
 
@@ -100,14 +99,14 @@ if ($id && $in) {
       "tipo=?, ldesc=?, sdesc=?, email=?, url=?, country=?, category=? WHERE id=?",
       [$tipo, $in['ldesc'], $in['sdesc'], $in['email'], $in['url'], $in['country'], $in['category'], $id]
     );
-    db_query($query);
+    $pdo->safeQuery($query->get(), $query->getParams());
 
     warn("record $id updated");
     unset($id);
 }
 
 if ($id && !$in) {
-  $in = fetch_event($id);
+  $in = $pdo->row("SELECT * FROM phpcal WHERE id = ?", [$id]);
   if (!$in) {
     unset($id);
   }
@@ -167,7 +166,7 @@ if ($id) {
   <td>
    <select name="in[country]">
     <option value="">- Select a country -</option>
-    <?php show_country_options($in['country']);?>
+    <?php show_country_options($pdo, $in['country']);?>
    </select>
   </td>
  </tr>
@@ -253,8 +252,7 @@ if ($search) {
 
 $query = new Query("SELECT COUNT(id) FROM phpcal");
 $query->addQuery($searchby);
-$res = db_query($query);
-$total = (int)mysql_result($res,0);
+$total = $pdo->single($query->get(), $query->getParams());
 
 $query = new Query("SELECT phpcal.*,country.name AS cname FROM phpcal LEFT JOIN country ON phpcal.country = country.id");
 $query->addQuery($searchby);
@@ -270,8 +268,8 @@ if ($order) {
   // Safe because we checked that $order is part of a fixed set.
   $query->add(" ORDER BY $order $ext");
 }
-$query->add(' LIMIT ?int, ?int', [$begin, $max]);
-$res = db_query($query);
+$query->add(' LIMIT ?, ?', [$begin, $max]);
+$res = $pdo->safeQuery($query->get(), $query->getParams());
 
 $extra = [
   "search" => $search,
@@ -283,7 +281,7 @@ $extra = [
   "forward"    => $forward,
 ];
 
-show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
+show_prev_next($begin,count($res),$max,$total,$extra);
 ?>
 <table class="useredit">
 <tr>
@@ -295,7 +293,7 @@ show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
  <th><a href="<?php echo PHP_SELF,'?',array_to_url($extra,["order"=>"category"]);?>">category</a></th>
 </tr>
 <?php
-while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
+foreach ($res as $row) {
 ?>
 <tr>
  <td align="center"><a href="<?php echo PHP_SELF . "?id=$row[id]";?>">edit</a></td>
@@ -316,6 +314,6 @@ while ($row = mysql_fetch_array($res,MYSQL_ASSOC)) {
 ?>
 </table>
 <?php
-show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra);
+show_prev_next($begin,count($res),$max,$total,$extra);
 foot();
 
