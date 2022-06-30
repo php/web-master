@@ -1,6 +1,9 @@
 <?php
 
+use App\DB;
+
 require_once __DIR__ . '/../../include/functions.inc';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $mailto = 'php-webmaster@lists.php.net';
 #$mailto = 'jimw@apache.org';
@@ -20,7 +23,7 @@ function day($in) {
   return strftime('%A',mktime(12,0,0,4,$in,2001));
 }
 
-db_connect();
+$pdo = DB::connect();
 
 $valid_vars = ['sdesc','ldesc','email','country','category','type','url','sane','smonth','sday','syear','emonth','eday','eyear','recur','recur_day'];
 foreach($valid_vars as $k) {
@@ -44,7 +47,7 @@ switch($type) {
       die("invalid start date");
 
     $query = "INSERT INTO phpcal SET tipo=1, sdato=?, sdesc=?, url=?, email=?, ldesc=?, country=?, category=?";
-    db_query_safe($query, ["$syear-$smonth-$sday", $sdesc, $url, $email, $ldesc, $country, $category]);
+    $pdo->safeQuery($query, ["$syear-$smonth-$sday", $sdesc, $url, $email, $ldesc, $country, $category]);
     $msg = "Date: $syear-$smonth-$sday\n";
     break;
   case 'multi':
@@ -63,7 +66,7 @@ switch($type) {
 
     $query = "INSERT INTO phpcal SET tipo=2,"
            . "sdato=?, edato=?, sdesc=?, url=?, email=?, ldesc=?, country=?, category=?";
-    db_query_safe($query, [
+    $pdo->safeQuery($query, [
       "$syear-$smonth-$sday", "$eyear-$emonth-$eday", $sdesc, $url, $email, $ldesc, $country, $category
     ]);
 
@@ -76,7 +79,7 @@ switch($type) {
 
     $query = "INSERT INTO phpcal SET tipo=3,"
            . "recur=?, sdesc=?, url=?, email=?, ldesc=?, country=?, category=?";
-    db_query_safe($query, ["$recur:$recur_day", $sdesc, $url, $email, $ldesc, $country, $category]);
+    $pdo->safeQuery($query, ["$recur:$recur_day", $sdesc, $url, $email, $ldesc, $country, $category]);
 
     $msg = "Recurs Every: $re[$recur] ".day($recur_day)."\n";
 
@@ -85,7 +88,7 @@ switch($type) {
     die("invalid type");
 }
 
-$new_id = mysql_insert_id();
+$new_id = $pdo->lastInsertId();
 
 $msg .= "Country: ".$country."\n"
       . "Category: ".$cat[$category]."\n"

@@ -92,53 +92,6 @@ function warn($message)        { echo format_warn($message); }
 
 // -----------------------------------------------------------------------------------
 
-function db_connect($dieonerror = TRUE)
-{
-    if (!@mysql_connect(DB::getHost(), DB::getUser(), DB::getPassword())) {
-        if ($dieonerror) {
-            die(format_warn("Unable to connect to database!"));
-        }
-        return FALSE;
-    }
-
-    if (!mysql_select_db(DB::getDatabase())) {
-        if ($dieonerror) {
-            die(format_warn("Unable to select database!"));
-        }
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-function db_query(App\Query $query)
-{
-    $query = $query->get();
-	//var_dump($query);
-    $res = mysql_query($query);
-    if (!$res) {
-        $bt = debug_backtrace();
-        die(format_warn("Query failed: " . hsc(mysql_error()) . "<tt>\n" . hsc($query) . "</tt><br />({$bt[0]['file']}:{$bt[0]['line']})"));
-    }
-    return $res;
-}
-
-function db_query_safe($query, array $params = [])
-{
-    return db_query(new App\Query($query, $params));
-}
-
-function db_get_one($query)
-{
-    $res = mysql_query($query);
-    if ($res && mysql_num_rows($res)) {
-        return mysql_result($res, 0);
-    }
-    return FALSE;
-}
-
-// -----------------------------------------------------------------------------------
-
 function array_to_url($array,$overlay=[]) {
     $params = [];
     foreach($array as $k => $v) {
@@ -204,10 +157,10 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = [], $table = true
 <?php
 }
 
-function show_country_options($cc = "")
+function show_country_options(DB $pdo, $cc = "")
 {
-    $res = db_query_safe("SELECT id, name FROM country ORDER BY name");
-    while ($row = mysql_fetch_assoc($res)) {
+    $res = $pdo->safeQuery("SELECT id, name FROM country ORDER BY name");
+    foreach ($res as $row) {
         echo "<option value=\"{$row['id']}\"", $cc == $row['id'] ? " selected" : "", ">{$row['name']}</option>";
     }
 }
@@ -231,12 +184,10 @@ function get_ssh_keys($string) {
 // -----------------------------------------------------------------------------------
 //
 
-
-function find_group_address_from_notes_for($id) {
-    $res = db_query_safe("SELECT note FROM users_note WHERE userid = ? LIMIT 1", [$id]);
-    $row = mysql_fetch_assoc($res);
+function find_group_address_from_notes_for(DB $pdo, $id) {
+    $note = $pdo->single("SELECT note FROM users_note WHERE userid = ? LIMIT 1", [$id]);
     $cc = "";
-    if (preg_match("/\[group: (\w+)\]/", $row["note"], $matches)) {
+    if (preg_match("/\[group: (\w+)\]/", $note, $matches)) {
       switch($matches[1]) {
       case "php":
         $cc = "internals@lists.php.net";
@@ -257,12 +208,12 @@ function find_group_address_from_notes_for($id) {
 
 define("MT_USER_APPROVE_MAIL", "group@php.net");
 define("MT_USER_REMOVE_MAIL", "group@php.net");
-function user_approve($id) {
-    $res = db_query_safe("UPDATE users SET cvsaccess=1, enable=1 WHERE userid=?", [$id]);
-    if ($res && mysql_affected_rows()) {
-      $cc = find_group_address_from_notes_for($id);
+function user_approve(DB $pdo, $id) {
+    $res = $pdo->safeQueryReturnsAffectedRows("UPDATE users SET cvsaccess=1, enable=1 WHERE userid=?", [$id]);
+    if ($res) {
+      $cc = find_group_address_from_notes_for($pdo, $id);
       $mailtext = $cc ? $cc : EMAIL_DEFAULT_CC;
-      $userinfo = fetch_user($id);
+      $userinfo = fetch_user($pdo, $id);
 
       $message = mt_approve_user($userinfo, $mailtext);
       /* Notify the user */
@@ -276,18 +227,17 @@ function user_approve($id) {
       mail($to, $subject, $message, $headers, "-fnoreply@php.net");
       warn("record $id ($userinfo[username]) approved");
       return true;
-    }
-    else {
+    } else {
       warn("wasn't able to grant access to id $id.");
       return false;
     }
 }
 
-function user_remove($id) {
-    $userinfo = fetch_user($id);
-    $res = db_query_safe("DELETE FROM users WHERE userid=?", [$id]);
-    if ($res && mysql_affected_rows()) {
-      $cc = find_group_address_from_notes_for($id);
+function user_remove(DB $pdo, $id) {
+    $userinfo = fetch_user($pdo, $id);
+    $res = $pdo->safeQueryReturnsAffectedRows("DELETE FROM users WHERE userid=?", [$id]);
+    if ($res) {
+      $cc = find_group_address_from_notes_for($pdo, $id);
 
       $message = $userinfo['cvsaccess'] ? mt_remove_user($userinfo) : mt_deny_user($userinfo);
 
@@ -302,12 +252,11 @@ function user_remove($id) {
 
       /* Notify public records */
       mail($to, $subject, $message,"From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
-      db_query_safe("DELETE FROM users_note WHERE userid=?", [$id]);
-      db_query_safe("DELETE FROM users_profile WHERE userid=?", [$id]);
+      $pdo->safeQuery("DELETE FROM users_note WHERE userid=?", [$id]);
+      $pdo->safeQuery("DELETE FROM users_profile WHERE userid=?", [$id]);
       warn("record $id ($userinfo[username]) removed");
       return true;
-    }
-    else {
+    } else {
       warn("wasn't able to delete id $id.");
       return false;
     }
@@ -386,27 +335,26 @@ function is_mirror_site_admin($user) {
 }
 
 # returns false if $user is not allowed to modify $userid
-function can_modify($user,$userid) {
+function can_modify(DB $pdo, $user,$userid) {
   if (is_admin($user)) return true;
 
-  $query = "SELECT userid FROM users WHERE userid = ? AND (email = ? OR username = ?)";
-  $res = db_query_safe($query, [$userid, $user, $user]);
-  return $res ? mysql_num_rows($res) : false;
+  $query = "SELECT 1 FROM users WHERE userid = ? AND (email = ? OR username = ?)";
+  $res = $pdo->single($query, [$userid, $user, $user]);
+  return (bool) $res;
 }
 
-function fetch_user($user) {
+function fetch_user(DB $pdo, $user): array {
   if ((int)$user) {
-    $res = db_query_safe(
+    return $pdo->row(
       "SELECT * FROM users LEFT JOIN users_note USING (userid) WHERE users.userid = ?",
       [$user]);
-  } else {
-    $res = db_query_safe(
-      "SELECT * FROM users LEFT JOIN users_note USING (userid) WHERE username = ? OR email = ?",
-      [$user, $user]);
   }
 
-  return mysql_fetch_array($res);
+  return $pdo->row(
+    "SELECT * FROM users LEFT JOIN users_note USING (userid) WHERE username = ? OR email = ?",
+    [$user, $user]);
 }
+
 function invalid_input($in) {
   if (!empty($in['email']) && strlen($in['email']) && !is_emailable_address($in['email'])) {
     return "'". hsc($in['email']) ."' does not look like a valid email address";
@@ -434,11 +382,6 @@ function validateAction($k) {
   }
 
   return false;
-}
-
-function fetch_event($id) {
-  $res = db_query_safe("SELECT * FROM phpcal WHERE id = ?", [$id]);
-  return mysql_fetch_array($res,MYSQL_ASSOC);
 }
 
 function display_options($options,$current) {

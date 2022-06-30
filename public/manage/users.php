@@ -4,6 +4,7 @@
 # acls
 # handle flipping of the sort views
 
+use App\DB;
 use App\Query;
 
 require __DIR__ . '/../../vendor/autoload.php';
@@ -60,22 +61,20 @@ $username = filter_input(INPUT_GET, "username", FILTER_SANITIZE_STRIPPED) ?: 0;
 
 head("user administration");
 
-db_connect();
+$pdo = DB::connect();
 
 # ?username=whatever will look up 'whatever' by email or username
 if ($username) {
-  $query = "SELECT userid FROM users"
-         . " WHERE username=? OR email=?";
-  $res = db_query_safe($query, [$username, $username]);
+  $query = "SELECT userid FROM users WHERE username=? OR email=?";
+  $id = $pdo->single($query, [$username, $username]);
 
-  if (!($id = @mysql_result($res, 0))) {
+  if (!$id) {
     warn("wasn't able to find user matching '$username'");
   }
 }
 if ($id) {
   $query = "SELECT * FROM users WHERE users.userid=?";
-  $res = db_query_safe($query, [$id]);
-  $userdata = mysql_fetch_array($res);
+  $userdata = $pdo->row($query, [$id]);
   if (!$userdata) {
     warn("Can't find user#$id");
   }
@@ -91,11 +90,11 @@ if ($id && $action) {
 
   switch ($action) {
   case 'approve':
-    user_approve((int)$id);
+    user_approve($pdo, (int)$id);
     break;
 
   case 'remove':
-    user_remove((int)$id);
+    user_remove($pdo, (int)$id);
     break;
 
   default:
@@ -105,7 +104,7 @@ if ($id && $action) {
 
 if ($in) {
   csrf_validate($_SESSION, "useredit");
-  if (!can_modify($_SESSION["username"],$id)) {
+  if (!can_modify($pdo, $_SESSION["username"],$id)) {
     warn("you're not allowed to modify this user.");
   }
   else {
@@ -114,7 +113,7 @@ if ($in) {
     }
     else {
       if (!empty($in['rawpasswd'])) {
-        $userinfo = fetch_user($id);
+        $userinfo = fetch_user($pdo, $id);
         $in['svnpasswd'] = gen_pass($in['rawpasswd']);
       }
 
@@ -151,12 +150,12 @@ if ($in) {
             // Kill the session data after updates :)
             $_SERVER["credentials"] = [];
           }
-          db_query($query);
+          $pdo->safeQuery($query->get(), $query->getParams());
 
           if(!empty($in['purpose'])) {
               $purpose = hsc($in['purpose']);
               $query = "INSERT INTO users_note (userid, note, entered) VALUES (?, ?, NOW())";
-              db_query_safe($query, [$id, $purpose]);
+              $pdo->safeQuery($query, [$id, $purpose]);
           }
 
           if(!empty($in['profile_markdown'])) {
@@ -164,7 +163,7 @@ if ($in) {
             $profile_html = \Michelf\MarkdownExtra::defaultTransform($profile_markdown);
             $query = "INSERT INTO users_profile (userid, markdown, html) VALUES (?, ?, ?)
                       ON DUPLICATE KEY UPDATE markdown=?, html=?";
-            db_query_safe($query, [$id, $profile_markdown, $profile_html, $profile_markdown, $profile_html]);
+            $pdo->safeQuery($query, [$id, $profile_markdown, $profile_html, $profile_markdown, $profile_html]);
           }
         }
 
@@ -252,9 +251,9 @@ if ($id) {
 </tr>
 <?php
   if ($id) {
-    $res = db_query_safe("SELECT markdown FROM users_profile WHERE userid=?", [$id]);
+    $profile_row = $pdo->row("SELECT markdown FROM users_profile WHERE userid=?", [$id]);
     $userdata['profile_markdown'] = '';
-    if ($profile_row = mysql_fetch_assoc($res)) {
+    if ($profile_row) {
         $userdata['profile_markdown'] = $profile_row['markdown'];
     }
 ?>
@@ -304,8 +303,8 @@ if (is_admin($_SESSION["username"]) && !$userdata['cvsaccess']) {
 ?>
 <h2 id="notes">Notes:</h2>
 <?php
-  $res = db_query_safe("SELECT note, UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=?", [$id]);
-  while ($res && $userdata = mysql_fetch_assoc($res)) {
+  $res = $pdo->safeQuery("SELECT note, UNIX_TIMESTAMP(entered) AS ts FROM users_note WHERE userid=?", [$id]);
+  foreach ($res as $userdata){
     echo "<div class='note'>", date("r",$userdata['ts']), "<br />".$userdata['note']."</div>";
   }
   foot();
@@ -349,12 +348,10 @@ if ($order) {
   // Safe because we checked that $order is part of a fixed set.
   $query->add(" ORDER BY $order $ext");
 }
-$query->add(" LIMIT ?int, ?int ", [$begin, $max]);
-$res = db_query($query);
+$query->add(" LIMIT ?, ? ", [$begin, $max]);
+$res = $pdo->safeQuery($query->get(), $query->getParams());
 
-$res2 = db_query_safe("SELECT FOUND_ROWS()");
-$total = (int)mysql_result($res2,0);
-
+$total = $pdo->single("SELECT FOUND_ROWS()");
 
 $extra = [
   "search"     => $search,
@@ -372,7 +369,7 @@ $extra = [
   </ul></h1>
 <table id="users">
 <thead>
-<?php show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra, false); ?>
+<?php show_prev_next($begin,count($res),$max,$total,$extra, false); ?>
 </thead>
 <tbody>
 <tr>
@@ -388,7 +385,7 @@ $extra = [
   <th> </th>
 </tr>
 <?php
-while ($userdata = mysql_fetch_array($res)) {
+foreach ($res as $userdata) {
 ?>
   <tr class="<?php if (!$userdata["cvsaccess"]) { echo "noaccess"; }?>">
     <td><a href="?username=<?php echo $userdata["username"];?>">edit</a></td>
@@ -407,7 +404,7 @@ while ($userdata = mysql_fetch_array($res)) {
 ?>
 </tbody>
 <tfoot>
-<?php show_prev_next($begin,mysql_num_rows($res),$max,$total,$extra, false); ?>
+<?php show_prev_next($begin,count($res),$max,$total,$extra, false); ?>
 </tfoot>
 </table>
 <?php

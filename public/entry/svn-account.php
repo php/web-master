@@ -1,5 +1,7 @@
 <?php
 
+use App\DB;
+
 require __DIR__ . '/../../vendor/autoload.php';
 require __DIR__ . '/../../include/email-validation.inc';
 require __DIR__ . '/../../include/functions.inc';
@@ -61,47 +63,50 @@ if (strlen($username) > 16) {
   die('Username is too long. It must have 1-16 characters.');
 }
 
-db_connect();
+$pdo = DB::connect();
 
 if (!is_emailable_address($email))
   die("that email address does not appear to be valid");
 
-$res = db_query_safe("SELECT userid FROM users WHERE username=?", [$username]);
-if ($res && mysql_num_rows($res))
+$res = $pdo->safeQuery("SELECT userid FROM users WHERE username=?", [$username]);
+if ($res)
   die("someone is already using that svn id");
 
 $svnpasswd = gen_pass($passwd);
 $note = hsc($note);
 
 $query = "INSERT INTO users (name,email,svnpasswd,username) VALUES (?, ?, ?, ?)";
-if (db_query_safe($query, [$name, $email, $svnpasswd, $username])) {
-  $new_id = mysql_insert_id();
-
-  db_query_safe(
-    "INSERT INTO users_note (userid, note, entered) VALUES (?, ?, NOW())",
-    [$new_id, "$note [group: $group]"]
-  );
-
-  $msg = $note;
-  $from = "\"$name\" <$email>";
-
-  // The PEAR guys don't want these requests to their -dev@ list, only -group@
-  if ($group != "pear") {
-    mail($mailto,"VCS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id@php.net>", "-fnoreply@php.net");
-  }
-
-  $msg .= "\n-- \n";
-  $msg .= "approve: https://main.php.net/manage/users.php?action=approve&id=$new_id\n";
-  $msg .= "reject:  https://main.php.net/manage/users.php?action=remove&id=$new_id\n";
-  $msg .= "view:    https://main.php.net/manage/users.php?id=$new_id\n";
-
-  mail($failto,"VCS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id-admin@php.net>", "-fnoreply@php.net");
-} else {
+try {
+  $pdo->safeQuery($query, [$name, $email, $svnpasswd, $username]);
+} catch (\PDOException $e) {
   mail($failto,"VCS Account Request: $username",
-      "Failed to insert into database: ".mysql_error()."\n\n".
+      "Failed to insert into database: ".$e->getMessage()."\n\n".
       "Full name: $name\n".
       "Email:     $email\n".
       "ID:        $username\n".
       "Purpose:   $note",
        "From: \"VCS Account Request\" <$email>");
+  exit;
 }
+
+$new_id = $pdo->lastInsertId();
+
+$pdo->safeQuery(
+  "INSERT INTO users_note (userid, note, entered) VALUES (?, ?, NOW())",
+  [$new_id, "$note [group: $group]"]
+);
+
+$msg = $note;
+$from = "\"$name\" <$email>";
+
+// The PEAR guys don't want these requests to their -dev@ list, only -group@
+if ($group != "pear") {
+  mail($mailto,"VCS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id@php.net>", "-fnoreply@php.net");
+}
+
+$msg .= "\n-- \n";
+$msg .= "approve: https://main.php.net/manage/users.php?action=approve&id=$new_id\n";
+$msg .= "reject:  https://main.php.net/manage/users.php?action=remove&id=$new_id\n";
+$msg .= "view:    https://main.php.net/manage/users.php?id=$new_id\n";
+
+mail($failto,"VCS Account Request: $username",$msg,"From: $from\r\nMessage-ID: <cvs-account-$new_id-admin@php.net>", "-fnoreply@php.net");

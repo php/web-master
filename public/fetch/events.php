@@ -1,6 +1,9 @@
 <?php
 
+use App\DB;
+
 require_once __DIR__ . '/../../include/functions.inc';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 $valid_vars = ['token','cm','cy','cd','nm'];
 foreach($valid_vars as $k) {
@@ -11,7 +14,7 @@ foreach($valid_vars as $k) {
 if (!isset($_REQUEST['token']) || md5($_REQUEST['token']) != "19a3ec370affe2d899755f005e5cd90e")
   die("token not correct.");
 
-db_connect();
+$pdo = DB::connect();
 
 // Set default values
 if (!isset($cm)) $cm = (int)strftime('%m');
@@ -28,7 +31,7 @@ $nm = (int) $nm;
 // Collect events for $nm number of months
 while ($nm) {
 	for($cat=1; $cat<=3; $cat++) {
-        $entries = load_month($cy, $cm, $cat);
+        $entries = load_month($pdo, $cy, $cm, $cat);
         $last    = strftime('%e', mktime(12, 0, 0, $cm+1, 0, $cy));
         for ($i = $cd; $i <= $last; $i++) {
             if (isset($entries[$i]) && is_array($entries[$i])) {
@@ -85,14 +88,14 @@ function weekday($year, $month, $day, $which)
 }
 
 // Get events for one month in one year to be listed
-function load_month($year, $month, $cat)
+function load_month(DB $pdo, $year, $month, $cat)
 {
     // Empty events array
     $events = [];
 
     // Get approved events starting or ending in the
     // specified year/month, and all recurring events
-    $result = db_query_safe(
+    $result = $pdo->safeQuery(
         "SELECT * FROM phpcal WHERE (
             (
                 (MONTH(sdato) = ? OR MONTH(edato) = ?)
@@ -103,12 +106,8 @@ function load_month($year, $month, $cat)
         [$month, $month, $year, $year, $cat]
     );
 
-    // Cannot get results, return with event's not found
-    if (!$result) { echo mysql_error(); return []; }
-
     // Go through found events
-    while ($row = mysql_fetch_array($result, MYSQL_ASSOC)) {
-        
+    foreach ($result as $row) {
         switch($row['tipo']) {
 
             // One day event

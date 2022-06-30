@@ -1,10 +1,12 @@
 <?php
 
+use App\DB;
 use App\Query;
 
 require_once __DIR__ . '/../../include/functions.inc';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
-db_connect();
+$pdo = DB::connect();
 
 if (isset($_GET['limit']) && is_numeric($_GET['limit']) && $_GET['limit'] <= 1000) {
   $limit = $_GET['limit'];
@@ -26,10 +28,11 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 $query->add(" ORDER BY sect,ts DESC");
 $query->add(" LIMIT ?", [$limit]);
 
-$res = db_query($query);
+$res = $pdo->safeQuery($query->get(), $query->getParams());
 
 $notes = [];
-while ($row = mysql_fetch_array($res, MYSQL_ASSOC)) {
+// TODO: replace the loop with PDO fetch mode
+foreach ($res as $row) {
   $notes[$row['id']] = $row;
 }
 

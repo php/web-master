@@ -4,31 +4,28 @@ namespace App;
 
 class Query {
     private $query = '';
+    /** @var array $params */
+    private $params = [];
 
     public function __construct($str = '', $params = []) {
         $this->add($str, $params);
     }
 
     public function add($str, $params = []) {
-        if (substr_count($str, '?') !== count($params)) {
-            die("Incorrect number of parameters to query.");
-        }
-
-        $i = 0;
-        $this->query .= preg_replace_callback('/\?(int)?/', function ($matches) use ($params, &$i) {
-            if (isset($matches[1]) && $matches[1] === 'int') {
-                return (int)$params[$i++];
-            } else {
-                return "'" . mysql_real_escape_string($params[$i++]) . "'";
-            }
-        }, $str);
+        $this->query .= $str;
+        $this->params = array_merge($this->params, $params);
     }
 
     public function addQuery(Query $q) {
         $this->query .= $q->get();
+        $this->params = array_merge($this->params, $q->getParams());
     }
 
     public function get() {
         return $this->query;
+    }
+
+    public function getParams(): array {
+        return $this->params;
     }
 }
