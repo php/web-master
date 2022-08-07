@@ -3,7 +3,7 @@
 
 use App\DB;
 
-require_once __DIR__ . '/../../vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 $pdo = DB::connect();
 
