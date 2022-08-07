@@ -68,9 +68,13 @@ function check_spam_words ($text, $badwords) {
 
 // Miscellaneous URL related spam checks
 // * BBCode links (a common spam technique)
+// * HTML anchors
 // * Too many http://'s
 function check_spam_urls ($text, $httplimit = 4) {
     if (preg_match('/\[(url|link)=[^]]+\]/', $text)) {
+        return true;
+    }
+    if (preg_match('~<a href="[^"]+">.+</a>~', $text)) {
         return true;
     }
     if ((int) preg_match_all('~http(?:s)?://~', $text) >= $httplimit) {
