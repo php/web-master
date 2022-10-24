@@ -78,6 +78,7 @@ function check_spam_words ($text, $badwords) {
 // * BBCode links (a common spam technique)
 // * HTML anchors
 // * Too many http://'s
+// * post is starting with an URL
 function check_spam_urls ($text, $httplimit = 4) {
     if (preg_match('/\[(url|link)=[^]]+\]/', $text)) {
         return true;
@@ -88,6 +89,9 @@ function check_spam_urls ($text, $httplimit = 4) {
     if ((int) preg_match_all('~http(?:s)?://~', $text) >= $httplimit) {
         return true;
     }
+	if (preg_match('^https://', $text)) {
+		return true;
+	}
     return false;
 }
 
