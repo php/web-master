@@ -89,7 +89,7 @@ function check_spam_urls ($text, $httplimit = 4) {
     if ((int) preg_match_all('~http(?:s)?://~', $text) >= $httplimit) {
         return true;
     }
-    if (preg_match('^https://', $text)) {
+    if (preg_match('~^https://~', $text)) {
         return true;
     }
     return false;
