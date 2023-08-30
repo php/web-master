@@ -78,7 +78,7 @@ Let us know if you have any further problems.
 group@php.net
 ";
     mailer(
-      $row['username'] . '@php.net',
+      $row['email'],
       "Password change instructions for $row[username]", $body,
       new MailAddress('group@php.net', 'PHP Group'));
     echo '<p>Okay, instructions on how to change your password have been sent to your email address. If you don\'t receive them, you\'ll have to contact group@php.net for help.</p>';
