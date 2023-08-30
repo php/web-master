@@ -75,19 +75,19 @@ password.
 
 Let us know if you have any further problems.
 --
-group@php.net
+systems@php.net
 ";
     mailer(
       $row['username'] . '@php.net',
       "Password change instructions for $row[username]", $body,
-      new MailAddress('group@php.net', 'PHP Group'));
-    echo '<p>Okay, instructions on how to change your password have been sent to your email address. If you don\'t receive them, you\'ll have to contact group@php.net for help.</p>';
+      new MailAddress('systems@php.net', 'PHP Group'));
+    echo '<p>Okay, instructions on how to change your password have been sent to your email address. If you don\'t receive them, you\'ll have to contact systems@php.net for help.</p>';
     foot();
     exit;
   }
   else {?>
 <p class="warning">There's nobody named <?php echo hsc($user)?> around here. Perhaps you need to contact
-group@php.net for help.</p>
+systems@php.net for help.</p>
 <?php
   }
 }
