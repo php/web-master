@@ -1,6 +1,6 @@
 <?php /* vim: set noet ts=4 sw=4 ft=php: : */
 
-define('USERGROUP_JSON_URL', 'http://php.ug/api/rest/listtype.json/1');
+define('USERGROUP_JSON_URL', 'https://php.ug/api/rest/listtype.json/1');
 
 function usergroups_update_infos($root) 
 {
