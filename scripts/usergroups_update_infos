@@ -17,7 +17,11 @@ function usergroups_update_infos($root)
         if (! isset($group['icalendar_url'])) {
             continue;
         }
-        $url = $group['icalendar_url'];
+        $url = trim($group['icalendar_url']);
+        if ($url === '') {
+            continue;
+        }
+
         $usergroupIcalFileCache = $root . "/backend/events/" . md5($url);
         if (strncmp("webcal://", $url, strlen("webcal://")) == 0) {
             $url = str_replace("webcal://", "http://", $url);
