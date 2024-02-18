@@ -28,9 +28,6 @@ if (!preg_match("!^[a-z0-9-]+$!", $_POST['maillist'])) {
     die("Invalid mailing list name");
 }
 
-// Generate needed subpart of email address
-$sub = str_replace("@", "=", $_POST['email']);
-
 date_default_timezone_set('Etc/UTC');
 $mail = new PHPMailer;
 $mail->isSMTP();
@@ -38,7 +35,7 @@ $mail->SMTPDebug = 0;
 $mail->Host = 'mailout.php.net';
 $mail->Port = 25;
 $mail->setFrom($_POST['email']);
-$mail->addAddress("{$_POST['maillist']}-{$_POST['request']}-$sub@lists.php.net");
+$mail->addAddress("{$_POST['maillist']}+{$_POST['request']}@lists.php.net");
 $mail->Subject = "PHP Mailing List Website Subscription";
 $mail->Body = "This was a request generated from the form at {$_POST['referer']} by {$_POST['remoteip']}";
 $mail_sent = $mail->send();
