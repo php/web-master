@@ -132,7 +132,7 @@ $msg .= "Search      -- https://main.php.net/manage/user-notes.php\n";
 if (!$user) $user = "php-general@lists.php.net";
 # strip spaces in email address, or will get a bad To: field
 $user = str_replace(' ','',$user);
-mail($mailto,"note $new_id added to $sect",$msg,"From: $user\r\nMessage-ID: <note-$new_id@php.net>", "-fnoreply@php.net");
+mail($mailto,"note $new_id added to $sect",$msg,"From: \"$user\"<noreply@php.net>\r\nMessage-ID: <note-$new_id@php.net>", "-fnoreply@php.net");
 
 //var_dump(is_spammer('127.0.0.1')); // false
 //var_dump(is_spammer('127.0.0.2')); // true
