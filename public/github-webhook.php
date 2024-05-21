@@ -379,6 +379,7 @@ switch ($event) {
             case 'demilestoned':
             case 'ready_for_review':
             case 'review_requested':
+            case 'review_request_removed':
                 // Ignore these actions
                 break 2;
             default:
