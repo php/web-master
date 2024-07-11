@@ -27,4 +27,4 @@ $body = "Following are the top 20 pages of the manual, sorted by the number\n"
       . sprintf("notes represent %.1f%% of the %d total user notes.\n\n", ($top20 / $total)*100, $total)
       . $body;
 
-mail("phpdoc@lists.php.net, php-notes@lists.php.net","Notes Status, $total total",$body,"From: phpdoc@lists.php.net", "-fnoreply@php.net");
+mail("phpdoc@lists.php.net, php-notes@lists.php.net","Notes Status, $total total",$body,"From: noreply@php.net", "-fnoreply@php.net");
