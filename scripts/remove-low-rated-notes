@@ -1,0 +1,38 @@
+#!/usr/local/bin/php -q
+<?php
+
+use App\DB;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+define('RATING_THRESHOLD', "-5");
+define('AGE_THRESHOLD', '1 year');
+
+$pdo = DB::connect();
+
+$query = "SELECT COUNT(*) FROM note";
+$total = $pdo->single($query);
+
+/** --[ the lowest rated notes ]------------------- **/
+
+$date = date('Y-m-d', strtotime(AGE_THRESHOLD . ' ago'));
+$query = "SELECT sect, note.ts, note_id, SUM(if (vote = 0, -1, 1)) AS weight FROM note, votes WHERE note.ts < '{$date}' AND note.id = votes.note_id GROUP by note_id HAVING weight < " . RATING_THRESHOLD . " ORDER BY weight";
+$result = $pdo->safeQuery($query);
+
+$table = "Rating | Note\n"
+       . "-------+---------------------------------------------------------\n";
+
+$count = 0;
+foreach ($result as $row) {
+    $table .= sprintf("%5d  | https://php.net/manual/en/%s.php#%s\n", $row['weight'], $row['sect'], $row['note_id']);
+	$count++;
+}
+
+$body = "Following were the {$count} notes with a rating less than " . RATING_THRESHOLD . " and\nare older than " . AGE_THRESHOLD. ".\n\n"
+      . sprintf("These notes represented %.1f%% of the %d total user notes,\nand have now been removed.\n\n", ($count / $total) * 100, $total)
+      . $table;
+
+$query = "DELETE FROM note WHERE id IN (SELECT note.id FROM note, votes WHERE note.ts < '{$date}' AND note.id = votes.note_id GROUP BY note_id HAVING SUM(if (vote = 0, -1, 1)) < " . RATING_THRESHOLD . ")";
+$result = $pdo->safeQuery($query);
+
+mail("phpdoc@lists.php.net, php-notes@lists.php.net", "Deleted $count old and low rated notes", $body, "From: noreply@php.net", "-fnoreply@php.net");
