@@ -8,7 +8,7 @@ final class DB extends PDO
 {
     public static function connect(): self
     {
-        $connectionConfig = 'mysql:host=' . self::getHost() . ';dbname=' . self::getDatabase();
+        $connectionConfig = 'mysql:host=' . self::getHost() . ';port=' . self::getPort() . ';dbname=' . self::getDatabase();
 
         $db = new self($connectionConfig, self::getUser(), self::getPassword());
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -20,6 +20,11 @@ final class DB extends PDO
     public static function getHost(): string
     {
         return \getenv("DATABASE_HOST") ?: "localhost";
+    }
+
+    public static function getPort(): string
+    {
+        return \getenv("DATABASE_PORT") ?: "3306";
     }
 
     public static function getUser(): string
