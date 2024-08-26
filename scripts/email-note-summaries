@@ -5,26 +5,74 @@ use App\DB;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
+define('LIMIT', 10);
+
 $pdo = DB::connect();
 
-$query = "SELECT COUNT(*) AS count,sect FROM note GROUP BY sect ORDER BY count DESC LIMIT 20";
+/** --[ pages with most notes ] ------------------- **/
+
+$query = "SELECT COUNT(*) AS count,sect FROM note GROUP BY sect ORDER BY count DESC LIMIT " . LIMIT;
 $result = $pdo->safeQuery($query);
 
-$body = "Notes  |  Page\n"
-      . "-------+---------------------------------------------------------\n";
+$table = "Notes  | Page\n"
+       . "-------+---------------------------------------------------------\n";
 
-$top20 = 0;
+$top = 0;
 foreach ($result as $row) {
-  $body .= sprintf("%5d  | https://php.net/manual/en/%s.php\n", $row['count'], $row['sect']);
-  $top20 += $row['count'];
+    $table .= sprintf("%5d  | https://php.net/manual/en/%s.php\n", $row['count'], $row['sect']);
+    $top += $row['count'];
 }
 
 $query = "SELECT COUNT(*) FROM note";
 $total = $pdo->single($query);
 
-$body = "Following are the top 20 pages of the manual, sorted by the number\n"
+$body = "Following are the top " . LIMIT. " pages of the manual, sorted by the number\n"
       . "of user notes contributed. These sections could use a polish, those\n"
-      . sprintf("notes represent %.1f%% of the %d total user notes.\n\n", ($top20 / $total)*100, $total)
-      . $body;
+      . sprintf("notes represent %.1f%% of the %d total user notes.\n\n", ($top / $total) * 100, $total)
+      . $table;
+
+$body .= "\n\n-----------------------\n\n";
+
+
+/** --[ the highest rated notes ]------------------ **/
+
+$query = "SELECT sect, note.ts, note_id, SUM(if (vote = 0, -1, 1)) AS weight FROM note, votes WHERE note.id = votes.note_id GROUP BY note_id ORDER BY weight DESC LIMIT " . LIMIT;
+$result = $pdo->safeQuery($query);
+
+$table = "Rating | Note\n"
+       . "-------+---------------------------------------------------------\n";
+
+foreach ($result as $row) {
+    $table .= sprintf("%5d  | https://php.net/manual/en/%s.php#%s\n", $row['weight'], $row['sect'], $row['note_id']);
+}
+
+$query = "SELECT COUNT(*) FROM note";
+$total = $pdo->single($query);
+
+$body .= "Following are the top " . LIMIT. " notes with the highest rating, sorted by rating.\n"
+      . "These notes are prime candidates for being integrated into the manual.\n\n"
+      . $table;
+
+$body .= "\n\n-----------------------\n\n";
+
+
+/** --[ the lowest rated notes ]------------------- **/
+
+$query = "SELECT sect, note.ts, note_id, SUM(if (vote = 0, -1, 1)) AS weight FROM note, votes WHERE note.id = votes.note_id GROUP BY note_id ORDER BY weight ASC LIMIT " . LIMIT;
+$result = $pdo->safeQuery($query);
+
+$table = "Rating | Note\n"
+       . "-------+---------------------------------------------------------\n";
+
+foreach ($result as $row) {
+    $table .= sprintf("%5d  | https://php.net/manual/en/%s.php#%s\n", $row['weight'], $row['sect'], $row['note_id']);
+}
+
+$query = "SELECT COUNT(*) FROM note";
+$total = $pdo->single($query);
+
+$body .= "Following are the bottom " . LIMIT. " notes with the lowest rating, sorted by rating.\n"
+      . "These notes are prime candidates for being removed.\n\n"
+      . $table;
 
 mail("phpdoc@lists.php.net, php-notes@lists.php.net","Notes Status, $total total",$body,"From: noreply@php.net", "-fnoreply@php.net");
