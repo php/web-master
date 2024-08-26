@@ -46,9 +46,6 @@ foreach ($result as $row) {
     $table .= sprintf("%5d  | https://php.net/manual/en/%s.php#%s\n", $row['weight'], $row['sect'], $row['note_id']);
 }
 
-$query = "SELECT COUNT(*) FROM note";
-$total = $pdo->single($query);
-
 $body .= "Following are the top " . LIMIT. " notes with the highest rating, sorted by rating.\n"
       . "These notes are prime candidates for being integrated into the manual.\n\n"
       . $table;
@@ -67,9 +64,6 @@ $table = "Rating | Note\n"
 foreach ($result as $row) {
     $table .= sprintf("%5d  | https://php.net/manual/en/%s.php#%s\n", $row['weight'], $row['sect'], $row['note_id']);
 }
-
-$query = "SELECT COUNT(*) FROM note";
-$total = $pdo->single($query);
 
 $body .= "Following are the bottom " . LIMIT. " notes with the lowest rating, sorted by rating.\n"
       . "These notes are prime candidates for being removed.\n\n"
