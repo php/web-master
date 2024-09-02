@@ -34,9 +34,9 @@ $body = "Following were the {$count} notes with a rating less than " . RATING_TH
       . sprintf("These notes represented %.1f%% of the %d total user notes,\nand have now been removed.\n\n", ($count / $total) * 100, $total)
       . $table;
 
+$stmt = $pdo->prepare("DELETE FROM note WHERE id = ?");
 foreach ($noteIDs as $noteID) {
-    $query = "DELETE FROM note WHERE id = ?";
-    $result = $pdo->safeQuery($query, [ $noteID ]);
+    $result = $stmt->execute([ $noteID ]);
 }
 
 mail("phpdoc@lists.php.net, php-notes@lists.php.net", "Deleted $count old and low rated notes", $body, "From: noreply@php.net", "-fnoreply@php.net");
