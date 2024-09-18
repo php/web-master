@@ -35,7 +35,7 @@ $mail->SMTPDebug = 0;
 $mail->Host = 'mailout.php.net';
 $mail->Port = 25;
 $mail->setFrom($_POST['email']);
-preg_match('/^(.*?)(-digest|-noemail)?$/', $_POST['maillist'], $matches);
+preg_match('/^(.*?)(-digest|-nomail)?$/', $_POST['maillist'], $matches);
 $maillist = $matches[1];
 $digest = count($matches) > 2 ? $matches[2] : "";
 $mail->addAddress("{$maillist}+{$_POST['request']}{$digest}@lists.php.net");
