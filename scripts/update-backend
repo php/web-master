@@ -26,11 +26,6 @@ include "event_listing";
 $months = (date('j') < 10) ? 1:2;
 pregenerate_events("$root/backend/events.csv", "$root/include/pregen-events.inc", $months);
 
-
-// Run ip-to-country fetch code
-include "ip-to-country";
-fetch_ip_to_country($root);
-
 include "pregen_news";
 pregen_atom("$root/archive/archive.xml", "$root/feed.atom", "$root/include/pregen-news.inc");
 include "rss_parser";
