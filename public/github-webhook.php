@@ -375,11 +375,20 @@ switch ($event) {
             case 'unlabeled':
             case 'edited':
             case 'synchronize':
+            case 'converted_to_draft':
+            case 'locked':
+            case 'unlocked':
+            case 'enqueued':
+            case 'dequeued':
             case 'milestoned':
             case 'demilestoned':
             case 'ready_for_review':
             case 'review_requested':
             case 'review_request_removed':
+            case 'auto_merge_enabled':
+            case 'auto_merge_disabled':
+            // Undocumented as of yet
+            case 'typed':
                 // Ignore these actions
                 break 2;
             default:
