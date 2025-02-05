@@ -389,6 +389,7 @@ switch ($event) {
             case 'auto_merge_disabled':
             // Undocumented as of yet
             case 'typed':
+            case 'untyped':
                 // Ignore these actions
                 break 2;
             default:
