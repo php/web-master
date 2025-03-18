@@ -63,6 +63,7 @@ $words_blacklist = [
 	'xanax',
 	'zanaflex',
 	'http://republika.pl',
+	'sha384-QWTKZyjpPEjISv5', // https://news-web.php.net/php.notes/221987 et.al.
 ];
 
 function check_spam_words ($text, $badwords) {
