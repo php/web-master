@@ -266,72 +266,24 @@ function is_admin($user) {
   $admins = [
     "jimw",
     "rasmus",
-    "andrei",
-    "zeev",
-    "andi",
     "sas",
-    "thies",
-    "rubys",
-    "ssb",
-    "wez",
-    "shane",
-    "sterling",
-    "goba",
-    "imajes",
-    "jon",
-    "alan_k",
     "stas",
-    "iliaa",
-    "jmcastagnetto",
     "mj",
-    "gwynne",
-    "lsmith",
-    "dsp",
     "philip",
     "davidc",
-    "helly",
     "derick",
-    "bjori",
-    "pajoye",
-    "danbrown",
-    "felipe",
-    "johannes",
-    "tyrael",
-    "salathe",
     "cmb",
     "kalle",
     "krakjoe",
-    "nikic"
+    "pollita",
+    "ilutov",
+    "bukka",
   ];
   return in_array($user, $admins);
 }
 
 function is_mirror_site_admin($user) {
-  $admins = [
-    "jimw",
-    "rasmus",
-    "andrei",
-    "zeev",
-    "andi",
-    "sas",
-    "thies",
-    "rubys",
-    "ssb",
-    "imajes",
-    "goba",
-    "derick",
-    "cortesi",
-    "wez",
-    "bjori",
-    "philip",
-    "danbrown",
-    "tyrael",
-    "dm",
-    "kalle",
-    "googleguy",
-    "nikic"
-  ];
-  return in_array($user, $admins);
+  return is_admin($user);
 }
 
 # returns false if $user is not allowed to modify $userid
