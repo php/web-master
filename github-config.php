@@ -1,0 +1,3 @@
+<?php
+define('GITHUB_CLIENT_ID', getenv('GITHUB_CLIENT_ID'));
+define('GITHUB_CLIENT_SECRET', getenv('GITHUB_CLIENT_SECRET'));
