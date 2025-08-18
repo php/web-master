@@ -49,6 +49,8 @@ pregen_flickr(
 include 'usergroups_update_infos';
 usergroups_update_infos($root);
 
+fetch_into_file("https://downloads.php.net/~windows/releases/releases.json", "$root/backend/win-releases.json");
+
 // Fetch data into a temporary file first, and then
 // overwrite the real file with the new data
 function fetch_into_file($url, $file)
