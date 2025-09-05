@@ -223,7 +223,7 @@ function user_approve(DB $pdo, $id) {
       $to = MT_USER_APPROVE_MAIL . ($cc ? ",$cc" : "");
       $subject = "Re: VCS Account Request: $userinfo[username]";
       $message = "VCS Account Approved: $userinfo[username] approved by {$_SESSION["username"]} \o/";
-      $headers = "From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>";
+      $headers = "From: PHP Group <group@php.net>\r\nIn-Reply-To: <cvs-account-$id@php.net>";
       mail($to, $subject, $message, $headers, "-fnoreply@php.net");
       warn("record $id ($userinfo[username]) approved");
       return true;
@@ -251,7 +251,7 @@ function user_remove(DB $pdo, $id) {
           : "VCS Account Rejected: $userinfo[username] rejected by {$_SESSION["username"]} /o\\";
 
       /* Notify public records */
-      mail($to, $subject, $message,"From: PHP Group <group@php.net>\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
+      mail($to, $subject, $message,"From: PHP Group <group@php.net>\r\nIn-Reply-To: <cvs-account-$id@php.net>", "-fnoreply@php.net");
       $pdo->safeQuery("DELETE FROM users_note WHERE userid=?", [$id]);
       $pdo->safeQuery("DELETE FROM users_profile WHERE userid=?", [$id]);
       warn("record $id ($userinfo[username]) removed");
