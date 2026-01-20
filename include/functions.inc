@@ -36,7 +36,6 @@ function head($title="", $config = []) {
         ["href" => "/manage/event.php",        "text" => "Events"],
         ["href" => "/manage/users.php",        "text" => "Users"],
         ["href" => "/manage/user-notes.php",   "text" => "Notes"],
-        ["href" => "/manage/github.php",       "text" => "Github"],
     ];
     $CSS = ["/styles/master.css"];
     $SEARCH = [];
