@@ -263,7 +263,7 @@ CREATE TABLE `users_profile` (
   `markdown` text NOT NULL,
   `html` text NOT NULL,
   PRIMARY KEY (`userid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
