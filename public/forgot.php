@@ -94,7 +94,7 @@ systems@php.net for help.</p>
 ?>
 <p>Forgot your <acronym title="Version Control System">VCS</acronym> password, huh? Just fill in your VCS username, and
 instructions will be sent to you on how to change your password.</p>
-<form method="post" action="<?= $_SERVER['PHP_SELF'] ?>">
+<form method="post" action="<?= hsc($_SERVER['PHP_SELF']) ?>">
  <label for="user">username:</label>
  <input type="text" id="user" name="user" value="<?php echo hsc($user)?>" />
  <input type="submit" value="send help" />

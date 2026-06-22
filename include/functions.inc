@@ -124,7 +124,7 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = [], $table = true
    <?php
      if ($begin > 0) {
        printf("<a href=\"%s?%s\">&laquo; Previous %d",
-              $_SERVER['PHP_SELF'],
+              hsc($_SERVER['PHP_SELF']),
               array_to_url($extra, ["begin" => max(0,$begin-$skip)]),
               min($skip,$begin));
      }
@@ -143,7 +143,7 @@ function show_prev_next($begin, $rows, $skip, $total, $extra = [], $table = true
    <?php
      if ($begin+$rows < $total) {
        printf("<a href=\"%s?%s\">Next %d &raquo;",
-              $_SERVER['PHP_SELF'],
+              hsc($_SERVER['PHP_SELF']),
               array_to_url($extra, ["begin" => $begin+$skip]),
               min($skip,$total-($begin+$skip)));
      }
