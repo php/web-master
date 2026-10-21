@@ -331,6 +331,11 @@ if ($payload === null) {
 }
 
 $repoName = $payload->repository->name;
+if ($payload->repository->private ?? true) {
+    echo "Not handling private repository";
+    exit();
+}
+
 switch ($event) {
     case 'ping':
         break;
