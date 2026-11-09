@@ -182,11 +182,11 @@ if ($id) {
 <tbody>
 <tr>
  <th>Name:</th>
- <td><input type="text" name="in[name]" value="<?php echo $userdata['name'];?>" size="40" maxlength="255" /></td>
+ <td><input type="text" name="in[name]" value="<?php echo hsc($userdata['name']);?>" size="40" maxlength="255" /></td>
 </tr>
 <tr>
  <th>Email:</th>
- <td><input type="text" name="in[email]" value="<?php echo $userdata['email'];?>" size="40" maxlength="255" /><br/>
+ <td><input type="text" name="in[email]" value="<?php echo hsc($userdata['email']);?>" size="40" maxlength="255" /><br/>
   	<input type="checkbox" name="in[enable]"<?php echo $userdata['enable'] ? " checked" : "";?> /> Enable email for my account.
  </td>
 </tr>
